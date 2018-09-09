@@ -1,0 +1,35 @@
+{
+
+	"calculation_device":"cpu",
+	
+	
+
+	"spark_configuration":{
+		"master":"local[*]",
+		"driver-memory":"1g",
+		"executor-memory":"1g",
+		"command-line-args":null
+	},
+
+	"core_count":"all",
+
+
+
+
+
+	"dt" : {
+		"values" : 1,
+		"unit" : "s"
+	},
+
+
+	"mass_function":"Pooley_2011",
+
+
+	"star_rng_seed":null,
+
+	"lightcurve_rng_seed":null
+
+
+
+}

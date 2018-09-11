@@ -12,12 +12,14 @@ class ResultParameters(Jsonable):
 	def __init__(self):
 		pass
 
-	def from_json(self,js):
+	@classmethod
+	def from_json(cls,js):
 		k,v = js 
 		if k == 'magmap':
-			return MagMapParameters.from_json(v)
+			return MagnificationMapParameters.from_json(v)
 		elif k == 'lightcurves':
 			return LightCurvesParameters.from_json(v)
+
 	@abstractproperty
 	def keyword(self):
 		pass
@@ -32,7 +34,7 @@ class MagnificationMapParameters(ResultParameters):
 	def resolution(self):
 		return self._resolution
 
-	@json
+	@property
 	def json(self):
 		return {'magmap_resolution' : self.resolution.json}
 

@@ -123,6 +123,8 @@ class PixelRegion(Region):
     def loc_to_pixel(self,loc:Vec2D) -> Vec2D:
         delta = loc - self.center
         pixellated = delta.to(self.dTheta.unit)/self.dTheta
+        print(pixellated)
+        print(self.resolution/2)
         shift = pixellated + self.resolution/2
         return Vec2D(int(shift.x.value),int(shift.y.value))
 

@@ -29,6 +29,10 @@ class Vec2D(Jsonable):
 		return self._quant.unit
 
 	@property
+	def unit_vector(self):
+		return self/self.magnitude
+
+	@property
 	def magnitude(self) -> u.Quantity:
 		return (self.x*self.x + self.y*self.y)**(0.5)
 

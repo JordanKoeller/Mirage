@@ -97,16 +97,16 @@ class LightCurvesParameters(ResultParameters):
 		#I subtract 0.5 to center on 0.0
 		center = region.center.to('rad')
 		dims = region.dimensions.to('rad')
-		width = dims.x
-		height = dims.y
+		width = dims.x.value
+		height = dims.y.value
 		scaled[:,0] *= width
 		scaled[:,1] *= height
 		scaled[:,2] *= width
 		scaled[:,3] *= height
-		scaled[:,0] += center.x
-		scaled[:,1] += center.y
-		scaled[:,2] += center.x
-		scaled[:,3] += center.y
+#		scaled[:,0] += center.x.value
+#		scaled[:,1] += center.y.value
+#		scaled[:,2] += center.x.value
+#		scaled[:,3] += center.y.value
 		# lines = u.Quantity(scaled,'rad')
 		slices = map(lambda line: u.Quantity(np.array(self._slice_line(line)).T,'rad'),scaled)
 		self._lines = list(slices)
@@ -125,10 +125,10 @@ class LightCurvesParameters(ResultParameters):
 		dy = resolution.value*math.sin(angle)
 		dims = region.dimensions.to('rad')
 		center = region.center.to('rad')
-		lefX = center.x - dims.x/2
-		rigX = center.x + dims.x/2
-		topY = center.y + dims.y/2 
-		botY = center.y - dims.y/2
+		lefX =  - dims.x.value/2
+		rigX =  + dims.x.value/2
+		topY =  + dims.y.value/2 
+		botY =  - dims.y.value/2
 		flag = True
 		x = x1
 		y = y1

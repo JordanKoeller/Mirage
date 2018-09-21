@@ -5,16 +5,14 @@ import os
 import sys
 
 def run_simulation(simfile,savefile):
-    infile = file[0]
-    outfile = files[1]
     from mirage.calculator import ResultCalculator
     from mirage.io import SimulationFileManager
     loader = SimulationFileManager()
-    loader.open(infile)
+    loader.open(simfile)
     sim = loader.read()
     loader.close()
     calculator = ResultCalculator()
-    engine = calculator.calculate(sim,name = outfile)
+    engine = calculator.calculate(sim,name = savefile)
     return engine
     
 

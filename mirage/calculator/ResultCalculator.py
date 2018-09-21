@@ -48,6 +48,11 @@ class ResultCalculator(object):
 			lines = simulation['lightcurves'].lines(region)
 			scaled = np.array(list(map(lambda line: line.to(params.eta_0).value,lines)))
 			ret = engine.query_points(scaled,radius)
+			# from matplotlib import pyplot as plt
+			# for line in ret[:10]:
+				# print(line)
+				# print(line.shape)
+				# plt.plot(line[:,0],line[:,1])
 			results.append(ret)
 		return results
 

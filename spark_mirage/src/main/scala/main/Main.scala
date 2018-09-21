@@ -207,6 +207,7 @@ object Main extends App {
         val pair = elem.split(":").map(_.toDouble)
         (pair.head, pair.last)
       }
+      println(queryLine.length)
       queryLine
     }
     val retArr = rddGrid.queryPoints(lightCurves, radius, sc, false)

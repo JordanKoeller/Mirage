@@ -107,7 +107,6 @@ class MicroSparkDelegate(CalculationDelegate):
 		row_delimiter = "\n"
 		col_delimiter = ","
 		file = tempfile.NamedTemporaryFile('w+',delete = False)
-		print("GET_DATA_FILE %s\n" % (file.name))
 		for i in range(data.shape[0]):
 			for j in range(len(data[i])):
 				string = str(data[i][j,0]) + ":" + str(data[i][j,1])
@@ -118,14 +117,12 @@ class MicroSparkDelegate(CalculationDelegate):
 		return file.name
 
 	def get_returned_data(self,filename):
-		print("GET_returned_data %s\n" % (filename))
 		with open(filename) as data:
 			big_string = data.read()
 			lines = big_string.split("\n")
 			elems = list(map(lambda line: line.split(","),lines))
 			nums = list(map(lambda line: list(map(lambda elem: float(elem),line)),elems))
 			ret = np.array(nums)
-			print("Found data of shape " + str(ret.shape))
 			return ret
 		# print("TBD how to get data back from spark")
 		# return [1,2,3]

@@ -26,7 +26,12 @@ def requires(dtype):
     def decorator(fn):
         def decorated(self,*args,**kwargs):
             if dtype in self.simulation:
-                index = 0#self.simulation.get_index[dtype]
+                index = 0
+                if len(self.simulation) > 1:
+                    if dtype == 'magmap':
+                        index = 0
+                    elif dtype == 'lightcurves':
+                        index = 1
                 dataset = self._fm.get_result(self.trial_number,index)
                 return fn(self,dataset,*args,**kwargs)
             else:

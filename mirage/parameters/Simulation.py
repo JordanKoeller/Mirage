@@ -34,6 +34,7 @@ class Simulation(Jsonable):
 		if trial < self.num_trials:
 			self._trial = trial
 
+
 	@property
 	def trial_variance(self):
 		return self._trial_variance
@@ -108,3 +109,6 @@ class Simulation(Jsonable):
 
 	def __contains__(self,k):
 		return k in self._results
+
+	def __len__(self):
+		return len(self._results)

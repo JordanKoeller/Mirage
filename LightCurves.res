@@ -86,14 +86,14 @@
   "results": {
     "magmap": {
       "magmap_resolution": {
-        "x": 1000,
-        "y": 1000,
+        "x": 10,
+        "y": 10,
         "unit": ""
       }
     },
     "lightcurves": {
       "seed": 123,
-      "num_curves": 200,
+      "num_curves": 20,
       "sample_density": {
         "values": 10.0,
         "unit": "1 / uas"

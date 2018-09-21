@@ -39,7 +39,7 @@ class LightCurveBatch(object):
     def __getitem__(self,ind):
         if isinstance(ind,int):
             if ind < len(self):
-                return LightCCurve(self._data[ind])
+                return self._data[ind]
             else:
                 raise IndexError("Index out of range.")
         elif isinstance(ind,slice):

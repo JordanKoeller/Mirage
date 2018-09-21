@@ -34,17 +34,17 @@ class ResultCalculator(object):
 		params = simulation.parameters
 		src_plane = params.source_plane
 		radius = params.quasar.radius.to(params.eta_0)
+		zv = zero_vector('rad')
+		pr = PixelRegion(zv,dims,resolution)
 		results = []
 		if 'magmap' in simulation:
 			resolution = simulation['magmap'].resolution
 			dims = src_plane.dimensions
-			zv = zero_vector('rad')
-			pr = PixelRegion(zv,dims,resolution)
 			pts = pr.pixels.to(params.eta_0)
 			ret = engine.query_points(pts.value,radius)
 			results.append(ret)
 		if 'lightcurves' in simulation:
-			lines = simulation['lightcurves'].lines(src_plane)
+			lines = simulation['lightcurves'].lines(pr)
 			scaled = np.array(list(map(lambda line: line.to(params.eta_0).value,lines)))
 			ret = engine.query_points(scaled,radius)
 			results.append(ret)

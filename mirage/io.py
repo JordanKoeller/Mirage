@@ -189,7 +189,7 @@ class ResultFileManager(FileManager):
 
 
 
-class FITSFileWriter(FileManager):
+class FITSFileManager(FileManager):
 	'''
 	classdocs
 	'''

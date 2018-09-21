@@ -30,7 +30,8 @@ class MagnificationMapView:
 
 	def on_press(self, event):
 		'on button press we will see if the mouse is over us and store some data'
-		if event.inaxes != self.axes: return
+		print(event.button)
+		if event.inaxes != self.axes or event.button != 3: return
 
 		canvas = self.figure.canvas
 		self.line.set_xdata([0,0])
@@ -45,7 +46,7 @@ class MagnificationMapView:
 	def on_motion(self, event):
 		'on motion we will move the rect if the mouse is over us'
 		if self.press is None: return
-		if event.inaxes != self.axes: return
+		if event.inaxes != self.axes or event.button != 3: return
 		xpress, ypress = self.press
 		self.line.set_xdata([xpress,event.xdata])
 		self.line.set_ydata([ypress,event.ydata])
@@ -55,6 +56,7 @@ class MagnificationMapView:
 
 	def on_release(self, event):
 		'on release we reset the press data'
+		if event.button != 3: return
 		start = self.press
 		end = event.xdata, event.ydata
 		print("From " + str(start) +" to " + str(end))

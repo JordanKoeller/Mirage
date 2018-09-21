@@ -12,7 +12,6 @@ class MagnificationMap(object):
 		theta_E = simulation.parameters.theta_E
 		r = simulation['magmap'].resolution
 		self._source_plane = PixelRegion(zero_vector(theta_E),sp.dimensions.to(theta_E),r)
-		# self._simulation = simulation#Simulation.from_json(simulation.json)
 		self._data = data
 
 	@property
@@ -36,3 +35,28 @@ class MagnificationMap(object):
 			y = int(loc.y.value)
 			ret[i] = self.data[x,y]
 		return ret
+
+	def export(filename,fmt='fits',**kwargs):
+		'''
+		Saves the magnification map image to the specified file.
+		
+		Parameters:
+		
+		`filename` (:class:`str`): Name of the file to save the map to.
+		`fmt` (:class:`str`): File format to use. Options include `fits`, `png`, `jpeg`. Note that with `fits`, a default header
+		is also included, describing the map. Default option is `fits`.
+		If additional keyword arguments are supplied and `fmt` is `fits`, then the extra arguments will be converted to strings
+		and saved in the `fits` header.
+		'''
+
+		if fmt == 'fits':
+			from mirage.io import FITSFileManager
+			fm = FITSFileManager()
+			fm.open(filename+'.'+fmt)
+			# headers = {''}
+			fm.write(self.data,**kwargs)
+			fm.close()
+			return "Magmap saved to " + filename + '.' + fmt
+		else:
+			print("NEED TO DECIDE WHAT TO DO IF NOT SAVING TO FITS")
+

@@ -5,7 +5,7 @@ class ResultCalculator(object):
 	def __init__(self):
 		pass
 
-	def run_simulations(self,simulation,name=None):
+	def calculate(self,simulation,name=None):
 		from mirage.engine import getCalculationEngine
 		from mirage.io import ResultFileManager
 		#initialize the filemanager
@@ -17,9 +17,10 @@ class ResultCalculator(object):
 		num_trials = simulation.num_trials
 		for trial_number in range(num_trials):
 			filemanager.next_trial()
-			params = simulation.parameters(trial_number)
+			simulation.set_trial(trial_number)
+			params = simulation.parameters
 			engine.update_parameters(params)
-			results = self.calculate_trial(simulation, engine,trial_number)
+			results = self.calculate_trial(simulation, engine)
 			for result in results:
 				filemanager.write(result)
 		filemanager.close_simulation(simulation)
@@ -27,8 +28,8 @@ class ResultCalculator(object):
 		return engine
 
 
-	def calculate_trial(self,simulation,engine,trial_number):
-		params = simulation.parameters(trial_number)
+	def calculate_trial(self,simulation,engine):
+		params = simulation.parameters
 		src_plane = params.source_plane
 		radius = params.quasar.radius.to(params.eta_0)
 		results = []

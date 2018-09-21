@@ -3,6 +3,7 @@ from astropy import units as u
 
 from mirage import io
 from .Result import *
+from .MagnificationMap import MagnificationMap
 
 def load_simulation(filename):
 	from mirage.io import SimulationFileManager
@@ -12,6 +13,28 @@ def load_simulation(filename):
 	fm.close()
 	return ret
 
-def load_result(filename):
+
+def load(filename,trial_number=None):
+	from mirage.io import ResultFileManager
+	fm = ResultFileManager()
+	fm.open(filename)
+	sim = fm.read()
+	result = Result(fm,sim)
+	if trial_number != None:
+		trial = result[trial_number]
+		return trial 
+	elif sim.num_trials == 1:
+		trial = result[0]
+		return trial
+	else:
+		return result
+
+def show_map(filename,trial_number=0):
+	trial = load(filename,trial_number)
+	view = MagnificationMapView(filename)
+	view.display(trial.magmap)
+	return (view,trial)
+
+# def load_result(filename):
 
 

@@ -5,18 +5,18 @@ import os
 import sys
 
 def run_simulation(simfile,savefile):
-	infile = file[0]
-	outfile = files[1]
-	from mirage.calculator import ResultCalculator
-	from mirage.io import SimulationFileManager
-	loader = SimulationFileManager()
-	loader.open(infile)
-	sim = loader.read()
-	loader.close()
-	calculator = ResultCalculator()
-	engine = calculator.calculate(sim,name = outfile)
-	return engine
-	
+    infile = file[0]
+    outfile = files[1]
+    from mirage.calculator import ResultCalculator
+    from mirage.io import SimulationFileManager
+    loader = SimulationFileManager()
+    loader.open(infile)
+    sim = loader.read()
+    loader.close()
+    calculator = ResultCalculator()
+    engine = calculator.calculate(sim,name = outfile)
+    return engine
+    
 
 
 if __name__ == "__main__":
@@ -34,9 +34,9 @@ if __name__ == "__main__":
     if args.log:
         logging.basicConfig(filename=args.log[0],level=logging.INFO)
     if args.run:
-    	simfile = args.run[0]
-    	savefile = args.outfile[0]
+        simfile = args.run[0]
+        savefile = args.outfile[0]
         run_simulation(simfile,savefile)
         endtime = DT.now()
     else:
-    	print("Did not specify a command.")
+        print("Did not specify a command.")

@@ -6,8 +6,8 @@
 
 	"spark_configuration":{
 		"master":"local[*]",
-		"driver-memory":"1g",
-		"executor-memory":"1g",
+		"driver-memory":"4g",
+		"executor-memory":"4g",
 		"command-line-args":null
 	},
 

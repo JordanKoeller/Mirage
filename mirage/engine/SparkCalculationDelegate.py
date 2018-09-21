@@ -79,6 +79,7 @@ class MicroSparkDelegate(CalculationDelegate):
 		pass
 
 	def query_points(self,points:np.ndarray, radius:u.Quantity) -> np.ndarray:
+		print("Querying")
 		query_point_file = self.get_data_file(points)
 		query_radius = radius.value
 		jrdd = self._spark_context.emptyRDD()._jrdd
@@ -107,8 +108,8 @@ class MicroSparkDelegate(CalculationDelegate):
 		col_delimiter = ","
 		file = tempfile.NamedTemporaryFile('w+',delete = False)
 		for i in range(data.shape[0]):
-			for j in range(data.shape[1]):
-				string = str(data[i,j,0]) + ":" + str(data[i,j,1])
+			for j in range(len(data[i])):
+				string = str(data[i][j,0]) + ":" + str(data[i][j,1])
 				file.write(string + col_delimiter)
 			file.seek(file.tell()-1)
 			file.write(row_delimiter)

@@ -131,7 +131,6 @@ class ResultFileManager(FileManager):
 		self._tmpfile = tempfile.TemporaryFile()
 
 	def write(self,result):
-		print(result)
 		self._lookup[-1].append(self._tmpfile.tell())
 		np.save(self._tmpfile,result)
 
@@ -143,6 +142,7 @@ class ResultFileManager(FileManager):
 		self._pfw.open(self._filename)
 		self._pfw.write(simulation)
 		file = self._pfw.file
+		print(self._filename)
 		param_end = file.tell()
 		np.save(file,lookup_np)
 		# lookup_start = file.tell()

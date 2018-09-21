@@ -1,3 +1,5 @@
+import numpy as np
+
 from mirage.util import zero_vector,PixelRegion
 
 class ResultCalculator(object):
@@ -43,7 +45,7 @@ class ResultCalculator(object):
 			results.append(ret)
 		if 'lightcurves' in simulation:
 			lines = simulation['lightcurves'].lines(src_plane)
-			scaled = list(map(lambda line: line.to(params.eta_0).value,lines))
+			scaled = np.array(list(map(lambda line: line.to(params.eta_0).value,lines)))
 			ret = engine.query_points(scaled,radius)
 			results.append(ret)
 		return results

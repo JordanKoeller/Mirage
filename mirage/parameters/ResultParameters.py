@@ -108,7 +108,7 @@ class LightCurvesParameters(ResultParameters):
 #		scaled[:,2] += center.x.value
 #		scaled[:,3] += center.y.value
 		# lines = u.Quantity(scaled,'rad')
-		slices = map(lambda line: u.Quantity(np.array(self._slice_line(line)).T,'rad'),scaled)
+		slices = map(lambda line: u.Quantity(np.array(self._slice_line(line,region)).T,'rad'),scaled)
 		self._lines = list(slices)
 		return self._lines
 
@@ -120,7 +120,7 @@ class LightCurvesParameters(ResultParameters):
 		x1,y1,x2,y2 = pts
 		m = (y2 - y1)/(x2 - x1)
 		angle = math.atan(m)
-		resolution = (self.sample_density)**(-1).to('rad')
+		resolution = ((self.sample_density)**(-1)).to('rad')
 		dx = resolution.value*math.cos(angle)
 		dy = resolution.value*math.sin(angle)
 		dims = region.dimensions.to('rad')

@@ -4,6 +4,7 @@ from astropy import units as u
 from mirage import io
 from .Result import *
 from .MagnificationMap import MagnificationMap
+from .LightCurves import *
 
 def load_simulation(filename):
 	from mirage.io import SimulationFileManager

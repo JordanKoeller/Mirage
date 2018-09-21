@@ -18,8 +18,8 @@ from mirage.util import Vec2D, zero_vector
 class LightCurveBatch(object):
 
 
-    def __init__(self,lightcurve_array):
-        self._data = lightcurve_array
+    def __init__(self,data):
+        self._data = data
 
     def plottables(self,unit='uas'):
         for curve in self:
@@ -39,7 +39,7 @@ class LightCurveBatch(object):
     def __getitem__(self,ind):
         if isinstance(ind,int):
             if ind < len(self):
-                return self._data[ind]
+                return LightCCurve(self._data[ind])
             else:
                 raise IndexError("Index out of range.")
         elif isinstance(ind,slice):

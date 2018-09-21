@@ -1,6 +1,6 @@
 import numpy as np
 
-from mirage.util import zero_vector,PixelRegion
+from mirage.util import zero_vector,PixelRegion, Region
 
 class ResultCalculator(object):
 
@@ -34,17 +34,18 @@ class ResultCalculator(object):
 		params = simulation.parameters
 		src_plane = params.source_plane
 		radius = params.quasar.radius.to(params.eta_0)
+		dims = src_plane.dimensions
 		zv = zero_vector('rad')
-		pr = PixelRegion(zv,dims,resolution)
 		results = []
 		if 'magmap' in simulation:
 			resolution = simulation['magmap'].resolution
-			dims = src_plane.dimensions
 			pts = pr.pixels.to(params.eta_0)
+			pr = PixelRegion(zv,dims,resolution)
 			ret = engine.query_points(pts.value,radius)
 			results.append(ret)
 		if 'lightcurves' in simulation:
-			lines = simulation['lightcurves'].lines(pr)
+			region = Region(zv,dims)
+			lines = simulation['lightcurves'].lines(region)
 			scaled = np.array(list(map(lambda line: line.to(params.eta_0).value,lines)))
 			ret = engine.query_points(scaled,radius)
 			results.append(ret)

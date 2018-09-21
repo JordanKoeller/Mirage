@@ -84,7 +84,7 @@ class MicroSparkDelegate(CalculationDelegate):
 		query_radius = radius.value
 		jrdd = self._spark_context.emptyRDD()._jrdd
 		file = tempfile.NamedTemporaryFile('w+',delete = False)
-		file.close()
+		# file.close()
 		self.spark_context._jvm.main.Main.setFile(file.name)
 		self.spark_context._jvm.main.Main.sampleLightCurves(query_point_file,query_radius,jrdd)
 		returned_data = self.get_returned_data(file.name)
@@ -107,6 +107,7 @@ class MicroSparkDelegate(CalculationDelegate):
 		row_delimiter = "\n"
 		col_delimiter = ","
 		file = tempfile.NamedTemporaryFile('w+',delete = False)
+		print("GET_DATA_FILE %s\n" % (file.name))
 		for i in range(data.shape[0]):
 			for j in range(len(data[i])):
 				string = str(data[i][j,0]) + ":" + str(data[i][j,1])
@@ -117,6 +118,7 @@ class MicroSparkDelegate(CalculationDelegate):
 		return file.name
 
 	def get_returned_data(self,filename):
+		print("GET_returned_data %s\n" % (filename))
 		with open(filename) as data:
 			big_string = data.read()
 			lines = big_string.split("\n")

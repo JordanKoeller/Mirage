@@ -39,8 +39,8 @@ class ResultCalculator(object):
 		results = []
 		if 'magmap' in simulation:
 			resolution = simulation['magmap'].resolution
-			pts = pr.pixels.to(params.eta_0)
 			pr = PixelRegion(zv,dims,resolution)
+			pts = pr.pixels.to(params.eta_0)
 			ret = engine.query_points(pts.value,radius)
 			results.append(ret)
 		if 'lightcurves' in simulation:

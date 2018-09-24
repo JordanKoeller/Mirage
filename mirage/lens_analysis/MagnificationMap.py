@@ -16,25 +16,27 @@ class MagnificationMap(object):
 
 	@property
 	def data(self):
-		return self._data
+		return np.log10(self._data)
 
 	@property	
 	def region(self):
 		return self._source_plane
 
 	def slice_line(self,start,end):
-		start = self.region.loc_to_pixel(start)
-		end = self.region.loc_to_pixel(end)
-		delta = (end - start)
-		length = int(delta.magnitude.value)
-		unit_vec = (end - start).unit_vector
-		ret = np.ndarray((length))
-		for i in range(length):
-			loc = start + unit_vec * i
-			x = int(loc.x.value)
-			y = int(loc.y.value)
-			ret[i] = self.data[x,y]
-		return ret
+		from mirage.calculator import arbitrary_slice_axis
+		return arbitrary_slice_axis(start,end,self.region,self.data)
+		# start = self.region.loc_to_pixel(start)
+		# end = self.region.loc_to_pixel(end)
+		# delta = (end - start)
+		# length = int(delta.magnitude.value)
+		# unit_vec = (end - start).unit_vector
+		# ret = np.ndarray((length))
+		# for i in range(length):
+		# 	loc = start + unit_vec * i
+		# 	x = int(loc.x.value)
+		# 	y = int(loc.y.value)
+		# 	ret[i] = self.data[x,y]
+		# return ret
 
 	def export(filename,fmt='fits',**kwargs):
 		'''

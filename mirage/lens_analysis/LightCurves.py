@@ -18,8 +18,12 @@ from mirage.util import Vec2D, zero_vector
 class LightCurveBatch(object):
 
 
-    def __init__(self,data):
-        self._data = data
+    def __init__(self,data,qpts):
+        if isinstance(data,list):
+            self._data = np.array(data)
+        else:
+            self._data = data
+        self._qpts = np.array(qpts)
 
     def plottables(self,unit='uas'):
         for curve in self:
@@ -28,8 +32,8 @@ class LightCurveBatch(object):
     def smooth_with_window(self,window:int):
         data = []
         for curve in self:
-            data.append(curve.smooth_with_window(window))
-        return LightCurveBatch(data)
+            data.append(curve.smooth_with_window(window).curve)
+        return LightCurveBatch(data,self._qpts)
 
     def __add__(self,other):
         assert isinstance(other,LightCurveBatch)
@@ -39,11 +43,13 @@ class LightCurveBatch(object):
     def __getitem__(self,ind):
         if isinstance(ind,int):
             if ind < len(self):
-                return self._data[ind]
+                sample = np.array(self._data[ind])
+                q = np.array(self._qpts[ind])
+                return LightCurve(sample,q)
             else:
                 raise IndexError("Index out of range.")
         elif isinstance(ind,slice):
-            return LightCurveBatch(self._data[ind])
+            return LightCurveBatch(self._data[ind],self._qpts[ind])
         else:
             raise ValueError("Could not understand ind as an index or slice.")
 
@@ -58,7 +64,7 @@ class LightCurve(object):
 
 
     def __init__(self,data,query_points):
-        self._data = data.flatten()
+        self._data = np.array(data)
         start = query_points[0]
         end = query_points[-1]
         self._start = Vec2D(start[0],start[1],'rad')
@@ -68,8 +74,14 @@ class LightCurve(object):
         return len(self._data)
 
     def get_slices(self,slices):
-        ret = list(map(lambda slice_object: self[slice_object],slices))
+        ret1 = list(map(lambda slice_object: self[slice_object],slices))
+        ret2 = list(map(lambda slice_object: self.query_points.value[slice_object],slices))
         return LightCurveBatch(ret)
+
+    @property
+    def ends(self):
+        return (self._start,self._end)
+    
 
     @property
     def curve(self):
@@ -141,6 +153,22 @@ class LightCurve(object):
             lc = LightCurveSlice(slice_y,slice_x,start,end,self)
             ret.append(lc)
         return LightCurveBatch(ret)
+
+    def smooth_with_window(self,window:int):
+        data = self._data.copy()
+        data = wiener(data,window)
+        return LightCurve(data,self.query_points)
+
+
+    def __getitem__(self,given):
+        if isinstance(given,slice):
+            qpts = self.query_points
+            start,stop = (given.start,given.stop)
+            return LightCurveSlice(self.curve[given],qpts[given],start,stop,self)
+        elif isinstance(given,int):
+            return (self.curve[given],self.query_points[given])
+        else:
+            raise TypeError("Must give a valid slice object")
 
 
 

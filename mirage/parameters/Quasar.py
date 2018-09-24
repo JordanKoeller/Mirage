@@ -62,3 +62,11 @@ class Quasar(Jsonable, Cosmic, CalculationDependency):
 
 	def is_similar(self,other:'Quasar') -> bool:
 		return self.redshift == other.redshift
+
+	def update(self,radius=None,mass=None,redshift=None):
+		if radius != None:
+			self._radius = radius
+		if mass != None:
+			self._mass = mass
+		# if redshift != None:
+		# 	self._redshift = redshift

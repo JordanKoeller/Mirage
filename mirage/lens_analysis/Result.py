@@ -72,7 +72,8 @@ class Trial(object):
     @requires('lightcurves')
     def lightcurves(self,dataset):
         from mirage.lens_analysis import LightCurveBatch
-        return LightCurveBatch(dataset)
+        qpts = self.simulation['lightcurves'].lines(self.simulation.parameters.source_plane)
+        return LightCurveBatch(dataset,qpts)
     
 
     

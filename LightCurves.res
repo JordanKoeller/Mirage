@@ -1,8 +1,8 @@
 {
   "name": "Test Simulation",
   "description": "This is a test.",
-  "trial_count": 1,
-  "variation": "",
+  "trial_count": 20,
+  "variation": "new_parameters = old_parameters\narr = np.linspace(5,40,20)\nnew_parameters.quasar.update(radius=arr[trial_number]*new_parameters.quasar.r_g)",
   "parameters": {
     "lens": {
       "ellipticity": {

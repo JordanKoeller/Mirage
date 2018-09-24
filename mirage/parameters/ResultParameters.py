@@ -108,8 +108,9 @@ class LightCurvesParameters(ResultParameters):
 #		scaled[:,2] += center.x.value
 #		scaled[:,3] += center.y.value
 		# lines = u.Quantity(scaled,'rad')
-		slices = map(lambda line: u.Quantity(np.array(self._slice_line(line,region)).T,'rad'),scaled)
-		self._lines = list(slices)
+		from mirage.calculator import interpolate
+		# slices = map(lambd/a line: u.Quantity(np.array(self._slice_line(line,region)).T,'rad'),scaled)
+		self._lines = interpolate(region,scaled,self.sample_density)
 		return self._lines
 
 

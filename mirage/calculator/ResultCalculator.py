@@ -15,11 +15,11 @@ class ResultCalculator(object):
 		fname = simulation.name + filemanager.extension
 		filemanager.open(fname)
 		#Start calculating
+		engine = getCalculationEngine()
 		simulation.set_trial(0)
 		print("ERROR: NEEDS TO DETERMINE IF RECONFIGURING NECESSARY")
 		params = simulation.parameters
 		engine.update_parameters(params)
-		engine = getCalculationEngine()
 		num_trials = simulation.num_trials
 		for trial_number in range(num_trials):
 			filemanager.next_trial()

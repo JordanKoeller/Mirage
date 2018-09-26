@@ -132,7 +132,7 @@ class MicrolensingParameters(Parameters):
 		star_generator:MassFunction = getMassFunction()):
 		try:
 			print("NOTE: Need to specify the factor for going from source plane to ray plane.")
-			factor = 1.2
+			factor = 2
 			tmp_p = Parameters(quasar,lens)
 			conv = tmp_p.convergence(image_center)
 			shear = tmp_p.shear(image_center)

@@ -31,8 +31,8 @@ def _get_spark_context():
 
 class MicroSparkDelegate(CalculationDelegate):
 
-	def __init__(self,spark_context = _get_spark_context()):
-		self._spark_context = spark_context
+	def __init__(self,spark_context = None):
+		self._spark_context = spark_context or _get_spark_context()
 
 	@property
 	def spark_context(self):

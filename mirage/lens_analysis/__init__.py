@@ -1,7 +1,6 @@
 import numpy as np
 from astropy import units as u
 
-from mirage import io
 from .Result import Result, Trial
 from .MagnificationMap import MagnificationMap
 from .LightCurves import LightCurveBatch, LightCurve, LightCurveSlice, \
@@ -24,7 +23,7 @@ def load(filename,trial_number=None):
 	fm.open(filename)
 	sim = fm.read()
 	result = Result(fm,sim)
-	if trial_number != None:
+	if trial_number is not None:
 		trial = result[trial_number]
 		return trial 
 	elif sim.num_trials == 1:
@@ -33,11 +32,15 @@ def load(filename,trial_number=None):
 	else:
 		return result
 
-def show_map(filename,trial_number=0):
-	trial = load(filename,trial_number)
-	view = MagnificationMapView(filename)
+def show_map(data,trial_number=0):
+	from mirage.views import MagnificationMapView
+	if isinstance(data,Trial):
+		trial = data
+	else:
+		trial = load(data,trial_number)
+	view = MagnificationMapView(trial.simulation.name)
 	view.display(trial.magmap)
-	return (view,trial)
+	return view,trial
 
 # def load_result(filename):
 

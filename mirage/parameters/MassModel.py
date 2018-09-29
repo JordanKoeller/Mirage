@@ -1,7 +1,5 @@
 from astropy import units as u
-from astropy import constants as const
-
-from mirage.util import Jsonable, Vec2D, PolarVec
+from mirage.util import Jsonable, PolarVec
 
 from .Cosmic import Cosmic
 from .CalculationDependency import CalculationDependency

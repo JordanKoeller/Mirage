@@ -1,6 +1,8 @@
 # import matplotlib.style as mplstyle
 # mplstyle.use(['dark_background','fast'])
 
+from .MagmapView import MagnificationMapView
+
 
 def run_example_rect():
 	import numpy as np

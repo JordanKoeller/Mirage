@@ -64,7 +64,6 @@ class Simulation(Jsonable):
 	@property 
 	def parameters(self) -> MicrolensingParameters:
 		if self.trial_variance:
-			print("With variance of %d" % self.trial_number)
 			nspace = {}
 			try:
 				exec(self.trial_variance,{'old_parameters':self.original_parameters,'trial_number':self.trial_number,'u':u,'np':np,'copy':copy,'math':math},nspace)

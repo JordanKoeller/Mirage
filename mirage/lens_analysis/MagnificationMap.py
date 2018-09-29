@@ -1,7 +1,6 @@
 import numpy as np
 
-from mirage.parameters import MagnificationMapParameters
-from mirage.parameters import Simulation
+
 from mirage.util import PixelRegion, zero_vector
 
 
@@ -25,20 +24,9 @@ class MagnificationMap(object):
 	def slice_line(self,start,end):
 		from mirage.calculator import arbitrary_slice_axis
 		return arbitrary_slice_axis(start,end,self.region,self.data)
-		# start = self.region.loc_to_pixel(start)
-		# end = self.region.loc_to_pixel(end)
-		# delta = (end - start)
-		# length = int(delta.magnitude.value)
-		# unit_vec = (end - start).unit_vector
-		# ret = np.ndarray((length))
-		# for i in range(length):
-		# 	loc = start + unit_vec * i
-		# 	x = int(loc.x.value)
-		# 	y = int(loc.y.value)
-		# 	ret[i] = self.data[x,y]
-		# return ret
 
-	def export(filename,fmt='fits',**kwargs):
+
+	def export(self,filename,fmt='fits',**kwargs):
 		'''
 		Saves the magnification map image to the specified file.
 		

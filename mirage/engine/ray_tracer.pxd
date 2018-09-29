@@ -10,3 +10,5 @@ cpdef ray_trace(np.ndarray[np.float64_t, ndim=3] rays,
 	double el_angle,
 	double b,
 	int thread_count)
+
+cpdef int raw_brightness(object parameters)

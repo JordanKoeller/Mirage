@@ -3,10 +3,8 @@
 
 from libc.math cimport sin, cos, atan2, sqrt ,atan, atanh, pi
 from libcpp.pair cimport pair
-from libcpp.vector cimport vector
-from numpy cimport int32_t, float64_t, ndarray
+# from numpy cimport int32_t, float64_t, ndarray
 
-import cython
 from cython.parallel import prange
 
 cdef pair[double,double] ray_trace_helper(double &x,
@@ -47,6 +45,65 @@ cdef pair[double,double] ray_trace_helper(double &x,
     res_x = x - res_x
     res_y = y - res_y
     return pair[double,double](res_x,res_y)
+
+cdef pair[double,double] micro_ray_helper(double &conv,
+                                          double &sMin,
+                                          double &sMax,
+                                          double &x,
+                                          double &y) nogil:
+    cdef double ret_x = sMin*x - conv*x
+    cdef double ret_y = sMax*y - conv*y
+    return pair[double,double](ret_x,ret_y)
+
+cpdef int raw_brightness(object parameters):
+    center = parameters.ray_region.center
+    cdef:
+        double conv = parameters.convergence(center)
+        double shear = parameters.shear(center)
+        double dx = parameters.ray_region.dTheta.x.to(parameters.xi_0).value
+        double dy = parameters.ray_region.dTheta.y.to(parameters.xi_0).value
+        double radius = parameters.quasar.radius.to(parameters.eta_0).value
+        double gMax = 1.0 + shear
+        double gMin = 1.0 - shear
+        pair[double,double] ray
+        double qx, qy
+        int flag = 1, i, j, counter = 1
+        int level = 1
+    with nogil:
+        while flag == 1:
+            flag = 0
+            qx = -dx*level
+            for i in range(-level,level):
+                qy = i*dy
+                ray = micro_ray_helper(conv,gMin,gMax,qx,qy)
+                if ray.first*ray.first+ray.second*ray.second < radius:
+                    flag = 1
+                    counter += 1
+            qx = dx*level
+            for i in range(-level,level):
+                qy = i*dy
+                ray = micro_ray_helper(conv,gMin,gMax,qx,qy)
+                if ray.first*ray.first+ray.second*ray.second < radius:
+                    flag = 1
+                    counter += 1
+            qy = -dy*level
+            for i in range(-level+1,level-1):
+                qx = i*dx
+                ray = micro_ray_helper(conv,gMin,gMax,qx,qy)
+                if ray.first*ray.first+ray.second*ray.second < radius:
+                    flag = 1
+                    counter += 1
+            qy = dy*level
+            for i in range(-level+1,level-1):
+                qx = i*dx
+                ray = micro_ray_helper(conv,gMin,gMax,qx,qy)
+                if ray.first*ray.first+ray.second*ray.second < radius:
+                    flag = 1
+                    counter += 1
+            level += 1
+    return counter
+
+
 
 
 cpdef ray_trace(np.ndarray[np.float64_t, ndim=3] rays,

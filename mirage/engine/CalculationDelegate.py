@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 
 from scipy.spatial import cKDTree
 from astropy import units as u
@@ -26,25 +26,15 @@ class CalculationDelegate(ABC):
 		pass
 
 
-	# @abstractmethod
-	# def get_ray_count(self,location:Vec2D, radius:u.Quantity) -> int:
-	# 	pass
-
-	# @abstractmethod
-	# def query_points(self,points:np.ndarray, radius:u.Quantity) -> np.ndarray:
-	# 	pass
 
 class MacroCPUDelegate(CalculationDelegate):
 
 	def __init__(self):
-		# from mirage import GlobalPreferences
-		# self.core_count = GlobalPreferences['core_count']
 		self._tree = None
 
 	def reconfigure(self,parameters:Parameters):
 		from mirage.engine.ray_tracer import ray_trace
 		rays = parameters.ray_region.pixels.to('rad').value
-		print(rays)
 		print("Starting rays")
 		src_plane = ray_trace(rays,
 			parameters.dL.to('m').value,

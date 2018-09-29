@@ -12,3 +12,7 @@ class CalculationDependency(ABC):
 	@abstractmethod
 	def is_similar(self,other:'CalculationDependency') -> bool:
 		pass
+
+	# @abstractmethod
+	# def update(self,*args,**kwargs) -> None:
+	# 	pass

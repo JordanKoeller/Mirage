@@ -60,7 +60,7 @@ class Trial(object):
 
     @property
     def parameters(self):
-        return self.simulation.parameters(self._index)
+        return self.simulation.parameters
 
     @property
     @requires('magmap')

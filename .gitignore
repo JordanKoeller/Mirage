@@ -194,3 +194,7 @@ project/plugins/project/
 *.mypy_cache*
 /spark_mirage/target/*
 
+
+#OTher files:
+/data/*
+/venv/*

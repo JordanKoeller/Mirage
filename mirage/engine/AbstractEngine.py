@@ -24,7 +24,7 @@ class EngineHandler(object):
 
     def query_points(self,*args,**kwargs):
         ret = self.calculation_delegate.query_points(*args,**kwargs)
-        rb = self.parameters.raw_brightness
+        rb = self._parameters.raw_brightness
         if ret.dtype == object:
             for i in range(ret.shape[0]):
                 ret[i] = ret[i]/rb

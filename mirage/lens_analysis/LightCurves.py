@@ -19,11 +19,14 @@ class LightCurveBatch(object):
 
 
     def __init__(self,data,qpts):
-        if isinstance(data,list):
+        if isinstance(data,list) and isinstance(data[0],np.ndarray):
+            self._data = []
+            for i in range(len(data)):
+                self._data.append(LightCurve(data[i],qpts[i]))
             self._data = np.array(data)
         else:
             self._data = data
-        self._qpts = np.array(qpts)
+        # self._qpts = np.array(qpts)
 
     def plottables(self,unit='uas'):
         for curve in self:
@@ -76,11 +79,11 @@ class LightCurve(object):
     def get_slices(self,slices):
         ret1 = list(map(lambda slice_object: self[slice_object],slices))
         ret2 = list(map(lambda slice_object: self.query_points.value[slice_object],slices))
-        return LightCurveBatch(ret)
+        return LightCurveBatch(ret1,ret2)
 
     @property
     def ends(self):
-        return (self._start,self._end)
+        return self._start,self._end
     
 
     @property
@@ -144,7 +147,6 @@ class LightCurve(object):
         stitch_length=u.Quantity(1000000,'uas'),
         min_height=1.2):
         slice_list = self.get_event_slice_points(tolerance,smoothing_window,max_length,stitch_length,min_height)
-        ret = []
         curve = self.curve
         qpts = self.query_points
         for start,end in slice_list:

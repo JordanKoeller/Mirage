@@ -52,18 +52,18 @@ object Main extends App {
         width,
         height)
     val broadParams = sc.broadcast(parameters)
-    val lensPlane = tracer.lensPlane(pixels,broadParams).collect()
-    filename = "lensplane_x"
-    writeFile(Array(lensPlane.map(_._1.toInt)))
-    filename = "lensplane_y"
-    writeFile(Array(lensPlane.map(_._2.toInt)))
+//    val lensPlane = tracer.lensPlane(pixels,broadParams).collect()
+//    filename = "lensplane_x"
+//    writeFile(Array(lensPlane.map(_._1.toInt)))
+//    filename = "lensplane_y"
+//    writeFile(Array(lensPlane.map(_._2.toInt)))
     val srcPlane = tracer(pixels,broadParams)
-    val pix = srcPlane.collect()
-    filename = "srcplane_x"
-    writeFile(Array(pix.map(_._1.toInt)))
-    filename = "srcplane_y"
-    writeFile(Array(pix.map(_._2.toInt)))
-    println("Done making temp files")
+//    val pix = srcPlane.collect()
+//    filename = "srcplane_x"
+//    writeFile(Array(pix.map(_._1.toInt)))
+//    filename = "srcplane_y"
+//    writeFile(Array(pix.map(_._2.toInt)))
+//    println("Done making temp files")
 
     val partitioner = new BalancedColumnPartitioner()
     rddGrid = RDDGrid(srcPlane,partitioner)

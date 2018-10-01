@@ -86,7 +86,7 @@ class StationaryMassFunction(MassFunction):
 
 
 def getMassFunction() -> MassFunction:
-	from .InitialMassFunction import Kroupa_2001, Kroupa_2001_Modified, Weidner_Kroupa_2004
+	from .InitialMassFunction import Kroupa_2001
 	seed = 123
 	print("NEED to fix GETMASSFUNCTION")
 	return StationaryMassFunction(Kroupa_2001(),seed)

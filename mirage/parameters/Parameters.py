@@ -29,12 +29,16 @@ class Parameters(Jsonable, CalculationDependency):
 
     @staticmethod
     def static_theta_E(z_s,z_l):
+        print(z_s)
+        print(z_l)
         dS = Cosmic.cosmology.angular_diameter_distance(z_s)
         dL = Cosmic.cosmology.angular_diameter_distance(z_l)
         dLS = Cosmic.cosmology.angular_diameter_distance_z1z2(z_l,z_s)
         Msun = 1*u.solMass
         tmp = (4*const.G*Msun/const.c/const.c)*(dL*dLS/dS)
         ret = (tmp**0.5/dL).to('').value
+        print("Printing static called")
+        print(ret)
         return u.def_unit('theta_E',ret*u.rad)
 
     @property
@@ -82,6 +86,7 @@ class Parameters(Jsonable, CalculationDependency):
 
     @property
     def theta_E(self):
+        print("Calling from parameters instance now. Next will print that version")
         return Parameters.static_theta_E(self.quasar.redshift,self.lens.redshift)
 
     @property
@@ -136,7 +141,7 @@ class Parameters(Jsonable, CalculationDependency):
     @classmethod
     def from_json(cls,js:'Dict') -> 'Parameters':
         z_s = js['source']['redshift']
-        z_l = js['source']['redshift']
+        z_l = js['lens']['redshift']
         mass = Jsonable.decode_quantity(js['source']['mass'])
         te = Parameters.static_theta_E(z_s,z_l)
         rg = Quasar.static_r_g(mass,z_s)
@@ -241,6 +246,7 @@ class MicrolensingParameters(Parameters):
     @classmethod
     def from_json(cls,js):
         params = Parameters.from_json(js)
+        print("FromJson of %s" % str(params.quasar.r_g))
         with u.add_enabled_units([params.quasar.r_g, params.theta_E]):
             sg = StationaryMassFunction.from_json(js['star_generator'])
             pcnts = js['percent_stars']

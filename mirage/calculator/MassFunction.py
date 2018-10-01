@@ -17,7 +17,7 @@ class MassFunction(Jsonable):
 		self._IMF.set_seed(seed)
 		self._stars = np.array([])
 
-	def is_similar(sel,other) -> bool:
+	def is_similar(self,other) -> bool:
 		return self.json == other.json
 
 	@property
@@ -74,6 +74,7 @@ class StationaryMassFunction(MassFunction):
 			masses = self._IMF.generate_cluster(total_mass.to('solMass').value)
 			ret_arr = np.ndarray((len(masses),3))
 			rng = self._IMF.random_number_generator
+			# return rng.get_state()
 			locs = region.random_sample(len(masses),rng)
 			ret_arr[:,0] = locs[:,0].value
 			ret_arr[:,1] = locs[:,1].value
@@ -87,9 +88,10 @@ class StationaryMassFunction(MassFunction):
 def getMassFunction() -> MassFunction:
 	from .InitialMassFunction import Kroupa_2001, Kroupa_2001_Modified, Weidner_Kroupa_2004
 	seed = 123
+	print("NEED to fix GETMASSFUNCTION")
 	return StationaryMassFunction(Kroupa_2001(),seed)
 	# import numpy as np
-	# from mirage.preferences import GlobalPreferences
+	# from mirage import GlobalPreferences
 	# seed = GlobalPreferences['star_generator_seed']
 	# fn = GlobalPreferences['mass_function']
 	# if fn == "Kroupa_2001": return StationaryMassFunction(Kroupa_2001(),seed)

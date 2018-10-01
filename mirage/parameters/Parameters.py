@@ -130,7 +130,7 @@ class Parameters(Jsonable, CalculationDependency):
         ret = {}
         ret['lens'] = self.lens.json
         ret['source'] = self.quasar.json
-        ret['ray_region'] = self.ray_region.json
+        ret['ray_region'] = self.ray_region.to(self.theta_E).json
         return ret
 
     @classmethod
@@ -235,7 +235,7 @@ class MicrolensingParameters(Parameters):
         # del(ret['ray_region'])
         ret['star_generator'] = self.star_generator.json
         ret['percent_stars'] = self.percent_stars*100
-        ret['source_plane'] = self.source_plane.json
+        ret['source_plane'] = self.source_plane.to(self.theta_E).json
         return ret
 
     @classmethod
@@ -252,4 +252,10 @@ class MicrolensingParameters(Parameters):
 def is_similar(self,other:'Parameters'):
     myJS = self.json
     oJS = other.json
+    if not Parameters.is_similar(self,other):
+        print("Reg params failed")
+    if myJS['star_generator'] != oJS['star_generator']:
+        print("Failed on generators")
+    if myJS['percent_stars'] != oJS['percent_stars']:
+        print("Failed on percents")
     return Parameters.is_similar(self,other) and myJS['star_generator'] == oJS['star_generator'] and myJS['percent_stars'] == oJS['percent_stars']

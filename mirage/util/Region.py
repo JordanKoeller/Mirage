@@ -74,8 +74,8 @@ class CircularRegion(object):
 
     def random_sample(self,num_points=1,rng=None):
         rng = rng or np.random
-        r = np.sqrt(np.random.rand((num_points)))
-        theta = np.random.rand(num_points) * np.pi*2
+        r = np.sqrt(rng.rand((num_points)))
+        theta = rng.rand(num_points) * np.pi*2
         ret = np.ndarray((num_points,2))
         ret[:,0] = self.radius.value*np.cos(theta)*r
         ret[:,1] = self.radius.value*np.sin(theta)*r

@@ -68,7 +68,7 @@ class JsonFileManager(FileManager):
 		return self.class_object.from_json(js)
 
 	def write(self,obj:'Jsonable'):
-		self._file = open(self._filename,'ab')
+		self._file = open(self._filename,'wb+')
 		js = obj.json
 		formatted = self.format_json(js)
 		self._file.write(bytes(formatted,'utf-8'))
@@ -142,13 +142,7 @@ class ResultFileManager(FileManager):
 		self._pfw.open(self._filename)
 		self._pfw.write(simulation)
 		file = self._pfw.file
-		print(self._filename)
-		param_end = file.tell()
 		np.save(file,lookup_np)
-		# lookup_start = file.tell()
-		# file.seek(param_end)
-		# shifts = lookup_np + lookup_start
-		# np.save(file,shifts)
 		ResultFileManager.copy_to_from(file,self._tmpfile)
 
 	def close(self):
@@ -180,7 +174,7 @@ class ResultFileManager(FileManager):
 		src.seek(0)
 		buff = int(1e6)
 		chunk = src.read(buff)
-		while(len(chunk) > 0):
+		while len(chunk) > 0:
 			dest.write(chunk)
 			chunk = src.read(buff)
 
@@ -217,12 +211,12 @@ class FITSFileManager(FileManager):
 		if not with_headers:
 			return hdulist[0].data
 		else:
-			return (hdulist[0].data,hdulist[0].header)
+			return hdulist[0].data,hdulist[0].header
 
 		
 	def close(self):
 		pass
 		
 	@property
-	def fileextension(self):
+	def extension(self):
 		return ".fits"

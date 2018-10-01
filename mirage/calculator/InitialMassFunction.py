@@ -19,7 +19,6 @@ import numpy as np
 
 
 log = logging.getLogger('imf')
-_random_number_generator = np.random.RandomState()
 
 
 class IMF(object):
@@ -27,6 +26,7 @@ class IMF(object):
         """
         The IMF base class. The multiplicity implementation is here.
         """
+        self._random_number_generator = np.random.RandomState()
         self._multi_props = multiplicity
         self._mass_limits = massLimits
 
@@ -39,8 +39,8 @@ class IMF(object):
 
     @property
     def random_number_generator(self):
-        return _random_number_generator
-            
+        return self._random_number_generator
+
 
     def generate_cluster(self, totalMass):
         """
@@ -69,8 +69,8 @@ class IMF(object):
         """
 
         if (self._mass_limits[-1] > totalMass):
-            log.info('sample_imf: Setting maximum allowed mass to %d' % 
-                      (totalMass))
+            log.info('sample_imf: Setting maximum allowed mass to %d' %
+                     (totalMass))
             self._mass_limits[-1] = totalMass
 
         # Estimate the mean number of stars expected.
@@ -93,27 +93,27 @@ class IMF(object):
 
         while totalMassTally < totalMass:
             # Generate a random number array.
-            uniX = _random_number_generator.rand(int(newStarCount))
+            uniX = self.random_number_generator.rand(int(newStarCount))
 
             # Convert into the IMF from the inverted CDF
             newMasses = self.dice_star_cl(uniX)
-            
+
             # Testing for Nans produced in masses
             test = np.isnan(newMasses)
             if np.sum(test) > 0:
                 raise ValueError('Nan detected in cluster mass')
-                
+
             # Dealing with multiplicity
             if self._multi_props != None:
                 # compMasses = [[] for newMass in newMasses]
                 compMasses = np.empty((len(newMasses),), dtype=np.object)
                 compMasses.fill([])
-                
+
                 # Determine the multiplicity of every star
                 MF = self._multi_props.multiplicity_fraction(newMasses)
                 CSF = self._multi_props.companion_star_fraction(newMasses)
-                
-                newIsMultiple = _random_number_generator.rand(int(newStarCount)) < MF
+
+                newIsMultiple = self.random_number_generator.rand(int(newStarCount)) < MF
 
                 # Copy over the primary masses. Eventually add the companions.
                 newSystemMasses = newMasses.copy()
@@ -139,10 +139,10 @@ class IMF(object):
                     for ii in range(len(newMasses)):
                         if newIsMultiple[ii]:
                             # determine number of companions
-                            n_comp = 1 + _random_number_generator.poisson((CSF[ii] / MF[ii]) - 1)
+                            n_comp = 1 + self.random_number_generator.poisson((CSF[ii] / MF[ii]) - 1)
 
                             # Determine the mass ratios of the companions
-                            q_values = self._multi_props.random_q(_random_number_generator.rand(n_comp))
+                            q_values = self._multi_props.random_q(self.random_number_generator.rand(n_comp))
 
                             # Determine the masses of the companions
                             m_comp = q_values * newMasses[ii]
@@ -155,7 +155,7 @@ class IMF(object):
 
                             # Double check for the case when we drop all companions.
                             # This happens a lot near the minimum allowed mass.
-                #-----------------------------------#
+                    #-----------------------------------#
                     newTotalMassTally = newSystemMasses.sum()
                     isMultiple = np.append(isMultiple, newIsMultiple)
                     systemMasses = np.append(systemMasses, newSystemMasses)
@@ -164,15 +164,15 @@ class IMF(object):
 
             # Append to our primary masses array
             masses = np.append(masses, newMasses)
-            
+
             if (loopCnt >= 0):
-                log.info('sample_imf: Loop %d added %.2e Msun to previous total of %.2e Msun' % 
+                log.info('sample_imf: Loop %d added %.2e Msun to previous total of %.2e Msun' %
                          (loopCnt, newTotalMassTally, totalMassTally))
 
             totalMassTally += newTotalMassTally
             newStarCount = mean_number * 0.1  # increase by 20% each pass
             loopCnt += 1
-        
+
         # Make a running sum of the system masses
         if self._multi_props:
             massCumSum = systemMasses.cumsum()
@@ -194,7 +194,7 @@ class IMF(object):
             systemMasses = masses
 
         return masses
-        
+
     def calc_multi(self, newMasses, compMasses, newSystemMasses, newIsMultiple, CSF, MF):
         """
         Helper function to calculate multiples more efficiently.
@@ -203,7 +203,7 @@ class IMF(object):
         # Identify multiple systems, calculate number of companions for
         # each 
         idx = np.where(newIsMultiple == True)[0]
-        n_comp_arr = 1 + _random_number_generator.poisson((CSF[idx] / MF[idx]) - 1)
+        n_comp_arr = 1 + self.random_number_generator.poisson((CSF[idx] / MF[idx]) - 1)
         primary = newMasses[idx]
 
         # We will deal with each number of multiple system independently. This is
@@ -211,11 +211,11 @@ class IMF(object):
         num = np.unique(n_comp_arr)
         for ii in num:
             tmp = np.where(n_comp_arr == ii)[0]
-            
+
             if ii == 1:
                 # Single companion case
-                q_values = self._multi_props.random_q(_random_number_generator.rand(len(tmp)))
-                
+                q_values = self._multi_props.random_q(self.random_number_generator.rand(len(tmp)))
+
                 # Calculate mass of companion
                 m_comp = q_values * primary[tmp]
 
@@ -227,10 +227,10 @@ class IMF(object):
                     newSystemMasses[idx[tmp[jj]]] += compMasses[idx[tmp[jj]]]
 
                 bad = np.where(m_comp < self._mass_limits[0])[0]
-                newIsMultiple[idx[tmp[bad]]] = False                
+                newIsMultiple[idx[tmp[bad]]] = False
             else:
                 # Multple companion case
-                q_values = self._multi_props.random_q(_random_number_generator.rand(len(tmp), ii))
+                q_values = self._multi_props.random_q(self.random_number_generator.rand(len(tmp), ii))
 
                 # Calculate masses of companions
                 m_comp = np.multiply(q_values, np.transpose([primary[tmp]]))
@@ -274,6 +274,7 @@ class IMF_broken_powerlaw(IMF):
         self._m_limits_high = mass_limits[1:]
         self._powers = np.ascontiguousarray(powers)
         self._multi_props = multiplicity
+        self._random_number_generator = np.random.RandomState()
 
         if multiplicity == None:
             self.make_multiples = False
@@ -299,7 +300,7 @@ class IMF_broken_powerlaw(IMF):
 
     def set_seed(self,seed):
         self._seed = seed
-        _random_number_generator.seed(self._seed)
+        self._random_number_generator.seed(self._seed)
 
     def xi(self, m):
         """

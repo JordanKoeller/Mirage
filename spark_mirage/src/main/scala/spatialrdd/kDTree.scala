@@ -5,7 +5,6 @@ class kDTree(xx: Array[Double], yy: Array[Double], branchSize: Int, parallelDept
   private val xExtremes = minMax(xx)
   private val yExtremes = minMax(yy)
   private val boxes = list_constructNodes()
-  println("Have " + boxes.length + " boxes")
 
   private def minMax(vals: Array[Double]): (Double, Double) = {
     vals.foldLeft((Double.MaxValue, Double.MinValue)) { (best, elem) =>
@@ -249,26 +248,8 @@ object kDTree {
   def apply(values: IndexedSeq[(Double, Double)]): kDTree = {
     val xcoords = values.map(_._1).toArray
     val ycoords = values.map(_._2).toArray
-    println("Constructing the tree now")
     new kDTree(xcoords, ycoords, binSize, parallelDepth)
   }
 
-//  def checkKids(prnt: Int, level: Int, tree: kDTree): Boolean = {
-//    val split = tree(prnt).split
-//    val kid1 = tree(prnt * 2 + 1)
-//    val kid2 = tree(prnt * 2 + 2)
-//    var c = tree.xx
-//    if (level % 2 != 0) c = tree.yy
-//    for (i <- kid1.indI until kid1.indJ) if (c(i) > split) {
-//      println("Error " + i)
-//      return false
-//    }
-//    for (i <- kid2.indI until kid2.indJ) if (c(i) < split) {
-//      println("Error " + i)
-//      return false
-//    }
-//    println("Worked")
-//    return true
-//  }
 
 }

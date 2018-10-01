@@ -2,7 +2,6 @@ import argparse
 from datetime import datetime as DT
 import logging
 import os
-import sys
 
 def run_simulation(simfile,savefile):
     from mirage.calculator import ResultCalculator
@@ -36,5 +35,6 @@ if __name__ == "__main__":
         savefile = args.outfile[0]
         run_simulation(simfile,savefile)
         endtime = DT.now()
+        print("Program ran in %f seconds" % (endtime - endtime))
     else:
         print("Did not specify a command.")

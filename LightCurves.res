@@ -1,7 +1,7 @@
 {
   "name": "Test Simulation",
   "description": "This is a test.",
-  "trial_count": 20,
+  "trial_count": 4,
   "variation": "new_parameters = old_parameters\narr = np.linspace(5,40,20)\nnew_parameters.quasar.update(radius=arr[trial_number]*new_parameters.quasar.r_g)",
   "parameters": {
     "lens": {
@@ -69,7 +69,7 @@
         -2.3
       ]
     },
-    "percent_stars": 20.0,
+    "percent_stars": 1.0,
     "source_plane": {
       "center": {
         "x": 0.0,

@@ -52,21 +52,19 @@ object Main extends App {
         width,
         height)
     val broadParams = sc.broadcast(parameters)
+    val lensPlane = tracer.lensPlane(pixels,broadParams).collect()
+    filename = "lensplane_x"
+    writeFile(Array(lensPlane.map(_._1.toInt)))
+    filename = "lensplane_y"
+    writeFile(Array(lensPlane.map(_._2.toInt)))
     val srcPlane = tracer(pixels,broadParams)
-////    for (elem <- rays) print(elem._1 + "," + elem._2 + ",")
-//    val x = srcPlane.map(_._1)
-//    val y = srcPlane.map(_._2)
-//    val rays = srcPlane.collect()
-//    val writer = new PrintWriter(new File("srcplane.py"))
-//    val dString = rays.map(t => "[" +t._1 + "," + t._2 + "]").mkString(",")
-//    writer.write("import numpy as np\nfrom matplotlib import pyplot as plt\n")
-//    writer.write("data = np.array([")
-//    writer.write(dString)
-//    writer.write("])\nplt.plot(data[:,0],data[:,1],'.')\nplt.show()")
-//    writer.close()
-//    println(x.stats())
-//    println(y.stats())
-//    println("Done")
+    val pix = srcPlane.collect()
+    filename = "srcplane_x"
+    writeFile(Array(pix.map(_._1.toInt)))
+    filename = "srcplane_y"
+    writeFile(Array(pix.map(_._2.toInt)))
+    println("Done making temp files")
+
     val partitioner = new BalancedColumnPartitioner()
     rddGrid = RDDGrid(srcPlane,partitioner)
     broadParams.unpersist()
@@ -207,7 +205,6 @@ object Main extends App {
         val pair = elem.split(":").map(_.toDouble)
         (pair.head, pair.last)
       }
-      println(queryLine.length)
       queryLine
     }
     val retArr = rddGrid.queryPoints(lightCurves, radius, sc, false)

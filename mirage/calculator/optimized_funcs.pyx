@@ -5,10 +5,6 @@ import numpy as np
 
 from libc.math cimport sin, cos, atan, round
 
-# cpdef generate_pixels(object region):
-# 	pixels = region.to(center.unit)
-#         x_ax = np.linspace((self.center.x - self.dimensions.x/2).value,(self.center.x + self.dimensions.x/2).value,self.resolution.x.value)
-#         y_ax = np.linspace((self.center.y - self.dimensions.y/2).value,(self.center.y + self.dimensions.y/2).value,self.resolution.y.value)
 
 cpdef interpolate(object region, object two_points_list,sample_density):
 	ret = np.ndarray(two_points_list.shape[0], dtype=object)

@@ -36,9 +36,12 @@ def show_map(data,trial_number=0):
 	from mirage.views import MagnificationMapView
 	if isinstance(data,Trial):
 		trial = data
+		trial_number = trial.trial_number
+	elif isinstance(data,Result):
+		trial = data[trial_number]
 	else:
 		trial = load(data,trial_number)
-	view = MagnificationMapView(trial.simulation.name)
+	view = MagnificationMapView(trial.simulation.name + (": Trial %d" % trial_number))
 	view.display(trial.magmap)
 	return view,trial
 

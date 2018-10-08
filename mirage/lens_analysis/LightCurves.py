@@ -6,27 +6,29 @@ import random
 from scipy.stats import ks_2samp, anderson_ksamp, mannwhitneyu, energy_distance
 from scipy.signal import argrelmax
 from scipy.signal import wiener
-from scipy.optimize import minimize, curve_fit
+from scipy.optimize import minimize
 from astropy import units as u
 import numpy as np
 
 
-from mirage.util import Vec2D, zero_vector
+from mirage.util import Vec2D
 
-
+#I need to make a common interface and weigh pros and cons.
 
 class LightCurveBatch(object):
 
 
-    def __init__(self,data,qpts):
-        if isinstance(data,list) and isinstance(data[0],np.ndarray):
+    def __init__(self,data,qpts=None):
+        if qpts is not None:
+            self._data = np.array(data)
+        elif isinstance(data,list) and isinstance(data[0],np.ndarray):
             self._data = []
             for i in range(len(data)):
                 self._data.append(LightCurve(data[i],qpts[i]))
             self._data = np.array(data)
         else:
             self._data = data
-        # self._qpts = np.array(qpts)
+        self._qpts = np.array(qpts)
 
     def plottables(self,unit='uas'):
         for curve in self:
@@ -109,9 +111,9 @@ class LightCurve(object):
         y = qpts[:,1]
         xs = x[0]
         ys = y[0]
-        diffx = x -xs
+        diffx = x - xs
         diffy = y - ys
-        res = (diffx**2+diffy**2)**(0.5)
+        res = (diffx**2+diffy**2)**0.5
         return u.Quantity(res,'rad')
 
     @property
@@ -122,7 +124,7 @@ class LightCurve(object):
     def plottable(self,unit='uas'):
         x = self.distance_axis.to(unit)
         y = self.curve
-        return (x,y)
+        return x,y
 
     def get_event_slice_points(self,tolerance=1.0,
         smoothing_window=55,
@@ -130,14 +132,11 @@ class LightCurve(object):
         stitch_length=u.Quantity(1000000,'uas'),
         min_height=1.2):
         from mirage.calculator import isolate_events
-        ret = []
         x,curve = self.plottable()
         x = x.to(max_length.unit)
         dx = x[1] - x[0]
         slice_length = int((max_length/dx).value)
         stitch_length = int((stitch_length/dx).value)
-        # print("Slice length = " + str(slice_length))
-        # print("Stitch length = " + str(stitch_length))
         slice_list = isolate_events(curve,tolerance,smoothing_window,slice_length,stitch_length,min_height)
         return slice_list
 
@@ -149,6 +148,7 @@ class LightCurve(object):
         slice_list = self.get_event_slice_points(tolerance,smoothing_window,max_length,stitch_length,min_height)
         curve = self.curve
         qpts = self.query_points
+        ret = []
         for start,end in slice_list:
             slice_x = qpts[start:end]
             slice_y = curve[start:end]
@@ -198,26 +198,14 @@ class LightCurveSlice(LightCurve):
         x,y = self._parent_curve.plottable(unit)
         x = x[self._s:self._e]
         y = y[self._s:self._e]
-        return (x,y)
+        return x,y
 
     def trimmed_to_size(self,size:u.Quantity):
         from mirage.calculator import trimmed_to_size_slice
-        from scipy.interpolate import UnivariateSpline
         x,y = self.plottable_segment(size.unit)
         dx = x[1] - x[0]
         slice_length = int((size / dx).value)
         slc = trimmed_to_size_slice(y,slice_length)
-        # center = np.argmax(y)
-        # print("Center at " + str(center))
-        # print("Slice length of " + str(slice_length))
-        # max_found = -1.0
-        # index = center - slice_length
-        # for i in range(max(index,0),center):
-        #     tmp = y[i:min(i+slice_length,len(y))].sum()
-        #     if tmp > max_found:
-        #         index = i
-        #         max_found = tmp
-        # print("From " + str(index) + " to " + str(index+slice_length))
         return self[slc[0]:slc[1]]
 
     def __getitem__(self,slc):
@@ -345,7 +333,7 @@ class LightCurveClassificationTable(object):
 
     def __len__(self):
         counter = 0
-        for i in table:
+        for i in self._table:
             counter += len(i)
         return counter
 

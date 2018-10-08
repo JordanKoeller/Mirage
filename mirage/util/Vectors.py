@@ -92,7 +92,7 @@ class Vec2D(Jsonable):
 		return Vec2D((self.x/other).value,(self.y/other).value,self.unit)
 
 	def __eq__(self,other:'Vec2D') -> bool:
-		return self._quant == other._quant
+		return (self._quant == other._quant).all()
 
 	def __neq__(self,other:'Vec2D') -> bool:
 		return not self == other

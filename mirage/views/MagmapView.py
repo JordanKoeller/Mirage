@@ -18,6 +18,7 @@ class MagnificationMapView:
         self.press = None
         self.line = Line2D([0,0],[0,0],color='r',antialiased=True)
         self.axes.add_line(self.line)
+        self._current_curve = None
 
     def connect(self):
         'connect to all the events we need'
@@ -70,7 +71,7 @@ class MagnificationMapView:
     def plot(self,curve,x_ax=None,clear=True):
         if clear:
             self.lc_view.clear()
-        if x_ax != None:
+        if x_ax is not None:
             self.lc_view.plot(x_ax,curve)
         else:
             self.lc_view.plot(curve)
@@ -94,9 +95,9 @@ class MagnificationMapView:
         img_ax.set_frame_on(True)
         fig.subplots_adjust(top=0.988,bottom=0.006,left=0.039,right=0.983,hspace=0.075)
         if not with_figure:
-            return (img_ax,curve_ax)
+            return img_ax,curve_ax
         else:
-            return (fig, img_ax,curve_ax)
+            return fig, img_ax,curve_ax
 
     @property
     def magmap(self):
@@ -112,6 +113,10 @@ class MagnificationMapView:
         y = extent.y.value
         self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y])
         self._magmap = magmap
+        self.figure.show()
+
+    def show(self,*args,**kwargs):
+        return self.display(*args,**kwargs)
 
     def show_curve(self,curve):
         x,y = curve.plottable('uas')
@@ -123,3 +128,16 @@ class MagnificationMapView:
         self.line.set_ydata([start.x.value,end.x.value]) #NOTE: I need to transpose to be consistent with theview
         self.line.set_xdata([end.y.value,start.y.value])
         self.plot(y,x_ax=x.flatten())
+
+    def get_curve(self):
+        x,y = self.line.get_data()
+        start = Vec2D(x[0],y[0],self.map_unit)
+        end = Vec2D(x[1],y[1],self.map_unit)
+        if start == end:
+            return None
+        if self.magmap:
+            from mirage.lens_analysis import LightCurve
+            curve = self._magmap.slice_line(start,end)
+            qpts = [[x[0],y[0]],[x[1],y[1]]]
+            return LightCurve(curve,qpts)
+

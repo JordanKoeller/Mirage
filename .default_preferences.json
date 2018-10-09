@@ -26,7 +26,7 @@
 	"mass_function":"Pooley_2011",
 
 
-	"star_rng_seed":null,
+	"star_generator_seed":null,
 
 	"lightcurve_rng_seed":null
 

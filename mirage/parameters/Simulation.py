@@ -70,7 +70,6 @@ class Simulation(Jsonable):
 			except ParametersError as e:
 				raise ParametersError("Parameters Error encountered in generating new Parameters instance.")
 			except:
-				print("What happened")
 				raise SyntaxError
 			return nspace['new_parameters']
 		else:

@@ -1,20 +1,15 @@
-import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib.pyplot import figure, show
 from matplotlib.lines import Line2D
+from matplotlib.figure import Figure
+from matplotlib import pyplot as plt
 
 from mirage.util import Vec2D
-from mirage.parameters import Simulation
 from mirage.lens_analysis.MagnificationMap import MagnificationMap
 
 class MagnificationMapView:
     def __init__(self,name=None):
-        # self.rect = rect
         self.figure, self.axes, self.lc_view = MagnificationMapView.get_view(True,name)
         self.connect()
         self._cmap = plt.get_cmap('RdBu_r')
-        # self.figure = fig
-        # self.axes= ax
         self.press = None
         self.line = Line2D([0,0],[0,0],color='r',antialiased=True)
         self.axes.add_line(self.line)
@@ -89,7 +84,10 @@ class MagnificationMapView:
 
     @staticmethod
     def get_view(with_figure=False,name=None):
-        fig, axes = plt.subplots(2,1,num=name,gridspec_kw = {'height_ratios':[1, 5]})
+        fig = plt.figure(-1)
+        axes = fig.subplots(2,1,gridspec_kw={'height_ratios':[1,5]})
+        fig.show()
+        # fig, axes = plt.subplots(2,1,num=name,gridspec_kw = {'height_ratios':[1, 5]})
         curve_ax, img_ax = axes
         img_ax.set_axis_off()
         img_ax.set_frame_on(True)
@@ -105,21 +103,25 @@ class MagnificationMapView:
 
     @property
     def map_unit(self):
-        return self.magmap.region.dimensions.unit
+        return self._unit
 
-    def display(self,magmap:MagnificationMap):
-        extent = magmap.region.dimensions/2
-        x = extent.x.value
-        y = extent.y.value
-        self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y])
-        self._magmap = magmap
-        self.figure.show()
+    def display(self,magmap:MagnificationMap=None):
+        if magmap is None:
+            self.figure.show()
+        else:
+            extent = magmap.region.dimensions/2
+            x = extent.x.value
+            y = extent.y.value
+            self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y])
+            self._magmap = magmap
+            self._unit = magmap.region.dimensions.unit
+            self.figure.show()
 
     def show(self,*args,**kwargs):
         return self.display(*args,**kwargs)
 
     def show_curve(self,curve):
-        x,y = curve.plottable('uas')
+        x,y = curve.plottable(self.map_unit)
         # print(x.shape)
         # print(y.shape)
         start,end = curve.ends

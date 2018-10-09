@@ -114,7 +114,7 @@ class LightCurve(object):
         diffx = x - xs
         diffy = y - ys
         res = (diffx**2+diffy**2)**0.5
-        return u.Quantity(res,'rad')
+        return u.Quantity(res,self.query_points.unit)
 
     @property
     def length(self):

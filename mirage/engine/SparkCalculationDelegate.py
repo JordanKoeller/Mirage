@@ -55,7 +55,7 @@ class MicroSparkDelegate(CalculationDelegate):
         stars = parameters.stars
         stars[:,0] = (stars[:,0])# - parameters.image_center.x.to('rad').value)/xi_0
         stars[:,1] = (stars[:,1])# - parameters.image_center.y.to('rad').value)/xi_0
-
+        starCount = stars.shape[0]
 
         #Now that inputs are properly normalized, can proceed.
         starfile = self.get_star_file(stars)
@@ -63,6 +63,7 @@ class MicroSparkDelegate(CalculationDelegate):
         #And now calling the jvm:
         return self.spark_context._jvm.main.Main.createRDDGrid(
             starfile,
+            starCount,
             shear,
             smooth,
             dx,
@@ -85,45 +86,49 @@ class MicroSparkDelegate(CalculationDelegate):
         query_radius = radius.value
         jrdd = self._spark_context.emptyRDD()._jrdd
         file = tempfile.NamedTemporaryFile('w+',delete = False)
-        # file.close()
-        self.spark_context._jvm.main.Main.setFile(file.name)
-        self.spark_context._jvm.main.Main.sampleLightCurves(query_point_file,query_radius,jrdd)
-        returned_data = self.get_returned_data(file.name)
+        self.spark_context._jvm.main.Main.sampleLightCurves(query_point_file,file.name,query_radius,jrdd)
+        returned_data = self.get_returned_data(file.name,(points.shape[0],points.shape[1]))
         return np.array(returned_data)
 
     def get_star_file(self,data:np.ndarray):
-        row_delimiter = "\n"
-        col_delimiter = ","
+        # row_delimiter = "\n"
+        # col_delimiter = ","
         file = tempfile.NamedTemporaryFile('w+',delete = False)
-        for i in range(data.shape[0]):
-            for j in range(data.shape[1]):
-                string = str(data[i,j]) + col_delimiter
-                file.write(string)
-            file.seek(file.tell()-1)
-            file.write(row_delimiter)
+        data.toFile(file)
         file.close()
+        # for i in range(data.shape[0]):
+        #     for j in range(data.shape[1]):
+        #         string = str(data[i,j]) + col_delimiter
+        #         file.write(string)
+        #     file.seek(file.tell()-1)
+        #     file.write(row_delimiter)
+        # file.close()
         return file.name
 
     def get_data_file(self,data:np.ndarray):
-        row_delimiter = "\n"
-        col_delimiter = ","
+        # row_delimiter = "\n"
+        # col_delimiter = ","
         file = tempfile.NamedTemporaryFile('w+',delete = False)
-        for i in range(data.shape[0]):
-            for j in range(len(data[i])):
-                string = str(data[i][j,0]) + ":" + str(data[i][j,1])
-                file.write(string + col_delimiter)
-            file.seek(file.tell()-1)
-            file.write(row_delimiter)
+        data.tofile(file)
         file.close()
+        # for i in range(data.shape[0]):
+        #     for j in range(len(data[i])):
+        #         string = str(data[i][j,0]) + ":" + str(data[i][j,1])
+        #         file.write(string + col_delimiter)
+        #     file.seek(file.tell()-1)
+        #     file.write(row_delimiter)
+        # file.close()
         return file.name
 
-    def get_returned_data(self,filename):
-        with open(filename) as data:
-            big_string = data.read()
-            lines = big_string.split("\n")
-            elems = list(map(lambda line: line.split(","),lines))
-            nums = list(map(lambda line: list(map(lambda elem: float(elem),line)),elems))
-            ret = np.array(nums)
-            return ret
+    def get_returned_data(self,filename,shape):
+        ret = np.fromfile(filename,np.double,shape[0]*shape[1])
+        return np.reshape(ret,shape)
+        # with open(filename) as data:
+        #     big_string = data.read()
+        #     lines = big_string.split("\n")
+        #     elems = list(map(lambda line: line.split(","),lines))
+        #     nums = list(map(lambda line: list(map(lambda elem: float(elem),line)),elems))
+        #     ret = np.array(nums)
+        #     return ret
 
 

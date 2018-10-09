@@ -58,8 +58,8 @@ class _GlobalPreferences(_PreferencesParser):
         if self['core_count'] == 'all':
             self._prefMap['core_count'] = multiprocessing.cpu_count()
         self._prefMap['dt'] = Jsonable.decode_quantity(self['dt'])
-        if self['star_rng_seed'] == None:
-            self._prefMap['star_rng_seed'] = self.get_random_int()
+        if self['star_generator_seed'] == None:
+            self._prefMap['star_generator_seed'] = self.get_random_int()
         if self['lightcurve_rng_seed'] == None:
             self._prefMap['lightcurve_rng_seed'] == self.get_random_int()
         # if self['use_openCL']:

@@ -86,25 +86,30 @@ class StationaryMassFunction(MassFunction):
 
 
 def getMassFunction() -> MassFunction:
-	from .InitialMassFunction import Kroupa_2001
-	seed = 123
-	print("NEED to fix GETMASSFUNCTION")
-	return StationaryMassFunction(Kroupa_2001(),seed)
-	# import numpy as np
-	# from mirage import GlobalPreferences
-	# seed = GlobalPreferences['star_generator_seed']
-	# fn = GlobalPreferences['mass_function']
-	# if fn == "Kroupa_2001": return StationaryMassFunction(Kroupa_2001(),seed)
-	# elif fn == "Pooley_2011": return StationaryMassFunction(Kroupa_2001_Modified(),seed)
-	# elif fn == "Aged_galaxy": return StationaryMassFunction(Evolved_IMF(),seed)
+	from .InitialMassFunction import Kroupa_2001, Kroupa_2001_Modified
+	# from .InitialMassFunction import Kroupa_2001
+	# seed = 123
+	# print("NEED to fix GETMASSFUNCTION")
+	# return StationaryMassFunction(Kroupa_2001(),seed)
+	import numpy as np
+	from mirage import GlobalPreferences
+	seed = GlobalPreferences['star_generator_seed']
+	fn = GlobalPreferences['mass_function']
+	if fn == "Kroupa_2001":
+		return StationaryMassFunction(Kroupa_2001(),seed)
+	elif fn == "Pooley_2011":
+		return StationaryMassFunction(Kroupa_2001_Modified(),seed)
+	elif fn == "Aged_galaxy":
+		return StationaryMassFunction(Evolved_IMF(),seed)
+
 	# #Means this is a custom IMF. It may or may not have aging thresholds.
-	# elif "mass_limits" in fn and "powers" in fn:
-	# 	imf = IMF_broken_powerlaw(np.array(fn['mass_limits']),np.array(fn['powers']))
-	# 	if 'conversions' in fn:
-	# 		return StationaryMassFunction(imf,seed)
-	# 	else:
-	# 		emf = Evolved_IMF(imf,conversions = fn['conversions'])
-	# 		return StationaryMassFunction(emf,seed)
+	elif "mass_limits" in fn and "powers" in fn:
+		imf = IMF_broken_powerlaw(np.array(fn['mass_limits']),np.array(fn['powers']))
+		if 'conversions' not in fn:
+			return StationaryMassFunction(imf,seed)
+		else:
+			emf = Evolved_IMF(imf,conversions = fn['conversions'])
+			return StationaryMassFunction(emf,seed)
 	# 	# ret = StationaryMassFunction(IMF_broken_powerlaw(np.array(fn['mass_limits']),np.array(fn['powers'])),seed)
 	# 	# if "conversions" in fn: ret = StationaryMassFunction(Evolved_IMF(ret,fn['conversions']),seed)
 	# else:

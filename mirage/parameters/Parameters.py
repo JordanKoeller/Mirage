@@ -29,16 +29,12 @@ class Parameters(Jsonable, CalculationDependency):
 
     @staticmethod
     def static_theta_E(z_s,z_l):
-        print(z_s)
-        print(z_l)
         dS = Cosmic.cosmology.angular_diameter_distance(z_s)
         dL = Cosmic.cosmology.angular_diameter_distance(z_l)
         dLS = Cosmic.cosmology.angular_diameter_distance_z1z2(z_l,z_s)
         Msun = 1*u.solMass
         tmp = (4*const.G*Msun/const.c/const.c)*(dL*dLS/dS)
         ret = (tmp**0.5/dL).to('').value
-        print("Printing static called")
-        print(ret)
         return u.def_unit('theta_E',ret*u.rad)
 
     @property
@@ -86,7 +82,6 @@ class Parameters(Jsonable, CalculationDependency):
 
     @property
     def theta_E(self):
-        print("Calling from parameters instance now. Next will print that version")
         return Parameters.static_theta_E(self.quasar.redshift,self.lens.redshift)
 
     @property

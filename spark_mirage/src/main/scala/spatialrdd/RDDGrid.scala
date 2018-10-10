@@ -117,7 +117,6 @@ object RDDGrid {
   }
   def fromFile(file: String, numPartitions: Int, sc: SparkContext): RDDGrid = {
     val rdd = sc.objectFile[SpatialData](file, numPartitions)
-    println("Created an RDD with " + rdd.count() + " elements")
     new RDDGrid(rdd)
   }
   //  private def writeFile(data: Array[Array[Double]],filename:String): Unit = {

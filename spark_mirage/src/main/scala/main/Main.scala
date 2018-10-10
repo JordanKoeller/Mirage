@@ -32,7 +32,6 @@ object Main extends App {
     val sc = jrdd.context
     sc.setLogLevel("WARN")
     val stars = FileHandler.getStars(starsfile,numStars)
-    println(stars(0))
     val tracer = new MicroRayTracer()
     val pixels = sc.range(0,width*height,1,numPartitions)
     val parameters = MicroParameters(

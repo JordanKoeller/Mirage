@@ -56,7 +56,6 @@ class MicroSparkDelegate(CalculationDelegate):
         stars[:,0] = (stars[:,0])# - parameters.image_center.x.to('rad').value)/xi_0
         stars[:,1] = (stars[:,1])# - parameters.image_center.y.to('rad').value)/xi_0
         starCount = stars.shape[0]
-        print(starCount)
         #Now that inputs are properly normalized, can proceed.
         starfile = self.get_star_file(stars)
 
@@ -81,63 +80,32 @@ class MicroSparkDelegate(CalculationDelegate):
         pass
 
     def query_points(self,points:np.ndarray, radius:u.Quantity) -> np.ndarray:
-        print("Querying")
         query_point_file = self.get_data_file(points)
         query_radius = radius.value
         jrdd = self._spark_context.emptyRDD()._jrdd
         file = tempfile.NamedTemporaryFile('w+',delete = False)
-        print("PointShape is of " + str(points.shape))
         self.spark_context._jvm.main.Main.sampleLightCurves(query_point_file,file.name,points.shape[0],query_radius,jrdd)
         returned_data = self.get_returned_data(file.name,points.shape)
         return np.array(returned_data)
 
     def get_star_file(self,data:np.ndarray):
-        # row_delimiter = "\n"
-        # col_delimiter = ","
         file = tempfile.NamedTemporaryFile('w+',delete = False)
         data.tofile(file)
-        print(data)
         file.close()
-        # for i in range(data.shape[0]):
-        #     for j in range(data.shape[1]):
-        #         string = str(data[i,j]) + col_delimiter
-        #         file.write(string)
-        #     file.seek(file.tell()-1)
-        #     file.write(row_delimiter)
-        # file.close()
         return file.name
 
     def get_data_file(self,data:np.ndarray):
-        # row_delimiter = "\n"
-        # col_delimiter = ","
         file = tempfile.NamedTemporaryFile('w+',delete = False)
         sizes = np.ndarray(data.shape[0],dtype=np.int32)
         for i in range(data.shape[0]):
-            print(data[i].shape[0])
             sizes[i] = data[i].shape[0]
         sizes.tofile(file)
         data.tofile(file)
         file.close()
-        # for i in range(data.shape[0]):
-        #     for j in range(len(data[i])):
-        #         string = str(data[i][j,0]) + ":" + str(data[i][j,1])
-        #         file.write(string + col_delimiter)
-        #     file.seek(file.tell()-1)
-        #     file.write(row_delimiter)
-        # file.close()
         return file.name
 
     def get_returned_data(self,filename,shape):
-        # import time
-        # time.sleep(10000000)
         ret = np.fromfile(filename,np.int32,shape[0]*shape[1])
         return np.reshape(ret,(shape[0],shape[1]))
-        # with open(filename) as data:
-        #     big_string = data.read()
-        #     lines = big_string.split("\n")
-        #     elems = list(map(lambda line: line.split(","),lines))
-        #     nums = list(map(lambda line: list(map(lambda elem: float(elem),line)),elems))
-        #     ret = np.array(nums)
-        #     return ret
 
 

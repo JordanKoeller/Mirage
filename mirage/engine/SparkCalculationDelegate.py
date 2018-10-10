@@ -1,11 +1,10 @@
 import tempfile
-import io
 
-from scipy.spatial import cKDTree
+
 from astropy import units as u
 import numpy as np
 
-from mirage.parameters import Parameters,MicrolensingParameters
+from mirage.parameters import MicrolensingParameters
 from mirage.util import Vec2D
 from .CalculationDelegate import CalculationDelegate
 
@@ -100,12 +99,20 @@ class MicroSparkDelegate(CalculationDelegate):
         for i in range(data.shape[0]):
             sizes[i] = data[i].shape[0]
         sizes.tofile(file)
-        data.tofile(file)
+        for row in data:
+            row.tofile(file)
         file.close()
         return file.name
 
-    def get_returned_data(self,filename,shape):
-        ret = np.fromfile(filename,np.int32,shape[0]*shape[1])
-        return np.reshape(ret,(shape[0],shape[1]))
+    def get_returned_data(self,filename,qpts):
+        ret = np.ndarray(qpts.shape[0],dtype=object)
+        if qpts.dtype == object:
+            for i in range(qpts.shape[0]):
+                ret[i] = np.fromfile(filename,np.int32,qpts[i].size)
+            return ret
+        else:
+            shape = qpts.shape
+            ret = np.fromfile(filename,np.int32,shape[0]*shape[1])
+            return np.reshape(ret,(shape[0],shape[1]))
 
 

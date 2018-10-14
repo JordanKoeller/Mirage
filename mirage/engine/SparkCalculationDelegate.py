@@ -84,7 +84,7 @@ class MicroSparkDelegate(CalculationDelegate):
         jrdd = self._spark_context.emptyRDD()._jrdd
         file = tempfile.NamedTemporaryFile('w+',delete = False)
         self.spark_context._jvm.main.Main.sampleLightCurves(query_point_file,file.name,points.shape[0],query_radius,jrdd)
-        returned_data = self.get_returned_data(file.name,points.shape)
+        returned_data = self.get_returned_data(file.name,points)
         return np.array(returned_data)
 
     def get_star_file(self,data:np.ndarray):

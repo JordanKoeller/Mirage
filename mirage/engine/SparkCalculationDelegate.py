@@ -106,13 +106,15 @@ class MicroSparkDelegate(CalculationDelegate):
 
     def get_returned_data(self,filename,qpts):
         ret = np.ndarray(qpts.shape[0],dtype=object)
+        file = open(filename,'rb')
         if qpts.dtype == object:
             for i in range(qpts.shape[0]):
-                ret[i] = np.fromfile(filename,np.int32,qpts[i].size)
+                ret[i] = np.fromfile(file,np.int32,qpts[i].size)
+            file.close()
             return ret
         else:
             shape = qpts.shape
-            ret = np.fromfile(filename,np.int32,shape[0]*shape[1])
+            ret = np.fromfile(file,np.int32,shape[0]*shape[1])
             return np.reshape(ret,(shape[0],shape[1]))
 
 

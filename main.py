@@ -2,7 +2,6 @@ import argparse
 from datetime import datetime as DT
 import logging
 import os
-import sys
 
 def run_simulation(simfile,savefile):
     from mirage.calculator import ResultCalculator

@@ -101,6 +101,7 @@ cpdef int raw_brightness(object parameters):
                     flag = 1
                     counter += 1
             level += 1
+    print("Raw value of %d" % counter)
     return counter
 
 

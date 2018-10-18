@@ -11,6 +11,7 @@ from .CalculationDependency import CalculationDependency
 from .Quasar import Quasar
 from .MassModel import Lens
 from . import ParametersError
+from mirage import GlobalPreferences
 
 
 class Parameters(Jsonable, CalculationDependency):
@@ -87,7 +88,9 @@ class Parameters(Jsonable, CalculationDependency):
     @property
     def raw_brightness(self) -> float:
         from mirage.engine import raw_brightness
-        return float(raw_brightness(self))
+        ret = raw_brightness(self)
+        print("Result was %f " % ret)
+        return ret
 
     def convergence(self,loc:Vec2D) -> float:
         print("NOTE: Have not implimented convergence yet!")
@@ -164,7 +167,7 @@ class MicrolensingParameters(Parameters):
                  star_generator:MassFunction = getMassFunction()):
         try:
             print("NOTE: Need to specify the factor for going from source plane to ray plane.")
-            factor = 1.3
+            factor = GlobalPreferences['microlensing_window_buffer']
             tmp_p = Parameters(quasar,lens)
             conv = tmp_p.convergence(image_center)
             shear = tmp_p.shear(image_center)

@@ -13,8 +13,8 @@ import numpy as np
 
 from mirage.util import Vec2D
 
-#I need to make a common interface and weigh pros and cons.
-
+# I need to make a common interface and weigh pros and cons.
+# For this, I will pass around query points as well.
 class LightCurveBatch(object):
 
 

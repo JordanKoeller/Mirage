@@ -87,10 +87,14 @@ class Parameters(Jsonable, CalculationDependency):
 
     @property
     def raw_brightness(self) -> float:
-        from mirage.engine import raw_brightness
-        ret = raw_brightness(self)
-        print("Result was %f " % ret)
-        return ret
+        return 1
+
+    def magnification(self,loc:Vec2D) -> float:
+        kap = self.convergence(loc)
+        gam = self.shear(loc)
+        mag = 1/((1-kap)**2 - gam**2)
+        return abs(mag)
+
 
     def convergence(self,loc:Vec2D) -> float:
         print("NOTE: Have not implimented convergence yet!")
@@ -215,6 +219,14 @@ class MicrolensingParameters(Parameters):
     def eta_0(self):
         tmp = (1*self.theta_E).to('rad').value
         return u.def_unit('eta',tmp*u.rad)
+
+    @property
+    def raw_brightness(self) -> float:
+        disk_area = self.quasar.radius**2*pi
+        dtheta = self.ray_region.dTheta
+        pix_sz = dtheta.x*dtheta.y
+        ratio = (disk_area/pix_sz).to('').value
+        return ratio * self.magnification(self.image_center)
 
     @property
     def mass_descriptors(self):

@@ -17,7 +17,6 @@ import numpy as np
 class LightCurveBatch(object):
 
     def __init__(self,data:np.ndarray,query_ends:u.Quantity):
-        assert query_ends.ndim == 2
         self._data = data
         self._query_ends = query_ends
 
@@ -37,11 +36,14 @@ class LightCurveBatch(object):
         return LightCurveBatch(total)
 
     def __getitem__(self,ind):
-        curve_data = self._data[ind]
-        ends = self._query_ends[ind]
-        start = ends[0:2]
-        finish = ends[2:]
-        return LightCurve(curve_data,start,finish)
+        if isinstance(ind,int):
+            curve_data = self._data[ind]
+            ends = self._query_ends[ind]
+            start = ends[0:2]
+            finish = ends[2:]
+            return LightCurve(curve_data,start,finish)
+        elif isinstance(ind,slice):
+            return LightCurveBatch(self._data[ind],self._query_ends[ind])
 
     def __len__(self):
         return len(self._data)

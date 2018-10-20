@@ -159,6 +159,12 @@ class Parameters(Jsonable, CalculationDependency):
         return myJS['lens'] == thatJS['lens'] and myJS['ray_region'] == thatJS['ray_region'] and myJS['source']['redshift'] == thatJS['source']['redshift']
 
 
+    @staticmethod
+    def special_units(z_s,z_l,quasar_mass):
+        r_g = Quasar.static_r_g(quasar_mass,z_s)
+        theta_E = Parameters.static_theta_E(z_s,z_l)
+        return [r_g, theta_E]
+
 class MicrolensingParameters(Parameters):
 
     def __init__(self,
@@ -186,6 +192,12 @@ class MicrolensingParameters(Parameters):
             self._percent_stars = percent_stars/100
         except:
             raise ParametersError("Could not construct MicrolensingParameters from the supplied arguments.")
+
+    @property
+    def get_macro_parameters(self):
+        print("Temporary implimentation for macr_parameters")
+        ray_region = self.ray_region
+        return Parameters(self.quasar,self.lens,ray_region)
 
     @property
     def starry_region(self):
@@ -245,33 +257,41 @@ class MicrolensingParameters(Parameters):
 
     @property
     def json(self):
-        ret = Parameters.json.fget(self)
-        print("Sloppy implementation here. Need to redo it with better json of micromagmap")
-        # del(ret['ray_region'])
+        ret = {}
+        ret['lens'] = self.lens.json
+        ret['source'] = self.quasar.json
         ret['star_generator'] = self.star_generator.json
         ret['percent_stars'] = self.percent_stars*100
         ret['source_plane'] = self.source_plane.to(self.theta_E).json
+        ret['image_center'] = self.ray_region.center.json
+        ret['ray_count'] = self.ray_region.resolution.json
         return ret
 
     @classmethod
     def from_json(cls,js):
-        params = Parameters.from_json(js)
-        print("FromJson of %s" % str(params.quasar.r_g))
-        with u.add_enabled_units([params.quasar.r_g, params.theta_E]):
+        z_s = js['source']['redshift']
+        z_l = js['lens']['redshift']
+        mass = Jsonable.decode_quantity(js['source']['mass'])
+        special_units = Parameters.special_units(z_s,z_l,mass)
+        with u.add_enabled_units(special_units):
+            gal = Lens.from_json(js['lens'])
+            src = Quasar.from_json(js['source'])
+            rays = Vec2D.from_json(js['ray_count'])
             sg = StationaryMassFunction.from_json(js['star_generator'])
             pcnts = js['percent_stars']
             spln = Region.from_json(js['source_plane'])
-            rays = params.ray_region.resolution
-            center = params.ray_region.center
-            return cls(params.quasar,params.lens,pcnts,center,rays,spln,sg)
+            center = Vec2D.from_json(js['image_center'])
+            return cls(src,gal,pcnts,center,rays,spln,sg)
 
-def is_similar(self,other:'Parameters'):
-    myJS = self.json
-    oJS = other.json
-    if not Parameters.is_similar(self,other):
-        print("Reg params failed")
-    if myJS['star_generator'] != oJS['star_generator']:
-        print("Failed on generators")
-    if myJS['percent_stars'] != oJS['percent_stars']:
-        print("Failed on percents")
-    return Parameters.is_similar(self,other) and myJS['star_generator'] == oJS['star_generator'] and myJS['percent_stars'] == oJS['percent_stars']
+
+
+    def is_similar(self,other:'Parameters'):
+        myJS = self.json
+        oJS = other.json
+        if not Parameters.is_similar(self,other):
+            print("Reg params failed")
+        if myJS['star_generator'] != oJS['star_generator']:
+            print("Failed on generators")
+        if myJS['percent_stars'] != oJS['percent_stars']:
+            print("Failed on percents")
+        return Parameters.is_similar(self,other) and myJS['star_generator'] == oJS['star_generator'] and myJS['percent_stars'] == oJS['percent_stars']

@@ -115,7 +115,9 @@ def ParametersFileManager():
 	return JsonFileManager(Parameters,'.param')
 
 
-
+def MicroParametersFileManager():
+	from mirage.parameters import MicrolensingParameters
+	return JsonFileManager(MicrolensingParameters,'.mp')
 
 class ResultFileManager(FileManager):
 

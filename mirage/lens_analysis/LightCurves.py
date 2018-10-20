@@ -11,24 +11,15 @@ from astropy import units as u
 import numpy as np
 
 
-from mirage.util import Vec2D
 
 # I need to make a common interface and weigh pros and cons.
 # For this, I will pass around query points as well.
 class LightCurveBatch(object):
 
-
-    def __init__(self,data,qpts=None):
-        if qpts is not None:
-            self._data = np.array(data)
-        elif isinstance(data,list) and isinstance(data[0],np.ndarray):
-            self._data = []
-            for i in range(len(data)):
-                self._data.append(LightCurve(data[i],qpts[i]))
-            self._data = np.array(data)
-        else:
-            self._data = data
-        self._qpts = np.array(qpts)
+    def __init__(self,data:np.ndarray,query_ends:u.Quantity):
+        assert query_ends.ndim == 2
+        self._data = data
+        self._query_ends = query_ends
 
     def plottables(self,unit='uas'):
         for curve in self:
@@ -42,25 +33,29 @@ class LightCurveBatch(object):
 
     def __add__(self,other):
         assert isinstance(other,LightCurveBatch)
-        total = self._data + other._data
+        total = self._data.append(other._data)
         return LightCurveBatch(total)
 
     def __getitem__(self,ind):
-        if isinstance(ind,int):
-            if ind < len(self):
-                sample = np.array(self._data[ind])
-                q = np.array(self._qpts[ind])
-                return LightCurve(sample,q)
-            else:
-                raise IndexError("Index out of range.")
-        elif isinstance(ind,slice):
-            return LightCurveBatch(self._data[ind],self._qpts[ind])
-        else:
-            raise ValueError("Could not understand ind as an index or slice.")
+        curve_data = self._data[ind]
+        ends = self._query_ends[ind]
+        start = ends[0:2]
+        finish = ends[2:]
+        return LightCurve(curve_data,start,finish)
 
     def __len__(self):
         return len(self._data)
 
+    @classmethod
+    def from_curves(cls,curves):
+        data = np.ndarray((len(curves)),dtype=object)
+        qpts = np.ndarray((len(curves),4))
+        for curve in range(len(curves)):
+            data[curve] = curves[curve].curve
+            s,e = data[curve].ends
+            qpts[curve] = [s[0].value,s[1].value,e[0].value,e[1].value]
+        qpts = u.Quantity(qpts,data[0].ends[0].unit)
+        return cls(data,qpts)
 
 class LightCurve(object):
 
@@ -68,12 +63,10 @@ class LightCurve(object):
     _scaling = "mag"
 
 
-    def __init__(self,data,query_points):
+    def __init__(self,data,start,end):
         self._data = np.array(data)
-        start = query_points[0]
-        end = query_points[-1]
-        self._start = Vec2D(start[0],start[1],'rad')
-        self._end = Vec2D(end[0],end[1],'rad')
+        self._start = start
+        self._end = end
 
     def __len__(self):
         return len(self._data)
@@ -97,12 +90,12 @@ class LightCurve(object):
 
     @property
     def query_points(self):
-        x = np.linspace(self._start.x,self._end.x,len(self))
-        y = np.linspace(self._start.y,self._end.y,len(self))
+        x = np.linspace(self._start[0].value,self._end[0].value,len(self))
+        y = np.linspace(self._start[1].value,self._end[1].value,len(self))
         ret = np.ndarray((len(x),2))
         ret[:,0] = x
         ret[:,1] = y
-        return u.Quantity(ret,'rad')
+        return u.Quantity(ret,self._start.unit)
 
     @property
     def distance_axis(self):
@@ -164,9 +157,7 @@ class LightCurve(object):
 
     def __getitem__(self,given):
         if isinstance(given,slice):
-            qpts = self.query_points
-            start,stop = (given.start,given.stop)
-            return LightCurveSlice(self.curve[given],qpts[given],start,stop,self)
+            return LightCurveSlice(self,given.start,given.stop)
         elif isinstance(given,int):
             return (self.curve[given],self.query_points[given])
         else:
@@ -174,19 +165,15 @@ class LightCurve(object):
 
 
 
-
-
-
-
-
-
-
-
 class LightCurveSlice(LightCurve):
-    def __init__(self,data,query_points,slice_start,slice_end,parent_curve):
-        LightCurve.__init__(self,data,query_points)
-        self._s = slice_start
-        self._e = slice_end
+    def __init__(self,parent_curve,start,stop):
+        qpts = parent_curve.query_points
+        curve = parent_curve.curve
+        begin = qpts[start]
+        end = qpts[stop]
+        LightCurve.__init__(self,curve[start:stop],begin,end)
+        self._s = start
+        self._e = stop
         self._parent_curve = parent_curve
 
     @property
@@ -212,9 +199,6 @@ class LightCurveSlice(LightCurve):
         if isinstance(slc,slice):
             start,stop = (slc.start,slc.stop)
             return self.parent_curve[self._s+start:self._s+stop]
-
-
-
 
     @property
     def slice_object(self):

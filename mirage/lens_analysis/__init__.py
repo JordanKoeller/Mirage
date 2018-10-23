@@ -1,12 +1,9 @@
-import numpy as np
-from astropy import units as u
-
 from .Result import Result, Trial
 from .MagnificationMap import MagnificationMap
 from .LightCurves import LightCurveBatch, LightCurve, LightCurveSlice, \
-LightCurveClassificationTable, Chooser, CraimerChooser, KSChooser, \
-MannWhitneyChooser, AndersonDarlingChooser, CountingChooser, ExtremaChooser, \
-FittingChooser, ProminenceChooser, UserChooser
+	LightCurveClassificationTable, Chooser, CraimerChooser, KSChooser, \
+	MannWhitneyChooser, AndersonDarlingChooser, CountingChooser, ExtremaChooser, \
+	FittingChooser, ProminenceChooser, UserChooser
 
 def load_simulation(filename):
 	from mirage.io import SimulationFileManager

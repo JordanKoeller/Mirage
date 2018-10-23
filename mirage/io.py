@@ -23,11 +23,9 @@ class FileManager(ABC):
 	def read(self):
 		pass
 
-
 	@property
 	def file(self):
 		return self._file
-	
 
 	def close(self):
 		if self._file:
@@ -49,10 +47,6 @@ class JsonFileManager(FileManager):
 	def class_object(self):
 		return self._class_object
 	
-	def open(self,filename):
-		self._filename = filename
-		self._file = None
-
 	def read(self):
 		self._file = open(self._filename,'rb')
 		ret_pt = self._file.tell()
@@ -198,10 +192,6 @@ class FITSFileManager(FileManager):
 		'''
 		FileManager.__init__(self)
 		
-
-	def open(self,filename):
-		self._filename = filename
-
 	def write(self,data,**headerFields):
 		header = fits.Header(headerFields)
 		hdu = fits.PrimaryHDU(data,header=header)

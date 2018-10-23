@@ -62,7 +62,6 @@ class LightCurveBatch(object):
 class LightCurve(object):
 
 
-    _scaling = "mag"
 
 
     def __init__(self,data,start,end):
@@ -85,10 +84,11 @@ class LightCurve(object):
 
     @property
     def curve(self):
-        if self._scaling == "mmag":
-            return -2.5*np.log10(self._data+0.1)
-        else:
-            return self._data
+        return -2.5*np.log10(self._data+0.001)
+
+    @property
+    def magnification_curve(self):
+        return self._data
 
     @property
     def query_points(self):

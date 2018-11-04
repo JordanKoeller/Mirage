@@ -2,6 +2,10 @@
 from mirage.io import ResultFileManager
 from mirage.parameters import Simulation#, MagnificationMapParameters, LightCurvesParameters
 
+import numpy as np
+from astropy import units as u
+
+
 class Result(object):
 
     def __init__(self,file_manager:ResultFileManager, simulation:Simulation):
@@ -73,7 +77,12 @@ class Trial(object):
     def lightcurves(self,dataset):
         from mirage.lens_analysis import LightCurveBatch
         qpts = self.simulation['lightcurves'].lines(self.simulation.parameters.source_plane)
-        return LightCurveBatch(dataset,qpts)
+        qpt_format = np.ndarray((len(qpts),4))
+        for gp in range(len(qpts)):
+            tmp = qpts[gp]
+            qpt_format[gp] = [tmp[0,0].value,tmp[0,1].value,tmp[-1,0].value,tmp[-1,0].value]
+        ret_qp = u.Quantity(qpt_format,qpts[0].unit)
+        return LightCurveBatch(dataset,ret_qp)
     
 
     

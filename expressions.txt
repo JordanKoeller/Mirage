@@ -1,0 +1,19 @@
+gam = m*((x1 - x1i - I*x2 + I*x2i)*(x1 - x1i + I*x2 - I*x2i))**(-2.5)*(x1 - x1i + I*x2 - I*x2i)
+
+gamBar =  m*((x1 - x1i - I*x2 + I*x2i)*(x1 - x1i + I*x2 - I*x2i))**(-2.5)*(x1 - x1i - I*x2 + I*x2i)
+
+DIFFERENTIATING WITH RESPECT TO U
+
+gamPrime = -1.5*m*(x1**2 - 2*x1*x1i + x1i**2 + x2**2 - 2*x2*x2i + x2i**2)**(-2.5)
+
+gamBarPrime = 2.5*m*((x1 - x1i - I*x2 + I*x2i)*(x1 - x1i + I*x2 - I*x2i))**(-2.5)*(-x1 + x1i + I*x2 - I*x2i)/(x1 - x1i + I*x2 - I*x2i)
+
+
+AND NOW WITH RESPECT TO UBAR
+
+gamPrime = 2.5*m*((x1 - x1i - I*x2 + I*x2i)*(x1 - x1i + I*x2 - I*x2i))**(-2.5)*(-x1 + x1i - I*x2 + I*x2i)/(x1 - x1i - I*x2 + I*x2i)
+
+
+gamPrimeBar = -1.5*m*(x1**2 - 2*x1*x1i + x1i**2 + x2**2 - 2*x2*x2i + x2i**2)**(-2.5)
+
+

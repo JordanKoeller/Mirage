@@ -163,7 +163,8 @@ class Parameters(Jsonable, CalculationDependency):
     def special_units(z_s,z_l,quasar_mass):
         r_g = Quasar.static_r_g(quasar_mass,z_s)
         theta_E = Parameters.static_theta_E(z_s,z_l)
-        return [r_g, theta_E]
+        xi = u.def_unit('xi',(1*theta_E).to('rad'))
+        return [r_g, theta_E, xi]
 
 class MicrolensingParameters(Parameters):
 

@@ -1,15 +1,16 @@
 from matplotlib.lines import Line2D
-from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 
 from mirage.util import Vec2D
 from mirage.lens_analysis.MagnificationMap import MagnificationMap
 
-class MagnificationMapView:
+from . import ImageCurveView
+
+class MagnificationMapView(ImageCurveView):
     def __init__(self,name=None):
-        self.figure, self.axes, self.lc_view = MagnificationMapView.get_view(True,name)
+        ImageCurveView.__init__(self)
+        self.figure, self.axes, self.lc_view = ImageCurveView.get_view(True,name)
         self.connect()
-        self._cmap = plt.get_cmap('RdBu_r')
         self.press = None
         self.line = Line2D([0,0],[0,0],color='r',antialiased=True)
         self.axes.add_line(self.line)
@@ -82,20 +83,6 @@ class MagnificationMapView:
         self.figure.canvas.mpl_disconnect(self.cidrelease)
         self.figure.canvas.mpl_disconnect(self.cidmotion)
 
-    @staticmethod
-    def get_view(with_figure=False,name=None):
-        fig = plt.figure(-1)
-        axes = fig.subplots(2,1,gridspec_kw={'height_ratios':[1,5]})
-        fig.show()
-        # fig, axes = plt.subplots(2,1,num=name,gridspec_kw = {'height_ratios':[1, 5]})
-        curve_ax, img_ax = axes
-        img_ax.set_axis_off()
-        img_ax.set_frame_on(True)
-        fig.subplots_adjust(top=0.988,bottom=0.006,left=0.039,right=0.983,hspace=0.075)
-        if not with_figure:
-            return img_ax,curve_ax
-        else:
-            return fig, img_ax,curve_ax
 
     @property
     def magmap(self):
@@ -127,8 +114,8 @@ class MagnificationMapView:
         start,end = curve.ends
         start = start.to(self.map_unit)
         end = end.to(self.map_unit)
-        self.line.set_ydata([start.x.value,end.x.value]) #NOTE: I need to transpose to be consistent with theview
-        self.line.set_xdata([end.y.value,start.y.value])
+        self.line.set_ydata([start[0].value,end[0].value]) #NOTE: I need to transpose to be consistent with theview
+        self.line.set_xdata([end[1].value,start[1].value])
         self.plot(y,x_ax=x.flatten())
 
     def get_curve(self):

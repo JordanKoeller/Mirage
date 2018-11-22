@@ -88,7 +88,7 @@ cpdef caustic_characteristic_inplace(np.ndarray[np.float64_t,ndim=2] stars, np.n
 	#accumulators
 	cdef double complex gam, gamBar, gamPrime, gamBarPrime, gamPrimeUBar, gamPrimeBarUBar, du, dubar
 	#Local only
-	cdef double complex u, uBar
+	cdef double complex u, ubar,r
 	cdef double complex I = 1.0j
 	cdef np.ndarray[np.float64_t,ndim=2] ret = locations.copy()
 	for j in range(0,num_locations):
@@ -104,20 +104,27 @@ cpdef caustic_characteristic_inplace(np.ndarray[np.float64_t,ndim=2] stars, np.n
 			x1i = stars[i,0]
 			x2i = stars[i,1]
 			u = (x1-x1i) + (x2 - x2i)*I
-			uBar = (x1-x1i) - (x2 - x2i)*I
+			ubar = (x1-x1i) - (x2 - x2i)*I
 			mi = stars[i,2]
-			gam -= mi*u/((u*uBar)**(2.5))
-			gamBar -= mi*uBar/((u*uBar)**(2.5))
-			gamPrime -= -(1.5*mi*(x1**2.0 - 2.0*x1*x1i + x1i**2.0 + x2**2.0 - 2.0*x2*x2i + x2i**2.0)**(-2.5))/2.0
-			gamBarPrime -= (2.5*mi*((x1 - x1i - I*x2 + I*x2i)*(x1 - x1i + I*x2 - I*x2i))**(-2.5)*(-x1 + x1i + I*x2 - I*x2i)/(x1 - x1i + I*x2 - I*x2i))/2.0
-			gamPrimeUBar -= (2.5*mi*((x1 - x1i - I*x2 + I*x2i)*(x1 - x1i + I*x2 - I*x2i))**(-2.5)*(-x1 + x1i - I*x2 + I*x2i)/(x1 - x1i - I*x2 + I*x2i))/2.0
-			gamPrimeBarUBar -= (-1.5*mi*(x1**2.0 - 2.0*x1*x1i + x1i**2.0 + x2**2.0 - 2.0*x2*x2i + x2i**2.0)**(-2.5))/2.0
-		du = (0.25)*gamBar*gamPrime + (0.25)*gamBarPrime*gam
-		dubar = (0.25)*gamBar*gamPrimeUBar + (0.25)*gamPrimeBarUBar*gam
-		ret[j,0] = kapMin2 - abs(gam*gamBar)
+			r = u*ubar
+			gam += mi*u*u/r/r
+			# gamBar -= mi*ubar*ubar/r/r
+			# gamPrime += mi*ubar/r/r
+			# gamBarPrime += 2*mi/r/ubar/ubar
+			# gamPrimeUBar += 2*mi/r/ubar/ubar
+			# gamPrimeBarUBar += mi/r/r
+			# gam -= mi*u/((u*uBar)**(2.5))
+			# gamBar -= mi*uBar/((u*uBar)**(2.5))
+			# gamPrime -= -(1.5*mi*(x1**2.0 - 2.0*x1*x1i + x1i**2.0 + x2**2.0 - 2.0*x2*x2i + x2i**2.0)**(-2.5))/2.0
+			# gamBarPrime -= (2.5*mi*((x1 - x1i - I*x2 + I*x2i)*(x1 - x1i + I*x2 - I*x2i))**(-2.5)*(-x1 + x1i + I*x2 - I*x2i)/(x1 - x1i + I*x2 - I*x2i))/2.0
+			# gamPrimeUBar -= (2.5*mi*((x1 - x1i - I*x2 + I*x2i)*(x1 - x1i + I*x2 - I*x2i))**(-2.5)*(-x1 + x1i - I*x2 + I*x2i)/(x1 - x1i - I*x2 + I*x2i))/2.0
+			# gamPrimeBarUBar -= (-1.5*mi*(x1**2.0 - 2.0*x1*x1i + x1i**2.0 + x2**2.0 - 2.0*x2*x2i + x2i**2.0)**(-2.5))/2.0
+		# du = (0.25)*gamBar*gamPrime + (0.25)*gamBarPrime*gam
+		# dubar = (0.25)*gamBar*gamPrimeUBar + (0.25)*gamPrimeBarUBar*gam
+		ret[j,0] = kapMin2 - abs(gam*gam.conjugate())
 		ret[j,1] = abs(dubar*kapMin - du*gam)
 	return ret
-
+#"""NOTE: In order to flip around a map made of these bois, need to do map.T[::-1,:]"""
 
 
 

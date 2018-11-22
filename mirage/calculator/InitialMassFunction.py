@@ -58,13 +58,13 @@ class IMF(object):
 
         Parameters:
         
-	- totalMass (`float`) : The total mass of the cluster (including companions) in solar masses.
+    - totalMass (`float`) : The total mass of the cluster (including companions) in solar masses.
 
         Return:
         
-	- masses (:class:`numpy.ndarray`) : List of primary star masses.
+    - masses (:class:`numpy.ndarray`) : List of primary star masses.
         - isMultiple (:class:'numpy.ndarray`) : List of booleans with True for each primary star that is in a multiple system and False for each single star.
-	-  companionMasses (:class:`numpy.ndarray`) : List of companion masses.
+    -  companionMasses (:class:`numpy.ndarray`) : List of companion masses.
         
         """
 
@@ -258,7 +258,7 @@ class IMF_broken_powerlaw(IMF):
         for mass_limits[n] < m <= mass_limits[n+1].
         Parameters:
         
-	mass_limits (:class:`np.ndarray`) : Array of length (N + 1) with lower and upper limits of the power-law segments.
+    mass_limits (:class:`np.ndarray`) : Array of length (N + 1) with lower and upper limits of the power-law segments.
         coefficients (:class:`np.ndarray`) :Array of length N that contains the powers for each power-law segment.
         """
         if len(mass_limits) != len(powers) + 1:
@@ -588,7 +588,7 @@ class Kroupa_2001(IMF_broken_powerlaw):
 
 class Kroupa_2001_Modified(IMF_broken_powerlaw):
     """"
-	Modified version of the IMF described by Kroupa_2001. Has the cutoffs described in Pooley_2012.
+    Modified version of the IMF described by Kroupa_2001. Has the cutoffs described in Pooley_2012.
     """
     def __init__(self, multiplicity=None):
         massLimits = np.array([0.08,0.5,1.5])
@@ -612,7 +612,7 @@ class Evolved_IMF(IMF_broken_powerlaw):
         
         Parameters:
         
-	- distro (Kroupa_2001): IMF Mass Distribution to start with. Can swap in an instance of another IMF to start with a different model.
+    - distro (Kroupa_2001): IMF Mass Distribution to start with. Can swap in an instance of another IMF to start with a different model.
         - Conversions: dict, where the key is the lower limit of the star mass, value is what those masses get converted to."""
         if massLimits != None:
             IMF_broken_powerlaw.__init__(self,massLimits,powers,multiplicity = multiplicity)
@@ -642,11 +642,11 @@ class Evolved_IMF(IMF_broken_powerlaw):
 
         Parameters:
         
-	- totalMass (`float`) : The total mass of the cluster (including companions) in solar masses.
+    - totalMass (`float`) : The total mass of the cluster (including companions) in solar masses.
 
         Return:
         
-	- masses (:class:`np.ndarray`) : List of primary star masses.
+    - masses (:class:`np.ndarray`) : List of primary star masses.
         - format : string so return type matches other generators as a tuple.
         
         """

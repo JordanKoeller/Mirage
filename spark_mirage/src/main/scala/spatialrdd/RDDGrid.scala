@@ -1,5 +1,6 @@
 package spatialrdd
 
+import lensing.RayBank
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
@@ -20,6 +21,8 @@ import utility.pixelLongConstructor
 import spatialrdd.partitioners.BalancedColumnPartitioner
 import java.io.PrintWriter
 import java.io.File
+import lensing.RayBank.Ray
+
 
 class RDDGrid(rdd: RDD[SpatialData]) extends RDDGridProperty {
 
@@ -107,10 +110,10 @@ class RDDGrid(rdd: RDD[SpatialData]) extends RDDGridProperty {
 }
 
 object RDDGrid {
-  def apply(data: RDD[(Double, Double)], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: IndexedSeq[(Double, Double)] => SpatialData = kDTree.apply): RDDGrid = {
+  def apply(data: RDD[Array[Ray]], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: Array[Ray] => SpatialData = kDTree.apply): RDDGrid = {
     val rddProfiled = partitioner.profileData(data)
     val rddTraced = rddProfiled.partitionBy(partitioner)
-    val glommed = rddTraced.glom()
+    val glommed: RDD[Array[Ray]] = rddTraced.map(_._2).glom().map(RayBank.apply)
 
     val ret = glommed.map(arr => nodeStructure(arr)).cache()
     new RDDGrid(ret)

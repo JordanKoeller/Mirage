@@ -34,6 +34,7 @@ object Main extends App {
     val stars = FileHandler.getStars(starsfile,numStars)
     val tracer = new MicroRayTracer()
     val pixels = sc.range(0,width*height,1,numPartitions)
+    println(s"Putting into $numPartitions partitions")
     val parameters = MicroParameters(
         stars,
         shear,
@@ -44,18 +45,6 @@ object Main extends App {
         height)
     val broadParams = sc.broadcast(parameters)
     val srcPlane = tracer(pixels,broadParams)
-/*    val lensPlane = tracer.lensPlane(pixels,broadParams).takeSample(true,10000)
-    filename = "lensplane_x"
-    writeFile(Array(lensPlane.map(_._1.toInt)))
-    filename = "lensplane_y"
-    writeFile(Array(lensPlane.map(_._2.toInt)))
-    val pix = srcPlane.takeSample(true,10000)
-    filename = "srcplane_x"
-    writeFile(Array(pix.map(_._1.toInt)))
-    filename = "srcplane_y"
-    writeFile(Array(pix.map(_._2.toInt)))
-    println("Done making temp files")
-*/
     val partitioner = new BalancedColumnPartitioner()
     rddGrid = RDDGrid(srcPlane,partitioner)
     broadParams.unpersist()

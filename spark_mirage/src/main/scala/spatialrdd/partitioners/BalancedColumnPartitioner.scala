@@ -1,15 +1,11 @@
 package spatialrdd.partitioners
 
+import lensing.RayBank.Ray
 import org.apache.spark.rdd.RDD
 import org.apache.spark.RangePartitioner
-import spatialrdd.equalHashing
-import spatialrdd.MinMax
-
-import utility.DoublePair
 class BalancedColumnPartitioner extends SpatialPartitioning {
   private var _numPartitions = 1
-  private var _ranger: RangePartitioner[Double, Double] = _
-  //  private var _mixer:Array[Int] = _
+  private var _ranger: RangePartitioner[Double, Array[Byte]] = _
 
   def getPartition(key: Any): Int = {
     //Has the _mixer array to jumble the keys a bit. Gives a more even distribution of work across the cluster, while the RangePartitioner gives an equal distribution of data.
@@ -18,8 +14,6 @@ class BalancedColumnPartitioner extends SpatialPartitioning {
 
   def getPartitions(key: (Double, Double), r: Double): Set[Int] = {
     (for (i <- _ranger.getPartition(key._1 - r) to _ranger.getPartition(key._2 + r)) yield i).toSet
-    //    val range = _ranger.getPartition(key._1 - r) to _ranger.getPartition(key._2+r)
-    //    range.toSet
 
   }
 
@@ -27,9 +21,10 @@ class BalancedColumnPartitioner extends SpatialPartitioning {
     _numPartitions
   }
 
-  override def profileData(data: RDD[DoublePair]): RDD[DoublePair] = {
+  override def profileData(data: RDD[Array[Ray]]): RDD[(Double,Array[Byte])] = {
+    val serialRays = data.flatMap(arr => arr.map(r => (r.sourceX, r.packed)))
     _numPartitions = data.getNumPartitions
-    _ranger = new RangePartitioner(_numPartitions, data)
-    data
+    _ranger = new RangePartitioner(_numPartitions, serialRays)
+    serialRays
   }
 }

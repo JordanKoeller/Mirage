@@ -1,5 +1,7 @@
 package spatialrdd
 
+import lensing.RayBank.Ray
+
 class kDTree(xx: Array[Double], yy: Array[Double], branchSize: Int, parallelDepth: Int = -1) extends SpatialData {
 
   private val xExtremes = minMax(xx)
@@ -245,9 +247,9 @@ object kDTree {
   val parallelDepth = -1
   val log2 = math.log(2)
 
-  def apply(values: IndexedSeq[(Double, Double)]): kDTree = {
-    val xcoords = values.map(_._1).toArray
-    val ycoords = values.map(_._2).toArray
+  def apply(values: Array[Ray]): kDTree = {
+    val xcoords = values.map(_.sourceX).toArray
+    val ycoords = values.map(_.sourceY).toArray
     new kDTree(xcoords, ycoords, binSize, parallelDepth)
   }
 

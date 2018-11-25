@@ -2,9 +2,10 @@ package lensing
 
 object RayBank {
 
-//  private var rays:Array[Double] = Array()
+  //private var rays:Array[Double] = Array()
   private var lensPosition:Array[Double] = Array()
-  private var sourcePosition:Array[Double] = Array() //Position of the ray after mapping to the source plane
+  private var sourcePosition:Array[Double] = Array()
+  //Position of the ray after mapping to the source plane
 
   def size:Int = lensPosition.size/2
 

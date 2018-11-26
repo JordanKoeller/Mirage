@@ -44,18 +44,11 @@ class MassFunction(Jsonable):
 
     @classmethod
     def from_json(cls,js):
-        seed = js['seed']
-        ml = js['mass_limits']
-        pows = js['powers']
-        if 'conversions' in js:
-            convs = js['conversions']
-            imf = Evolved_IMF(conversions = convs,
-                powers = pows,
-                massLimits = ml)
-            return cls(imf,seed)
+        print(js)
+        if "mean_velocity" in js:
+            return AnimatedMassFunction.from_json(js)
         else:
-            imf = IMF_broken_powerlaw(ml,pows)
-            return cls(imf,seed)
+            return StationaryMassFunction.from_json(js)
 
     @abstractmethod
     def generate_stars(self,region:Region, mass_density:u.Quantity) -> np.ndarray:
@@ -84,6 +77,21 @@ class StationaryMassFunction(MassFunction):
         else:
             return self._stars
 
+    @classmethod
+    def from_json(cls,js):
+        seed = js['seed']
+        ml = js['mass_limits']
+        pows = js['powers']
+        if 'conversions' in js:
+            convs = js['conversions']
+            imf = Evolved_IMF(conversions = convs,
+                powers = pows,
+                massLimits = ml)
+            return cls(imf,seed)
+        else:
+            imf = IMF_broken_powerlaw(ml,pows)
+            return cls(imf,seed)
+
 
 class AnimatedMassFunction(MassFunction):
 
@@ -103,8 +111,11 @@ class AnimatedMassFunction(MassFunction):
         velocity, sigma = self._velocity_characteristics
         velocity_mags = rng.normal(velocity.value,sigma.value,len(self._stars_start_pos))
         velocity_directions = rng.rand(len(self._stars_start_pos),3)
-        velocity_3d = velocity_mags*velocity_directions/np.sqrt(velocity_directions[:,0]**2+velocity_directions[:,1]**2+velocity_directions[:,2]**2)
-        self._velocity = u.Quantity(velocity_3d[:,0:2],velocity.unit)
+        rng_mag = np.sqrt(velocity_directions[:,0]**2+velocity_directions[:,1]**2+velocity_directions[:,2]**2)
+        velocity_directions[:,0] = velocity_directions[:,0]*velocity_mags/rng_mag
+        velocity_directions[:,1] = velocity_directions[:,1]*velocity_mags/rng_mag
+        velocity_directions[:,2] = velocity_directions[:,2]*velocity_mags/rng_mag
+        self._velocity = u.Quantity(velocity_directions[:,0:2],velocity.unit)
         return self.stars
         # I just remove the z direction, leaving just the two others after it all.
 

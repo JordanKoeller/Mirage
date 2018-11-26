@@ -289,7 +289,7 @@ class MicrolensingParameters(Parameters):
                 gal = Lens.from_json(js['lens'])
                 src = Quasar.from_json(js['source'])
                 rays = Vec2D.from_json(js['ray_count'])
-                sg = StationaryMassFunction.from_json(js['star_generator'])
+                sg = MassFunction.from_json(js['star_generator'])
                 pcnts = js['percent_stars']
                 spln = Region.from_json(js['source_plane'])
                 center = Vec2D.from_json(js['image_center'])
@@ -298,7 +298,7 @@ class MicrolensingParameters(Parameters):
             params = Parameters.from_json(js)
             print("FromJson of %s" % str(params.quasar.r_g))
             with u.add_enabled_units([params.quasar.r_g, params.theta_E]):
-                sg = StationaryMassFunction.from_json(js['star_generator'])
+                sg = MassFunction.from_json(js['star_generator'])
                 pcnts = js['percent_stars']
                 spln = Region.from_json(js['source_plane'])
                 rays = params.ray_region.resolution

@@ -79,6 +79,7 @@ class MicroSparkDelegate(CalculationDelegate):
         pass
 
     def query_points(self,points:np.ndarray, radius:u.Quantity) -> np.ndarray:
+        print("Querying from python")
         query_point_file = self.get_data_file(points)
         query_radius = radius.value
         jrdd = self._spark_context.emptyRDD()._jrdd

@@ -13,6 +13,8 @@ trait RDDGridProperty extends Serializable {
   def query_curve(pts:Array[DoublePair], radius:Double, sc:SparkContext):Array[Int]
 
   def destroy():Unit
+
+  def cache():Unit
   
   def printSuccess:Unit
   

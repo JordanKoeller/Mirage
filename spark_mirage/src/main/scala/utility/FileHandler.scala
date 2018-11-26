@@ -43,6 +43,20 @@ object FileHandler {
     file.close()
   }
 
+  def saveDoubles(filename:String,data:Array[Array[Double]]): Unit = {
+
+    val file = new BufferedOutputStream(new FileOutputStream(filename))
+    val bytes:Array[Byte] = data.flatMap{arr =>
+      val bb = java.nio.ByteBuffer.allocate(arr.length*8)
+      bb.order(nativeOrder())
+      arr.foreach(e => bb.putDouble(e))
+      bb.array()
+    }
+    file.write(bytes)
+    file.flush()
+    file.close()
+  }
+
 
 
   def getQueryPoints(filename:String,numRows:Int):Array[Array[(Double,Double)]] = {

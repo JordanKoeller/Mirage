@@ -1,6 +1,6 @@
 package spatialrdd.partitioners
 
-import lensing.RayBank.Ray
+import lensing.RayBankVal.Ray
 import org.apache.spark.rdd.RDD
 import org.apache.spark.RangePartitioner
 class BalancedColumnPartitioner extends SpatialPartitioning {

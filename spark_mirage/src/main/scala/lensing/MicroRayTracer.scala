@@ -14,14 +14,15 @@ class MicroRayTracer() extends Serializable {
       (x1, x2)
     }
   }
-  def apply(pixels:RDD[Long], p:Broadcast[MicroParameters]):RDD[Array[RayBank.Ray]] = {
+  def apply(pixels:RDD[Long], p:Broadcast[MicroParameters]):RDD[Array[RayBankVal.Ray]] = {
+      println("Allocating from apply")
     val gminus = 1.0 - p.value.shear
     val gplus = 1.0 + p.value.shear
     val glommed = pixels.glom()
     val rays = glommed.map { rays =>
-      RayBank.allocate(rays, p.value.dx, p.value.dy, p.value.width, p.value.height)
+      RayBankVal.allocate(rays, p.value.dx, p.value.dy, p.value.width, p.value.height)
     }
-    rays.foreach { arr =>
+    rays.map { arr =>
       arr.foreach { ray =>
         val x1 = ray.x
         val x2 = ray.y
@@ -42,8 +43,9 @@ class MicroRayTracer() extends Serializable {
         }
         ray.sourceX = retX
         ray.sourceY = retY
+        // println(ray.sourceX + "," + ray.sourceY)
       }
+      arr
     }
-    rays
   }
 }

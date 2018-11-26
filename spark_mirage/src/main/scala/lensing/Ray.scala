@@ -1,10 +1,10 @@
 package lensing
 
-object RayBank {
+object RayBankVal {
 
   //private var rays:Array[Double] = Array()
-  private var lensPosition:Array[Double] = Array()
-  private var sourcePosition:Array[Double] = Array()
+  var lensPosition:Array[Double] = Array()
+  var sourcePosition:Array[Double] = Array()
   //Position of the ray after mapping to the source plane
 
   def size:Int = lensPosition.size/2
@@ -12,6 +12,7 @@ object RayBank {
   def allocate(input:Array[Long],dx:Double,dy:Double,w:Long,h:Long):Array[Ray] = {
     val number = input.size
     val ret = input.indices.toArray.map(l => new Ray(l))
+    println("Allocating")
     lensPosition = Array.fill(number*2)(0.0)
     sourcePosition = Array.fill(number*2)(0.0)
     for (ind <- input.indices) {

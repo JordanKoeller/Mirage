@@ -1,16 +1,9 @@
 package main
 
-import java.io._
 
+import lensing._
 import org.apache.spark.api.java.JavaRDD
-
-import spatialrdd.GridGenerator
-import spatialrdd.RDDGrid
-import spatialrdd.RDDGridProperty
-import spatialrdd.partitioners.BalancedColumnPartitioner
-import lensing.MicroRayTracer
-import lensing.Star
-import lensing.MicroParameters
+import spatialrdd._
 import utility.FileHandler
 
 object Main extends App {
@@ -18,35 +11,40 @@ object Main extends App {
   private var rddGrid: RDDGridProperty = null
 
   def createRDDGrid(
-      starsfile:String,
-      numStars:Int,
-      shear:Double,
-      smooth:Double,
-      dx:Double,
-      dy:Double,
-      width:Long,
-      height:Long,
-      jrdd:JavaRDD[Int],
-      numPartitions:Int):Unit = {
+                     starsfile:String,
+                     numStars:Int,
+                     shear:Double,
+                     smooth:Double,
+                     dx:Double,
+                     dy:Double,
+                     width:Long,
+                     height:Long,
+                     jrdd:JavaRDD[Int],
+                     numPartitions:Int):Unit = {
     if (rddGrid != null) rddGrid.destroy()
     val sc = jrdd.context
     sc.setLogLevel("WARN")
     val stars = FileHandler.getStars(starsfile,numStars)
-    val tracer = new MicroRayTracer()
     val pixels = sc.range(0,width*height,1,numPartitions)
+    val raybanks = pixels.glom().map(arr => CausticRayBank(arr,dx,dy,width,height))
     println(s"Putting into $numPartitions partitions")
     val parameters = MicroParameters(
-        stars,
-        shear,
-        smooth,
-        dx,
-        dy,
-        width,
-        height)
+      stars,
+      shear,
+      smooth,
+      dx,
+      dy,
+      width,
+      height)
     val broadParams = sc.broadcast(parameters)
-    val srcPlane = tracer(pixels,broadParams)
-    val partitioner = new BalancedColumnPartitioner()
-    rddGrid = RDDGrid(srcPlane,partitioner)
+    val tracer = new RayBankTracer()
+    val srcPlane = tracer(raybanks,broadParams)
+//    val causticTracer = new CausticTracer()
+//    val caustics = causticTracer(srcPlane,broadParams)
+//    FileHandler.saveDoubles("SavedCaustics",caustics.collect().head.compressed)
+//    val collected = caustics.collect.head.printTo("TestCaustics.py")
+    rddGrid = RDDGrid(srcPlane,nodeStructure = kDTree.apply)
+    rddGrid.cache()
     broadParams.unpersist()
   }
 
@@ -64,7 +62,6 @@ object Main extends App {
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
     val retArr = rddGrid.queryPoints(lightCurves, radius, sc, false)
     FileHandler.saveMagnifications(retFile,retArr)
-
   }
 
   def querySingleCurve(pointsFile: String, retFile:String, radius: Double, ctx: JavaRDD[Int]) {

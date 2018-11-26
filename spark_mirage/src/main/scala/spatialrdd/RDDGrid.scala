@@ -2,27 +2,15 @@ package spatialrdd
 
 import lensing.RayBank
 import org.apache.spark.SparkContext
-import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import spatialrdd.partitioners.SpatialPartitioning
-import spatialrdd.partitioners.BalancedColumnPartitioner
-// import spatialrdd.SpatialData
-import org.apache.spark.storage.StorageLevel
-
-import org.apache.spark.RangePartitioner
-import utility.PixelAccumulator
-import utility.IndexPair
 import utility.DoublePair
-import utility.mkPair
 import utility.Index
-import utility.PixelValue
 import utility.pixelConstructor
 import utility.pixelLongConstructor
 import spatialrdd.partitioners.BalancedColumnPartitioner
-import java.io.PrintWriter
-import java.io.File
-import lensing.RayBank.Ray
 
+import scala.reflect.ClassTag
 
 class RDDGrid(rdd: RDD[SpatialData]) extends RDDGridProperty {
 
@@ -107,23 +95,28 @@ class RDDGrid(rdd: RDD[SpatialData]) extends RDDGridProperty {
     rdd.saveAsObjectFile(fname)
   }
 
+  override def cache(): Unit = {
+    rdd.persist()
+  }
+
 }
 
 object RDDGrid {
-  def apply(data: RDD[Array[Ray]], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: Array[Ray] => SpatialData = kDTree.apply): RDDGrid = {
-    val rddProfiled = partitioner.profileData(data)
-    val rddTraced = rddProfiled.partitionBy(partitioner)
-    val glommed: RDD[Array[Ray]] = rddTraced.map(_._2).glom().map(RayBank.apply)
-
-    val ret = glommed.map(arr => nodeStructure(arr)).cache()
+//  def apply(data: RDD[Array[Ray]], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: Array[Ray] => SpatialData = kDTree.apply): RDDGrid = {
+//    val rddProfiled = partitioner.profileData(data)
+//    val rddTraced = rddProfiled.partitionBy(partitioner)
+//    val glommed: RDD[Array[Ray]] = rddTraced.map(_._2).glom().map(RayBankVal.apply)
+//
+//    val ret = glommed.map(arr => nodeStructure(arr)).cache()
+//    new RDDGrid(ret)
+//  }
+  def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: RayBank => SpatialData = kDTree.apply): RDDGrid = {
+    val ret = data.map(arr => nodeStructure(arr)).persist()
     new RDDGrid(ret)
   }
   def fromFile(file: String, numPartitions: Int, sc: SparkContext): RDDGrid = {
     val rdd = sc.objectFile[SpatialData](file, numPartitions)
     new RDDGrid(rdd)
   }
-  //  private def writeFile(data: Array[Array[Double]],filename:String): Unit = {
-  //    val dString = data.map(_.mkString(",")).mkString(":")
-  //  }
 
 }

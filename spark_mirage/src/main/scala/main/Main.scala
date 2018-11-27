@@ -57,7 +57,7 @@ object Main extends App {
     FileHandler.saveMagnifications(retFile,retArr)
   }
 
-  def sampleLightCurves(pointsFile: String, retFile:String, numLines:Int,radius: Double, ctx: JavaRDD[Int]) {
+  def sampleLightCurvess(pointsFile: String, retFile:String, numLines:Int,radius: Double, ctx: JavaRDD[Int]) {
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
     val retArr = rddGrid.queryPoints(lightCurves, radius, sc, false)
@@ -71,7 +71,7 @@ object Main extends App {
     FileHandler.saveMagnifications(retFile,Array(retArr))
   }
 
-  def sampleCaustics(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]) = {
+  def sampleLightCurves(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]) = {
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
     val retArr = rddGrid.queryCaustics(lightCurves,radius,sc)

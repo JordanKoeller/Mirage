@@ -306,6 +306,7 @@ class MicrolensingParameters(Parameters):
                 return cls(params.quasar,params.lens,pcnts,center,rays,spln,sg)
 
     def is_similar(self,other:'Parameters'):
+        return False
         myJS = self.json
         oJS = other.json
         if not Parameters.is_similar(self,other):

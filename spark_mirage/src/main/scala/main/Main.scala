@@ -43,7 +43,7 @@ object Main extends App {
 //    val caustics = causticTracer(srcPlane,broadParams)
 //    FileHandler.saveDoubles("SavedCaustics",caustics.collect().head.compressed)
 //    val collected = caustics.collect.head.printTo("TestCaustics.py")
-    rddGrid = RDDGrid(srcPlane,nodeStructure = kDTree.apply)
+    rddGrid = RDDGrid(srcPlane,nodeStructure = CausticTree.apply)
     rddGrid.cache()
     broadParams.unpersist()
   }
@@ -69,6 +69,16 @@ object Main extends App {
     val lightCurves = FileHandler.getQueryPoints(pointsFile,1).head
     val retArr = rddGrid.query_curve(lightCurves, radius, sc)
     FileHandler.saveMagnifications(retFile,Array(retArr))
+  }
+
+  def sampleCaustics(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]) = {
+    val sc = ctx.context
+    val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
+    val retArr = rddGrid.queryCaustics(lightCurves,radius,sc)
+    val ret = retArr.map{arr =>
+      arr.map(elem => if (elem) 2 else 1)
+    }
+    FileHandler.saveMagnifications(retFile,ret)
   }
 
 }

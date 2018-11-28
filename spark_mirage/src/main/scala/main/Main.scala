@@ -51,6 +51,7 @@ object Main extends App {
 
 
   def queryPoints(x0: Double, y0: Double, x1: Double, y1: Double, xDim: Int, yDim: Int, radius: Double, retFile:String, ctx: JavaRDD[Int], verbose: Boolean = false) = {
+    println("queryPoints")
     val sc = ctx.context
     val generator = new GridGenerator(x0, y0, x1, y1, xDim, yDim)
     val retArr = rddGrid.queryPointsFromGen(generator, radius, sc, verbose = verbose)
@@ -58,6 +59,7 @@ object Main extends App {
   }
 
   def sampleLightCurvess(pointsFile: String, retFile:String, numLines:Int,radius: Double, ctx: JavaRDD[Int]) {
+    println("Curvess")
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
     val retArr = rddGrid.queryPoints(lightCurves, radius, sc, false)
@@ -65,6 +67,7 @@ object Main extends App {
   }
 
   def querySingleCurve(pointsFile: String, retFile:String, radius: Double, ctx: JavaRDD[Int]) {
+    println("SingleCurve")
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,1).head
     val retArr = rddGrid.query_curve(lightCurves, radius, sc)
@@ -72,6 +75,7 @@ object Main extends App {
   }
 
   def sampleLightCurves(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]) = {
+    println("Calling from the jvm, sampleLightCurves")
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
     val retArr = rddGrid.queryCaustics(lightCurves,radius,sc)

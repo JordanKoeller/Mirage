@@ -69,7 +69,7 @@ class RDDGrid(rdd: RDD[CausticTree]) extends RDDGridProperty {
         for (j <- 0 until queryPts.value(i).length) {
           if (grid.intersects(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)) {
             val num = grid.searchCaustics(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)
-            if (num) rett ::= RetValue(i, j, 2)
+            if (num) rett ::= RetValue(i, j, 1)
           }
         }
       }

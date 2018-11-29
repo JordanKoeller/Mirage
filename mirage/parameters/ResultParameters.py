@@ -19,6 +19,8 @@ class ResultParameters(Jsonable):
             return MagnificationMapParameters.from_json(v)
         elif k == 'lightcurves':
             return LightCurvesParameters.from_json(v)
+        elif k == 'causticmap':
+            return CausticMapParameters.from_json(v)
 
     @abstractproperty
     def keyword(self):
@@ -45,6 +47,27 @@ class MagnificationMapParameters(ResultParameters):
     @property
     def keyword(self):
         return "magmap"
+
+class CausticMapParameters(MagnificationMapParameters):
+
+    def __init__(self,resolution:Vec2D):
+        MagnificationMapParameters.__init__(self,resolution)
+
+    @property
+    def resolution(self):
+        return self._resolution
+
+    @property
+    def json(self):
+        return {'caustic_resolution' : self.resolution.json}
+
+    @classmethod
+    def from_json(cls,js):
+        return cls(Vec2D.from_json(js['caustic_resolution']))
+
+    @property
+    def keyword(self):
+        return "causticmap"
     
 
 class LightCurvesParameters(ResultParameters):
@@ -90,7 +113,6 @@ class LightCurvesParameters(ResultParameters):
     
     
     def lines(self,region:Region) -> np.ndarray:
-        print("NEED TO WRITE A LINE GENERATOR")
         rng = np.random.RandomState(self.seed)
         scaled = rng.rand(self.num_curves,4) - 0.5
         #np.random.rand returns an array of (number,4) dimension of doubles over interval [0,1).

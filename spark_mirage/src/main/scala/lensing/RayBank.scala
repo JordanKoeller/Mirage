@@ -36,7 +36,6 @@ class RayBank(lensPosition:Array[Double],sourcePosition:Array[Double]) extends S
 
 object RayBank {
   def apply(input:Array[Long],dx:Double,dy:Double,w:Long,h:Long): RayBank = {
-    println("Allocating RayBank(s)")
     val number = input.size
     val lensPos = Array.fill(number*2)(0.0)
     val srcPos = Array.fill(number*2)(0.0)

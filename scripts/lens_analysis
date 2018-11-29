@@ -1,0 +1,31 @@
+#!/bin/sh
+
+export LA_HOME=$(cat ~/.lensrc)
+export PYTHONPATH="$LA_HOME"
+export PYTHONSTARTUP="$LA_HOME/scripts/shell.py"
+JAR_LOC="$LA_HOME/spark_mirage/target/scala-2.11/spark_mirage-assembly-beta.jar"
+
+#Commands: Local only or with the cluster
+
+if [ "$1" = "-s" ] || [ "$1" = "--simulation" ]
+then
+
+	#Pull out the configuration variables
+	MASTER=$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["master"])')
+	DRIVER_MEMORY=$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["driver-memory"])')
+	EXECUTOR_MEMORY=$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["executor-memory"])')
+	EXTRA_ARGS="$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["command-line-args"])')"
+	export IS_SIMULATION="true"
+	cmd="pyspark --jars "$JAR_LOC" --conf spark.driver.maxResultSize="0" --master $MASTER --excecutor-memory $EXECUTOR_MEMORY --driver-memory $DRIVER_MEMORY "$EXTRA_ARGS""
+	echo "cmd"
+	$cmd
+
+elif [ "$1" = "-l" ] || [ "$1" = "--local" ]
+then
+	MASTER="local[*]"
+	export IS_SIMULATION="true"
+	pyspark --master $MASTER --jars $JAR_LOC
+else
+	ipython
+fi
+

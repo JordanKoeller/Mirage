@@ -17,7 +17,6 @@ class RayBankTracer() extends Serializable {
     }
   }
   def apply[A <: RayBank: ClassTag](pixels:RDD[A], p:Broadcast[MicroParameters]):RDD[A] = {
-    println("In raybanktracer")
     val gminus = 1.0 - p.value.shear
     val gplus = 1.0 + p.value.shear
     pixels.map {bank =>
@@ -40,13 +39,8 @@ class RayBankTracer() extends Serializable {
         }
         bank.setSourceX(ind,retX)
         bank.setSourceY(ind,retY)
-//        if (ind%10000 == 0) {
-//          println(bank.x(ind) + "," + bank.y(ind) + " => " + bank.sourceX(ind) + "," + bank.sourceY(ind))
-//        }
-        // println(ray.sourceX + "," + ray.sourceY)
       }
       bank
     }
-    // println(lensing.RayBank.sourcePosition.mkString(","))
   }
 }

@@ -15,7 +15,6 @@ class EngineHandler(object):
     def update_parameters(self,params:Parameters,force_recalculate=False) -> bool:
         if not self._parameters or force_recalculate or not self._parameters.is_similar(params):
             self._parameters = params
-            print("Recalculating")
             self.calculation_delegate.reconfigure(self._parameters)
             return True
         else:
@@ -32,3 +31,6 @@ class EngineHandler(object):
             return ret
         else:
             return ret/rb
+
+    def query_caustics(self,*args,**kwargs):
+        return self.calculation_delegate.query_caustics(*args,**kwargs)

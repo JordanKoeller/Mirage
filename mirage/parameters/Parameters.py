@@ -97,7 +97,7 @@ class Parameters(Jsonable, CalculationDependency):
 
 
     def convergence(self,loc:Vec2D) -> float:
-        print("NOTE: Have not implimented convergence yet!")
+        # print("NOTE: Have not implimented convergence yet!")
         #Assumes SIE mass model with external shear.
         #STILL NOT GOOD _ NOT ACCOUNTING FOR EXTERNAL SHEAR
         try:
@@ -114,7 +114,7 @@ class Parameters(Jsonable, CalculationDependency):
         return 0.7
 
     def shear(self,loc:Vec2D) -> float:
-        print("NOTE: Have not implimented Shear yet!")
+        # print("NOTE: Have not implimented Shear yet!")
         #Expressions calculated using Sympy, from \Psi = \theta \dot \alpha
         #STILL NOT GOOD _ NOT ACCOUNTING FOR EXTERNAL SHEAR
         try:
@@ -177,7 +177,7 @@ class MicrolensingParameters(Parameters):
                  quasar_position_bounding_box:Region,
                  star_generator:MassFunction = getMassFunction()):
         try:
-            print("NOTE: Need to specify the factor for going from source plane to ray plane.")
+            # eprint("NOTE: Need to specify the factor for going from source plane to ray plane.")
             factor = GlobalPreferences['microlensing_window_buffer']
             tmp_p = Parameters(quasar,lens)
             conv = tmp_p.convergence(image_center)
@@ -268,9 +268,9 @@ class MicrolensingParameters(Parameters):
             ret['image_center'] = self.ray_region.center.json
             ret['ray_count'] = self.ray_region.resolution.json
             return ret
-        except:
+        except KeyError as e:
             ret = Parameters.json.fget(self)
-            print("Sloppy implementation here. Need to redo it with better json of micromagmap")
+            # print("Sloppy implementation here. Need to redo it with better json of micromagmap")
             # del(ret['ray_region'])
             ret['star_generator'] = self.star_generator.json
             ret['percent_stars'] = self.percent_stars*100
@@ -296,7 +296,6 @@ class MicrolensingParameters(Parameters):
                 return cls(src,gal,pcnts,center,rays,spln,sg)
         except:
             params = Parameters.from_json(js)
-            print("FromJson of %s" % str(params.quasar.r_g))
             with u.add_enabled_units([params.quasar.r_g, params.theta_E]):
                 sg = MassFunction.from_json(js['star_generator'])
                 pcnts = js['percent_stars']

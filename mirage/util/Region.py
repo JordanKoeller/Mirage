@@ -105,17 +105,11 @@ class PixelRegion(Region):
 
     @property
     def pixels(self) -> u.Quantity:
-        print("NOTE: pixels function on PixelRegion may be incorrect")
         self.to(self.center.unit)
-        # grid = np.ndarray((int(self.resolution.x),int(self.resolution.y),2))
         x_ax = np.linspace((self.center.x - self.dimensions.x/2).value,(self.center.x + self.dimensions.x/2).value,self.resolution.x.value)
         y_ax = np.linspace((self.center.y - self.dimensions.y/2).value,(self.center.y + self.dimensions.y/2).value,self.resolution.y.value)
         x,y = np.meshgrid(x_ax,y_ax)
         grid = np.stack([x,y],2)
-        # for i in range(grid.shape[0]):
-        #     for j in range(grid.shape[1]):
-        #         grid[i,j,0] = (self.center.x + self.dTheta.x*(i - self.resolution.x.value/2)).value
-        #         grid[i,j,1] = (self.center.y + self.dTheta.y*(j - self.resolution.y.value/2)).value
         return u.Quantity(grid,self.center.unit)
     
 

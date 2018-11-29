@@ -35,7 +35,6 @@ class MacroCPUDelegate(CalculationDelegate):
     def reconfigure(self,parameters:Parameters):
         from mirage.engine.ray_tracer import ray_trace
         rays = parameters.ray_region.pixels.to('rad').value
-        print("Starting rays")
         src_plane = ray_trace(rays,
             parameters.dL.to('m').value,
             parameters.dS.to('m').value,
@@ -46,11 +45,9 @@ class MacroCPUDelegate(CalculationDelegate):
             parameters.lens.ellipticity.direction.to('rad').value,
             parameters.einstein_radius.to('rad').value,
             self.core_count)
-        print("Done with tracing")
         self._canvas_dimensions = parameters.ray_region.resolution
         flat_array = np.reshape(src_plane,(src_plane.shape[0]*src_plane.shape[1],2))
         self._tree = cKDTree(flat_array,256,False,False,False)
-        print("Done with tree")
 
     def get_connecting_rays(self,location:Vec2D,radius:u.Quantity) -> np.ndarray:
         x = location.x.to('rad').value

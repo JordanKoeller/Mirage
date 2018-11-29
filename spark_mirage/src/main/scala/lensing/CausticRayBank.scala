@@ -21,7 +21,7 @@ class CausticRayBank(lensPosition:Array[Double],sourcePosition:Array[Double],cau
 }
 
 object CausticRayBank {
-  def apply(input: Array[Long], dx: Double, dy: Double, w: Long, h: Long): CausticRayBank = {    println("Allocating RayBank(s)")
+  def apply(input: Array[Long], dx: Double, dy: Double, w: Long, h: Long): CausticRayBank = {
     val number = input.size
     val lensPos = Array.fill(number*2)(0.0)
     val srcPos = Array.fill(number*2)(0.0)

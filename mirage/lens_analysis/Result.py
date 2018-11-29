@@ -36,6 +36,8 @@ def requires(dtype):
                         index = 0
                     elif dtype == 'lightcurves':
                         index = 1
+                    elif dtype == 'causticmap':
+                        index = 2
                 dataset = self._fm.get_result(self.trial_number,index)
                 return fn(self,dataset,*args,**kwargs)
             else:
@@ -71,6 +73,12 @@ class Trial(object):
     def magmap(self,dataset):
         from mirage.lens_analysis import MagnificationMap
         return MagnificationMap(self.simulation,dataset)
+
+    @property
+    @requires('causticmap')
+    def caustics(self,dataset):
+        from mirage.lens_analysis import CausticMap
+        return CausticMap(self.simulation,dataset)
 
     @property
     @requires('lightcurves')

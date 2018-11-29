@@ -44,7 +44,6 @@ class MassFunction(Jsonable):
 
     @classmethod
     def from_json(cls,js):
-        print(js)
         if "mean_velocity" in js:
             return AnimatedMassFunction.from_json(js)
         else:

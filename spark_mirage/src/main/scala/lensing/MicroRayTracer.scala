@@ -15,7 +15,6 @@ class MicroRayTracer() extends Serializable {
     }
   }
   def apply(pixels:RDD[Long], p:Broadcast[MicroParameters]):RDD[Array[RayBankVal.Ray]] = {
-      println("Allocating from apply")
     val gminus = 1.0 - p.value.shear
     val gplus = 1.0 + p.value.shear
     val glommed = pixels.glom()

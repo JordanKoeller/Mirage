@@ -97,7 +97,9 @@ class CausticTree(values:CausticRayBank, branchSize: Int) extends SpatialData {
   }
 
   def query_point_count(x: Double, y: Double, r: Double): Int = {
-    searchNodes(x, y, r)
+    val ret = searchNodes(x, y, r)
+    // println(ret)
+    ret
   }
 
   def intersects(x: Double, y: Double, r: Double): Boolean = {
@@ -149,7 +151,7 @@ class CausticTree(values:CausticRayBank, branchSize: Int) extends SpatialData {
         //Two cases. It is a leaf or a branch
         if (searching * 2 + 1 >= boxes.size) {
           //Case 1: It's a leaf
-          boxes(searching).search(x, y, r2)
+          counter += boxes(searching).search(x, y, r2)
         } else {
           //Case 2: Need to go into its children. Check each individually, see if needs to be added.
           if (boxes(searching).overlapsLeft(x, y, r, level)) toSearch = (searching * 2 + 1) :: toSearch

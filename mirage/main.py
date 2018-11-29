@@ -11,16 +11,22 @@ def run_simulation(simfile,savefile):
     sim = loader.read()
     loader.close()
     calculator = ResultCalculator()
-    engine = calculator.calculate(sim,name = savefile)
-    return engine
+    print("Input accepted. Starting computation.")
+    print("_____________________________________\n\n")
+    saver = calculator.calculate(sim,name = savefile)
+    print("Done. All results saved to " + saver.filename)
+    try:
+        from mirage import lens_analysis as la
+        return la.load(saver.filename)
+    except:
+        return 
+    # return engine
     
 
 
 if __name__ == "__main__":
     print("Program initialized.")
     print('____________________________ \n\n'+"Process ID = " + str(os.getpid())+'\n\n____________________________')
-    starttime = DT.now()
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--load",nargs='?', type=str, help='Follow with a .param file to load in as parameters.')
     parser.add_argument("--run",nargs='?', type=str, help='Follow with a .params infile and outdirectory to save data to.')
@@ -34,7 +40,5 @@ if __name__ == "__main__":
         simfile = args.run[0]
         savefile = args.outfile[0]
         run_simulation(simfile,savefile)
-        endtime = DT.now()
-        print("Program ran in %f seconds" % (endtime - endtime))
     else:
         print("Did not specify a command.")

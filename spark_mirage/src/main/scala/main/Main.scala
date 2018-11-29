@@ -6,7 +6,7 @@ import org.apache.spark.api.java.JavaRDD
 import spatialrdd._
 import utility.FileHandler
 
-object Main extends App {
+object Main {
 
   private var rddGrid: RDDGridProperty = null
 
@@ -27,7 +27,6 @@ object Main extends App {
     val stars = FileHandler.getStars(starsfile,numStars)
     val pixels = sc.range(0,width*height,1,numPartitions)
     val raybanks = pixels.glom().map(arr => CausticRayBank(arr,dx,dy,width,height))
-    println(s"Putting into $numPartitions partitions")
     val parameters = MicroParameters(
       stars,
       shear,
@@ -41,8 +40,6 @@ object Main extends App {
     val srcPlane = tracer(raybanks,broadParams)
     val causticTracer = new CausticTracer()
     val caustics = causticTracer(srcPlane,broadParams)
-//    FileHandler.saveDoubles("SavedCaustics",caustics.collect().head.compressed)
-//    val collected = caustics.collect.head.printTo("TestCaustics.py")
     rddGrid = RDDGrid(caustics,nodeStructure = CausticTree.apply)
     rddGrid.cache()
     broadParams.unpersist()
@@ -50,37 +47,35 @@ object Main extends App {
 
 
 
-  def queryPoints(x0: Double, y0: Double, x1: Double, y1: Double, xDim: Int, yDim: Int, radius: Double, retFile:String, ctx: JavaRDD[Int], verbose: Boolean = false) = {
-    println("queryPoints")
+  def queryPoints(x0: Double, y0: Double, x1: Double, y1: Double,
+                  xDim: Int, yDim: Int, radius: Double, retFile:String,
+                  ctx: JavaRDD[Int], verbose: Boolean = false):Unit = {
     val sc = ctx.context
     val generator = new GridGenerator(x0, y0, x1, y1, xDim, yDim)
     val retArr = rddGrid.queryPointsFromGen(generator, radius, sc, verbose = verbose)
     FileHandler.saveMagnifications(retFile,retArr)
   }
 
-  def sampleLightCurvess(pointsFile: String, retFile:String, numLines:Int,radius: Double, ctx: JavaRDD[Int]) {
-    println("Curvess")
+  def sampleLightCurves(pointsFile: String, retFile:String, numLines:Int,radius: Double, ctx: JavaRDD[Int]):Unit = {
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
-    val retArr = rddGrid.queryPoints(lightCurves, radius, sc, false)
+    val retArr = rddGrid.queryPoints(lightCurves, radius, sc)
     FileHandler.saveMagnifications(retFile,retArr)
   }
 
-  def querySingleCurve(pointsFile: String, retFile:String, radius: Double, ctx: JavaRDD[Int]) {
-    println("SingleCurve")
+  def querySingleCurve(pointsFile: String, retFile:String, radius: Double, ctx: JavaRDD[Int]):Unit = {
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,1).head
     val retArr = rddGrid.query_curve(lightCurves, radius, sc)
     FileHandler.saveMagnifications(retFile,Array(retArr))
   }
 
-  def sampleLightCurves(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]) = {
-    println("Calling from the jvm, sampleLightCurves")
+  def sampleCaustics(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]):Unit = {
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
     val retArr = rddGrid.queryCaustics(lightCurves,radius,sc)
     val ret = retArr.map{arr =>
-      arr.map(elem => if (elem) 2 else 1)
+      arr.map(elem => if (elem) 1 else 0)
     }
     FileHandler.saveMagnifications(retFile,ret)
   }

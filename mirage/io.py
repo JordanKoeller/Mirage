@@ -46,6 +46,11 @@ class JsonFileManager(FileManager):
     @property
     def class_object(self):
         return self._class_object
+
+    @property
+    def filename(self):
+        return self._filename
+    
     
     def read(self):
         self._file = open(self._filename,'rb')

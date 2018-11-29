@@ -79,7 +79,6 @@ class MicroSparkDelegate(CalculationDelegate):
         pass
 
     def query_points(self,points:np.ndarray, radius:u.Quantity) -> np.ndarray:
-        print("Querying from python")
         query_point_file = self.get_data_file(points)
         query_radius = radius.value
         jrdd = self._spark_context.emptyRDD()._jrdd
@@ -87,6 +86,15 @@ class MicroSparkDelegate(CalculationDelegate):
         self.spark_context._jvm.main.Main.sampleLightCurves(query_point_file,file.name,points.shape[0],query_radius,jrdd)
         returned_data = self.get_returned_data(file.name,points)
         return np.array(returned_data)
+
+    def query_caustics(self,points:Vec2D,radius:u.Quantity) -> np.ndarray:
+        query_point_file = self.get_data_file(points)
+        query_radius = radius.value
+        jrdd = self._spark_context.emptyRDD()._jrdd
+        file = tempfile.NamedTemporaryFile("w+",delete = False)
+        self.spark_context._jvm.main.Main.sampleCaustics(query_point_file,file.name,points.shape[0],query_radius,jrdd)
+        returned_data = self.get_returned_data(file.name,points)
+        return np.array(returned_data,dtype=np.int8)
 
     def get_star_file(self,data:np.ndarray):
         file = tempfile.NamedTemporaryFile('w+',delete = False)

@@ -1,5 +1,6 @@
 from .Result import Result, Trial
 from .MagnificationMap import MagnificationMap
+from .CausticMap import CausticMap
 from .LightCurves import LightCurveBatch, LightCurve, LightCurveSlice, \
     LightCurveClassificationTable, Chooser, CraimerChooser, KSChooser, \
     MannWhitneyChooser, AndersonDarlingChooser, CountingChooser, ExtremaChooser, \

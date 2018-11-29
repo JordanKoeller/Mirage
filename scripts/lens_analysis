@@ -22,7 +22,7 @@ then
 	MASTER=$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["master"])')
 	DRIVER_MEMORY=$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["driver-memory"])')
 	EXECUTOR_MEMORY=$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["executor-memory"])')
-	EXTRA_ARGS="$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["command-line-args"])')"
+	EXTRA_ARGS="$(python -c 'from mirage import GlobalPreferences; print(GlobalPreferences["spark_configuration"]["command-line-args"] or "")')"
 	export LA_IS_SIMULATION="true"
 	cmd="pyspark --jars "$JAR_LOC" --conf spark.driver.maxResultSize="0" --master $MASTER --executor-memory $EXECUTOR_MEMORY --driver-memory $DRIVER_MEMORY "$EXTRA_ARGS""
 	echo "$cmd"

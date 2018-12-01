@@ -27,8 +27,8 @@ class LightCurveBatch(object):
     def smooth_with_window(self,window:int):
         data = []
         for curve in self:
-            data.append(curve.smooth_with_window(window).curve)
-        return LightCurveBatch(data,self._qpts)
+            data.append(curve.smooth_with_window(window)._data)
+        return LightCurveBatch(data,self._query_ends)
 
     def __add__(self,other):
         assert isinstance(other,LightCurveBatch)
@@ -53,16 +53,14 @@ class LightCurveBatch(object):
         data = np.ndarray((len(curves)),dtype=object)
         qpts = np.ndarray((len(curves),4))
         for curve in range(len(curves)):
-            data[curve] = curves[curve].curve
-            s,e = data[curve].ends
+            data[curve] = curves[curve]._data
+            s,e = curves[curve].ends
             qpts[curve] = [s[0].value,s[1].value,e[0].value,e[1].value]
-        qpts = u.Quantity(qpts,data[0].ends[0].unit)
+        qpts = u.Quantity(qpts,curves[0].ends[0].unit)
         return cls(data,qpts)
 
+
 class LightCurve(object):
-
-
-
 
     def __init__(self,data,start,end):
         self._data = np.array(data)
@@ -84,7 +82,7 @@ class LightCurve(object):
 
     @property
     def curve(self):
-        return -2.5*np.log10(self._data+0.001)
+        return 2.5*np.log10(self._data)
 
     @property
     def magnification_curve(self):
@@ -141,20 +139,21 @@ class LightCurve(object):
         stitch_length=u.Quantity(1000000,'uas'),
         min_height=1.2):
         slice_list = self.get_event_slice_points(tolerance,smoothing_window,max_length,stitch_length,min_height)
-        curve = self.curve
+        print(slice_list)
+        curve = self._data
         qpts = self.query_points
         ret = []
         for start,end in slice_list:
             slice_x = qpts[start:end]
             slice_y = curve[start:end]
-            lc = LightCurveSlice(slice_y,slice_x,start,end,self)
+            lc = LightCurveSlice(self,start,end)
             ret.append(lc)
-        return LightCurveBatch(ret)
+        return LightCurveBatch.from_curves(ret)
 
     def smooth_with_window(self,window:int):
         data = self._data.copy()
         data = wiener(data,window)
-        return LightCurve(data,self.query_points)
+        return LightCurve(data,self._start,self._end)
 
 
     def __getitem__(self,given):
@@ -170,7 +169,7 @@ class LightCurve(object):
 class LightCurveSlice(LightCurve):
     def __init__(self,parent_curve,start,stop):
         qpts = parent_curve.query_points
-        curve = parent_curve.curve
+        curve = parent_curve._data
         begin = qpts[start]
         end = qpts[stop]
         LightCurve.__init__(self,curve[start:stop],begin,end)

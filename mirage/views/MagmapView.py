@@ -1,5 +1,6 @@
 from matplotlib.lines import Line2D
 from matplotlib import pyplot as plt
+import numpy as np
 
 from mirage.util import Vec2D
 from mirage.lens_analysis.MagnificationMap import MagnificationMap
@@ -59,9 +60,13 @@ class MagnificationMapView(ImageCurveView):
         self.press = None
         sv = Vec2D(start[0],start[1],self.map_unit)
         ev = Vec2D(end[0],end[1],self.map_unit)
+        print(sv)
+        print(ev)
         if self._magmap:
             curve = self._magmap.slice_line(sv,ev)
-            self.plot(curve)
+            dist = (ev-sv).magnitude.value
+            x_ax = np.linspace(0,dist,len(curve))
+            self.plot(curve,x_ax=x_ax)
             # self.lc_view.draw(self.figure.canvas.renderer)
 
     def plot(self,curve,x_ax=None,clear=True):
@@ -114,8 +119,8 @@ class MagnificationMapView(ImageCurveView):
         start,end = curve.ends
         start = start.to(self.map_unit)
         end = end.to(self.map_unit)
-        self.line.set_ydata([start[0].value,end[0].value]) #NOTE: I need to transpose to be consistent with theview
-        self.line.set_xdata([end[1].value,start[1].value])
+        self.line.set_xdata([start[0].value,end[0].value])
+        self.line.set_ydata([start[1].value,end[1].value]) #NOTE: I need to transpose to be consistent with theview
         self.plot(y,x_ax=x.flatten())
 
     def get_curve(self):

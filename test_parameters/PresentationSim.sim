@@ -1,8 +1,8 @@
 {
-  "name": "TestCluster",
-  "description": "Make sure the cluster is happy and running again.",
-  "trial_count": 1,
-  "variation": "new_parameters = old_parameters\narr = np.linspace(10,40,20)\nnew_parameters.quasar.update(radius=12*new_parameters.quasar.r_g)",
+  "name": "PresentationSimulation",
+  "description": "Simulation config file for running while presenting as part of my Honor's thesis presentation.",
+  "trial_count": 5,
+  "variation": "new_parameters = old_parameters\narr = np.linspace(10,40,5)\nnew_parameters.quasar.update(radius=arr[trial_number]*new_parameters.quasar.r_g)",
   "parameters": {
     "lens": {
       "ellipticity": {
@@ -50,7 +50,7 @@
         -2.3
       ]
     },
-    "percent_stars": 60.0,
+    "percent_stars": 40.0,
     "source_plane": {
       "center": {
         "x": 0.0,
@@ -58,8 +58,8 @@
         "unit": "theta_E"
       },
       "dims": {
-        "x": 30.0,
-        "y": 30.0,
+        "x": 40.0,
+        "y": 40.0,
         "unit": "theta_E"
       }
     },
@@ -69,8 +69,8 @@
       "unit": "xi"
     },
     "ray_count": {
-      "x": 10000,
-      "y": 10000,
+      "x": 40000,
+      "y": 40000,
       "unit": ""
     }
   },

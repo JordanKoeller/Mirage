@@ -1,4 +1,10 @@
 
+
+def get_renderer(sim):
+    from .Renderer import LensRenderer
+    return LensRenderer(sim)
+    
+
 try:
     from .View import ImageCurveView
     from .MagmapView import MagnificationMapView

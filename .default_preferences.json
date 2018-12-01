@@ -13,6 +13,11 @@
 
 	"core_count":"all",
 
+	"quasar_color":"pink",
+	"lens_color":"white",
+	"image_color":"yellow",
+	"background_color":"black",
+
 
 
 

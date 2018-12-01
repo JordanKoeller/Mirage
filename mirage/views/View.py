@@ -6,7 +6,7 @@ class ImageCurveView:
 
     @staticmethod
     def get_view(with_figure=False,name=None):
-        fig = plt.figure(-1)
+        fig = plt.figure(name)
         axes = fig.subplots(2,1,gridspec_kw={'height_ratios':[1,5]})
         fig.show()
         # fig, axes = plt.subplots(2,1,num=name,gridspec_kw = {'height_ratios':[1, 5]})

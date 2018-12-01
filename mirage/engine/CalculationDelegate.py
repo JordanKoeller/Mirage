@@ -55,8 +55,8 @@ class MacroCPUDelegate(CalculationDelegate):
         rad = radius.to('rad').value
         inds = self._tree.query_ball_point((x,y),rad)
         # print(inds.shape)
-        pts = list(map(lambda ind: [ind // self._canvas_dimensions.x.value, ind % self._canvas_dimensions.y.value],inds))
-        return np.array(pts)
+        # pts = list(map(lambda ind: [ind // self._canvas_dimensions.x.value, ind % self._canvas_dimensions.y.value],inds))
+        return np.array(inds,dtype=np.int32)
 
     def get_ray_count(self,location:Vec2D,radius:u.Quantity) -> int:
         x = location.x.to('rad').value

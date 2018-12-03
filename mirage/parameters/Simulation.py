@@ -146,11 +146,19 @@ class AnimationSimulation(Jsonable):
         radius = self.parameters.quasar.radius
         return (pos,radius)
 
+
+    def update(self,start_position=None,velocity=None):
+        if start_position:
+            self._start_pos = start_position
+        if velocity:
+            self._velocity = velocity
+
     @classmethod
     def from_json(cls,js):
         params = Parameters.from_json(js['parameters'])
         start = Vec2D.from_json(js['start_position'])
         vel = Vec2D.from_json(js['quasar_velocity'])
+        return cls(params,start,vel)
 
     @property
     def json(self):
@@ -158,4 +166,5 @@ class AnimationSimulation(Jsonable):
         js['parameters'] = self.parameters.json
         js['start_position'] = self.start_position.json
         js['quasar_velocity'] = self.velocity.json
+        return js
     

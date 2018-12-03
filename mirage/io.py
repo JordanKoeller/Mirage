@@ -108,6 +108,10 @@ def SimulationFileManager():
     from mirage.parameters import Simulation
     return JsonFileManager(Simulation,'.sim')
 
+def AnimationFileManager():
+    from mirage.parameters import AnimationSimulation
+    return JsonFileManager(AnimationSimulation,'.anim')
+
 
 def ParametersFileManager():
     from mirage.parameters import Parameters

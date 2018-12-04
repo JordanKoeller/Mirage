@@ -1,15 +1,30 @@
-from matplotlib import pyplot as plt
 import numpy as np
 from mirage import lens_analysis as la
 
 
 def overlay_sizes(result,num):
+    from matplotlib import pyplot as plt
     fig = plt.figure()
     for res in result:
         x,y = res.lightcurves[num].plottable("uas")
         plt.plot(x,-y,label=str(res.parameters.quasar.radius.to(res.parameters.xi_0)))
     return fig
 
+def export_vid(infile,outfile):
+    from imageio import get_writer
+    from matplotlib import cm
+    from matplotlib.colors import Normalize
+    norm = Normalize(vmin=-4,vmax=4)
+    writer = get_writer(outfile,"mp4",fps=10)
+    cmap = cm.BuPu_r
+    data = la.load(infile)
+    for i in range(data[0].simulation.num_trials):
+        mm = data[i].magmap.data
+        normald = cmap(norm(mm))
+        normald = (normald*255).astype(np.uint8)
+        writer.append_data(normald)
+    writer.close()
+    print("Video exported to %s" % outfile)
 
 #Things I want to show:
     #Start a simulation and let it run while I talk about background.

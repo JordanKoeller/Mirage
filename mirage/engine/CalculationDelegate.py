@@ -4,7 +4,7 @@ from scipy.spatial import cKDTree
 from astropy import units as u
 import numpy as np
 
-from mirage.parameters import Parameters, MicroParameters 
+from mirage.parameters import Parameters, MicrolensingParameters
 from mirage.util import Vec2D
 
 class CalculationDelegate(ABC):
@@ -72,7 +72,7 @@ class MacroCPUDelegate(CalculationDelegate):
     def __init__(self):
         self._tree = None
 
-    def reconfigure(self,parameters:MicroParameters):
+    def reconfigure(self,parameters:MicrolensingParameters):
         from mirage.engine.micro_ray_tracer import ray_trace
         rays = parameters.ray_region.pixels.to(parameters.theta_E).value
         stars = parameters.stars
@@ -80,7 +80,7 @@ class MacroCPUDelegate(CalculationDelegate):
         src_plane = ray_trace(
             rays,
             kap,
-            gam
+            gam,
             self.core_count,
             stars)
         self._canvas_dimensions = parameters.ray_region.resolution

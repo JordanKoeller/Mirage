@@ -55,6 +55,12 @@ class Vec2D(Jsonable):
         un = js['unit']
         return cls(x,y,un)
 
+    def as_value_tuple(self,unit=None):
+        if unit:
+            return (self.x.to(unit).value,self.y.to(unit).value)
+        else:
+            return (self.x.value,self.y.value)
+
     def __add__(self,other) -> 'Vec2D':
         if isinstance(other,Vec2D):
             x = self.x + other.x
@@ -77,19 +83,19 @@ class Vec2D(Jsonable):
 
     def __mul__(self,other) -> 'Vec2D':
         if isinstance(other,u.Quantity):
-            other = other.to(self.unit)
-        elif isinstance(other,Vec2D):
+            return Vec2D((self.x*other).value,(self.y*other).value,(self.y*other).unit)
+        if isinstance(other,Vec2D):
             q = (self._quant*other._quant)
-            return Vec2D(q[0].value,q[1].value,q.unit)
-        return Vec2D((self.x*other).value,(self.y*other).value,self.unit)
+            return Vec2D(q[0].value,q[1].value,self.unit)
+        return Vec2D(self.x.value*other,self.y.value*other,self.unit)
 
     def __truediv__(self,other) -> 'Vec2D':
         if isinstance(other,u.Quantity):
-            other = other.to(self.unit)
+            return Vec2D((self.x/other).value,(self.y/other).value,(self.x*other).unit)
         elif isinstance(other,Vec2D):
             q = (self._quant/other._quant)
-            return Vec2D(q[0].value,q[1].value,q.unit)
-        return Vec2D((self.x/other).value,(self.y/other).value,self.unit)
+            return Vec2D(q[0].value,q[1].value,self.unit)
+        return Vec2D(self.x.value/other,self.y.value/other,self.unit)
 
     def __eq__(self,other:'Vec2D') -> bool:
         return (self._quant == other._quant).all()

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+pushd mirage > /dev/null
+echo "Compiling Mirage's c modules."
+python setup.py build_ext --inplace
+popd > /dev/null
+pushd spark_mirage > /dev/null
+echo "Compiling Mirage's spark implimentation. This may take a while..."
+sbt assembly 
+popd > /dev/null
+if [ ! -f ".custom_preferences.json" ]
+then
+	echo "No preferences file found. Making the default preferences file"
+	cp .default_preferences.json .custom_preferences.json
+fi

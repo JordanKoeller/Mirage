@@ -113,3 +113,58 @@ class Simulation(Jsonable):
 
     def __len__(self):
         return len(self._results)
+
+
+class AnimationSimulation(Jsonable):
+
+    def __init__(self,parameters:Parameters,start_pos:Vec2D,velocity:Vec2D):
+        self._parameters = parameters
+        self._start_pos = start_pos
+        self._velocity = velocity
+
+    @property
+    def parameters(self):
+        return self._parameters
+    
+    @property
+    def start_position(self):
+        return self._start_pos
+
+    @property
+    def velocity(self):
+        return self._velocity
+
+    def query_info(self,time:u.Quantity):
+        """
+            Returns all the info needed to query a system.
+
+            Returns:
+                position: Vec2D
+                radius: u.Quantity
+        """
+        pos = self.start_position + self.velocity*time
+        radius = self.parameters.quasar.radius
+        return (pos,radius)
+
+
+    def update(self,start_position=None,velocity=None):
+        if start_position:
+            self._start_pos = start_position
+        if velocity:
+            self._velocity = velocity
+
+    @classmethod
+    def from_json(cls,js):
+        params = Parameters.from_json(js['parameters'])
+        start = Vec2D.from_json(js['start_position'])
+        vel = Vec2D.from_json(js['quasar_velocity'])
+        return cls(params,start,vel)
+
+    @property
+    def json(self):
+        js = {}
+        js['parameters'] = self.parameters.json
+        js['start_position'] = self.start_position.json
+        js['quasar_velocity'] = self.velocity.json
+        return js
+    

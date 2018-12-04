@@ -1,5 +1,7 @@
 from mirage.parameters import Parameters
+from mirage.util import Vec2D
 
+from astropy import units as u
 import numpy as np
 
 class EngineHandler(object):
@@ -34,3 +36,6 @@ class EngineHandler(object):
 
     def query_caustics(self,*args,**kwargs):
         return self.calculation_delegate.query_caustics(*args,**kwargs)
+
+    def get_pixels(self,location:Vec2D,radius:u.Quantity) -> np.ndarray:
+        return self.calculation_delegate.get_connecting_rays(location,radius)

@@ -15,7 +15,7 @@ class MagnificationMap(object):
 
     @property
     def data(self):
-        return np.log10(self._data)
+        return 2.5*np.log10(self._data+0.001)
 
     @property    
     def region(self):

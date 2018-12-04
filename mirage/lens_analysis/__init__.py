@@ -1,10 +1,7 @@
 from .Result import Result, Trial
 from .MagnificationMap import MagnificationMap
 from .CausticMap import CausticMap
-from .LightCurves import LightCurveBatch, LightCurve, LightCurveSlice, \
-    LightCurveClassificationTable, Chooser, CraimerChooser, KSChooser, \
-    MannWhitneyChooser, AndersonDarlingChooser, CountingChooser, ExtremaChooser, \
-    FittingChooser, ProminenceChooser, UserChooser
+from .LightCurves import LightCurveBatch, LightCurve, LightCurveSlice
 
 def load_simulation(filename):
     from mirage.io import SimulationFileManager
@@ -42,6 +39,18 @@ def show_map(data,trial_number=0):
     view = MagnificationMapView(trial.simulation.name + (": Trial %d" % trial_number))
     view.display(trial.magmap)
     return view,trial
+
+def animate(simulation):
+    from mirage.parameters import AnimationSimulation
+    from mirage.views import LensView, AnimationController
+    from mirage.engine import getCalculationEngine
+    view = LensView("Lens View")
+    eng = getCalculationEngine()
+    controller = AnimationController(simulation,eng)
+    eng.update_parameters(simulation.parameters)
+    view.connect_runner(controller)
+    return view
+
 
 # def load_result(filename):
 

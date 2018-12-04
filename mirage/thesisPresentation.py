@@ -5,9 +5,9 @@ from mirage import lens_analysis as la
 
 def overlay_sizes(result,num):
     fig = plt.figure()
-    for i in range(len(num)):
-        x,y = result[i].lightcurves[num].plottable("uas")
-        plt.plot(x,-y,label=str(result[i].parameters.quasar.radius.to(result[i].parameters.xi_0)))
+    for res in result:
+        x,y = res.lightcurves[num].plottable("uas")
+        plt.plot(x,-y,label=str(res.parameters.quasar.radius.to(res.parameters.xi_0)))
     return fig
 
 

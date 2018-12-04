@@ -29,7 +29,8 @@ def QSO2237():
 def QSO2237_ImageC(root_rays,percent_stars):
     from mirage.util import Vec2D, Region, zero_vector
     qso = QSO2237()
-    src_plane = Vec2D(20,20,qso.theta_E)
+    src_plane = Vec2D(40,40,qso.theta_E)
+    qso.quasar.update(radius=80*qso.quasar.r_g)
     center = zero_vector('rad')
     src_plane = Region(center,src_plane)
     img_center = Vec2D(1.4,1.4,'arcsec')

@@ -4,7 +4,7 @@ from scipy.spatial import cKDTree
 from astropy import units as u
 import numpy as np
 
-from mirage.parameters import Parameters 
+from mirage.parameters import Parameters, MicroParameters 
 from mirage.util import Vec2D
 
 class CalculationDelegate(ABC):
@@ -67,3 +67,36 @@ class MacroCPUDelegate(CalculationDelegate):
 
     
 
+class MacroCPUDelegate(CalculationDelegate):
+
+    def __init__(self):
+        self._tree = None
+
+    def reconfigure(self,parameters:MicroParameters):
+        from mirage.engine.micro_ray_tracer import ray_trace
+        rays = parameters.ray_region.pixels.to(parameters.theta_E).value
+        stars = parameters.stars
+        kap,starry,gam = parameters.mass_descriptors
+        src_plane = ray_trace(
+            rays,
+            kap,
+            gam
+            self.core_count,
+            stars)
+        self._canvas_dimensions = parameters.ray_region.resolution
+        flat_array = np.reshape(src_plane,(src_plane.shape[0]*src_plane.shape[1],2))
+        self._tree = cKDTree(flat_array,256,False,False,False)
+
+    def get_connecting_rays(self,location:Vec2D,radius:u.Quantity) -> np.ndarray:
+        x = location.x.to('rad').value
+        y = location.y.to('rad').value
+        rad = radius.to('rad').value
+        inds = self._tree.query_ball_point((x,y),rad)
+        return np.array(inds,dtype=np.int32)
+
+    def get_ray_count(self,location:Vec2D,radius:u.Quantity) -> int:
+        x = location.x.to('rad').value
+        y = location.y.to('rad').value
+        rad = radius.to('rad').value
+        inds = self._tree.query_ball_point((x,y),rad)
+        return len(inds)

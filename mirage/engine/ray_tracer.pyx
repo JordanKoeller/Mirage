@@ -3,7 +3,6 @@
 
 from libc.math cimport sin, cos, atan2, sqrt ,atan, atanh, pi
 from libcpp.pair cimport pair
-# from numpy cimport int32_t, float64_t, ndarray
 
 from cython.parallel import prange
 

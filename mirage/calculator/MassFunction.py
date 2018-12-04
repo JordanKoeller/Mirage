@@ -1,4 +1,5 @@
 from abc import abstractmethod
+import math
 
 from astropy import units as u
 import numpy as np
@@ -100,46 +101,98 @@ class AnimatedMassFunction(MassFunction):
         self._region_info = None
         self._time = dt*0.0
         self._dt = dt
-        self._stars_start_pos = []
+        self._stars = []
         self._velocity = None
+        # self._next_injection = 0
+        self._ret_stars = None
+        self._ret_vel = None
 
     def generate_stars(self,region:Region,mass_density:u.Quantity,center_on_zero=False) -> np.ndarray:
-        self._region_info == (region,mass_density,center_on_zero)
-        self._stars_start_pos = self._stationaryFunc.generate_stars(region,mass_density,center_on_zero)
+        if len(self._stars) == 0:
+            self._region_info = (region,mass_density,center_on_zero)
+            self._stars = self._stationaryFunc.generate_stars(region,mass_density,center_on_zero)
+            self._velocity = self._get_velocities_for(self._stars)
+            self._ret_stars = self._stars
+            self._ret_vel = self._velocity
+            #I've made the initial stars. Now I need to determine the injection sampler.
+            # print(region.radius)
+            self._injection_mean  = region.radius/self._velocity_characteristics[0]
+            self._injection_sigma = region.radius*self._velocity_characteristics[1]/(self._velocity_characteristics[0]**2)
+            # print("Injectors " + str(self._injection_sigma) + ", " + str(self._injection_mean))
+        return self.stars
+        # I just remove the z direction, leaving just the two others after it all.
+
+    def _prune_and_replenish(self):
+        #First find what stars have escaped
+        curr_stars = self.stars
+        within = np.sqrt(curr_stars[:,0]**2+curr_stars[:,1]**2) <= self._region_info[0].radius.value
+        stars_within = np.take(curr_stars,within,axis=0)
+        vel_within = np.take(self._velocity,within,axis=0)
+        # if self._last_injection < self._time:
+        approx_injected = int((self._time/self._injection_mean).to(self._dt.unit).value)
+        if approx_injected > 0:
+            add_times = rng.normal(self._injection_mean.value,self._injection_sigma.value,num_injected+10)
+            cumulative_time = np.cumsum(add_times)
+            num_added = np.searchsorted(cumulative_time,[self._time.value])[0]
+            masses = np.array(self._stationaryFunc._IMF.generate_cluster(num_added)[0:num_added])
+            pos_angle = rng.random(len(masses))*2*math.pi
+            pos_x = np.cos(pos_angle)
+            pos_y = np.sin(pos_angle)
+            velocities = self._get_velocities_for(masses)
+            s_x = pos_x - velocities[:,0]*self._dt
+            s_y = pos_y - velocities[:,1]*self._dt
+            ret_arr = np.ndarray((len(masses),3))
+            ret_arr[:,0] = s_x
+            ret_arr[:,1] = s_y
+            ret_arr[:,2] = masses
+            self._ret_stars = np.append(self._stars_start_pos,ret_arr,axis=0)
+            self._ret_vel = np.append(self._velocity,velocities,axis=0)
+
+
+
+
+
+
+
+
+    def _get_velocities_for(self,stars):
         rng = self._stationaryFunc._IMF.random_number_generator
         velocity, sigma = self._velocity_characteristics
-        velocity_mags = rng.normal(velocity.value,sigma.value,len(self._stars_start_pos))
-        velocity_directions = rng.rand(len(self._stars_start_pos),3)
+        velocity_mags = rng.normal(velocity.value,sigma.value,len(stars))
+        velocity_directions = rng.rand(len(stars),3)
         rng_mag = np.sqrt(velocity_directions[:,0]**2+velocity_directions[:,1]**2+velocity_directions[:,2]**2)
         velocity_directions[:,0] = velocity_directions[:,0]*velocity_mags/rng_mag
         velocity_directions[:,1] = velocity_directions[:,1]*velocity_mags/rng_mag
         velocity_directions[:,2] = velocity_directions[:,2]*velocity_mags/rng_mag
-        self._velocity = u.Quantity(velocity_directions[:,0:2],velocity.unit)
-        return self.stars
-        # I just remove the z direction, leaving just the two others after it all.
-
+        return u.Quantity(velocity_directions[:,0:2],velocity.unit)
 
     @property
     def stars(self):
-        if len(self._stars_start_pos) > 0:
-            tmp_stars = self._stars_start_pos.copy()
-            tmp_stars[:,0] = tmp_stars[:,0] + (self._velocity[:,0]*self._time).value
-            tmp_stars[:,1] = tmp_stars[:,1] + (self._velocity[:,1]*self._time).value
+        if len(self._stars) > 0:
+            # self._prune_and_replenish()
+            tmp_stars = self._ret_stars.copy()
+            tmp_stars[:,0] = tmp_stars[:,0] + (self._ret_vel[:,0]*self._time).value
+            tmp_stars[:,1] = tmp_stars[:,1] + (self._ret_vel[:,1]*self._time).value
             return tmp_stars
         else:
             raise EnvironmentError("Never generated stars to begin with.")
 
+
     def _make_initial_stars(self,region:Region,mass_density:u.Quantity,center_on_zero=False) -> None:
         pass
+
 
     def set_time(self,time:u.Quantity) -> None:
         self._time = time
 
+
     def increment_time(self) -> None:
         self._time += self._dt
 
+
     def skip_to_frame(self,num:int) -> None:
         self._time = self._dt*num
+
 
     @property
     def json(self):

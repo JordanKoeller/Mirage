@@ -51,6 +51,7 @@ class LensView(ImageCurveView):
         self.line = Line2D([0,0],[0,0],color='r',antialiased=True)
         self._imgAx.add_line(self.line)
         self.press = None
+        self._curve_plot = np.zeros(100)
         self.connect()
 
     def _get_img_colormap(self):
@@ -81,7 +82,10 @@ class LensView(ImageCurveView):
             q_center, pixels = runner_controller.get_at_frame(self._frame_number)
             frame = renderer.get_frame(pixels)
             self._quasarPatch.center = q_center.as_value_tuple()
-            return [self._imgAx.imshow(frame,animated=True,extent=[-x,x,y,-y],cmap=cmap),self._galPatch, self._quasarPatch]
+            if len(self._curve_plot <= self._frame_number):
+                self._curve_plot = np.append(self._curve_plot,np.zeros(len(self._curve_plot)))
+            self._curve_plot[self._frame_number] = len(pixels)
+            return [self._imgAx.imshow(frame,animated=True,extent=[-x,x,y,-y],cmap=cmap),self._galPatch, self._quasarPatch,self._lcAx.plot(self._curve_plot)]
         self._runner = run
         self._runner()
 
@@ -111,6 +115,8 @@ class LensView(ImageCurveView):
         if self._playing:
             self.pause()
         self._frame_number = self._frame_number*0
+        self._curve_plot = np.zeros(100)
+        self._lcAx.plot(self._curve_plot)
 
     def connect(self):
         'connect to all the events we need'

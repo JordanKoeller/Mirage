@@ -155,10 +155,16 @@ class AnimationSimulation(Jsonable):
 
     @classmethod
     def from_json(cls,js):
-        params = Parameters.from_json(js['parameters'])
-        start = Vec2D.from_json(js['start_position'])
-        vel = Vec2D.from_json(js['quasar_velocity'])
-        return cls(params,start,vel)
+        try:
+            params = MicrolensingParameters.from_json(js['parameters'])
+            start = Vec2D.from_json(js['start_position'])
+            vel = Vec2D.from_json(js['quasar_velocity'])
+            return cls(params,start,vel)
+        except:
+            params = Parameters.from_json(js['parameters'])
+            start = Vec2D.from_json(js['start_position'])
+            vel = Vec2D.from_json(js['quasar_velocity'])
+            return cls(params,start,vel)
 
     @property
     def json(self):

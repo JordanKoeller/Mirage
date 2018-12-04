@@ -4,12 +4,19 @@ from .CausticMap import CausticMap
 from .LightCurves import LightCurveBatch, LightCurve, LightCurveSlice
 
 def load_simulation(filename):
-    from mirage.io import SimulationFileManager
-    fm = SimulationFileManager()
-    fm.open(filename)
-    ret = fm.read()
-    fm.close()
-    return ret
+    from mirage.io import SimulationFileManager, AnimationFileManager
+    try:
+        fm = AnimationFileManager()
+        fm.open(filename)
+        ret = fm.read()
+        fm.close()
+        return ret
+    except:
+        fm = SimulationFileManager()
+        fm.open(filename)
+        ret = fm.read()
+        fm.close()
+        return ret
 
 
 def load(filename,trial_number=None):
@@ -43,9 +50,11 @@ def show_map(data,trial_number=0):
 def animate(simulation):
     from mirage.parameters import AnimationSimulation
     from mirage.views import LensView, AnimationController
-    from mirage.engine import getCalculationEngine
+    from mirage.engine import getVisualEngine
+    if isinstance(simulation,str):
+        simulation = load_simulation(simulation)
     view = LensView("Lens View")
-    eng = getCalculationEngine()
+    eng = getVisualEngine(simulation.parameters)
     controller = AnimationController(simulation,eng)
     eng.update_parameters(simulation.parameters)
     view.connect_runner(controller)

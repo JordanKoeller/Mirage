@@ -55,6 +55,10 @@ class Vec2D(Jsonable):
         un = js['unit']
         return cls(x,y,un)
 
+    @classmethod
+    def from_quant(cls,q):
+        return Vec2D(q[0].value,q[1].value,q.unit)
+
     def as_value_tuple(self,unit=None):
         if unit:
             return (self.x.to(unit).value,self.y.to(unit).value)
@@ -67,11 +71,13 @@ class Vec2D(Jsonable):
             y = self.y + other.y
             unit = self.unit
             return Vec2D(x.value,y.value,x.unit)
-        elif isinstance(other,u.Quantity):
-            other = other.to(self.unit)
-            return Vec2D((self.x+other).value,(self.y+other).value,(self.x+other).unit)
         else:
-            return Vec2D(self.x+other,self.y+other,self.unit)
+            return Vec2D.from_quant(self._quant+other)
+        # elif isinstance(other,u.Quantity):
+        #     other = other.to(self.unit)
+        #     return Vec2D((self.x+other).value,(self.y+other).value,(self.x+other).unit)
+        # else:
+        #     return Vec2D(self.x+other,self.y+other,self.unit)
         # else:
         #     raise ValueError("Needs to be a Vec2D or astropy Quantity")
 
@@ -82,20 +88,22 @@ class Vec2D(Jsonable):
         return Vec2D(-self.x.value, -self.y.value, self.unit)
 
     def __mul__(self,other) -> 'Vec2D':
-        if isinstance(other,u.Quantity):
-            return Vec2D((self.x*other).value,(self.y*other).value,(self.y*other).unit)
         if isinstance(other,Vec2D):
-            q = (self._quant*other._quant)
-            return Vec2D(q[0].value,q[1].value,self.unit)
-        return Vec2D(self.x.value*other,self.y.value*other,self.unit)
+            return Vec2D.from_quant(self._quant*other._quant)
+        else:
+            return Vec2D.from_quant(self._quant*other)
 
     def __truediv__(self,other) -> 'Vec2D':
-        if isinstance(other,u.Quantity):
-            return Vec2D((self.x/other).value,(self.y/other).value,(self.x*other).unit)
-        elif isinstance(other,Vec2D):
-            q = (self._quant/other._quant)
-            return Vec2D(q[0].value,q[1].value,self.unit)
-        return Vec2D(self.x.value/other,self.y.value/other,self.unit)
+        if isinstance(other,Vec2D):
+            return Vec2D.from_quant(self._quant/other._quant)
+        else:
+            return Vec2D.from_quant(self._quant/other)
+        # if isinstance(other,u.Quantity):
+        #     return Vec2D((self.x/other).value,(self.y/other).value,(self.x*other).unit)
+        # elif isinstance(other,Vec2D):
+        #     q = (self._quant/other._quant)
+        #     return Vec2D(q[0].value,q[1].value,self.unit)
+        # return Vec2D(self.x.value/other,self.y.value/other,self.unit)
 
     def __eq__(self,other:'Vec2D') -> bool:
         return (self._quant == other._quant).all()

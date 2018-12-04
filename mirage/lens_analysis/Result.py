@@ -14,7 +14,16 @@ class Result(object):
 
 
     def __getitem__(self,ind):
-        return Trial(self.file_manager, self.simulation, ind)
+        if isinstance(ind,int):
+            if ind < self.num_trials:
+                return Trial(self.file_manager, self.simulation, ind)
+            else:
+                raise IndexError("Item %d does not exist in Result of size %d" % (ind,self.simulation))
+
+
+    @property
+    def num_trials(self):
+        return self.simulation.num_trials
 
     @property
     def simulation(self):

@@ -1,4 +1,4 @@
-from .CalculationDelegate import MacroCPUDelegate
+from .CalculationDelegate import MacroCPUDelegate, MicroCPUDelegate
 from .SparkCalculationDelegate import MicroSparkDelegate
 from .AbstractEngine import EngineHandler
 from .ray_tracer import raw_brightness
@@ -14,3 +14,14 @@ def getCalculationEngine():
             return EngineHandler(MacroCPUDelegate())
     except ImportError:
         return EngineHandler(MacroCPUDelegate())
+
+def getVisualEngine(sim):
+	from mirage.parameters import Parameters, MicrolensingParameters
+	if isinstance(sim,MicrolensingParameters):
+		# print("Chose Micro")
+		return EngineHandler(MicroCPUDelegate())
+	elif isinstance(sim,Parameters):
+		# print("Chose Macro")
+		return EngineHandler(MacroCPUDelegate())
+	else:
+		raise ValueError("sim must be a Parameters instance")

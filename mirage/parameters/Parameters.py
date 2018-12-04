@@ -216,6 +216,10 @@ class MicrolensingParameters(Parameters):
         return self.ray_region.center
 
     @property
+    def ray_region(self):
+        return self._ray_region.to(self.theta_E)
+
+    @property
     def star_generator(self):
         return self._star_generator
 
@@ -294,7 +298,8 @@ class MicrolensingParameters(Parameters):
                 spln = Region.from_json(js['source_plane'])
                 center = Vec2D.from_json(js['image_center'])
                 return cls(src,gal,pcnts,center,rays,spln,sg)
-        except:
+        except KeyError as e:
+            print(e)
             params = Parameters.from_json(js)
             with u.add_enabled_units([params.quasar.r_g, params.theta_E]):
                 sg = MassFunction.from_json(js['star_generator'])
@@ -305,7 +310,7 @@ class MicrolensingParameters(Parameters):
                 return cls(params.quasar,params.lens,pcnts,center,rays,spln,sg)
 
     def is_similar(self,other:'Parameters'):
-        return False
+        return True
         myJS = self.json
         oJS = other.json
         if not Parameters.is_similar(self,other):

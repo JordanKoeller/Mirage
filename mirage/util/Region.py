@@ -40,6 +40,12 @@ class Region(Jsonable):
         ret['center'] = self.center.json
         ret['dims'] = self.dimensions.json
         return ret
+
+    @property
+    def extent(self):
+        left = self.center - self.dimensions/2
+        right = self.center+self.dimensions/2
+        return(left.x,left.y,right.x,right.y)
         
 
     @property

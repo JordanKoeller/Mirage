@@ -44,7 +44,7 @@ class MacroCPUDelegate(CalculationDelegate):
             parameters.lens.ellipticity.magnitude.value,
             parameters.lens.ellipticity.direction.to('rad').value,
             parameters.einstein_radius.to('rad').value,
-            self.core_count)
+            4)#self.core_count)
         self._canvas_dimensions = parameters.ray_region.resolution
         flat_array = np.reshape(src_plane,(src_plane.shape[0]*src_plane.shape[1],2))
         self._tree = cKDTree(flat_array,256,False,False,False)
@@ -67,36 +67,47 @@ class MacroCPUDelegate(CalculationDelegate):
 
     
 
-class MacroCPUDelegate(CalculationDelegate):
+class MicroCPUDelegate(CalculationDelegate):
 
     def __init__(self):
         self._tree = None
+        self._inputUnit = None
 
     def reconfigure(self,parameters:MicrolensingParameters):
         from mirage.engine.micro_ray_tracer import ray_trace
-        rays = parameters.ray_region.pixels.to(parameters.theta_E).value
+        self._inputUnit = parameters.theta_E
+        rays = parameters.ray_region.pixels
+        # print(rays)
+        # print("Cnter of " + str(parameters.ray_region.center))
+        rays -= u.Quantity(1.4,'arcsec')
+        # rays[:,0] -= parameters.ray_region.center.x
+        # rays[:,1] -= parameters.ray_region.center.y
+        # print(rays.mean())
+        rays = rays.to(parameters.theta_E).value
         stars = parameters.stars
         kap,starry,gam = parameters.mass_descriptors
+        # print("Ray-tracing started")
         src_plane = ray_trace(
             rays,
             kap,
             gam,
-            self.core_count,
+            4, #self.core_count,
             stars)
+        # print("Ray-tracing done")
         self._canvas_dimensions = parameters.ray_region.resolution
         flat_array = np.reshape(src_plane,(src_plane.shape[0]*src_plane.shape[1],2))
         self._tree = cKDTree(flat_array,256,False,False,False)
 
     def get_connecting_rays(self,location:Vec2D,radius:u.Quantity) -> np.ndarray:
-        x = location.x.to('rad').value
-        y = location.y.to('rad').value
-        rad = radius.to('rad').value
+        x = location.x.to(self._inputUnit).value
+        y = location.y.to(self._inputUnit).value
+        rad = radius.to(self._inputUnit).value
         inds = self._tree.query_ball_point((x,y),rad)
         return np.array(inds,dtype=np.int32)
 
     def get_ray_count(self,location:Vec2D,radius:u.Quantity) -> int:
-        x = location.x.to('rad').value
-        y = location.y.to('rad').value
-        rad = radius.to('rad').value
+        x = location.x.to(self._inputUnit).value
+        y = location.y.to(self._inputUnit).value
+        rad = radius.to(self._inputUnit).value
         inds = self._tree.query_ball_point((x,y),rad)
         return len(inds)

@@ -5,6 +5,7 @@ from matplotlib .animation import FuncAnimation
 from matplotlib import patches
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.lines import Line2D
+import numpy as np
 
 from . import ImageCurveView
 from . import get_renderer
@@ -51,7 +52,7 @@ class LensView(ImageCurveView):
         self.line = Line2D([0,0],[0,0],color='r',antialiased=True)
         self._imgAx.add_line(self.line)
         self.press = None
-        self._curve_plot = np.zeros(100)
+        # self._curve_plot = np.zeros(100)
         self.connect()
 
     def _get_img_colormap(self):
@@ -72,22 +73,36 @@ class LensView(ImageCurveView):
             self._animation = None
         sim = runner_controller.simulation
         extent = sim.parameters.ray_region.dimensions/2
+        # minx,miny,maxx,maxy = sim.parameters.ray_region.to(sim.parameters.theta_E).extent
         x = extent.x.value
         y = extent.y.value
+        self._galPatch.set_radius(extent.x.value/100)
         renderer = get_renderer(runner_controller.simulation)
         cmap = self._get_img_colormap()
         self._frame_number = 0
         def run(*args):
-            self._frame_number += 1
-            q_center, pixels = runner_controller.get_at_frame(self._frame_number)
-            frame = renderer.get_frame(pixels)
-            self._quasarPatch.center = q_center.as_value_tuple()
-            if len(self._curve_plot <= self._frame_number):
-                self._curve_plot = np.append(self._curve_plot,np.zeros(len(self._curve_plot)))
-            self._curve_plot[self._frame_number] = len(pixels)
-            return [self._imgAx.imshow(frame,animated=True,extent=[-x,x,y,-y],cmap=cmap),self._galPatch, self._quasarPatch,self._lcAx.plot(self._curve_plot)]
+            if self._playing:
+                self._imgAx.clear()
+                self._frame_number += 1
+                q_center, pixels = runner_controller.get_at_frame(self._frame_number)
+                frame = renderer.get_frame(pixels)
+                self._quasarPatch.center = q_center.as_value_tuple()
+                self._quasarPatch.set_radius(min(sim.parameters.ray_region.dimensions.as_value_tuple())/200)
+                # if len(self._curve_plot <= self._frame_number):
+                #     self._curve_plot = np.append(self._curve_plot,np.zeros(len(self._curve_plot)))
+                # self._curve_plot[self._frame_number] = len(pixels)
+                return [
+                self._imgAx.imshow(frame,animated=True,extent=[-x,x,y,-y],cmap=cmap),
+                # self._imgAx.imshow(frame,animated=True,extent=[minx.value,maxx.value,maxy.value,miny.value],cmap=cmap),
+                self._galPatch,
+                self._quasarPatch
+                ]
+            else:
+                []
         self._runner = run
+        self._playing = True
         self._runner()
+        self._playing = False
 
 
     def toggle(self):
@@ -99,24 +114,24 @@ class LensView(ImageCurveView):
     def play(self):
         self._playing = True
         if self._animation:
-            self._animation._start()
+            pass
         else:
-            self._animation = FuncAnimation(self._fig,self._runner,blit=True,interval=60)
+            self._animation = FuncAnimation(self._fig,self._runner,blit=True,interval=200,save_count=0)
 
     def pause(self):
         self._playing = False
         if self._animation:
-            # self._animation.event_source.stop()
             self._animation._stop()
-
+            del(self._animation)
             self._animation = None
+        #     self._animation = None
 
     def reset(self):
         if self._playing:
             self.pause()
         self._frame_number = self._frame_number*0
-        self._curve_plot = np.zeros(100)
-        self._lcAx.plot(self._curve_plot)
+        # self._curve_plot = np.zeros(100)
+        # self._lcAx.plot(self._curve_plot)
 
     def connect(self):
         'connect to all the events we need'

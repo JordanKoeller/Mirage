@@ -1,7 +1,7 @@
 # distutils: language=c++
 # cython: profile=True, boundscheck=False, wraparound=False, embedsignature=True
 
-from libcpp.pair cimport pair
+# from libcpp.pair cimport pair
 
 import numpy as np
 cimport numpy as np
@@ -34,17 +34,19 @@ cpdef np.ndarray[np.float64_t,ndim=3] ray_trace(np.ndarray[np.float64_t, ndim=3]
     cdef int i,j
     cdef int width = rays.shape[0]
     cdef int height = rays.shape[0]
-    cdef int ns = stars.shape[0]
-    cdef pair[double,double] traced_ray
+    cdef int num_stars = stars.shape[0]
     cdef double gMin = 1.0 - gam
     cdef double gMax = 1.0 + gam
+    cdef int s
+    cdef double dx, dy, retx, rety, r
     for i in prange(0,width,1,nogil=True,schedule='static',num_threads=thread_count):
         for j in range(0,height):
-            traced_ray = ray_trace_helper(
-                    rays[i,j,0], rays[i,j,1],
-                    gMax, gMin,
-                    kap,
-                    ns, stars)
-            rays[i,j,0] = traced_ray.first
-            rays[i,j,1] = traced_ray.second
+            rays[i,j,0] = gMin*rays[i,j,0] - kap*rays[i,j,0]
+            rays[i,j,1] = rays[i,j,1]*gMax - kap*rays[i,j,1]
+            for s in range(num_stars):
+                dx = rays[i,j,0] - stars[s,0]
+                dy = rays[i,j,1] - stars[s,1]
+                r = dx*dx + dy*dy
+                rays[i,j,0] -= stars[s,2]*dx/r
+                rays[i,j,1] -= stars[s,2]*dy/r
     return rays

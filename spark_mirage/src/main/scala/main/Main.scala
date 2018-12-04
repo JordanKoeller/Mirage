@@ -39,7 +39,7 @@ object Main {
     val tracer = new RayBankTracer()
     val srcPlane = tracer(raybanks,broadParams)
     val causticTracer = new CausticTracer()
-    val caustics = causticTracer(srcPlane,broadParams)
+    val caustics = srcPlane//causticTracer(srcPlane,broadParams)
     rddGrid = RDDGrid(caustics,nodeStructure = CausticTree.apply)
     rddGrid.cache()
     broadParams.unpersist()

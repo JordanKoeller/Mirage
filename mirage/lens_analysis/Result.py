@@ -18,7 +18,7 @@ class Result(object):
             if ind < self.num_trials:
                 return Trial(self.file_manager, self.simulation, ind)
             else:
-                raise IndexError("Item %d does not exist in Result of size %d" % (ind,self.simulation))
+                raise IndexError("Item %d does not exist in Result of size %d" % (ind,self.simulation.num_trials))
 
 
     @property
@@ -33,7 +33,8 @@ class Result(object):
     def file_manager(self):
         return self._fm
     
-
+    def __len__(self):
+        return self.num_trials
 
 def requires(dtype):
     def decorator(fn):

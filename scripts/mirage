@@ -1,4 +1,7 @@
-
+#!/bin/bash
+export PYTHONPATH="/home/jkoeller/Schoolwork/CS/PowerTools/Project/Mirage4PowerTools"
+export PYTHONSTARTUP="/home/jkoeller/Schoolwork/CS/PowerTools/Project/Mirage4PowerTools/scripts/shell.py"
+export JAR_LOC="/home/jkoeller/Schoolwork/CS/PowerTools/Project/Mirage4PowerTools/spark_mirage/target/scala-2.11/spark_mirage-assembly-beta.jar"
 if [ "$1" = "--no-gui" ] || [ "$2" = "--no-gui" ]
 then
 	export LA_WITH_GUI="no"

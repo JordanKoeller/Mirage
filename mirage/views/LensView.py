@@ -47,12 +47,14 @@ class LensView(ImageCurveView):
         self._animation = None
         self._galPatch = patches.Circle([0,0],0.1,color=GlobalPreferences['lens_color'])
         self._quasarPatch = patches.Circle([0,0],0.1,color=GlobalPreferences['quasar_color'])
-        self._imgAx.add_artist(self._galPatch)
-        self._imgAx.add_artist(self._quasarPatch)
         self.line = Line2D([0,0],[0,0],color='r',antialiased=True)
         self._imgAx.add_line(self.line)
         self.press = None
-        # self._curve_plot = np.zeros(100)
+        self._curve_plot = np.zeros(100)
+        self._curve_ax = np.arange(100)
+        self._curve = self._lcAx.plot(self._curve_plot,animated=True)[0]
+        self._curve_max = 1
+        self._lcAx.set_ylim(0,self._curve_max)
         self.connect()
 
     def _get_img_colormap(self):
@@ -88,14 +90,21 @@ class LensView(ImageCurveView):
                 frame = renderer.get_frame(pixels)
                 self._quasarPatch.center = q_center.as_value_tuple()
                 self._quasarPatch.set_radius(min(sim.parameters.ray_region.dimensions.as_value_tuple())/200)
-                # if len(self._curve_plot <= self._frame_number):
-                #     self._curve_plot = np.append(self._curve_plot,np.zeros(len(self._curve_plot)))
-                # self._curve_plot[self._frame_number] = len(pixels)
+                if len(self._curve_plot) <= self._frame_number:
+                    self._curve_plot = np.append(self._curve_plot,np.zeros(len(self._curve_plot)))
+                    self._curve_ax = np.arange(len(self._curve_plot))
+                    self._lcAx.set_xlim(0,len(self._curve_ax))
+                self._curve_plot[self._frame_number] = len(pixels)
+                if self._curve_plot[self._frame_number] > self._curve_max:
+                    self._curve_max = self._curve_plot[self._frame_number]*2
+                    self._lcAx.set_ylim(0,self._curve_max)
+                self._curve.set_data(self._curve_ax,self._curve_plot)
                 return [
                 self._imgAx.imshow(frame,animated=True,extent=[-x,x,y,-y],cmap=cmap),
+                self._curve,
                 # self._imgAx.imshow(frame,animated=True,extent=[minx.value,maxx.value,maxy.value,miny.value],cmap=cmap),
-                self._galPatch,
-                self._quasarPatch
+                self._imgAx.add_artist(self._galPatch),
+                self._imgAx.add_artist(self._quasarPatch),
                 ]
             else:
                 []

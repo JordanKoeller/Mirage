@@ -1,0 +1,111 @@
+#!/bin/bash
+
+#First, I need to find what python interperiter to use.
+
+interpereters=($(whereis -b python | sed 's/ /\n/g' | grep "python3$\|python3.[[:digit:]]$"))
+build_modes=('.analyze_build' '.sim_build' '.all_build')
+
+if [ interpereters = "" ]
+then
+	echo "Error: Mirage requires a python3 interpereter. Please install python3 and try again"
+	exit
+fi
+
+echo "Welcome to Mirage's setup tool. This tool will help you create the environment"
+echo "necessary to build and install Mirage."
+echo ""
+echo "There are several decisions to be made. I will walk you through the setup process."
+echo "If you want to change a decision in the future, simply run the setup tool again."
+echo "------------------------------------------------------------------------------------"
+echo ""
+echo "Please select a python3 interpereter by number."
+for ((idx=0; idx<${#interpereters[@]}; ++idx)); do
+    echo "	[$idx]:" "${interpereters[idx]}"
+done
+read -p "> " int_ind
+
+interpereter="${interpereters[int_ind]}"
+echo "Selected $interpereter"
+echo ""
+echo "Should I create a virtual environment for Mirage?"
+read -p "y/n (Recommended yes): " mk_venv
+if [ -n "$(echo "$mk_venv" | grep -i -o "y")" ]
+then
+	$interpereter -m venv "mirage_venv"
+	if [ $? -ne 0 ]
+	then
+		exit
+	fi
+	source mirage_venv/bin/activate
+else
+	echo "No venv needed"
+fi
+echo "Current interperiter is " $(which python)
+echo ""
+echo "What dependencies will you need?"
+echo "	[0]: Dependencies for analyzing simulation results"
+echo "	[1]: Dependencies for performing simulations"
+echo "	[2]: Dependencies for both"
+read -p "> " dependency_col
+build_pack="${build_modes[dependency_col]}"
+pip install --disable-pip-version-check wheel
+pip install --disable-pip-version-check numpy scipy astropy matplotlib ipython #-r "$build_pack"
+if [ $? -ne 0 ]
+then
+	echo "Error. Could not install requested packages using pip."
+	exit
+else
+	echo "Python environment configured."
+fi
+
+echo "Setting up pyspark environment"
+pip --disable-pip-version-check install pyspark
+JAR_HOME=""
+if [ -d "spark_mirage" ] 
+then
+	JAR_HOME="$(pwd)/spark_mirage/target/scala-2.11/spark_mirage-assembly-beta.jar"
+else
+	pushd mirage_venv > /dev/null
+	wget "http://www.cs.trinity.edu/~jkoeller/Mirage/spark_mirage-assembly-beta.jar"
+	JAR_HOME="$(pwd)/spark_mirage-assembly-beta.jar"
+	popd > /dev/null
+fi
+
+echo "Environment made. Now generating executable scripts..."
+LA_HOME="$(pwd)"
+
+pushd scripts > /dev/null
+mv mirage tempfile
+touch mirage
+echo "#!/bin/bash" >> mirage
+if [ -d "mirage_venv" ]
+then
+	echo "source \"$LA_HOME/mirage_venv/bin/activate\"" >> mirage
+fi
+echo "export PYTHONPATH=\"$LA_HOME\"" >> mirage
+echo "export PYTHONSTARTUP=\"$LA_HOME/scripts/shell.py\"" >> mirage
+echo "export JAR_LOC=\"$JAR_HOME\"" >> mirage
+cat tempfile >> mirage
+rm tempfile
+chmod u+x mirage
+popd > /dev/null
+if [ ! -f ".custom_preferences.json" ]
+then
+        echo "No preferences file found. Making the default preferences file"
+        cp .default_preferences.json .custom_preferences.json
+fi
+echo "Done."
+echo "Would you like to make an alias to mirage in your .bashrc?"
+read -p "y/n (recommend yes):" make_alias
+if [ -n "$(echo "$make_alias" | grep -i -o "y")" ]
+then
+	echo "alias mirage=\"$LA_HOME/scripts/mirage\"" >> "$HOME/.bashrc"
+	echo "Alias made. Mirage can now be run from any directory with the command \"mirage\"."
+fi
+echo "mirage configured. For info on using mirage, see the man entry."
+echo "To finish compiling all components, run make"
+
+
+
+
+

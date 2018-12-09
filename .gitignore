@@ -13,8 +13,6 @@ __pycache__/
 
 # Cython generated files
 *.html
-*.c
-*.cpp
 
 # C Code Testing Stuff
 a.out

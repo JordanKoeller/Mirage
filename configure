@@ -75,7 +75,6 @@ echo "Environment made. Now generating executable scripts..."
 LA_HOME="$(pwd)"
 
 pushd scripts > /dev/null
-mv mirage tempfile
 touch mirage
 echo "#!/bin/bash" >> mirage
 if [ -d "mirage_venv" ]
@@ -85,8 +84,7 @@ fi
 echo "export PYTHONPATH=\"$LA_HOME\"" >> mirage
 echo "export PYTHONSTARTUP=\"$LA_HOME/scripts/shell.py\"" >> mirage
 echo "export JAR_LOC=\"$JAR_HOME\"" >> mirage
-cat tempfile >> mirage
-rm tempfile
+cat mirage.template >> mirage
 chmod u+x mirage
 popd > /dev/null
 if [ ! -f ".custom_preferences.json" ]

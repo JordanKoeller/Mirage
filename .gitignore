@@ -27,6 +27,7 @@ a.out
 *.npy
 *.npz
 .GPUInfo
+scripts/mirage
 *.un~
 *~
 */*.un~
@@ -50,7 +51,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
+mirage_venv/
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

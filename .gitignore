@@ -33,6 +33,7 @@ scripts/mirage
 */*.un~
 */*~
 # Distribution / packaging
+docs/build/
 .Python
 env/
 build/

@@ -1,3 +1,7 @@
+
+
+
+
 .PHONY: all
 all:
 	make build
@@ -19,6 +23,14 @@ cython-build:
 
 scala-module: spark_mirage/build.sbt
 	cd spark_mirage; sbt -batch package
+
+# You can set these variables from the command line.
+.PHONY: docs
+docs:
+	sphinx-build docs/source docs/build
+
+
+
 
 .PHONY: clean
 clean:

@@ -3,7 +3,7 @@
 #First, I need to find what python interperiter to use.
 
 interpereters=($(whereis -b python | sed 's/ /\n/g' | grep "python3$\|python3.[[:digit:]]$"))
-build_modes=('.analyze_build' '.sim_build' '.all_build')
+build_modes=('.analysis_pip' '.sim_pip' '.dev_pip')
 
 if [ interpereters = "" ]
 then
@@ -45,11 +45,11 @@ echo ""
 echo "What dependencies will you need?"
 echo "	[0]: Dependencies for analyzing simulation results"
 echo "	[1]: Dependencies for performing simulations"
-echo "	[2]: Dependencies for both"
+echo "	[2]: Dependencies for developers"
 read -p "> " dependency_col
 build_pack="${build_modes[dependency_col]}"
 pip install --disable-pip-version-check wheel
-pip install --disable-pip-version-check numpy scipy astropy matplotlib ipython #-r "$build_pack"
+pip install --disable-pip-version-check -r "$build_pack"
 if [ $? -ne 0 ]
 then
 	echo "Error. Could not install requested packages using pip."

@@ -43,12 +43,13 @@ fi
 
 if [ "$(extract_flag "--run")" = "true" ]
 then
+	export PYSPARK_DRIVER_PYTHON=python
 	export LA_EXIT_ON_COMPLETE="TRUE"
 	export LA_INFILE="${cmds[$(expr $# - 2)]}"
 	export LA_OUTFILE="${cmds[$(expr $# - 1)]}"
 	echo $INFILE
 	echo $OUTFILE
-	cmd="pyspark --jars "$JAR_LOC" --conf spark.driver.maxResultSize="0" --master $MASTER --executor-memory $EXECUTOR_MEMORY --driver-memory $DRIVER_MEMORY "$EXTRA_ARGS""
+	cmd="spark-submit --jars "$JAR_LOC" --conf spark.driver.maxResultSize="0" --master $MASTER --executor-memory $EXECUTOR_MEMORY --driver-memory $DRIVER_MEMORY "$EXTRA_ARGS" ../main.py --run "$LA_INFILE" --outfile "$LA_OUTFILE""
 	$cmd
 	exit
 

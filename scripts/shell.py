@@ -1,4 +1,5 @@
 import os
+
 if "LA_EXIT_ON_COMPLETE" in os.environ:
     from main import run_simulation
     run_simulation(os.environ['LA_INFILE'],os.environ['LA_OUTFILE'])

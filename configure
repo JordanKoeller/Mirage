@@ -19,7 +19,7 @@ function install_man() {
 
 # Here starts the actual script.
 #First, if the --man flag, run that and exit.
-if [ $1 = "--man" ]
+if [ "$1" = "--man" ]
 then
 	install_man
 	exit
@@ -28,7 +28,7 @@ fi
 #Now for the regular config setup.
 #First, I need to find what python interperiter to use.
 
-interpereters=($(whereis -b python | sed 's/ /\n/g' | grep "python3$\|python3.[[:digit:]]$" | xargs file -L | grep "interpreter" | sed "s/://g" | awk '{print $1 }'))
+interpereters=($(whereis -b python | sed 's/ /\n/g' | grep "python3$\|python3.[[:digit:]]$" | xargs file -L | grep -v "directory" | sed "s/://g" | awk '{print $1 }'))
 build_modes=('.analysis_pip' '.sim_pip' '.dev_pip')
 
 if [ interpereters = "" ]
@@ -110,7 +110,7 @@ LA_HOME="$(pwd)"
 pushd scripts > /dev/null
 touch mirage
 echo "#!/bin/bash" >> mirage
-if [ -d "mirage_venv" ]
+if [ -d "../mirage_venv" ]
 then
 	echo "source \"$LA_HOME/mirage_venv/bin/activate\"" >> mirage
 fi

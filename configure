@@ -118,6 +118,14 @@ echo "export PYTHONPATH=\"$LA_HOME\"" >> mirage
 echo "export PYTHONSTARTUP=\"$LA_HOME/scripts/shell.py\"" >> mirage
 echo "export JAR_LOC=\"$JAR_HOME\"" >> mirage
 cat mirage.template >> mirage
+touch cluster_config
+echo '#!/bin/bash' >> cluster_config
+echo 'export MASTER="local[*]"' >> cluster_config
+echo 'export EXECUTOR_MEMORY="1024m"' >> cluster_config
+echo 'export DRIVER_MEMORY="1024m"' >> cluster_config
+echo 'export EXTRA_ARGS=""' >> cluster_config
+echo 'export NUM_EXECUTORS="4"' >> cluster_config
+
 chmod u+x mirage
 popd > /dev/null
 if [ ! -f ".custom_preferences.json" ]

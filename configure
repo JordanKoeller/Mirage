@@ -97,6 +97,7 @@ JAR_HOME=""
 if [ -d "spark_mirage" ] 
 then
 	JAR_HOME="$(pwd)/spark_mirage/target/scala-2.11/spark_mirage-assembly-beta.jar"
+	make scala
 else
 	pushd mirage_venv > /dev/null
 	wget "http://www.cs.trinity.edu/~jkoeller/Mirage/spark_mirage-assembly-beta.jar"
@@ -139,11 +140,12 @@ read -p "y/n (recommend yes):" make_alias
 if [ -n "$(echo "$make_alias" | grep -i -o "y")" ]
 then
 	echo "alias mirage=\"$LA_HOME/scripts/mirage\"" >> "$HOME/.bashrc"
-	echo -e "${GREEN}Alias made. Mirage can now be run from any directory with the command \"mirage\".${NC}"
+	echo -e "${GREEN}Alias made.${NC}"
+	echo -e "${GREEN} Once you source your bash, mirage can be ran from any directory with the command \"mirage\".${NC}"
 fi
 install_man
+make build
 echo -e "${GREEN}mirage configured. For info on using mirage, see the man entry.${NC}"
-echo "To finish compiling all components, run make"
 
 
 

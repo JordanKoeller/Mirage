@@ -8,13 +8,11 @@ if "LA_EXIT_ON_COMPLETE" in os.environ:
 
 if "LA_IS_SIMULATION" in os.environ:
     from main import run_simulation
-
-if os.environ["LA_WITH_GUI"] == "yes":
+if os.environ["LA_WITH_GUI"] == "YES":
     try:
-        pass
-#        from matplotlib import pyplot as plt
-#        from IPython import get_ipython
-#        get_ipython().magic("matplotlib")
+        from matplotlib import pyplot as plt
+        from IPython import get_ipython
+        get_ipython().magic("matplotlib")
     except:
         print("Matplotlib imported. To run matplotlib interractively with ipython, run the command \n\n>>> %matplotlib")
 

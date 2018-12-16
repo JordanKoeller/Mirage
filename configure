@@ -1,29 +1,39 @@
 #!/bin/bash
+ORANGE='\033[0;33m'
+GREEN='\033[0;32m'
+NC='\033[0m'
 
 function install_man() {
 	cp docs/mirage.1.gz /usr/share/man/man1/mirage.1.gz
 	if [ $? -ne 0 ]
 	then
-		echo "WARNING: Could not install Mirage's man page. Please run the command \"./configure --man\" with super user privledges to install the man page." > &2
+		echo -e "${ORANGE}WARNING: Could not install Mirage's man page. Please run the command \"./configure --man\" with super user priviledges to install the man page.${NC}" > /dev/stderr
 	else
-		echo "Man page installed"
+		echo -e "${GREEN}Man page installed${NC}"
 	fi
 }
 
-if [ $1 = "--man" ]
+
+
+
+
+# Here starts the actual script.
+#First, if the --man flag, run that and exit.
+if [ "$1" = "--man" ]
 then
-	install_man()
+	install_man
 	exit
 fi
 
+#Now for the regular config setup.
 #First, I need to find what python interperiter to use.
 
-interpereters=($(whereis -b python | sed 's/ /\n/g' | grep "python3$\|python3.[[:digit:]]$"))
+interpereters=($(whereis -b python | sed 's/ /\n/g' | grep "python3$\|python3.[[:digit:]]$" | xargs file -L | grep -v "directory" | sed "s/://g" | awk '{print $1 }'))
 build_modes=('.analysis_pip' '.sim_pip' '.dev_pip')
 
 if [ interpereters = "" ]
 then
-	echo "Error: Mirage requires a python3 interpereter. Please install python3 and try again"
+	echo -e "${ORANGE}Error: Mirage requires a python3 interpereter. Please install python3 and try again${NC}"
 	exit
 fi
 
@@ -39,9 +49,12 @@ for ((idx=0; idx<${#interpereters[@]}; ++idx)); do
     echo "	[$idx]:" "${interpereters[idx]}"
 done
 read -p "> " int_ind
-
+if [ $int_ind -ge ${#interpereters[@]} ]
+then
+	echo -e "${ORANGE} ERROR: Please select a valid interpereter from the list"
+	exit
+fi
 interpereter="${interpereters[int_ind]}"
-echo "Selected $interpereter"
 echo ""
 echo "Should I create a virtual environment for Mirage?"
 read -p "y/n (Recommended yes): " mk_venv
@@ -50,7 +63,7 @@ then
 	$interpereter -m venv "mirage_venv"
 	if [ $? -ne 0 ]
 	then
-		echo "Error: Could not construct virtual environment. Please make sure your chosen python interpreter has the venv module installed, or try another interpreter" >&2
+		echo -e "${ORANGE}Error: Could not construct virtual environment. Please make sure your chosen python interpreter has the venv module installed, or try another interpreter${NC}" > /dev/stderr
 		exit
 	fi
 	source mirage_venv/bin/activate
@@ -64,23 +77,27 @@ echo "	[0]: Dependencies for analyzing simulation results"
 echo "	[1]: Dependencies for performing simulations"
 echo "	[2]: Dependencies for developers"
 read -p "> " dependency_col
+if [ $dependency_col -ge 3 ]
+then
+	echo -e "${ORANGE} ERROR: Please select a valid dependency pack from the list"
+	exit
+fi
 build_pack="${build_modes[dependency_col]}"
 pip install --disable-pip-version-check wheel
 pip install --disable-pip-version-check -r "$build_pack"
 if [ $? -ne 0 ]
 then
-	echo "Error. Could not install requested packages using pip."
+	echo -e "${ORANGE}Error. Could not install requested packages using pip.${NC}"
 	exit
 else
 	echo "Python environment configured."
 fi
 
-echo "Setting up pyspark environment"
-pip --disable-pip-version-check install pyspark
 JAR_HOME=""
 if [ -d "spark_mirage" ] 
 then
 	JAR_HOME="$(pwd)/spark_mirage/target/scala-2.11/spark_mirage-assembly-beta.jar"
+	make scala
 else
 	pushd mirage_venv > /dev/null
 	wget "http://www.cs.trinity.edu/~jkoeller/Mirage/spark_mirage-assembly-beta.jar"
@@ -94,7 +111,7 @@ LA_HOME="$(pwd)"
 pushd scripts > /dev/null
 touch mirage
 echo "#!/bin/bash" >> mirage
-if [ -d "mirage_venv" ]
+if [ -d "../mirage_venv" ]
 then
 	echo "source \"$LA_HOME/mirage_venv/bin/activate\"" >> mirage
 fi
@@ -102,6 +119,14 @@ echo "export PYTHONPATH=\"$LA_HOME\"" >> mirage
 echo "export PYTHONSTARTUP=\"$LA_HOME/scripts/shell.py\"" >> mirage
 echo "export JAR_LOC=\"$JAR_HOME\"" >> mirage
 cat mirage.template >> mirage
+touch cluster_config
+echo '#!/bin/bash' >> cluster_config
+echo 'export MASTER="local[*]"' >> cluster_config
+echo 'export EXECUTOR_MEMORY="1024m"' >> cluster_config
+echo 'export DRIVER_MEMORY="1024m"' >> cluster_config
+echo 'export EXTRA_ARGS=""' >> cluster_config
+echo 'export NUM_EXECUTORS="4"' >> cluster_config
+
 chmod u+x mirage
 popd > /dev/null
 if [ ! -f ".custom_preferences.json" ]
@@ -109,17 +134,18 @@ then
         echo "No preferences file found. Making the default preferences file"
         cp .default_preferences.json .custom_preferences.json
 fi
+make build
 echo "Done."
 echo "Would you like to make an alias to mirage in your .bashrc?"
 read -p "y/n (recommend yes):" make_alias
 if [ -n "$(echo "$make_alias" | grep -i -o "y")" ]
 then
 	echo "alias mirage=\"$LA_HOME/scripts/mirage\"" >> "$HOME/.bashrc"
-	echo "Alias made. Mirage can now be run from any directory with the command \"mirage\"."
+	echo -e "${GREEN}Alias made.${NC}"
+	echo -e "${GREEN} Once you source your bash, mirage can be ran from any directory with the command \"mirage\".${NC}"
 fi
-install_man()
-echo "mirage configured. For info on using mirage, see the man entry."
-echo "To finish compiling all components, run make"
+install_man
+echo -e "${GREEN}mirage configured. For info on using mirage, see the man entry.${NC}"
 
 
 

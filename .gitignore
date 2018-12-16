@@ -13,8 +13,6 @@ __pycache__/
 
 # Cython generated files
 *.html
-*.c
-*.cpp
 
 # C Code Testing Stuff
 a.out
@@ -29,11 +27,13 @@ a.out
 *.npy
 *.npz
 .GPUInfo
+scripts/mirage
 *.un~
 *~
 */*.un~
 */*~
 # Distribution / packaging
+docs/build/
 .Python
 env/
 build/
@@ -52,7 +52,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
+mirage_venv/
+scripts/cluster_config
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

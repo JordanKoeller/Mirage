@@ -7,7 +7,8 @@ def overlay_sizes(result,num):
     fig = plt.figure()
     for res in result:
         x,y = res.lightcurves[num].plottable("uas")
-        plt.plot(x,-y,label=str(res.parameters.quasar.radius.to(res.parameters.xi_0)))
+        label_sz = "%.3f $theta_E$" % res.parameters.quasar.radius.to(res.parameters.theta_E).value
+        plt.plot(x,y,label=label_sz)
     return fig
 
 def export_vid(infile,outfile):

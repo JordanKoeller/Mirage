@@ -17,6 +17,9 @@ package object utility {
       def _1:Short ={
          (v >> 16).toShort 
       }
+
+      def x:Int = _1.toInt
+      def y:Int = _2.toInt
       
      override def toString():String = {
         "(" + this._1+","+this._2+")"

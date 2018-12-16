@@ -134,6 +134,7 @@ then
         echo "No preferences file found. Making the default preferences file"
         cp .default_preferences.json .custom_preferences.json
 fi
+make build
 echo "Done."
 echo "Would you like to make an alias to mirage in your .bashrc?"
 read -p "y/n (recommend yes):" make_alias
@@ -144,7 +145,6 @@ then
 	echo -e "${GREEN} Once you source your bash, mirage can be ran from any directory with the command \"mirage\".${NC}"
 fi
 install_man
-make build
 echo -e "${GREEN}mirage configured. For info on using mirage, see the man entry.${NC}"
 
 

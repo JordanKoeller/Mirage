@@ -4,10 +4,7 @@ import lensing.RayBank
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import spatialrdd.partitioners.SpatialPartitioning
-import utility.DoublePair
-import utility.Index
-import utility.pixelConstructor
-import utility.pixelLongConstructor
+import utility._
 import spatialrdd.partitioners.BalancedColumnPartitioner
 
 import scala.reflect.ClassTag
@@ -40,22 +37,23 @@ class RDDGrid(rdd: RDD[CausticTree]) extends RDDGridProperty {
     val r = sc.broadcast(radius)
     val queryPts = sc.broadcast(pts)
     val queries = rdd.flatMap { grid =>
-      var rett: List[RetValue] = Nil
+      var rett: List[(Int,Int)] = Nil
       for (i <- 0 until queryPts.value.length) {
         for (j <- 0 until queryPts.value(i).length) {
           if (grid.intersects(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)) {
             val num = grid.query_point_count(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)
-            if (num != 0) rett ::= RetValue(i, j, num)
+            if (num != 0) rett ::= (mkPair(i,j).v,num)
           }
         }
       }
       rett
     }
-    val collected = queries.collect()
+    val collected = queries.reduceByKey((acc,n) => acc + n)
     val ret = Array.fill(pts.length)(Array[Int]())
     for (i <- 0 until pts.length) ret(i) = Array.fill(pts(i).length)(0)
     collected.foreach { elem =>
-      ret(elem.x)(elem.y) += elem.value
+      val sortable = new IndexPair(elem._1)
+      ret(sortable.x)(sortable.y) += elem._2
     }
     ret
   }

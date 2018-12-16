@@ -17,14 +17,7 @@ def _get_spark_context():
         from pyspark.conf import SparkConf
         from pyspark.context import SparkContext
         from mirage import GlobalPreferences
-        settings = GlobalPreferences['spark_configuration']
-        SparkContext.setSystemProperty("spark.executor.memory",settings['executor-memory'])
-        SparkContext.setSystemProperty("spark.driver.memory",settings['driver-memory'])
-        conf = SparkConf()
-        conf = conf.setMaster(settings['master'])
-        conf = conf.set('spark.driver.maxResultSize',settings['driver-memory'])
-        conf = conf.set('spark.scheduler.mode','FAIR')
-        _sc = SparkContext.getOrCreate(conf=conf)
+        _sc = SparkContext.getOrCreate()
         _sc.setLogLevel("WARN")
     return _sc
 

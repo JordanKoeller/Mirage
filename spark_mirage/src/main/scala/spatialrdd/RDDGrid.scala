@@ -3,6 +3,7 @@ package spatialrdd
 import lensing.RayBank
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.storage.StorageLevel
 import spatialrdd.partitioners.SpatialPartitioning
 import utility._
 import spatialrdd.partitioners.BalancedColumnPartitioner
@@ -48,12 +49,17 @@ class RDDGrid(rdd: RDD[CausticTree]) extends RDDGridProperty {
       }
       rett
     }
-    val collected = queries.reduceByKey((acc,n) => acc + n)
+    val reduced = queries.reduceByKey((acc,n) => acc + n).map{elem =>
+      val structured = new IndexPair(elem._1)
+      pixelLongConstructor(structured.x,structured.y,elem._2)
+    }
+    val collected = reduced.collect
+    println("Collected has size of " + collected.size)
     val ret = Array.fill(pts.length)(Array[Int]())
     for (i <- 0 until pts.length) ret(i) = Array.fill(pts(i).length)(0)
     collected.foreach { elem =>
-      val sortable = new IndexPair(elem._1)
-      ret(sortable.x)(sortable.y) += elem._2
+      val sortable = new PixelValue(elem)
+      ret(sortable.x)(sortable.y) += sortable.value
     }
     ret
   }
@@ -88,19 +94,24 @@ class RDDGrid(rdd: RDD[CausticTree]) extends RDDGridProperty {
     val r = sc.broadcast(radius)
     val queryPts = sc.broadcast(pts)
     val queries = rdd.flatMap { grid =>
-      var rett: List[Long] = Nil
+      var rett: List[(Int,Int)] = Nil
       for (i <- 0 until queryPts.value.length) {
         if (grid.intersects(queryPts.value(i)._1, queryPts.value(i)._2, r.value)) {
           val num = grid.query_point_count(queryPts.value(i)._1, queryPts.value(i)._2, r.value)
-          rett ::= pixelLongConstructor(i, 0, num)
+          if (num != 0) rett ::= (i,num)
         }
       }
       rett
     }
     val ret = Array.fill(pts.length)(0)
-    queries.collect().foreach { elem =>
-      val e = pixelConstructor(elem)
-      ret(e.x) = e.value
+    val reduced = queries.reduceByKey((acc,n) => acc + n)
+    println("Size of " + reduced.count())
+//    readLine("Press Enter to continue!")
+    val collected = reduced.collect
+    collected.foreach { elem =>
+      val k = elem._1
+      val v = elem._2
+      ret(k) = v
     }
     ret
   }
@@ -135,7 +146,8 @@ object RDDGrid {
 //    new RDDGrid(ret)
 //  }
   def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => CausticTree): RDDGrid = {
-    val ret = data.map(arr => nodeStructure(arr)).cache.setName("RDDGrid")
+    println("Constructing an RDDGRID")
+    val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY).setName("RDDGrid")
     new RDDGrid(ret)
   }
 //  def fromFile(file: String, numPartitions: Int, sc: SparkContext): RDDGrid = {

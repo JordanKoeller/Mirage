@@ -10,7 +10,7 @@ import spatialrdd.partitioners.BalancedColumnPartitioner
 
 import scala.reflect.ClassTag
 
-class RDDGrid(rdd: RDD[CausticTree]) extends RDDGridProperty {
+class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProperty {
 
   sealed case class RetValue(x: Int, y: Int, value: Int)
 
@@ -64,31 +64,31 @@ class RDDGrid(rdd: RDD[CausticTree]) extends RDDGridProperty {
     ret
   }
 
-  def queryCaustics(pts: Array[Array[DoublePair]], radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Boolean]] = {
-    val r = sc.broadcast(radius)
-    val queryPts = sc.broadcast(pts)
-    val queries = rdd.flatMap { grid =>
-      var rett: List[RetValue] = Nil
-      for (i <- 0 until queryPts.value.length) {
-        for (j <- 0 until queryPts.value(i).length) {
-          if (grid.intersects(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)) {
-            val num = grid.searchCaustics(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)
-            if (num) rett ::= RetValue(i, j, 1)
-          }
-        }
-      }
-      rett
-    }
-    val collected = queries.collect()
-    val ret = Array.fill(pts.length)(Array[Boolean]())
-    for (i <- 0 until pts.length) ret(i) = Array.fill(pts(i).length)(false)
-    collected.foreach { elem =>
-      if (elem.value == 1) {
-        ret(elem.x)(elem.y) = true
-      }
-    }
-    ret
-  }
+//  def queryCaustics(pts: Array[Array[DoublePair]], radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Boolean]] = {
+//    val r = sc.broadcast(radius)
+//    val queryPts = sc.broadcast(pts)
+//    val queries = rdd.flatMap { grid =>
+//      var rett: List[RetValue] = Nil
+//      for (i <- 0 until queryPts.value.length) {
+//        for (j <- 0 until queryPts.value(i).length) {
+//          if (grid.intersects(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)) {
+//            val num = grid.searchCaustics(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)
+//            if (num) rett ::= RetValue(i, j, 1)
+//          }
+//        }
+//      }
+//      rett
+//    }
+//    val collected = queries.collect()
+//    val ret = Array.fill(pts.length)(Array[Boolean]())
+//    for (i <- 0 until pts.length) ret(i) = Array.fill(pts(i).length)(false)
+//    collected.foreach { elem =>
+//      if (elem.value == 1) {
+//        ret(elem.x)(elem.y) = true
+//      }
+//    }
+//    ret
+//  }
 
   def query_curve(pts: Array[DoublePair], radius: Double, sc: SparkContext): Array[Int] = {
     val r = sc.broadcast(radius)
@@ -145,7 +145,7 @@ object RDDGrid {
 //    val ret = glommed.map(arr => nodeStructure(arr)).cache()
 //    new RDDGrid(ret)
 //  }
-  def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => CausticTree): RDDGrid = {
+  def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => OptTree[A]): RDDGrid[A] = {
     println("Constructing an RDDGRID")
     val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY).setName("RDDGrid")
     new RDDGrid(ret)

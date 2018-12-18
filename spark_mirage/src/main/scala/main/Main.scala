@@ -26,7 +26,7 @@ object Main {
     sc.setLogLevel("WARN")
     val stars = FileHandler.getStars(starsfile,numStars)
     val pixels = sc.range(0,width*height,1,numPartitions)
-    val raybanks = pixels.glom().map(arr => CausticRayBank(arr,dx,dy,width,height))
+    val raybanks = pixels.glom().map(arr => RayBank(arr,dx,dy,width,height))
     val parameters = MicroParameters(
       stars,
       shear,
@@ -41,7 +41,7 @@ object Main {
     val causticTracer = new CausticTracer()
     val caustics = srcPlane//causticTracer(srcPlane,broadParams)
     broadParams.unpersist(true)
-    rddGrid = RDDGrid(caustics,nodeStructure = CausticTree.apply)
+    rddGrid = RDDGrid[RayBank](caustics,nodeStructure = OptTree.apply)
   }
 
 
@@ -69,14 +69,14 @@ object Main {
     FileHandler.saveMagnifications(retFile,Array(retArr))
   }
 
-  def sampleCaustics(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]):Unit = {
-    val sc = ctx.context
-    val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
-    val retArr = rddGrid.queryCaustics(lightCurves,radius,sc)
-    val ret = retArr.map{arr =>
-      arr.map(elem => if (elem) 1 else 0)
-    }
-    FileHandler.saveMagnifications(retFile,ret)
-  }
+//  def sampleCaustics(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]):Unit = {
+//    val sc = ctx.context
+//    val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
+//    val retArr = rddGrid.queryCaustics(lightCurves,radius,sc)
+//    val ret = retArr.map{arr =>
+//      arr.map(elem => if (elem) 1 else 0)
+//    }
+//    FileHandler.saveMagnifications(retFile,ret)
+//  }
 
 }

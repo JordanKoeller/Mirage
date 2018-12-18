@@ -18,33 +18,13 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
     val bgen = sc.broadcast(gen)
     val r = sc.broadcast(radius)
     val queries = rdd.flatMap { grid =>
-      gen.flatMap { qPt =>
+      var rett: List[(Int, Int)] = Nil
+      val iter = bgen.value.iterator
+      while (iter.hasNext) {
+        val qPt = iter.next
         if (grid.intersects(qPt.x, qPt.y, r.value)) {
           val num = grid.query_point_count(qPt.x, qPt.y, r.value)
-          if (num != 0) pixelLongConstructor(qPt.px, qPt.py, num) :: Nil else Nil
-        } else Nil
-      }
-    }
-
-    val collected = queries.collect()
-    val ret = Array.fill(gen.xDim, gen.yDim)(0)
-    collected.foreach { el =>
-      val elem = pixelConstructor(el)
-      ret(elem.x)(elem.y) += elem.value
-    }
-    ret
-  }
-  def queryPoints(pts: Array[Array[DoublePair]], radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Index]] = {
-    val r = sc.broadcast(radius)
-    val queryPts = sc.broadcast(pts)
-    val queries = rdd.flatMap { grid =>
-      var rett: List[(Int,Int)] = Nil
-      for (i <- 0 until queryPts.value.length) {
-        for (j <- 0 until queryPts.value(i).length) {
-          if (grid.intersects(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)) {
-            val num = grid.query_point_count(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)
-            if (num != 0) rett ::= (mkPair(i,j).v,num)
-          }
+          if (num != 0) rett ::= (mkPair(qPt.px, qPt.py).v, num)
         }
       }
       rett
@@ -53,8 +33,43 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
       val structured = new IndexPair(elem._1)
       pixelLongConstructor(structured.x,structured.y,elem._2)
     }
+    val ret = Array.fill(gen.xDim, gen.yDim)(0)
     val collected = reduced.collect
-    println("Collected has size of " + collected.size)
+    collected.foreach { elem =>
+      val sortable = new PixelValue(elem)
+      ret(sortable.x)(sortable.y) += sortable.value
+    }
+    ret
+  }
+  def queryPoints(pts: Array[Array[DoublePair]], radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Index]] = {
+    val r = sc.broadcast(radius)
+    val queryBank = QueryPointBank(pts)
+    val queryPts = sc.broadcast(queryBank)
+    val queries = rdd.flatMap { grid =>
+      var rett: List[(Int,Int)] = Nil
+      val iter = queryPts.value.iterator
+      while (iter.hasNext) {
+        val pt = iter.next()
+        if (grid.intersects(pt.x,pt.y,radius)) {
+          val num = grid.query_point_count(pt.x,pt.y,r.value)
+          if (num != 0) rett ::= (mkPair(pt.i,pt.j).v,num)
+        }
+      }
+//      for (i <- 0 until queryPts.value.length) {
+//        for (j <- 0 until queryPts.value(i).length) {
+//          if (grid.intersects(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)) {
+//            val num = grid.query_point_count(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)
+//            if (num != 0) rett ::= (mkPair(i,j).v,num)
+//          }
+//        }
+//      }
+      rett
+    }
+    val reduced = queries.reduceByKey((acc,n) => acc + n).map{elem =>
+      val structured = new IndexPair(elem._1)
+      pixelLongConstructor(structured.x,structured.y,elem._2)
+    }
+    val collected = reduced.collect
     val ret = Array.fill(pts.length)(Array[Int]())
     for (i <- 0 until pts.length) ret(i) = Array.fill(pts(i).length)(0)
     collected.foreach { elem =>

@@ -60,6 +60,11 @@ def animate(simulation):
     view.connect_runner(controller)
     return view
 
+def describe(filename_or_result_type):
+    if isinstance(filename_or_result_type,str):
+        filename_or_result_type = load(filename_or_result_type)
+    print(filename_or_result_type.simulation)
+
 
 # def load_result(filename):
 

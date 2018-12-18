@@ -135,7 +135,7 @@ object RDDGrid {
 //    new RDDGrid(ret)
 //  }
   def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => CausticTree): RDDGrid = {
-    val ret = data.map(arr => nodeStructure(arr)).cache
+    val ret = data.map(arr => nodeStructure(arr)).cache.setName("RDDGrid")
     new RDDGrid(ret)
   }
 //  def fromFile(file: String, numPartitions: Int, sc: SparkContext): RDDGrid = {

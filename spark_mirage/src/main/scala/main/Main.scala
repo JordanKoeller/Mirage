@@ -41,7 +41,6 @@ object Main {
     val causticTracer = new CausticTracer()
     val caustics = srcPlane//causticTracer(srcPlane,broadParams)
     rddGrid = RDDGrid(caustics,nodeStructure = CausticTree.apply)
-    //rddGrid.cache()
     broadParams.unpersist()
   }
 

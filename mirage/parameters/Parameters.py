@@ -310,13 +310,23 @@ class MicrolensingParameters(Parameters):
                 return cls(params.quasar,params.lens,pcnts,center,rays,spln,sg)
 
     def is_similar(self,other:'Parameters'):
-        return False
         myJS = self.json
         oJS = other.json
-        if not Parameters.is_similar(self,other):
-            print("Reg params failed")
-        if myJS['star_generator'] != oJS['star_generator']:
-            print("Failed on generators")
-        if myJS['percent_stars'] != oJS['percent_stars']:
-            print("Failed on percents")
-        return Parameters.is_similar(self,other) and myJS['star_generator'] == oJS['star_generator'] and myJS['percent_stars'] == oJS['percent_stars']
+        return myJS['lens'] == oJS['lens'] and \
+        myJS['source']['redshift'] == oJS['source']['redshift'] and \
+        myJS['star_generator'] == oJS['star_generator'] and \
+        myJS['percent_stars'] == oJS['percent_stars'] and \
+        myJS['source_plane'] == oJS['source_plane'] and \
+        myJS['image_center'] == oJS['image_center'] and \
+        myJS['ray_count'] == oJS['ray_count']
+
+        # return False
+        # myJS = self.json
+        # oJS = other.json
+        # if not Parameters.is_similar(self,other):
+        #     print("Reg params failed")
+        # if myJS['star_generator'] != oJS['star_generator']:
+        #     print("Failed on generators")
+        # if myJS['percent_stars'] != oJS['percent_stars']:
+        #     print("Failed on percents")
+        # return Parameters.is_similar(self,other) and myJS['star_generator'] == oJS['star_generator'] and myJS['percent_stars'] == oJS['percent_stars']

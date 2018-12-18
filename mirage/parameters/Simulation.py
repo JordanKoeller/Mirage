@@ -114,6 +114,17 @@ class Simulation(Jsonable):
     def __len__(self):
         return len(self._results)
 
+    def __repr__(self):
+        l1 = self._name
+        l2 = self._description
+        l3 = "Num-Trials = " + str(self._num_trials)
+        l4 = "Variation = " + self._trial_variance
+        l5 = str(self._results.values())
+        # import json
+        # js = self.parameters.json 
+        # l6 = json.dumps(js,indent=2)
+        return "%s\n%s\n%s\n%s\n%s\n" % (l1,l2,l3,l4,l5)
+
 
 class AnimationSimulation(Jsonable):
 

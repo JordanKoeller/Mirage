@@ -16,6 +16,9 @@ class Jsonable(ABC):
     def from_json(cls,js):
         pass
 
+    def __repr__(self):
+        return str(self.json)
+
     @staticmethod
     def encode_quantity(quant:Quantity) -> 'Dict':
         ret = {}

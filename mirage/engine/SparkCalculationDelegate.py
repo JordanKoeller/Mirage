@@ -103,7 +103,6 @@ class MicroSparkDelegate(CalculationDelegate):
             query_radius,
             file.name,
             jrdd)
-        print(args)
         self.spark_context._jvm.main.Main.queryPoints(*args)
         returned_data = self.get_returned_data(file.name,region.pixels)
         return np.array(returned_data,dtype=np.int32)

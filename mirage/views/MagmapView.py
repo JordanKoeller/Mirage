@@ -131,6 +131,6 @@ class MagnificationMapView(ImageCurveView):
             from mirage.lens_analysis import LightCurve
             curve = self._magmap.slice_line(start,end)
             s = start.quantity
-            e = start.quantity
+            e = end.quantity
             return LightCurve(curve,s,e)
 

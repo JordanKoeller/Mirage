@@ -23,7 +23,7 @@ class MagnificationMap(object):
 
     def slice_line(self,start,end):
         from mirage.calculator import arbitrary_slice_axis
-        return arbitrary_slice_axis(start,end,self.region,self.data)
+        return arbitrary_slice_axis(start,end,self.region,self._data)
 
 
     def export(self,filename,fmt='fits',**kwargs):

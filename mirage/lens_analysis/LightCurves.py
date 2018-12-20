@@ -159,7 +159,7 @@ class LightCurve(object):
         return LightCurveBatch(ret)
 
     def smooth_with_window(self,window:int):
-        data = self._data.copy()
+        data = self._data
         data = wiener(data,window)
         return LightCurve(data,self._start,self._end)
 
@@ -203,6 +203,23 @@ class LightCurveSlice(LightCurve):
         slice_length = int((size / dx).value)
         slc = trimmed_to_size_slice(y,slice_length)
         return self[slc[0]:slc[1]]
+
+    @property
+    def symmetry(self):
+        # First, need to find the peak, then select a window to take around it.
+        # Once I have the peak isolated, need to either interpolate one side or trim the other to
+        #       Take the shorter side and mirror around the peak.
+        #       Next, calculate the mean square distance between the two. Would a sum or avg or other measure be best?
+        curve = self.curve
+        peakInd = np.argmax(curve)
+        l_side = curve[max(0,2*peakInd - len(curve)):peakInd]
+        r_side = curve[min(peakInd,len(curve) - peakInd):peakInd:-1]
+        diff = np.sqrt(((r_side - l_side)**2).sum())
+        diff_norm = np.sqrt(((r_side - r_side[::-1])**2).sum())
+        #Maybe normalize by dividing by the same computation, where we don't slice in opposite directions?
+        #Essentially compared to a perfect mirror.
+        return diff/diff_norm
+
 
     def __getitem__(self,slc):
         if isinstance(slc,slice):

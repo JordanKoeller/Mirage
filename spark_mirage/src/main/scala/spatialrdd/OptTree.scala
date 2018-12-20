@@ -15,7 +15,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
     }
   }
 
-  class Node(val indI: Int, val indJ: Int, var split: Double) {
+  class Node(val indI: Int, val indJ: Int, var split: Double) extends Serializable {
     def size: Int = indJ - indI
 
     override def toString() = "Node"

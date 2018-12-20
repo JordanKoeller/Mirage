@@ -45,7 +45,7 @@ package object utility {
       }
       
       def value:Int = {
-        (_hidden << 48 >> 48).toInt
+        (_hidden << 32 >> 32).toInt
       }
       private def pos:Int = {
         (_hidden >> 32).toInt

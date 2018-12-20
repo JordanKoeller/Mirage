@@ -87,7 +87,27 @@ class MicroSparkDelegate(CalculationDelegate):
         file = tempfile.NamedTemporaryFile("w+",delete = False)
         self.spark_context._jvm.main.Main.sampleCaustics(query_point_file,file.name,points.shape[0],query_radius,jrdd)
         returned_data = self.get_returned_data(file.name,points)
-        return np.array(returned_data,dtype=np.int8)
+        return np.array(returned_data,dtype=np.int32)
+
+    def query_region(self,region,radius:u.Quantity) -> np.ndarray:
+        query_radius = radius.value
+        jrdd = self._spark_context.emptyRDD()._jrdd
+        file = tempfile.NamedTemporaryFile("w+",delete = False)
+        left = region.center - region.dimensions/2.0
+        right = region.center + region.dimensions/2.0
+        args = (left.x.value, left.y.value,
+            right.x.value,
+            right.y.value,
+            region.resolution.x.value,
+            region.resolution.y.value,
+            query_radius,
+            file.name,
+            jrdd)
+        print(args)
+        self.spark_context._jvm.main.Main.queryPoints(*args)
+        returned_data = self.get_returned_data(file.name,region.pixels)
+        return np.array(returned_data,dtype=np.int32)
+
 
     def get_star_file(self,data:np.ndarray):
         file = tempfile.NamedTemporaryFile('w+',delete = False)

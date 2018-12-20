@@ -48,10 +48,10 @@ object Main {
 
   def queryPoints(x0: Double, y0: Double, x1: Double, y1: Double,
                   xDim: Int, yDim: Int, radius: Double, retFile:String,
-                  ctx: JavaRDD[Int], verbose: Boolean = false):Unit = {
+                  ctx: JavaRDD[Int]):Unit = {
     val sc = ctx.context
     val generator = new GridGenerator(x0, y0, x1, y1, xDim, yDim)
-    val retArr = rddGrid.queryPointsFromGen(generator, radius, sc, verbose = verbose)
+    val retArr = rddGrid.queryPointsFromGen(generator, radius, sc, verbose = false)
     FileHandler.saveMagnifications(retFile,retArr)
   }
 

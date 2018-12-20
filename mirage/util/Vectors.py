@@ -59,6 +59,10 @@ class Vec2D(Jsonable):
     def from_quant(cls,q):
         return Vec2D(q[0].value,q[1].value,q.unit)
 
+    @property
+    def quantity(self):
+        return self._quant.copy()
+
     def as_value_tuple(self,unit=None):
         if unit:
             return (self.x.to(unit).value,self.y.to(unit).value)

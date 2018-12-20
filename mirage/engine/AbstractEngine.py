@@ -34,6 +34,11 @@ class EngineHandler(object):
         else:
             return ret/rb
 
+    def query_region(self,*args,**kwargs):
+        ret = self.calculation_delegate.query_region(*args,**kwargs)
+        rb = self._parameters.raw_brightness
+        return ret/rb
+
     def query_caustics(self,*args,**kwargs):
         return self.calculation_delegate.query_caustics(*args,**kwargs)
 

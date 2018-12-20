@@ -16,19 +16,22 @@ import numpy as np
 # For this, I will pass around query points as well.
 class LightCurveBatch(object):
 
-    def __init__(self,data:np.ndarray,query_ends:u.Quantity):
-        self._data = data
-        self._query_ends = query_ends
+    def __init__(self,data:'list[LightCurve]'):
+        if isinstance(data,list):
+            self._data = np.array(data)
+        else:
+            self._data = data
 
     def plottables(self,unit='uas'):
         for curve in self:
             yield curve.plottable(unit)
 
     def smooth_with_window(self,window:int):
-        data = []
-        for curve in self:
-            data.append(curve.smooth_with_window(window)._data)
-        return LightCurveBatch(data,self._query_ends)
+        d2 = self._data.copy()
+        for curveI in range(len(self)):
+            curve = self._data[curveI]
+            d2[curveI] = curve.smooth_with_window(window)
+        return LightCurveBatch(d2)
 
     def __add__(self,other):
         assert isinstance(other,LightCurveBatch)
@@ -37,27 +40,34 @@ class LightCurveBatch(object):
 
     def __getitem__(self,ind):
         if isinstance(ind,int):
-            curve_data = self._data[ind]
-            ends = self._query_ends[ind]
-            start = ends[0:2]
-            finish = ends[2:]
-            return LightCurve(curve_data,start,finish)
-        elif isinstance(ind,slice):
-            return LightCurveBatch(self._data[ind],self._query_ends[ind])
+            return self._data[ind]
+        else:
+            return LightCurveBatch(self._data[ind])
 
     def __len__(self):
         return len(self._data)
 
+    # @classmethod
+    # def from_curves(cls,curves):
+    #     data = np.ndarray((len(curves)),dtype=object)
+    #     qpts = np.ndarray((len(curves),4))
+    #     for curve in range(len(curves)):
+    #         data[curve] = curves[curve]._data
+    #         s,e = curves[curve].ends
+    #         qpts[curve] = [s[0].value,s[1].value,e[0].value,e[1].value]
+    #     qpts = u.Quantity(qpts,curves[0].ends[0].unit)
+    #     return cls(data,qpts)
+
     @classmethod
-    def from_curves(cls,curves):
-        data = np.ndarray((len(curves)),dtype=object)
-        qpts = np.ndarray((len(curves),4))
-        for curve in range(len(curves)):
-            data[curve] = curves[curve]._data
-            s,e = curves[curve].ends
-            qpts[curve] = [s[0].value,s[1].value,e[0].value,e[1].value]
-        qpts = u.Quantity(qpts,curves[0].ends[0].unit)
-        return cls(data,qpts)
+    def from_arrays(cls,data:np.ndarray, query_ends:u.Quantity):
+        ret_data = np.ndarray(len(data),dtype=object)
+        for i in range(len(data)):
+            datum = data[i]
+            ends = query_ends[i]
+            s = ends[0:2]
+            e = ends[2:]
+            ret_data[i] = LightCurve(datum,s,e)
+        return cls(ret_data)
 
 
 class LightCurve(object):
@@ -72,8 +82,7 @@ class LightCurve(object):
 
     def get_slices(self,slices):
         ret1 = list(map(lambda slice_object: self[slice_object],slices))
-        ret2 = list(map(lambda slice_object: self.query_points.value[slice_object],slices))
-        return LightCurveBatch(ret1,ret2)
+        return LightCurveBatch(ret1)
 
     @property
     def ends(self):
@@ -139,7 +148,6 @@ class LightCurve(object):
         stitch_length=u.Quantity(1000000,'uas'),
         min_height=1.2):
         slice_list = self.get_event_slice_points(tolerance,smoothing_window,max_length,stitch_length,min_height)
-        print(slice_list)
         curve = self._data
         qpts = self.query_points
         ret = []
@@ -148,7 +156,7 @@ class LightCurve(object):
             slice_y = curve[start:end]
             lc = LightCurveSlice(self,start,end)
             ret.append(lc)
-        return LightCurveBatch.from_curves(ret)
+        return LightCurveBatch(ret)
 
     def smooth_with_window(self,window:int):
         data = self._data.copy()
@@ -183,10 +191,10 @@ class LightCurveSlice(LightCurve):
         return y[self._s:self._e]
 
     def plottable_segment(self,unit='uas'):
-        x,y = self._parent_curve.plottable(unit)
+        x, y = self._parent_curve.plottable(unit)
         x = x[self._s:self._e]
         y = y[self._s:self._e]
-        return x,y
+        return x, y
 
     def trimmed_to_size(self,size:u.Quantity):
         from mirage.calculator import trimmed_to_size_slice

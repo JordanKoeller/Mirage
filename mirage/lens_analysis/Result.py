@@ -36,6 +36,33 @@ class Result(object):
     def __len__(self):
         return self.num_trials
 
+    @property
+    def lightcurve_matrix(self):
+        matrix_dims = (self.num_trials,self.simulation['lightcurves'].num_curves)
+        lc_matrix = np.ndarray(matrix_dims, dtype=object)
+        lightcurve_data_index = 1 #Hard-coded in the requires decorator. See below.
+        for i in range(self.num_trials):
+            lc_matrix[i] = self._fm.get_result(i,lightcurve_data_index)
+        return lc_matrix
+
+    def correlate_lc_peaks(self,peaks:'LightCurveBatch',lc_matrix=None) -> 'np.ndarray[object,ndim=2]':
+        #First, I need to construct the lightcurve matrix
+        #First axis: the number of trials
+        #Second axis: the number of lightcurves per trial
+        if lc_matrix is None:
+            lc_matrix =  self.lightcurve_matrix()
+        ret_matrix = np.ndarray((len(peaks),self.num_trials),dtype=object)
+        for pI in range(len(peaks)):
+            peak = peaks[pI]
+            line_index = peak.line_id
+            to_batch = []
+            peak_slice = peak.slice_object
+            for i in range(self.num_trials):
+                ret_matrix[pI,i] = lc_matrix[i,line_index][peak_slice]
+        return ret_matrix
+
+
+
 def requires(dtype):
     def decorator(fn):
         def decorated(self,*args,**kwargs):
@@ -100,7 +127,8 @@ class Trial(object):
             tmp = qpts[gp]
             qpt_format[gp] = [tmp[0, 0].value, tmp[0, 1].value, tmp[-1, 0].value, tmp[-1, 1].value]
         ret_qp = u.Quantity(qpt_format, qpts[0].unit)
-        return LightCurveBatch.from_arrays(dataset, ret_qp)
+        del(qpts)
+        return LightCurveBatch.from_arrays(dataset, ret_qp,with_id=True)
     
 
     

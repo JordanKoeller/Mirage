@@ -119,10 +119,7 @@ class Simulation(Jsonable):
         l2 = self._description
         l3 = "Num-Trials = " + str(self._num_trials)
         l4 = "Variation = " + self._trial_variance
-        l5 = str(self._results.values())
-        # import json
-        # js = self.parameters.json 
-        # l6 = json.dumps(js,indent=2)
+        l5 = str(self._results.keys())
         return "%s\n%s\n%s\n%s\n%s\n" % (l1,l2,l3,l4,l5)
 
 

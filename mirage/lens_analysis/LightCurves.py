@@ -11,16 +11,34 @@ from astropy import units as u
 import numpy as np
 
 
+def calculate_peak_shifts(data:'np.ndarray'):
+    shifts = np.ndarray(data.shape,dtype=np.int16)
+    for i in range(data.shape[0]):
+        baseline = np.argmax(data[i,0])
+        for j in range(data.shape[1]):
+            shift = abs(np.argmax(data[i,j]) - baseline)
+            shifts[i,j] = shift
+    return shifts
+
+    # In [120]: def iterator(): 
+    #      ...:     peak_batch = next(peaks) #each peak_batch is a LightCurveBatch of isolated events.
+    #      ...:     for peak in peak_batch: #Data is the datafile from la.open
+    #      ...:         symm = peak.symmetry(20*data[0].parameters.quasar.r_g) 
+    #      ...:         ret_asyms.append(symm) 
+    #      ...:         lines = data.correlate_lc_peaks([peak],matrix) #matrix is the lookup of all light curves from Result.lookup_matrix
+    #      ...:         shifts = calculate_peak_shifts(lines) 
+    #      ...:         ret_shifts.append(shifts)
+
 
 # I need to make a common interface and weigh pros and cons.
 # For this, I will pass around query points as well.
 class LightCurveBatch(object):
 
     def __init__(self,data:'list[LightCurve]'):
-        if isinstance(data,list):
-            self._data = np.array(data)
-        else:
-            self._data = data
+        # if isinstance(data,list):
+        #     self._data = np.array(data)
+        # else:
+        self._data = data
 
     def plottables(self,unit='uas'):
         for curve in self:
@@ -47,35 +65,29 @@ class LightCurveBatch(object):
     def __len__(self):
         return len(self._data)
 
-    # @classmethod
-    # def from_curves(cls,curves):
-    #     data = np.ndarray((len(curves)),dtype=object)
-    #     qpts = np.ndarray((len(curves),4))
-    #     for curve in range(len(curves)):
-    #         data[curve] = curves[curve]._data
-    #         s,e = curves[curve].ends
-    #         qpts[curve] = [s[0].value,s[1].value,e[0].value,e[1].value]
-    #     qpts = u.Quantity(qpts,curves[0].ends[0].unit)
-    #     return cls(data,qpts)
-
     @classmethod
-    def from_arrays(cls,data:np.ndarray, query_ends:u.Quantity):
+    def from_arrays(cls,data:np.ndarray, query_ends:u.Quantity,with_id=False):
         ret_data = np.ndarray(len(data),dtype=object)
         for i in range(len(data)):
             datum = data[i]
             ends = query_ends[i]
             s = ends[0:2]
             e = ends[2:]
-            ret_data[i] = LightCurve(datum,s,e)
+            if with_id:
+                ret_data[i] = LightCurve(datum,s,e,i)
+            else:
+                ret_data[i] = LightCurve(datum,s,e)
         return cls(ret_data)
+
 
 
 class LightCurve(object):
 
-    def __init__(self,data,start,end):
+    def __init__(self,data,start,end,line_id = -1):
         self._data = np.array(data)
         self._start = start
         self._end = end
+        self._line_id = line_id
 
     def __len__(self):
         return len(self._data)
@@ -83,6 +95,14 @@ class LightCurve(object):
     def get_slices(self,slices):
         ret1 = list(map(lambda slice_object: self[slice_object],slices))
         return LightCurveBatch(ret1)
+
+    @property
+    def line_id(self):
+        if self._line_id != -1:
+            return self._line_id
+        else:
+            raise AttributeError("LightCurve instance does not have a trial id.")
+    
 
     @property
     def ends(self):
@@ -128,45 +148,104 @@ class LightCurve(object):
         y = self.curve
         return x,y
 
-    def get_event_slice_points(self,tolerance=1.0,
-        smoothing_window=55,
-        max_length=u.Quantity(1000000,'uas'),
-        stitch_length=u.Quantity(1000000,'uas'),
-        min_height=1.2):
-        from mirage.calculator import isolate_events
-        x,curve = self.plottable()
-        x = x.to(max_length.unit)
+    def get_event_slices(self,threshold=0.8,smoothing_factor=1.1,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
+        x = self.distance_axis.to(min_separation.unit)
         dx = x[1] - x[0]
-        slice_length = int((max_length/dx).value)
-        stitch_length = int((stitch_length/dx).value)
-        slice_list = isolate_events(curve,tolerance,smoothing_window,slice_length,stitch_length,min_height)
-        return slice_list
+        min_sep = int((min_separation/dx).value)
+        peaks = self.get_peaks(threshold,smoothing_factor,min_sep,require_isolation)
+        obj_list = []
+        for p in peaks:
+            s_min = max([0,p-min_sep])
+            s_max = min([p+min_sep,len(x)-1])
+            obj_list.append(slice(s_min,s_max,1))
+        return obj_list
 
-    def get_events(self,tolerance=1.0,
-        smoothing_window=55,
-        max_length=u.Quantity(1000000,'uas'),
-        stitch_length=u.Quantity(1000000,'uas'),
-        min_height=1.2):
-        slice_list = self.get_event_slice_points(tolerance,smoothing_window,max_length,stitch_length,min_height)
-        curve = self._data
-        qpts = self.query_points
+
+    def get_events(self,threshold=0.8,smoothing_factor=1.1,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
+        slice_list = self.get_event_slices(threshold, smoothing_factor, min_separation, require_isolation)
         ret = []
-        for start,end in slice_list:
-            slice_x = qpts[start:end]
-            slice_y = curve[start:end]
-            lc = LightCurveSlice(self,start,end)
+        for slicer in slice_list:
+            lc = LightCurveSlice(self,slicer.start,slicer.stop,self._line_id)
             ret.append(lc)
+        print("Returning batch with %d events" % len(ret))
         return LightCurveBatch(ret)
+
+    def get_peaks(self,threshold=0.8,smoothing_factor=1.1,min_sep=1,require_isolation=False):
+        '''
+            Locate peaks of this light curve via a sobel edge detection convolution.
+            Recommended settings for my 80k batch, trail 5 R_g:
+                threshold = 0.8
+                smoothing_factor=1.1
+
+        '''
+        from mirage.calculator import sobel_detect
+        curve = self._data
+        return sobel_detect(curve,threshold,smoothing_factor,min_sep,require_isolation)
 
     def smooth_with_window(self,window:int):
         data = self._data
         data = wiener(data,window)
-        return LightCurve(data,self._start,self._end)
+        return LightCurve(data,self._start,self._end,self._line_id)
+
+    # @property
+    def symmetry(self,slice_length:u.Quantity):
+        line = self.curve
+        peak_left_scan = int(len(line)/2 - 1)
+        peak = np.argmax(line[peak_left_scan:peak_left_scan+3]) + peak_left_scan
+        dist_ax = self.distance_axis.to(slice_length.unit)
+        slice_length = int(slice_length/2/(dist_ax[1] - dist_ax[0]))
+        slice_length = min([slice_length,peak, len(line) - peak])
+        line = line[peak-slice_length+1:peak+slice_length+1]
+        min_val = line.min()
+        line += abs(min_val)
+        line /= line.max()
+        l_side = line[1:slice_length+1]
+        right_side = line[slice_length:]
+        r_flipped = right_side[::-1]
+        dw = 2.0/len(line)
+        diff = dw*0.5*abs(l_side[0:-1]+l_side[1:] - r_flipped[0:-1] - l_side[1:]).sum()
+        return diff
+        # possibles = argrelmax(line,order=5)[0] 
+        # p1 = possibles[0] 
+        # p2 = possibles[0] 
+        # for i in possibles: 
+        #     if line[i] >= line[p1]: 
+        #         p1 = i 
+        # if p1 == p2: 
+        #     p2 = possibles[1] 
+        # for i in possibles: 
+        #     if i != p1 and line[i] >= line[p2]: 
+        #         p2 = i 
+        # curve_min = None
+        # slice_length = None
+        # l_side = None
+        # r_side = None
+        # if p2 < p1: 
+        #     curve_min = np.argmin(line[p2:p1]) + p2 
+        #     slice_length = min([p1-curve_min,len(line)-p1])
+        #     l_side = line[curve_min+1:p1+1] 
+        #     r_side = line[p1:p1+slice_length].copy()
+        # else: 
+        #     curve_min = np.argmin(line[p1:p2]) + p1 
+        #     slice_length = min([curve_min-p1,p1]) 
+        #     l_side = line[p1-slice_length+1:p1+1] 
+        #     r_side = line[p1:p1+slice_length].copy()
+        #Normalization Step
+        # min_val = min([l_side.min(),r_side.min()])
+        # l_side += abs(min_val)
+        # r_side += abs(min_val)
+        # max_val = max([l_side.max(),r_side.max()])
+        # l_side /= abs(max_val)
+        # r_side /= abs(max_val)
+        #To find the difference value, we take the (normalized) lines and take the absolute value of the difference and their integrals
+        #Integral simply through a trapezoidal sum.
+        # dw = 1.0/(len(l_side)*2)
+        # r_flipped = r_side[::-1] 
 
 
     def __getitem__(self,given):
         if isinstance(given,slice):
-            return LightCurveSlice(self,given.start,given.stop)
+            return LightCurveSlice(self,given.start,given.stop,self._line_id)
         elif isinstance(given,int):
             return (self.curve[given],self.query_points[given])
         else:
@@ -175,12 +254,12 @@ class LightCurve(object):
 
 
 class LightCurveSlice(LightCurve):
-    def __init__(self,parent_curve,start,stop):
+    def __init__(self,parent_curve,start,stop,line_id=-1):
         qpts = parent_curve.query_points
         curve = parent_curve._data
         begin = qpts[start]
         end = qpts[stop]
-        LightCurve.__init__(self,curve[start:stop],begin,end)
+        LightCurve.__init__(self,curve[start:stop],begin,end,line_id)
         self._s = start
         self._e = stop
         self._parent_curve = parent_curve
@@ -204,21 +283,7 @@ class LightCurveSlice(LightCurve):
         slc = trimmed_to_size_slice(y,slice_length)
         return self[slc[0]:slc[1]]
 
-    @property
-    def symmetry(self):
-        # First, need to find the peak, then select a window to take around it.
-        # Once I have the peak isolated, need to either interpolate one side or trim the other to
-        #       Take the shorter side and mirror around the peak.
-        #       Next, calculate the mean square distance between the two. Would a sum or avg or other measure be best?
-        curve = self.curve
-        peakInd = np.argmax(curve)
-        l_side = curve[max(0,2*peakInd - len(curve)):peakInd]
-        r_side = curve[min(peakInd,len(curve) - peakInd):peakInd:-1]
-        diff = np.sqrt(((r_side - l_side)**2).sum())
-        diff_norm = np.sqrt(((r_side - r_side[::-1])**2).sum())
-        #Maybe normalize by dividing by the same computation, where we don't slice in opposite directions?
-        #Essentially compared to a perfect mirror.
-        return diff/diff_norm
+
 
 
     def __getitem__(self,slc):
@@ -470,6 +535,7 @@ class FittingChooser(CountingChooser):
             x0[i*5+2] = 1
             x0[i*5+3] = 1
             x0[i*5+4] = -1
+
         def min_func(params):
             y = np.zeros_like(x)
             for i in range(num_funcs):
@@ -483,7 +549,6 @@ class ProminenceChooser(CountingChooser):
     def __init__(self,threshold=12):
         CountingChooser.__init__(self)
         self._threshold = threshold
-
 
     def calc_prominence(self,curve,I):
         flag = True
@@ -502,7 +567,6 @@ class ProminenceChooser(CountingChooser):
                 if curve[I-i] > peak_height:
                     ret = curve[I] - curve[I-i:I].min()
                     break
-            
             i += 1
         return ret
 
@@ -570,7 +634,7 @@ class CausticTypeChooser(object):
             y = a.curve
             peak = np.argmax(y)
             rise_seg = self.get_rise_to(y,peak)
-            # plt.figure()
+            # plt.figure()/2
             # plt.plot(rise_seg)
             # wait = input("Done?")
             # plt.close()

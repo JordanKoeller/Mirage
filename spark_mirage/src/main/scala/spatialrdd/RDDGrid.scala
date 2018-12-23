@@ -29,6 +29,7 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
       }
       rett
     }
+    bgen.unpersist()
     val reduced = queries.reduceByKey((acc,n) => acc + n).map{elem =>
       val structured = new IndexPair(elem._1)
       pixelLongConstructor(structured.x,structured.y,elem._2)
@@ -65,6 +66,7 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
 //      }
       rett
     }
+    queryPts.unpersist(true)
     val reduced = queries.reduceByKey((acc,n) => acc + n).map{elem =>
       val structured = new IndexPair(elem._1)
       pixelLongConstructor(structured.x,structured.y,elem._2)
@@ -118,6 +120,7 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
       }
       rett
     }
+    queryPts.unpersist()
     val ret = Array.fill(pts.length)(0)
     val reduced = queries.reduceByKey((acc,n) => acc + n)
     println("Size of " + reduced.count())

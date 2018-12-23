@@ -1,5 +1,6 @@
 # distutils: language=c++
-# cython: profile=True, boundscheck=False, wraparound=False,embedsignature=True
+# cython: profile=False, boundscheck=False, wraparound=False,embedsignature=False
+# cython: language_level=3
 
 from libc.math cimport sin, cos, atan2, sqrt ,atan, atanh, pi
 from libcpp.pair cimport pair

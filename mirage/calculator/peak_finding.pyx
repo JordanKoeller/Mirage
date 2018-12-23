@@ -1,14 +1,17 @@
 # cython: cdivision=True
 # cython: wraparound=False
 # cython: boundscheck=False
-
+# cython: language_level=3
+# cython: unraisable_tracebacks=True
 import numpy as np
 cimport numpy as np
 from scipy.stats import sigmaclip
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
-from scipy.ndimage.filters import gaussian_filter
+from libcpp.stack cimport stack
+from scipy.ndimage import gaussian_filter, sobel
 from libc.math cimport sqrt 
+# from cython.operator cimport dereference as deref, preincrement as inc
 
 cdef determine_baseline(np.ndarray[np.float64_t,ndim=1] y,double sigma=3.0):
     clipped = sigmaclip(y,sigma,sigma)
@@ -16,7 +19,209 @@ cdef determine_baseline(np.ndarray[np.float64_t,ndim=1] y,double sigma=3.0):
     noise = (clipped.upper + clipped.lower)/2.0
     return (mean, noise)
 
-cpdef isolate_events(np.ndarray[np.float64_t, ndim=1] line, double tolerance=1.0, int smoothing_window=55,int max_length=-1, int stitching_max_length=10000000,double min_height = 0.1):
+cpdef find_events(np.ndarray[np.float64_t, ndim=1] line,
+    double area_tolerance=1.0, #TBD
+    double peak_threshold=1.0,
+    int smoothing_window=55,
+    int max_length=-1,
+    int stitching_max_length=10000000):
+    debug = True
+    cdef:
+        np.ndarray[np.float64_t,ndim=1] threshold_line = gaussian_filter(line,len(line)*3/smoothing_window)
+    diff = line - threshold_line
+    cdef:
+        np.ndarray[np.float64_t,ndim=1] integral = diff.copy()
+    integral[1:] = 0.5*(diff[0:-1] + diff[1:])
+    cdef:
+        np.ndarray[np.float64_t,ndim=1] cumulative_sum = np.cumsum(integral)
+        int i, length = len(cumulative_sum), slice_end
+    ret = []
+    if debug:
+        print("area_tol = %.2f\npeak_thresh = %.2f\nmax_length = %d\nstitch = %d" % (area_tolerance, peak_threshold, max_length, stitching_max_length))
+        from matplotlib import pyplot as plt
+        plt.plot(line,label="line")
+        plt.plot(threshold_line,label="threshold = %d" % smoothing_window)
+        plt.legend()
+    while i < length:
+        if integral[i] > 0:
+            slice_end = stitch_end(integral, cumulative_sum, length, stitching_max_length, max_length, i, area_tolerance, peak_threshold)
+            if slice_end != -1:
+                ret.append([i-1,slice_end])
+                i = slice_end + 1
+            else:
+                i += 1
+        else:
+            i += 1
+    if debug:
+        print("Exited find events, having found %d events " % len(ret))
+        x_ax = np.arange(len(line))
+        for pair in ret:
+            plt.plot(x_ax[pair[0]:pair[1]],line[pair[0]:pair[1]])
+    return ret
+
+cdef stitch_end(np.ndarray[np.float64_t,ndim=1] integral,
+    np.ndarray[np.float64_t, ndim=1] cumsum,
+    int line_length,
+    int stitch_length,
+    int max_length,
+    int start_index,
+    double area_tolerance,
+    double threshold):# nogil:
+    cdef:
+        int ret, i, next_fall
+        int check1, check2
+        double a1, a2
+    i = start_index
+    #Find the end of the current high section
+    while i < line_length and integral[i] > 0:
+        i += 1
+    ret = i
+    if i == line_length:
+        #short-circuit out now!
+        #Don't isolate half of a caustic
+        return -1
+    elif cumsum[i] - cumsum[start_index] < area_tolerance and integral[start_index:i].max() < threshold:
+        #Didn't rise high enough or integrate high enough. short-circuit out.
+        return -1
+    elif max_length <= 0:
+        #IF I HAVE MAX_LENGTH < 0, JUST FIND THE END OF THE CURRENT PEAK AND DON'T TRY TO STITCH
+        return ret
+    else:
+        #Look ahead and see if you can stitch the next high section
+        #Have three conditions to meet: 1) The stitch is short enough 2) The total is short enough 3) The value < 0
+        check1 = stitch_length + ret
+        check2 = max_length + start_index
+        while i < line_length and i < check1 and i  < check2 and integral[i] <= 0:
+            i += 1
+        if integral[i] > 0 and i != line_length and check1 != i and i != check2:
+            #Found the next rise point. So recursively call and see if you can add it on.
+            next_fall = stitch_end(integral, cumsum, line_length, stitch_length, max_length - i, i, area_tolerance, threshold)
+            if next_fall != -1 and (cumsum[next_fall] > area_tolerance + cumsum[i] or integral[i:next_fall].max() > threshold): #Maybe switch to and?
+                #Add on the block
+                return next_fall
+            else:
+                #Back-track
+                return ret
+        else:
+            #Escaped out early because hit the end of the array. Time to backtrack.
+            return ret
+
+
+cpdef sobel_detect(np.ndarray[np.float64_t, ndim=1] curve, double threshold, double smoothing_factor, int min_separation, bint require_isolation):
+    smoothed = gaussian_filter(curve,smoothing_factor)
+    cdef np.ndarray[np.float64_t, ndim=1] sobelled = sobel(smoothed)
+    cdef int i,j,length = len(curve), peak_index, k
+    cdef stack[int] ret
+    cdef double neg_thresh = - threshold
+    while i < length:
+        #Option 1: We have a positive edge
+        if sobelled[i] > threshold:
+            j = scan_ahead(sobelled, i, length, threshold) + 1
+            #Found the end of the edge. First make sure it didn't hit the end of the curve
+            if j != 0:
+                #Great. Can now add it to the list
+                k = j + min_separation
+                peak_index = argmaxI(curve,i,minci(k,length),length)
+                #And make sure that it is a RELATIVE max as well.
+                if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
+                    if ret.size() > 0:
+                        if peak_index - ret.top() > min_separation:
+                            ret.push(peak_index)
+                        else:
+                            if not require_isolation:
+                                if curve[ret.top()] < curve[peak_index]:
+                                    ret.pop()
+                                    ret.push(peak_index)
+                    else:
+                        ret.push(peak_index)
+                    i = k
+                else:
+                    i = j+1
+                # print("Skipping to index %d of %d" % ())
+            else:
+                i = length * 2
+        #Option 2: We have a negative edge
+        if sobelled[i] < neg_thresh:
+            j = scan_ahead_negative(sobelled, i, length, neg_thresh) + 1
+            #Found the end of the edge. First make sure it didn't hit the end of the curve
+            if j != 0:
+                #Great. Can now add it to the list
+                k = i - min_separation
+                peak_index = argmaxI(curve,maxci(0,k),j,length)
+                # print("Scanning from %d to %d for max." % (maxci(0,2*i-j),j))
+                if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
+                    if ret.size() > 0:
+                        if peak_index - ret.top() > min_separation:
+                            ret.push(peak_index)
+                        else:
+                            if not require_isolation:
+                                if curve[ret.top()] < curve[peak_index]:
+                                    ret.pop()
+                                    ret.push(peak_index)
+                    else:
+                        ret.push(peak_index)
+                    i = j + 1
+                else:
+                    i = j + 1
+            else:
+                i = length * 2
+        #Option 3: We don't have an edge
+        else:
+            i += 1
+    # print("While done. Now copying")
+    cdef np.ndarray[np.int32_t,ndim=1] ret_arr =  np.ndarray((ret.size(),),dtype=np.int32)
+    i = 0
+    while ret.size() > 0:
+        ret_arr[i] = ret.top()
+        ret.pop()
+        i += 1
+    return ret_arr
+
+cdef int argmaxI(np.float64_t[:] &line, int a, int b, int line_length) nogil:
+    cdef int best = a
+    while a < line_length and a < b:
+        if line[a] > line[best]:
+            best = a
+        a += 1
+    return best
+
+cdef int argminI(np.float64_t[:] &line, int a, int b, int line_length) nogil:
+    cdef int best = a
+    while a < line_length and a < b:
+        if line[a] > line[best]:
+            best = a
+        a += 1
+    return best
+
+cdef scan_ahead_negative(np.ndarray[np.float64_t, ndim=1] sobelled, int i, int length, double threshold):
+    cdef int j = i
+    while j < length and sobelled[j] < threshold:
+        j += 1
+    if j == length:
+        return -1
+    else:
+        return j
+
+
+cdef scan_ahead(np.ndarray[np.float64_t, ndim=1] sobelled, int i, int length, double threshold):
+    cdef int j = i
+    while j < length and sobelled[j] > threshold:
+        j += 1
+    if j == length:
+        return -1
+    else:
+        return j
+
+
+    
+
+
+cpdef isolate_events(np.ndarray[np.float64_t, ndim=1] line,
+    double tolerance=1.0,
+    int smoothing_window=55,
+    int max_length=-1,
+    int stitching_max_length=10000000,
+    double min_height = 0.1):
 #NEW IDEA: Use maximizing summed curvature as a heuristic for when an event has occurred?
     cdef:
         np.ndarray[np.float64_t, ndim=1] x = np.arange(len(line),dtype=np.float64)

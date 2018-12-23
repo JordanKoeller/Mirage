@@ -1,5 +1,7 @@
 # distutils: language=c++
-# cython: profile=True, boundscheck=False, wraparound=False, embedsignature=True
+# cython: profile=False, boundscheck=False, wraparound=False
+# cython: cdivision=True
+# cython: language_level=3
 
 # from libcpp.pair cimport pair
 

@@ -1,3 +1,8 @@
+# cython: cdivision=True
+# cython: wraparound=False
+# cython: boundscheck=False
+# cython: language_level=3
+
 from astropy import units as u
 
 cimport numpy as np

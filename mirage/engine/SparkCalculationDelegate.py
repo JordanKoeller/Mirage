@@ -10,7 +10,6 @@ from .CalculationDelegate import CalculationDelegate
 
 _sc = None
 
-
 def _get_spark_context():
     global _sc
     if not _sc:
@@ -21,7 +20,6 @@ def _get_spark_context():
         _sc.setLogLevel("WARN")
     return _sc
 
-
 class MicroSparkDelegate(CalculationDelegate):
 
     def __init__(self,spark_context = None):
@@ -30,7 +28,6 @@ class MicroSparkDelegate(CalculationDelegate):
     @property
     def spark_context(self):
         return self._spark_context
-    
 
     def reconfigure(self,parameters:MicrolensingParameters):
         smooth, starry, shear = parameters.mass_descriptors
@@ -66,7 +63,6 @@ class MicroSparkDelegate(CalculationDelegate):
 
     def get_connecting_rays(self,location:Vec2D, radius:u.Quantity) -> np.ndarray:
         print("GET_CONNECTING_RAYS not implimented for MicroSparkDelegate")
-
 
     def get_ray_count(self,location:Vec2D, radius:u.Quantity) -> int:
         pass
@@ -106,7 +102,6 @@ class MicroSparkDelegate(CalculationDelegate):
         self.spark_context._jvm.main.Main.queryPoints(*args)
         returned_data = self.get_returned_data(file.name,region.pixels)
         return np.array(returned_data,dtype=np.int32)
-
 
     def get_star_file(self,data:np.ndarray):
         file = tempfile.NamedTemporaryFile('w+',delete = False)

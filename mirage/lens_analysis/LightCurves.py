@@ -11,12 +11,13 @@ from astropy import units as u
 import numpy as np
 
 
-def get_analyzed_events(filename:str,base,min_sep_coeff,**event_finding_args):
+def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event_finding_args):
     from mirage import lens_analysis as la
     data = la.load(filename)
     matrix = data.lightcurve_matrix
     ret_asyms = []
     ret_shifts = []
+    ret_peaks = []
     lc1 = data[base].lightcurves
     r_g = data.simulation.parameters.quasar.r_g
     peaks = map(lambda e: e.get_events(min_separation=min_sep_coeff*r_g,**event_finding_args),lc1)
@@ -30,10 +31,16 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,**event_finding_args):
                 lines = data.correlate_lc_peaks([peak],matrix)
                 shifts = calculate_peak_shifts(lines)
                 ret_shifts.append(shifts)
+                if with_peaks:
+                    ret_peaks.append(peak)
             except:
                 err += 1
     print("Accumulated %d errors of %d total. Error rate of %.2f percent" % (err,len(ret_shifts)+err,100*err/((len(ret_shifts)+err))))
-    return ret_shifts, ret_asyms
+    if with_peaks:
+        return ret_shifts, ret_asyms, ret_peaks
+    else:
+        return ret_shifts, ret_asyms
+
 
 
 def calculate_peak_shifts(data:'np.ndarray'):

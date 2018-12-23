@@ -20,15 +20,20 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,**event_finding_args):
     lc1 = data[base].lightcurves
     r_g = data.simulation.parameters.quasar.r_g
     peaks = map(lambda e: e.get_events(min_separation=min_sep_coeff*r_g,**event_finding_args),lc1)
+    errr = 0
     for ind in range(int(len(lc1)/2)):
         print("On line %d" % ind)
         peak_batch = next(peaks)
         for peak in peak_batch:
-            symm = peak.symmetry(min_sep_coeff*r_g)
-            ret_asyms.append(symm)
-            lines = data.correlate_lc_peaks([peak],matrix)
-            shifts = calculate_peak_shifts(lines)
-            ret_shifts.append(shifts)
+            try:
+                symm = peak.symmetry(min_sep_coeff*r_g)
+                ret_asyms.append(symm)
+                lines = data.correlate_lc_peaks([peak],matrix)
+                shifts = calculate_peak_shifts(lines)
+                ret_shifts.append(shifts)
+            except:
+                err += 1
+    print("Accumulated %d errors of %d total. Error rate of %.2f percent" % (err,len(ret_shifts)+err,100*err/((len(ret_shifts)+err))))
     return ret_shifts, ret_asyms
 
 

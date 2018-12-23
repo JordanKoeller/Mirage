@@ -32,7 +32,7 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event
                 shifts = calculate_peak_shifts(lines)
                 ret_shifts.append(shifts)
                 if with_peaks:
-                    ret_peaks.append(peak)
+                    ret_peaks.append(peak.curve)
             except:
                 err += 1
     print("Accumulated %d errors of %d total. Error rate of %.2f percent" % (err,len(ret_shifts)+err,100*err/((len(ret_shifts)+err))))

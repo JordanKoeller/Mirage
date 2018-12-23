@@ -235,7 +235,7 @@ class LightCurve(object):
         for slicer in slice_list:
             lc = LightCurveSlice(self,slicer.start,slicer.stop,self._line_id)
             ret.append(lc)
-        print("Returning batch with %d events" % len(ret))
+        # print("Returning batch with %d events" % len(ret))
         return LightCurveBatch(ret)
 
     def get_peaks(self,threshold=0.8,smoothing_factor=1.1,min_sep=1,require_isolation=False):

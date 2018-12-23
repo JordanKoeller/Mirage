@@ -21,7 +21,7 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,**event_finding_args):
     r_g = data.simulation.parameters.quasar.r_g
     peaks = map(lambda e: e.get_events(min_separation=min_sep_coeff*r_g,**event_finding_args),lc1)
     err = 0
-    for ind in range(int(len(lc1)/2)):
+    for ind in range(int(len(lc1)/2-5)):
         print("On line %d" % ind)
         peak_batch = next(peaks)
         for peak in peak_batch:

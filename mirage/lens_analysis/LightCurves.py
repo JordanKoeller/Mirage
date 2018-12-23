@@ -20,7 +20,7 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,**event_finding_args):
     lc1 = data[base].lightcurves
     r_g = data.simulation.parameters.quasar.r_g
     peaks = map(lambda e: e.get_events(min_separation=min_sep_coeff*r_g,**event_finding_args),lc1)
-    errr = 0
+    err = 0
     for ind in range(int(len(lc1)/2)):
         print("On line %d" % ind)
         peak_batch = next(peaks)

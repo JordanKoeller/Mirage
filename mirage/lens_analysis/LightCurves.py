@@ -37,9 +37,9 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event
                 err += 1
     print("Accumulated %d errors of %d total. Error rate of %.2f percent" % (err,len(ret_shifts)+err,100*err/((len(ret_shifts)+err))))
     if with_peaks:
-        return ret_shifts, ret_asyms, ret_peaks
+        return {'shifts':ret_shifts, 'asymmetry':ret_asyms, 'peaks':ret_peaks}
     else:
-        return ret_shifts, ret_asyms
+        return {'shifts':ret_shifts, 'asymmetry':ret_asyms}
 
 
 

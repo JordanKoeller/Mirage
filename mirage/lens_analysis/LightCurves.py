@@ -22,7 +22,6 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,**event_finding_args):
     peaks = map(lambda e: e.get_events(min_separation=min_sep_coeff*r_g,**event_finding_args),lc1)
     err = 0
     for ind in range(int(len(lc1)/2-5)):
-        print("On line %d" % ind)
         peak_batch = next(peaks)
         for peak in peak_batch:
             try:
@@ -45,6 +44,39 @@ def calculate_peak_shifts(data:'np.ndarray'):
             shift = abs(np.argmax(data[i,j]) - baseline)
             shifts[i,j] = shift
     return shifts
+
+
+def step_through_buckets(buccs): 
+    for k in sorted(buccs.keys()): 
+        bucket = buccs[k] 
+        plt.errorbar(np.linspace(1,30,20),bucket['mean'],yerr=bucket['std']) 
+        plt.title("Asymmetry = %.2f, N = %d" % (bucket['asym'],bucket['num']))  
+        input("Press Enter!")  
+        plt.close()
+
+def into_buckets(dataset):
+    buckets = {} 
+    for i in range(len(dataset['asymmetry'])): 
+        asym = dataset['asymmetry'][i] 
+        shifts = dataset['shifts'][i] 
+        try: 
+            ind = int(float(asym)*100) 
+            if ind in buckets: 
+                buckets[ind].append(shifts) 
+            else: 
+                buckets[ind] = [shifts] 
+        except: 
+            pass 
+    return buckets
+
+def bucket_and_clean(dataset): 
+    buckets = into_buckets(dataset)
+    for k in buckets.keys(): 
+        arr = np.array(buckets[k]) 
+        mean = np.mean(arr,axis=0) 
+        std = np.std(arr,axis=0) 
+        buckets[k] = {'mean':mean.flatten(),'std':std.flatten(),'asym':k/100,'num':arr.shape[0]} 
+    return buckets 
 
    # ...: peaks = map(lambda e: e.get_events(min_separation=20*data[0].parameters.
 

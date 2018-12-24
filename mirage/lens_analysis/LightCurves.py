@@ -68,8 +68,8 @@ def get_all_lightcurves(filename:str,base,min_sep_coeff,**event_finding_args):
                 err += 1
     peak_slices = data.correlate_lc_peaks(ret_peaks, matrix)
     ret_df = []
-    for i in peak_slices.shape[0]:
-        for j in peak_slices.shape[1]:
+    for i in range(peak_slices.shape[0]):
+        for j in range(peak_slices.shape[1]):
             asym = ret_asyms[i]
             shifts = ret_shifts[i]
             ret_df.append(i,j,asym,shifts,peak_slices[i,j])

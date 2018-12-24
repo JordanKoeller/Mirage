@@ -50,3 +50,11 @@ class MagnificationMap(object):
         else:
             print("NEED TO DECIDE WHAT TO DO IF NOT SAVING TO FITS")
 
+    def smooth_and_detect(self,sigma):
+        from scipy.ndimage import gaussian_filter, sobel 
+        rins = self._data
+        smoothed = gaussian_filter(rins, sigma,mode='nearest') 
+        ret1 = sobel(smoothed,mode='nearest') 
+        ret2 = sobel(smoothed.T,mode='nearest') 
+        ret = abs(ret1) + abs(ret2.T) 
+        return ret 

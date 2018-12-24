@@ -10,6 +10,8 @@ from scipy.optimize import minimize
 from astropy import units as u
 import numpy as np
 
+from matplotlib import pyplot as plt
+
 
 def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event_finding_args):
     from mirage import lens_analysis as la
@@ -40,6 +42,38 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event
         return {'shifts':ret_shifts, 'asymmetry':ret_asyms, 'peaks':ret_peaks}
     else:
         return {'shifts':ret_shifts, 'asymmetry':ret_asyms}
+
+def get_all_lightcurves(filename:str,base,min_sep_coeff,**event_finding_args)
+    from mirage import lens_analysis as la
+    data = la.load(filename)
+    matrix = data.lightcurve_matrix
+    ret_asyms = []
+    ret_shifts = []
+    ret_peaks = []
+    lc1 = data[base].lightcurves
+    r_g = data.simulation.parameters.quasar.r_g
+    peaks = map(lambda e: e.get_events(min_separation=min_sep_coeff*r_g,**event_finding_args),lc1)
+    err = 0
+    for ind in range(int(len(lc1)/2-5)):
+        peak_batch = next(peaks)
+        for peak in peak_batch:
+            try:
+                symm = peak.symmetry(min_sep_coeff*r_g)
+                ret_asyms.append(symm)
+                lines = data.correlate_lc_peaks([peak],matrix)
+                shifts = calculate_peak_shifts(lines)
+                ret_shifts.append(shifts)
+                ret_peaks.append(peak)
+            except:
+                err += 1
+    peak_slices = correlate_lc_peaks(ret_peaks, matrix)
+    ret_df = []
+    for i in peak_slices.shape[0]:
+        for j in peak_slices.shape[1]:
+            asym = ret_asyms[i]
+            shifts = ret_shifts[i]
+            ret_df.append(i,j,asym,shifts,peak_slices[i,j])
+    return ret_df
 
 
 

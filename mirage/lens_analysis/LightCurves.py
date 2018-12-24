@@ -72,7 +72,7 @@ def get_all_lightcurves(filename:str,base,min_sep_coeff,**event_finding_args):
         for j in range(peak_slices.shape[1]):
             asym = ret_asyms[i]
             shifts = ret_shifts[i]
-            ret_df.append(i,j,asym,shifts,peak_slices[i,j])
+            ret_df.append([i,j,asym,shifts,peak_slices[i,j]])
     return ret_df
 
 

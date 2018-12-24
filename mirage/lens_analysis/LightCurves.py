@@ -10,7 +10,7 @@ from scipy.optimize import minimize
 from astropy import units as u
 import numpy as np
 
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
 
 def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event_finding_args):

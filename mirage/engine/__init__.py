@@ -9,9 +9,9 @@ def getCalculationEngine():
     try:
 #        from pyspark import SparkContext
 #        if SparkContext._active_spark_context is not None:
-        return EngineHandler(_sparkdel())
+        # return EngineHandler(_sparkdel())
 #        else:
-#            return EngineHandler(MacroCPUDelegate())
+        return EngineHandler(_sparkdel())#MicroCPUDelegate())
     except ImportError:
         return EngineHandler(MacroCPUDelegate())
 

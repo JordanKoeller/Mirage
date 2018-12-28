@@ -3,12 +3,11 @@
 # cython: cdivision=True
 # cython: language_level=3
 
-# from libcpp.pair cimport pair
-
 import numpy as np
 cimport numpy as np
 
 from cython.parallel import prange
+
 cdef pair[double,double] ray_trace_helper(double &x, 
         double &y,
         double &gMax,

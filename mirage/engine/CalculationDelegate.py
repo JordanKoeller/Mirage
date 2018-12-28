@@ -111,3 +111,15 @@ class MicroCPUDelegate(CalculationDelegate):
         rad = radius.to(self._inputUnit).value
         inds = self._tree.query_ball_point((x,y),rad)
         return len(inds)
+
+    def query_region(self,region,radius:u.Quantity) -> np.ndarray:
+        pts = region.pixels.to(self._inputUnit)
+        ret = np.ndarray((pts.shape[0],pts.shape[1]),dtype=np.int32)
+        rad = radius.to(self._inputUnit).value
+        for i in range(pts.shape[0]):
+            for j in range(pts.shape[1]):
+                x = pts[i,j,0].value
+                y = pts[i,j,1].value
+                inds = self._tree.query_ball_point((x,y),rad)
+                ret[i,j] = len(inds)
+        return ret

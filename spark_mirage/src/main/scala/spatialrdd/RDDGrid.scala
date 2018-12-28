@@ -123,7 +123,6 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
     queryPts.unpersist()
     val ret = Array.fill(pts.length)(0)
     val reduced = queries.reduceByKey((acc,n) => acc + n)
-    println("Size of " + reduced.count())
 //    readLine("Press Enter to continue!")
     val collected = reduced.collect
     collected.foreach { elem =>
@@ -164,7 +163,6 @@ object RDDGrid {
 //    new RDDGrid(ret)
 //  }
   def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => OptTree[A]): RDDGrid[A] = {
-    println("Constructing an RDDGRID")
     val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY).setName("RDDGrid")
     new RDDGrid(ret)
   }

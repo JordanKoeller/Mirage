@@ -1765,7 +1765,6 @@ int __pyx_module_is_main_mirage__calculator__optimized_funcs = 0;
 /* Implementation of 'mirage.calculator.optimized_funcs' */
 static PyObject *__pyx_builtin_object;
 static PyObject *__pyx_builtin_range;
-static PyObject *__pyx_builtin_print;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
 static PyObject *__pyx_builtin_ImportError;
@@ -1784,7 +1783,6 @@ static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_numpy[] = "numpy";
-static const char __pyx_k_print[] = "print";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
 static const char __pyx_k_stars[] = "stars";
@@ -1846,7 +1844,6 @@ static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_kp_s_numpy_core_multiarray_failed_to;
 static PyObject *__pyx_kp_s_numpy_core_umath_failed_to_impor;
 static PyObject *__pyx_n_s_object;
-static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pt1;
 static PyObject *__pyx_n_s_pt2;
 static PyObject *__pyx_n_u_rad;
@@ -1887,8 +1884,8 @@ static PyObject *__pyx_tuple__8;
  * 
  * 
  * cpdef interpolate(object region, object two_points_list,sample_density):             # <<<<<<<<<<<<<<
- *     ret = np.ndarray(two_points_list.shape[0], dtype=object)
- *     for i in range(len(ret)):
+ *     # cdef double lx, ly, rx, ry = region.extent
+ * 
  */
 
 static PyObject *__pyx_pw_6mirage_10calculator_15optimized_funcs_1interpolate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
@@ -1909,70 +1906,70 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_interpolate(PyOb
   PyObject *__pyx_t_9 = NULL;
   __Pyx_RefNannySetupContext("interpolate", 0);
 
-  /* "mirage/calculator/optimized_funcs.pyx":15
+  /* "mirage/calculator/optimized_funcs.pyx":17
+ *     # cdef double lx, ly, rx, ry = region.extent
  * 
- * cpdef interpolate(object region, object two_points_list,sample_density):
  *     ret = np.ndarray(two_points_list.shape[0], dtype=object)             # <<<<<<<<<<<<<<
  *     for i in range(len(ret)):
  *         line = two_points_list[i]
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_two_points_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_two_points_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2);
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_builtin_object) < 0) __PYX_ERR(0, 15, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5numpy_ndarray), __pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 15, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_builtin_object) < 0) __PYX_ERR(0, 17, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5numpy_ndarray), __pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_ret = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":16
- * cpdef interpolate(object region, object two_points_list,sample_density):
+  /* "mirage/calculator/optimized_funcs.pyx":18
+ * 
  *     ret = np.ndarray(two_points_list.shape[0], dtype=object)
  *     for i in range(len(ret)):             # <<<<<<<<<<<<<<
  *         line = two_points_list[i]
  *         ret[i] = u.Quantity(_slice_line(line,region,sample_density),'rad')
  */
-  __pyx_t_4 = PyObject_Length(__pyx_v_ret); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 16, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Length(__pyx_v_ret); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 18, __pyx_L1_error)
   __pyx_t_5 = __pyx_t_4;
   for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
     __pyx_v_i = __pyx_t_6;
 
-    /* "mirage/calculator/optimized_funcs.pyx":17
+    /* "mirage/calculator/optimized_funcs.pyx":19
  *     ret = np.ndarray(two_points_list.shape[0], dtype=object)
  *     for i in range(len(ret)):
  *         line = two_points_list[i]             # <<<<<<<<<<<<<<
  *         ret[i] = u.Quantity(_slice_line(line,region,sample_density),'rad')
  *     return ret
  */
-    __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_two_points_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 17, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_two_points_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 19, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_XDECREF_SET(__pyx_v_line, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "mirage/calculator/optimized_funcs.pyx":18
+    /* "mirage/calculator/optimized_funcs.pyx":20
  *     for i in range(len(ret)):
  *         line = two_points_list[i]
  *         ret[i] = u.Quantity(_slice_line(line,region,sample_density),'rad')             # <<<<<<<<<<<<<<
  *     return ret
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_u); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 18, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_u); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_Quantity); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_Quantity); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(__pyx_v_line, __pyx_v_region, __pyx_v_sample_density); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 18, __pyx_L1_error)
+    __pyx_t_2 = __pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(__pyx_v_line, __pyx_v_region, __pyx_v_sample_density); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_7 = NULL;
     __pyx_t_8 = 0;
@@ -1989,7 +1986,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_interpolate(PyOb
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_t_2, __pyx_n_u_rad};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 18, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 20, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -1998,14 +1995,14 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_interpolate(PyOb
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_t_2, __pyx_n_u_rad};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 18, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 20, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 18, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 20, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       if (__pyx_t_7) {
         __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -2016,16 +2013,16 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_interpolate(PyOb
       __Pyx_GIVEREF(__pyx_n_u_rad);
       PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, __pyx_n_u_rad);
       __pyx_t_2 = 0;
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 18, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 20, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(__Pyx_SetItemInt(__pyx_v_ret, __pyx_v_i, __pyx_t_3, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0) < 0)) __PYX_ERR(0, 18, __pyx_L1_error)
+    if (unlikely(__Pyx_SetItemInt(__pyx_v_ret, __pyx_v_i, __pyx_t_3, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 0, 0) < 0)) __PYX_ERR(0, 20, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
 
-  /* "mirage/calculator/optimized_funcs.pyx":19
+  /* "mirage/calculator/optimized_funcs.pyx":21
  *         line = two_points_list[i]
  *         ret[i] = u.Quantity(_slice_line(line,region,sample_density),'rad')
  *     return ret             # <<<<<<<<<<<<<<
@@ -2041,8 +2038,8 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_interpolate(PyOb
  * 
  * 
  * cpdef interpolate(object region, object two_points_list,sample_density):             # <<<<<<<<<<<<<<
- *     ret = np.ndarray(two_points_list.shape[0], dtype=object)
- *     for i in range(len(ret)):
+ *     # cdef double lx, ly, rx, ry = region.extent
+ * 
  */
 
   /* function exit code */
@@ -2157,7 +2154,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_interpolate(CYT
   return __pyx_r;
 }
 
-/* "mirage/calculator/optimized_funcs.pyx":23
+/* "mirage/calculator/optimized_funcs.pyx":25
  * 
  * 
  * cdef _slice_line(pts,region,sample_density):             # <<<<<<<<<<<<<<
@@ -2208,59 +2205,59 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
   __pyx_pybuffernd_buff.data = NULL;
   __pyx_pybuffernd_buff.rcbuffer = &__pyx_pybuffer_buff;
 
-  /* "mirage/calculator/optimized_funcs.pyx":25
+  /* "mirage/calculator/optimized_funcs.pyx":27
  * cdef _slice_line(pts,region,sample_density):
  *     cdef double x1, y1, x2, y2, m, angle, dx, dy, lefX, rigX, topY, botY, x, y, resolution
  *     x1 = pts[0]             # <<<<<<<<<<<<<<
  *     y1 = pts[1]
  *     x2 = pts[2]
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_pts, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_pts, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_x1 = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":26
+  /* "mirage/calculator/optimized_funcs.pyx":28
  *     cdef double x1, y1, x2, y2, m, angle, dx, dy, lefX, rigX, topY, botY, x, y, resolution
  *     x1 = pts[0]
  *     y1 = pts[1]             # <<<<<<<<<<<<<<
  *     x2 = pts[2]
  *     y2 = pts[3]
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_pts, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_pts, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_y1 = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":27
+  /* "mirage/calculator/optimized_funcs.pyx":29
  *     x1 = pts[0]
  *     y1 = pts[1]
  *     x2 = pts[2]             # <<<<<<<<<<<<<<
  *     y2 = pts[3]
  *     m = (y2 - y1)/(x2 - x1)
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_pts, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_pts, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_x2 = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":28
+  /* "mirage/calculator/optimized_funcs.pyx":30
  *     y1 = pts[1]
  *     x2 = pts[2]
  *     y2 = pts[3]             # <<<<<<<<<<<<<<
  *     m = (y2 - y1)/(x2 - x1)
  *     angle = atan(m)
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_pts, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_pts, 3, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_y2 = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":29
+  /* "mirage/calculator/optimized_funcs.pyx":31
  *     x2 = pts[2]
  *     y2 = pts[3]
  *     m = (y2 - y1)/(x2 - x1)             # <<<<<<<<<<<<<<
@@ -2269,7 +2266,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_m = ((__pyx_v_y2 - __pyx_v_y1) / (__pyx_v_x2 - __pyx_v_x1));
 
-  /* "mirage/calculator/optimized_funcs.pyx":30
+  /* "mirage/calculator/optimized_funcs.pyx":32
  *     y2 = pts[3]
  *     m = (y2 - y1)/(x2 - x1)
  *     angle = atan(m)             # <<<<<<<<<<<<<<
@@ -2278,16 +2275,16 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_angle = atan(__pyx_v_m);
 
-  /* "mirage/calculator/optimized_funcs.pyx":31
+  /* "mirage/calculator/optimized_funcs.pyx":33
  *     m = (y2 - y1)/(x2 - x1)
  *     angle = atan(m)
  *     resolution = ((sample_density)**(-1)).to('rad').value             # <<<<<<<<<<<<<<
  *     dx = resolution*cos(angle)
  *     dy = resolution*sin(angle)
  */
-  __pyx_t_3 = PyNumber_Power(__pyx_v_sample_density, __pyx_int_neg_1, Py_None); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Power(__pyx_v_sample_density, __pyx_int_neg_1, Py_None); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_to); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_to); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -2302,17 +2299,17 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_n_u_rad) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_u_rad);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 31, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_resolution = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":32
+  /* "mirage/calculator/optimized_funcs.pyx":34
  *     angle = atan(m)
  *     resolution = ((sample_density)**(-1)).to('rad').value
  *     dx = resolution*cos(angle)             # <<<<<<<<<<<<<<
@@ -2321,7 +2318,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_dx = (__pyx_v_resolution * cos(__pyx_v_angle));
 
-  /* "mirage/calculator/optimized_funcs.pyx":33
+  /* "mirage/calculator/optimized_funcs.pyx":35
  *     resolution = ((sample_density)**(-1)).to('rad').value
  *     dx = resolution*cos(angle)
  *     dy = resolution*sin(angle)             # <<<<<<<<<<<<<<
@@ -2330,16 +2327,16 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_dy = (__pyx_v_resolution * sin(__pyx_v_angle));
 
-  /* "mirage/calculator/optimized_funcs.pyx":34
+  /* "mirage/calculator/optimized_funcs.pyx":36
  *     dx = resolution*cos(angle)
  *     dy = resolution*sin(angle)
  *     dims = region.dimensions.to('rad')             # <<<<<<<<<<<<<<
  *     center = region.center.to('rad')
  *     lefX = center.x.value - dims.x.value/2.0
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_n_s_dimensions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_n_s_dimensions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_to); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_to); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -2354,22 +2351,22 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
   }
   __pyx_t_4 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_1, __pyx_n_u_rad) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_n_u_rad);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 34, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_dims = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":35
+  /* "mirage/calculator/optimized_funcs.pyx":37
  *     dy = resolution*sin(angle)
  *     dims = region.dimensions.to('rad')
  *     center = region.center.to('rad')             # <<<<<<<<<<<<<<
  *     lefX = center.x.value - dims.x.value/2.0
  *     rigX = center.x.value + dims.x.value/2.0
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_n_s_center); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_n_s_center); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_to); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_to); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -2384,125 +2381,125 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
   }
   __pyx_t_4 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_3, __pyx_n_u_rad) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_n_u_rad);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 35, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_center = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":36
+  /* "mirage/calculator/optimized_funcs.pyx":38
  *     dims = region.dimensions.to('rad')
  *     center = region.center.to('rad')
  *     lefX = center.x.value - dims.x.value/2.0             # <<<<<<<<<<<<<<
  *     rigX = center.x.value + dims.x.value/2.0
  *     topY = center.y.value + dims.y.value/2.0
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_center, __pyx_n_s_x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_center, __pyx_n_s_x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_dims, __pyx_n_s_x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_dims, __pyx_n_s_x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_3, __pyx_float_2_0, 2.0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_3, __pyx_float_2_0, 2.0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_lefX = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":37
+  /* "mirage/calculator/optimized_funcs.pyx":39
  *     center = region.center.to('rad')
  *     lefX = center.x.value - dims.x.value/2.0
  *     rigX = center.x.value + dims.x.value/2.0             # <<<<<<<<<<<<<<
  *     topY = center.y.value + dims.y.value/2.0
  *     botY = center.y.value - dims.y.value/2.0
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_center, __pyx_n_s_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_center, __pyx_n_s_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_value); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_value); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_dims, __pyx_n_s_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_dims, __pyx_n_s_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_1, __pyx_float_2_0, 2.0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_1, __pyx_float_2_0, 2.0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Add(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Add(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_rigX = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":38
+  /* "mirage/calculator/optimized_funcs.pyx":40
  *     lefX = center.x.value - dims.x.value/2.0
  *     rigX = center.x.value + dims.x.value/2.0
  *     topY = center.y.value + dims.y.value/2.0             # <<<<<<<<<<<<<<
  *     botY = center.y.value - dims.y.value/2.0
  *     possible_length = (((rigX - lefX)**2 + (topY - botY)**2)**(0.5))/resolution
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_center, __pyx_n_s_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_center, __pyx_n_s_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_dims, __pyx_n_s_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_dims, __pyx_n_s_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_4, __pyx_float_2_0, 2.0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_4, __pyx_float_2_0, 2.0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Add(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Add(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_topY = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":39
+  /* "mirage/calculator/optimized_funcs.pyx":41
  *     rigX = center.x.value + dims.x.value/2.0
  *     topY = center.y.value + dims.y.value/2.0
  *     botY = center.y.value - dims.y.value/2.0             # <<<<<<<<<<<<<<
  *     possible_length = (((rigX - lefX)**2 + (topY - botY)**2)**(0.5))/resolution
  *     cdef int flag = 1
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_center, __pyx_n_s_y); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_center, __pyx_n_s_y); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_dims, __pyx_n_s_y); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_dims, __pyx_n_s_y); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_3, __pyx_float_2_0, 2.0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_3, __pyx_float_2_0, 2.0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_botY = __pyx_t_2;
 
-  /* "mirage/calculator/optimized_funcs.pyx":40
+  /* "mirage/calculator/optimized_funcs.pyx":42
  *     topY = center.y.value + dims.y.value/2.0
  *     botY = center.y.value - dims.y.value/2.0
  *     possible_length = (((rigX - lefX)**2 + (topY - botY)**2)**(0.5))/resolution             # <<<<<<<<<<<<<<
@@ -2511,7 +2508,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_possible_length = (pow((pow((__pyx_v_rigX - __pyx_v_lefX), 2.0) + pow((__pyx_v_topY - __pyx_v_botY), 2.0)), 0.5) / __pyx_v_resolution);
 
-  /* "mirage/calculator/optimized_funcs.pyx":41
+  /* "mirage/calculator/optimized_funcs.pyx":43
  *     botY = center.y.value - dims.y.value/2.0
  *     possible_length = (((rigX - lefX)**2 + (topY - botY)**2)**(0.5))/resolution
  *     cdef int flag = 1             # <<<<<<<<<<<<<<
@@ -2520,7 +2517,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_flag = 1;
 
-  /* "mirage/calculator/optimized_funcs.pyx":42
+  /* "mirage/calculator/optimized_funcs.pyx":44
  *     possible_length = (((rigX - lefX)**2 + (topY - botY)**2)**(0.5))/resolution
  *     cdef int flag = 1
  *     cdef int count = 0             # <<<<<<<<<<<<<<
@@ -2529,19 +2526,19 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_count = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":43
+  /* "mirage/calculator/optimized_funcs.pyx":45
  *     cdef int flag = 1
  *     cdef int count = 0
  *     cdef np.ndarray[np.float64_t, ndim=2] buff = np.ndarray((int(possible_length)+2,2))             # <<<<<<<<<<<<<<
  *     x = x1
  *     y = y1
  */
-  __pyx_t_3 = __Pyx_PyInt_FromDouble(__pyx_v_possible_length); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_FromDouble(__pyx_v_possible_length); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyInt_AddObjC(__pyx_t_3, __pyx_int_2, 2, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_AddObjC(__pyx_t_3, __pyx_int_2, 2, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4);
@@ -2549,21 +2546,21 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_int_2);
   __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_5numpy_ndarray), __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_5numpy_ndarray), __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_buff.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_4), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_buff = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_buff.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 43, __pyx_L1_error)
+      __PYX_ERR(0, 45, __pyx_L1_error)
     } else {__pyx_pybuffernd_buff.diminfo[0].strides = __pyx_pybuffernd_buff.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_buff.diminfo[0].shape = __pyx_pybuffernd_buff.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_buff.diminfo[1].strides = __pyx_pybuffernd_buff.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_buff.diminfo[1].shape = __pyx_pybuffernd_buff.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_buff = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":44
+  /* "mirage/calculator/optimized_funcs.pyx":46
  *     cdef int count = 0
  *     cdef np.ndarray[np.float64_t, ndim=2] buff = np.ndarray((int(possible_length)+2,2))
  *     x = x1             # <<<<<<<<<<<<<<
@@ -2572,7 +2569,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_x = __pyx_v_x1;
 
-  /* "mirage/calculator/optimized_funcs.pyx":45
+  /* "mirage/calculator/optimized_funcs.pyx":47
  *     cdef np.ndarray[np.float64_t, ndim=2] buff = np.ndarray((int(possible_length)+2,2))
  *     x = x1
  *     y = y1             # <<<<<<<<<<<<<<
@@ -2581,7 +2578,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_y = __pyx_v_y1;
 
-  /* "mirage/calculator/optimized_funcs.pyx":46
+  /* "mirage/calculator/optimized_funcs.pyx":48
  *     x = x1
  *     y = y1
  *     while flag == 1:             # <<<<<<<<<<<<<<
@@ -2592,7 +2589,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
     __pyx_t_5 = ((__pyx_v_flag == 1) != 0);
     if (!__pyx_t_5) break;
 
-    /* "mirage/calculator/optimized_funcs.pyx":47
+    /* "mirage/calculator/optimized_funcs.pyx":49
  *     y = y1
  *     while flag == 1:
  *         x -= dx             # <<<<<<<<<<<<<<
@@ -2601,7 +2598,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
     __pyx_v_x = (__pyx_v_x - __pyx_v_dx);
 
-    /* "mirage/calculator/optimized_funcs.pyx":48
+    /* "mirage/calculator/optimized_funcs.pyx":50
  *     while flag == 1:
  *         x -= dx
  *         y -= dy             # <<<<<<<<<<<<<<
@@ -2610,7 +2607,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
     __pyx_v_y = (__pyx_v_y - __pyx_v_dy);
 
-    /* "mirage/calculator/optimized_funcs.pyx":49
+    /* "mirage/calculator/optimized_funcs.pyx":51
  *         x -= dx
  *         y -= dy
  *         flag = x >= lefX and x <= rigX and y >= botY and y <= topY             # <<<<<<<<<<<<<<
@@ -2641,7 +2638,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
     __pyx_v_flag = __pyx_t_6;
   }
 
-  /* "mirage/calculator/optimized_funcs.pyx":50
+  /* "mirage/calculator/optimized_funcs.pyx":52
  *         y -= dy
  *         flag = x >= lefX and x <= rigX and y >= botY and y <= topY
  *     flag = 1             # <<<<<<<<<<<<<<
@@ -2650,7 +2647,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
   __pyx_v_flag = 1;
 
-  /* "mirage/calculator/optimized_funcs.pyx":51
+  /* "mirage/calculator/optimized_funcs.pyx":53
  *         flag = x >= lefX and x <= rigX and y >= botY and y <= topY
  *     flag = 1
  *     while flag:             # <<<<<<<<<<<<<<
@@ -2661,7 +2658,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
     __pyx_t_5 = (__pyx_v_flag != 0);
     if (!__pyx_t_5) break;
 
-    /* "mirage/calculator/optimized_funcs.pyx":52
+    /* "mirage/calculator/optimized_funcs.pyx":54
  *     flag = 1
  *     while flag:
  *         x += dx             # <<<<<<<<<<<<<<
@@ -2670,7 +2667,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
     __pyx_v_x = (__pyx_v_x + __pyx_v_dx);
 
-    /* "mirage/calculator/optimized_funcs.pyx":53
+    /* "mirage/calculator/optimized_funcs.pyx":55
  *     while flag:
  *         x += dx
  *         y += dy             # <<<<<<<<<<<<<<
@@ -2679,7 +2676,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
     __pyx_v_y = (__pyx_v_y + __pyx_v_dy);
 
-    /* "mirage/calculator/optimized_funcs.pyx":54
+    /* "mirage/calculator/optimized_funcs.pyx":56
  *         x += dx
  *         y += dy
  *         buff[count,0] = x             # <<<<<<<<<<<<<<
@@ -2690,7 +2687,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
     __pyx_t_8 = 0;
     *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_buff.rcbuffer->pybuffer.buf, __pyx_t_7, __pyx_pybuffernd_buff.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_buff.diminfo[1].strides) = __pyx_v_x;
 
-    /* "mirage/calculator/optimized_funcs.pyx":55
+    /* "mirage/calculator/optimized_funcs.pyx":57
  *         y += dy
  *         buff[count,0] = x
  *         buff[count,1] = y             # <<<<<<<<<<<<<<
@@ -2701,7 +2698,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
     __pyx_t_10 = 1;
     *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_buff.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_buff.diminfo[0].strides, __pyx_t_10, __pyx_pybuffernd_buff.diminfo[1].strides) = __pyx_v_y;
 
-    /* "mirage/calculator/optimized_funcs.pyx":56
+    /* "mirage/calculator/optimized_funcs.pyx":58
  *         buff[count,0] = x
  *         buff[count,1] = y
  *         count += 1             # <<<<<<<<<<<<<<
@@ -2710,7 +2707,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
     __pyx_v_count = (__pyx_v_count + 1);
 
-    /* "mirage/calculator/optimized_funcs.pyx":57
+    /* "mirage/calculator/optimized_funcs.pyx":59
  *         buff[count,1] = y
  *         count += 1
  *         if not (x >= lefX and x <= rigX and y >= botY and y <= topY):             # <<<<<<<<<<<<<<
@@ -2741,7 +2738,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
     __pyx_t_11 = ((!__pyx_t_5) != 0);
     if (__pyx_t_11) {
 
-      /* "mirage/calculator/optimized_funcs.pyx":58
+      /* "mirage/calculator/optimized_funcs.pyx":60
  *         count += 1
  *         if not (x >= lefX and x <= rigX and y >= botY and y <= topY):
  *             flag = 0             # <<<<<<<<<<<<<<
@@ -2750,7 +2747,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  */
       __pyx_v_flag = 0;
 
-      /* "mirage/calculator/optimized_funcs.pyx":57
+      /* "mirage/calculator/optimized_funcs.pyx":59
  *         buff[count,1] = y
  *         count += 1
  *         if not (x >= lefX and x <= rigX and y >= botY and y <= topY):             # <<<<<<<<<<<<<<
@@ -2760,7 +2757,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
     }
   }
 
-  /* "mirage/calculator/optimized_funcs.pyx":59
+  /* "mirage/calculator/optimized_funcs.pyx":61
  *         if not (x >= lefX and x <= rigX and y >= botY and y <= topY):
  *             flag = 0
  *     return buff[:count,:]             # <<<<<<<<<<<<<<
@@ -2768,12 +2765,12 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_count); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_count); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = PySlice_New(Py_None, __pyx_t_4, Py_None); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_t_3 = PySlice_New(Py_None, __pyx_t_4, Py_None); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
@@ -2781,14 +2778,14 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
   __Pyx_GIVEREF(__pyx_slice_);
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_slice_);
   __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_buff), __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_buff), __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":23
+  /* "mirage/calculator/optimized_funcs.pyx":25
  * 
  * 
  * cdef _slice_line(pts,region,sample_density):             # <<<<<<<<<<<<<<
@@ -2821,7 +2818,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyOb
   return __pyx_r;
 }
 
-/* "mirage/calculator/optimized_funcs.pyx":62
+/* "mirage/calculator/optimized_funcs.pyx":64
  * 
  * 
  * cpdef arbitrary_slice_axis(pt1,pt2,region,data):             # <<<<<<<<<<<<<<
@@ -2863,14 +2860,14 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_
   __pyx_pybuffernd_ret.data = NULL;
   __pyx_pybuffernd_ret.rcbuffer = &__pyx_pybuffer_ret;
 
-  /* "mirage/calculator/optimized_funcs.pyx":63
+  /* "mirage/calculator/optimized_funcs.pyx":65
  * 
  * cpdef arbitrary_slice_axis(pt1,pt2,region,data):
  *         start = region.loc_to_pixel(pt1)             # <<<<<<<<<<<<<<
  *         end = region.loc_to_pixel(pt2)
  *         delta = (end - start)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_n_s_loc_to_pixel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_n_s_loc_to_pixel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2884,20 +2881,20 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_pt1) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_pt1);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_start = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":64
+  /* "mirage/calculator/optimized_funcs.pyx":66
  * cpdef arbitrary_slice_axis(pt1,pt2,region,data):
  *         start = region.loc_to_pixel(pt1)
  *         end = region.loc_to_pixel(pt2)             # <<<<<<<<<<<<<<
  *         delta = (end - start)
  *         unit_vec = (end - start).unit_vector
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_n_s_loc_to_pixel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_n_s_loc_to_pixel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2911,138 +2908,124 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_pt2) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_pt2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 64, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_end = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":65
+  /* "mirage/calculator/optimized_funcs.pyx":67
  *         start = region.loc_to_pixel(pt1)
  *         end = region.loc_to_pixel(pt2)
  *         delta = (end - start)             # <<<<<<<<<<<<<<
  *         unit_vec = (end - start).unit_vector
  *         # ret = np.ndarray((length))
  */
-  __pyx_t_1 = PyNumber_Subtract(__pyx_v_end, __pyx_v_start); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Subtract(__pyx_v_end, __pyx_v_start); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_delta = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":66
+  /* "mirage/calculator/optimized_funcs.pyx":68
  *         end = region.loc_to_pixel(pt2)
  *         delta = (end - start)
  *         unit_vec = (end - start).unit_vector             # <<<<<<<<<<<<<<
  *         # ret = np.ndarray((length))
  *         cdef double sx, sy, x, y
  */
-  __pyx_t_1 = PyNumber_Subtract(__pyx_v_end, __pyx_v_start); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Subtract(__pyx_v_end, __pyx_v_start); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_unit_vector); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_unit_vector); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_unit_vec = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":70
+  /* "mirage/calculator/optimized_funcs.pyx":72
  *         cdef double sx, sy, x, y
  *         cdef double ux, uy
  *         ux = unit_vec.x.value             # <<<<<<<<<<<<<<
  *         uy = unit_vec.y.value
  *         sx = start.x.value
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_unit_vec, __pyx_n_s_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 70, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_ux = __pyx_t_4;
-
-  /* "mirage/calculator/optimized_funcs.pyx":71
- *         cdef double ux, uy
- *         ux = unit_vec.x.value
- *         uy = unit_vec.y.value             # <<<<<<<<<<<<<<
- *         sx = start.x.value
- *         sy = start.y.value
- */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_unit_vec, __pyx_n_s_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 71, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_uy = __pyx_t_4;
-
-  /* "mirage/calculator/optimized_funcs.pyx":72
- *         ux = unit_vec.x.value
- *         uy = unit_vec.y.value
- *         sx = start.x.value             # <<<<<<<<<<<<<<
- *         sy = start.y.value
- *         print(data.shape)
- */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_start, __pyx_n_s_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_unit_vec, __pyx_n_s_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_sx = __pyx_t_4;
+  __pyx_v_ux = __pyx_t_4;
 
   /* "mirage/calculator/optimized_funcs.pyx":73
- *         uy = unit_vec.y.value
+ *         cdef double ux, uy
+ *         ux = unit_vec.x.value
+ *         uy = unit_vec.y.value             # <<<<<<<<<<<<<<
  *         sx = start.x.value
- *         sy = start.y.value             # <<<<<<<<<<<<<<
- *         print(data.shape)
- *         cdef int length = int(delta.magnitude.value)
+ *         sy = start.y.value
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_start, __pyx_n_s_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_unit_vec, __pyx_n_s_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_sy = __pyx_t_4;
+  __pyx_v_uy = __pyx_t_4;
 
   /* "mirage/calculator/optimized_funcs.pyx":74
- *         sx = start.x.value
+ *         ux = unit_vec.x.value
+ *         uy = unit_vec.y.value
+ *         sx = start.x.value             # <<<<<<<<<<<<<<
  *         sy = start.y.value
- *         print(data.shape)             # <<<<<<<<<<<<<<
+ *         cdef int length = int(delta.magnitude.value)
+ */
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_start, __pyx_n_s_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_sx = __pyx_t_4;
+
+  /* "mirage/calculator/optimized_funcs.pyx":75
+ *         uy = unit_vec.y.value
+ *         sx = start.x.value
+ *         sy = start.y.value             # <<<<<<<<<<<<<<
  *         cdef int length = int(delta.magnitude.value)
  *         cdef int i = 0
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_data, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "mirage/calculator/optimized_funcs.pyx":75
- *         sy = start.y.value
- *         print(data.shape)
- *         cdef int length = int(delta.magnitude.value)             # <<<<<<<<<<<<<<
- *         cdef int i = 0
- *         cdef np.ndarray[np.float64_t,ndim=1] ret = np.ndarray(length)
- */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_delta, __pyx_n_s_magnitude); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_start, __pyx_n_s_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_value); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyNumber_Int(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_4 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 75, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_length = __pyx_t_5;
+  __pyx_v_sy = __pyx_t_4;
 
   /* "mirage/calculator/optimized_funcs.pyx":76
- *         print(data.shape)
+ *         sx = start.x.value
+ *         sy = start.y.value
+ *         cdef int length = int(delta.magnitude.value)             # <<<<<<<<<<<<<<
+ *         cdef int i = 0
+ *         cdef np.ndarray[np.float64_t,ndim=1] ret = np.ndarray(length)
+ */
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_delta, __pyx_n_s_magnitude); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_v_length = __pyx_t_5;
+
+  /* "mirage/calculator/optimized_funcs.pyx":77
+ *         sy = start.y.value
  *         cdef int length = int(delta.magnitude.value)
  *         cdef int i = 0             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[np.float64_t,ndim=1] ret = np.ndarray(length)
@@ -3050,30 +3033,30 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_
  */
   __pyx_v_i = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":77
+  /* "mirage/calculator/optimized_funcs.pyx":78
  *         cdef int length = int(delta.magnitude.value)
  *         cdef int i = 0
  *         cdef np.ndarray[np.float64_t,ndim=1] ret = np.ndarray(length)             # <<<<<<<<<<<<<<
  *         for i in range(length):
  *             x = sx + ux * i
  */
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_length); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_5numpy_ndarray), __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_length); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_5numpy_ndarray), __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_2), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_ret = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 77, __pyx_L1_error)
+      __PYX_ERR(0, 78, __pyx_L1_error)
     } else {__pyx_pybuffernd_ret.diminfo[0].strides = __pyx_pybuffernd_ret.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_ret.diminfo[0].shape = __pyx_pybuffernd_ret.rcbuffer->pybuffer.shape[0];
     }
   }
-  __pyx_v_ret = ((PyArrayObject *)__pyx_t_2);
-  __pyx_t_2 = 0;
+  __pyx_v_ret = ((PyArrayObject *)__pyx_t_1);
+  __pyx_t_1 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":78
+  /* "mirage/calculator/optimized_funcs.pyx":79
  *         cdef int i = 0
  *         cdef np.ndarray[np.float64_t,ndim=1] ret = np.ndarray(length)
  *         for i in range(length):             # <<<<<<<<<<<<<<
@@ -3085,7 +3068,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "mirage/calculator/optimized_funcs.pyx":79
+    /* "mirage/calculator/optimized_funcs.pyx":80
  *         cdef np.ndarray[np.float64_t,ndim=1] ret = np.ndarray(length)
  *         for i in range(length):
  *             x = sx + ux * i             # <<<<<<<<<<<<<<
@@ -3094,7 +3077,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_
  */
     __pyx_v_x = (__pyx_v_sx + (__pyx_v_ux * __pyx_v_i));
 
-    /* "mirage/calculator/optimized_funcs.pyx":80
+    /* "mirage/calculator/optimized_funcs.pyx":81
  *         for i in range(length):
  *             x = sx + ux * i
  *             y = sy + uy * i             # <<<<<<<<<<<<<<
@@ -3103,35 +3086,35 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_
  */
     __pyx_v_y = (__pyx_v_sy + (__pyx_v_uy * __pyx_v_i));
 
-    /* "mirage/calculator/optimized_funcs.pyx":85
+    /* "mirage/calculator/optimized_funcs.pyx":86
  *             # y = int(loc.y.value)
  * 
  *             ret[i] = data[<int> round(x),<int> round(y)]             # <<<<<<<<<<<<<<
  *         return ret
  * 
  */
-    __pyx_t_2 = __Pyx_PyInt_From_int(((int)round(__pyx_v_x))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 85, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyInt_From_int(((int)round(__pyx_v_x))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_2 = __Pyx_PyInt_From_int(((int)round(__pyx_v_y))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = __Pyx_PyInt_From_int(((int)round(__pyx_v_y))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 85, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 85, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 86, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GIVEREF(__pyx_t_2);
-    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_1);
-    PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_1);
-    __pyx_t_2 = 0;
+    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
     __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetItem(__pyx_v_data, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 85, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_2 = 0;
+    __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_data, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_8 == ((npy_float64)-1)) && PyErr_Occurred())) __PYX_ERR(0, 85, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_8 == ((npy_float64)-1)) && PyErr_Occurred())) __PYX_ERR(0, 86, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_9 = __pyx_v_i;
     *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_ret.diminfo[0].strides) = __pyx_t_8;
   }
 
-  /* "mirage/calculator/optimized_funcs.pyx":86
+  /* "mirage/calculator/optimized_funcs.pyx":87
  * 
  *             ret[i] = data[<int> round(x),<int> round(y)]
  *         return ret             # <<<<<<<<<<<<<<
@@ -3143,7 +3126,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_
   __pyx_r = ((PyObject *)__pyx_v_ret);
   goto __pyx_L0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":62
+  /* "mirage/calculator/optimized_funcs.pyx":64
  * 
  * 
  * cpdef arbitrary_slice_axis(pt1,pt2,region,data):             # <<<<<<<<<<<<<<
@@ -3215,23 +3198,23 @@ static PyObject *__pyx_pw_6mirage_10calculator_15optimized_funcs_3arbitrary_slic
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pt2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("arbitrary_slice_axis", 1, 4, 4, 1); __PYX_ERR(0, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("arbitrary_slice_axis", 1, 4, 4, 1); __PYX_ERR(0, 64, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_region)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("arbitrary_slice_axis", 1, 4, 4, 2); __PYX_ERR(0, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("arbitrary_slice_axis", 1, 4, 4, 2); __PYX_ERR(0, 64, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_data)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("arbitrary_slice_axis", 1, 4, 4, 3); __PYX_ERR(0, 62, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("arbitrary_slice_axis", 1, 4, 4, 3); __PYX_ERR(0, 64, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "arbitrary_slice_axis") < 0)) __PYX_ERR(0, 62, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "arbitrary_slice_axis") < 0)) __PYX_ERR(0, 64, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -3248,7 +3231,7 @@ static PyObject *__pyx_pw_6mirage_10calculator_15optimized_funcs_3arbitrary_slic
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("arbitrary_slice_axis", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 62, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("arbitrary_slice_axis", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 64, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("mirage.calculator.optimized_funcs.arbitrary_slice_axis", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3267,7 +3250,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_2arbitrary_slic
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("arbitrary_slice_axis", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_axis(__pyx_v_pt1, __pyx_v_pt2, __pyx_v_region, __pyx_v_data, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_axis(__pyx_v_pt1, __pyx_v_pt2, __pyx_v_region, __pyx_v_data, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3284,7 +3267,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_2arbitrary_slic
   return __pyx_r;
 }
 
-/* "mirage/calculator/optimized_funcs.pyx":88
+/* "mirage/calculator/optimized_funcs.pyx":89
  *         return ret
  * 
  * cpdef caustic_characteristic_inplace(np.ndarray[np.float64_t,ndim=2] stars, np.ndarray[np.float64_t,ndim=2] locations, double &macro_convergence, double &macro_shear):             # <<<<<<<<<<<<<<
@@ -3365,16 +3348,16 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
   __pyx_pybuffernd_locations.rcbuffer = &__pyx_pybuffer_locations;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_stars.rcbuffer->pybuffer, (PyObject*)__pyx_v_stars, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 88, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_stars.rcbuffer->pybuffer, (PyObject*)__pyx_v_stars, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 89, __pyx_L1_error)
   }
   __pyx_pybuffernd_stars.diminfo[0].strides = __pyx_pybuffernd_stars.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_stars.diminfo[0].shape = __pyx_pybuffernd_stars.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_stars.diminfo[1].strides = __pyx_pybuffernd_stars.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_stars.diminfo[1].shape = __pyx_pybuffernd_stars.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_locations.rcbuffer->pybuffer, (PyObject*)__pyx_v_locations, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 88, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_locations.rcbuffer->pybuffer, (PyObject*)__pyx_v_locations, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 89, __pyx_L1_error)
   }
   __pyx_pybuffernd_locations.diminfo[0].strides = __pyx_pybuffernd_locations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_locations.diminfo[0].shape = __pyx_pybuffernd_locations.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_locations.diminfo[1].strides = __pyx_pybuffernd_locations.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_locations.diminfo[1].shape = __pyx_pybuffernd_locations.rcbuffer->pybuffer.shape[1];
 
-  /* "mirage/calculator/optimized_funcs.pyx":89
+  /* "mirage/calculator/optimized_funcs.pyx":90
  * 
  * cpdef caustic_characteristic_inplace(np.ndarray[np.float64_t,ndim=2] stars, np.ndarray[np.float64_t,ndim=2] locations, double &macro_convergence, double &macro_shear):
  *     cdef double kapMin = 1.0 - macro_convergence             # <<<<<<<<<<<<<<
@@ -3383,7 +3366,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
   __pyx_v_kapMin = (1.0 - __pyx_v_macro_convergence);
 
-  /* "mirage/calculator/optimized_funcs.pyx":90
+  /* "mirage/calculator/optimized_funcs.pyx":91
  * cpdef caustic_characteristic_inplace(np.ndarray[np.float64_t,ndim=2] stars, np.ndarray[np.float64_t,ndim=2] locations, double &macro_convergence, double &macro_shear):
  *     cdef double kapMin = 1.0 - macro_convergence
  *     cdef double kapMin2 = kapMin*kapMin             # <<<<<<<<<<<<<<
@@ -3392,7 +3375,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
   __pyx_v_kapMin2 = (__pyx_v_kapMin * __pyx_v_kapMin);
 
-  /* "mirage/calculator/optimized_funcs.pyx":91
+  /* "mirage/calculator/optimized_funcs.pyx":92
  *     cdef double kapMin = 1.0 - macro_convergence
  *     cdef double kapMin2 = kapMin*kapMin
  *     cdef int i, num_stars = stars.shape[0], j, num_locations = locations.shape[0]             # <<<<<<<<<<<<<<
@@ -3402,7 +3385,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
   __pyx_v_num_stars = (__pyx_v_stars->dimensions[0]);
   __pyx_v_num_locations = (__pyx_v_locations->dimensions[0]);
 
-  /* "mirage/calculator/optimized_funcs.pyx":97
+  /* "mirage/calculator/optimized_funcs.pyx":98
  *     #Local only
  *     cdef double complex u, ubar,r
  *     cdef double complex I = 1.0j             # <<<<<<<<<<<<<<
@@ -3411,14 +3394,14 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
   __pyx_v_I = __pyx_t_double_complex_from_parts(0, 1.0);
 
-  /* "mirage/calculator/optimized_funcs.pyx":98
+  /* "mirage/calculator/optimized_funcs.pyx":99
  *     cdef double complex u, ubar,r
  *     cdef double complex I = 1.0j
  *     cdef np.ndarray[np.float64_t,ndim=2] ret = locations.copy()             # <<<<<<<<<<<<<<
  *     for j in range(0,num_locations):
  *         gam = macro_shear + 0j
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_locations), __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_locations), __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3432,16 +3415,16 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 98, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 99, __pyx_L1_error)
   __pyx_t_4 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)__pyx_t_4, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_ret = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 98, __pyx_L1_error)
+      __PYX_ERR(0, 99, __pyx_L1_error)
     } else {__pyx_pybuffernd_ret.diminfo[0].strides = __pyx_pybuffernd_ret.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_ret.diminfo[0].shape = __pyx_pybuffernd_ret.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_ret.diminfo[1].strides = __pyx_pybuffernd_ret.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_ret.diminfo[1].shape = __pyx_pybuffernd_ret.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -3449,7 +3432,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
   __pyx_v_ret = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":99
+  /* "mirage/calculator/optimized_funcs.pyx":100
  *     cdef double complex I = 1.0j
  *     cdef np.ndarray[np.float64_t,ndim=2] ret = locations.copy()
  *     for j in range(0,num_locations):             # <<<<<<<<<<<<<<
@@ -3461,7 +3444,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_j = __pyx_t_7;
 
-    /* "mirage/calculator/optimized_funcs.pyx":100
+    /* "mirage/calculator/optimized_funcs.pyx":101
  *     cdef np.ndarray[np.float64_t,ndim=2] ret = locations.copy()
  *     for j in range(0,num_locations):
  *         gam = macro_shear + 0j             # <<<<<<<<<<<<<<
@@ -3470,7 +3453,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
     __pyx_v_gam = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts(__pyx_v_macro_shear, 0), __pyx_t_double_complex_from_parts(0, 0.0));
 
-    /* "mirage/calculator/optimized_funcs.pyx":101
+    /* "mirage/calculator/optimized_funcs.pyx":102
  *     for j in range(0,num_locations):
  *         gam = macro_shear + 0j
  *         x1 = locations[j,0]             # <<<<<<<<<<<<<<
@@ -3481,7 +3464,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
     __pyx_t_9 = 0;
     __pyx_v_x1 = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_locations.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_locations.diminfo[0].strides, __pyx_t_9, __pyx_pybuffernd_locations.diminfo[1].strides));
 
-    /* "mirage/calculator/optimized_funcs.pyx":102
+    /* "mirage/calculator/optimized_funcs.pyx":103
  *         gam = macro_shear + 0j
  *         x1 = locations[j,0]
  *         x2 = locations[j,1]             # <<<<<<<<<<<<<<
@@ -3492,7 +3475,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
     __pyx_t_11 = 1;
     __pyx_v_x2 = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_locations.rcbuffer->pybuffer.buf, __pyx_t_10, __pyx_pybuffernd_locations.diminfo[0].strides, __pyx_t_11, __pyx_pybuffernd_locations.diminfo[1].strides));
 
-    /* "mirage/calculator/optimized_funcs.pyx":103
+    /* "mirage/calculator/optimized_funcs.pyx":104
  *         x1 = locations[j,0]
  *         x2 = locations[j,1]
  *         gamBar = macro_shear + 0j             # <<<<<<<<<<<<<<
@@ -3501,7 +3484,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
     __pyx_v_gamBar = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts(__pyx_v_macro_shear, 0), __pyx_t_double_complex_from_parts(0, 0.0));
 
-    /* "mirage/calculator/optimized_funcs.pyx":104
+    /* "mirage/calculator/optimized_funcs.pyx":105
  *         x2 = locations[j,1]
  *         gamBar = macro_shear + 0j
  *         gamBarPrime = 0 + 0j             # <<<<<<<<<<<<<<
@@ -3510,7 +3493,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
     __pyx_v_gamBarPrime = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts(0, 0), __pyx_t_double_complex_from_parts(0, 0.0));
 
-    /* "mirage/calculator/optimized_funcs.pyx":105
+    /* "mirage/calculator/optimized_funcs.pyx":106
  *         gamBar = macro_shear + 0j
  *         gamBarPrime = 0 + 0j
  *         gamPrime = 0 + 0j             # <<<<<<<<<<<<<<
@@ -3519,7 +3502,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
     __pyx_v_gamPrime = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts(0, 0), __pyx_t_double_complex_from_parts(0, 0.0));
 
-    /* "mirage/calculator/optimized_funcs.pyx":106
+    /* "mirage/calculator/optimized_funcs.pyx":107
  *         gamBarPrime = 0 + 0j
  *         gamPrime = 0 + 0j
  *         gamPrimeUBar = 0 + 0j             # <<<<<<<<<<<<<<
@@ -3528,7 +3511,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
     __pyx_v_gamPrimeUBar = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts(0, 0), __pyx_t_double_complex_from_parts(0, 0.0));
 
-    /* "mirage/calculator/optimized_funcs.pyx":107
+    /* "mirage/calculator/optimized_funcs.pyx":108
  *         gamPrime = 0 + 0j
  *         gamPrimeUBar = 0 + 0j
  *         gamPrimeBarUBar = 0 + 0j             # <<<<<<<<<<<<<<
@@ -3537,7 +3520,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
     __pyx_v_gamPrimeBarUBar = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts(0, 0), __pyx_t_double_complex_from_parts(0, 0.0));
 
-    /* "mirage/calculator/optimized_funcs.pyx":108
+    /* "mirage/calculator/optimized_funcs.pyx":109
  *         gamPrimeUBar = 0 + 0j
  *         gamPrimeBarUBar = 0 + 0j
  *         for i in range(0,num_stars):             # <<<<<<<<<<<<<<
@@ -3549,7 +3532,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
     for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
       __pyx_v_i = __pyx_t_14;
 
-      /* "mirage/calculator/optimized_funcs.pyx":109
+      /* "mirage/calculator/optimized_funcs.pyx":110
  *         gamPrimeBarUBar = 0 + 0j
  *         for i in range(0,num_stars):
  *             x1i = stars[i,0]             # <<<<<<<<<<<<<<
@@ -3560,7 +3543,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
       __pyx_t_16 = 0;
       __pyx_v_x1i = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_stars.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_stars.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_stars.diminfo[1].strides));
 
-      /* "mirage/calculator/optimized_funcs.pyx":110
+      /* "mirage/calculator/optimized_funcs.pyx":111
  *         for i in range(0,num_stars):
  *             x1i = stars[i,0]
  *             x2i = stars[i,1]             # <<<<<<<<<<<<<<
@@ -3571,7 +3554,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
       __pyx_t_18 = 1;
       __pyx_v_x2i = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_stars.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_stars.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_stars.diminfo[1].strides));
 
-      /* "mirage/calculator/optimized_funcs.pyx":111
+      /* "mirage/calculator/optimized_funcs.pyx":112
  *             x1i = stars[i,0]
  *             x2i = stars[i,1]
  *             u = (x1-x1i) + (x2 - x2i)*I             # <<<<<<<<<<<<<<
@@ -3580,7 +3563,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
       __pyx_v_u = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts((__pyx_v_x1 - __pyx_v_x1i), 0), __Pyx_c_prod_double(__pyx_t_double_complex_from_parts((__pyx_v_x2 - __pyx_v_x2i), 0), __pyx_v_I));
 
-      /* "mirage/calculator/optimized_funcs.pyx":112
+      /* "mirage/calculator/optimized_funcs.pyx":113
  *             x2i = stars[i,1]
  *             u = (x1-x1i) + (x2 - x2i)*I
  *             ubar = (x1-x1i) - (x2 - x2i)*I             # <<<<<<<<<<<<<<
@@ -3589,7 +3572,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
       __pyx_v_ubar = __Pyx_c_diff_double(__pyx_t_double_complex_from_parts((__pyx_v_x1 - __pyx_v_x1i), 0), __Pyx_c_prod_double(__pyx_t_double_complex_from_parts((__pyx_v_x2 - __pyx_v_x2i), 0), __pyx_v_I));
 
-      /* "mirage/calculator/optimized_funcs.pyx":113
+      /* "mirage/calculator/optimized_funcs.pyx":114
  *             u = (x1-x1i) + (x2 - x2i)*I
  *             ubar = (x1-x1i) - (x2 - x2i)*I
  *             mi = stars[i,2]             # <<<<<<<<<<<<<<
@@ -3600,7 +3583,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
       __pyx_t_20 = 2;
       __pyx_v_mi = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_stars.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_stars.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_stars.diminfo[1].strides));
 
-      /* "mirage/calculator/optimized_funcs.pyx":114
+      /* "mirage/calculator/optimized_funcs.pyx":115
  *             ubar = (x1-x1i) - (x2 - x2i)*I
  *             mi = stars[i,2]
  *             r = u*ubar             # <<<<<<<<<<<<<<
@@ -3609,7 +3592,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  */
       __pyx_v_r = __Pyx_c_prod_double(__pyx_v_u, __pyx_v_ubar);
 
-      /* "mirage/calculator/optimized_funcs.pyx":115
+      /* "mirage/calculator/optimized_funcs.pyx":116
  *             mi = stars[i,2]
  *             r = u*ubar
  *             gam += mi*u*u/r/r             # <<<<<<<<<<<<<<
@@ -3619,7 +3602,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
       __pyx_v_gam = __Pyx_c_sum_double(__pyx_v_gam, __Pyx_c_quot_double(__Pyx_c_quot_double(__Pyx_c_prod_double(__Pyx_c_prod_double(__pyx_t_double_complex_from_parts(__pyx_v_mi, 0), __pyx_v_u), __pyx_v_u), __pyx_v_r), __pyx_v_r));
     }
 
-    /* "mirage/calculator/optimized_funcs.pyx":129
+    /* "mirage/calculator/optimized_funcs.pyx":130
  *         # du = (0.25)*gamBar*gamPrime + (0.25)*gamBarPrime*gam
  *         # dubar = (0.25)*gamBar*gamPrimeUBar + (0.25)*gamPrimeBarUBar*gam
  *         ret[j,0] = kapMin2 - abs(gam*gam.conjugate())             # <<<<<<<<<<<<<<
@@ -3630,7 +3613,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
     __pyx_t_22 = 0;
     *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_22, __pyx_pybuffernd_ret.diminfo[1].strides) = (__pyx_v_kapMin2 - __Pyx_c_abs_double(__Pyx_c_prod_double(__pyx_v_gam, __Pyx_c_conj_double(__pyx_v_gam))));
 
-    /* "mirage/calculator/optimized_funcs.pyx":130
+    /* "mirage/calculator/optimized_funcs.pyx":131
  *         # dubar = (0.25)*gamBar*gamPrimeUBar + (0.25)*gamPrimeBarUBar*gam
  *         ret[j,0] = kapMin2 - abs(gam*gam.conjugate())
  *         ret[j,1] = abs(dubar*kapMin - du*gam)             # <<<<<<<<<<<<<<
@@ -3642,7 +3625,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
     *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_23, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_24, __pyx_pybuffernd_ret.diminfo[1].strides) = __Pyx_c_abs_double(__Pyx_c_diff_double(__Pyx_c_prod_double(__pyx_v_dubar, __pyx_t_double_complex_from_parts(__pyx_v_kapMin, 0)), __Pyx_c_prod_double(__pyx_v_du, __pyx_v_gam)));
   }
 
-  /* "mirage/calculator/optimized_funcs.pyx":131
+  /* "mirage/calculator/optimized_funcs.pyx":132
  *         ret[j,0] = kapMin2 - abs(gam*gam.conjugate())
  *         ret[j,1] = abs(dubar*kapMin - du*gam)
  *     return ret             # <<<<<<<<<<<<<<
@@ -3654,7 +3637,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
   __pyx_r = ((PyObject *)__pyx_v_ret);
   goto __pyx_L0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":88
+  /* "mirage/calculator/optimized_funcs.pyx":89
  *         return ret
  * 
  * cpdef caustic_characteristic_inplace(np.ndarray[np.float64_t,ndim=2] stars, np.ndarray[np.float64_t,ndim=2] locations, double &macro_convergence, double &macro_shear):             # <<<<<<<<<<<<<<
@@ -3726,23 +3709,23 @@ static PyObject *__pyx_pw_6mirage_10calculator_15optimized_funcs_5caustic_charac
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_locations)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("caustic_characteristic_inplace", 1, 4, 4, 1); __PYX_ERR(0, 88, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("caustic_characteristic_inplace", 1, 4, 4, 1); __PYX_ERR(0, 89, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_macro_convergence)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("caustic_characteristic_inplace", 1, 4, 4, 2); __PYX_ERR(0, 88, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("caustic_characteristic_inplace", 1, 4, 4, 2); __PYX_ERR(0, 89, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_macro_shear)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("caustic_characteristic_inplace", 1, 4, 4, 3); __PYX_ERR(0, 88, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("caustic_characteristic_inplace", 1, 4, 4, 3); __PYX_ERR(0, 89, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "caustic_characteristic_inplace") < 0)) __PYX_ERR(0, 88, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "caustic_characteristic_inplace") < 0)) __PYX_ERR(0, 89, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -3754,19 +3737,19 @@ static PyObject *__pyx_pw_6mirage_10calculator_15optimized_funcs_5caustic_charac
     }
     __pyx_v_stars = ((PyArrayObject *)values[0]);
     __pyx_v_locations = ((PyArrayObject *)values[1]);
-    __pyx_v_macro_convergence = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_macro_convergence == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 88, __pyx_L3_error)
-    __pyx_v_macro_shear = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_macro_shear == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 88, __pyx_L3_error)
+    __pyx_v_macro_convergence = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_macro_convergence == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 89, __pyx_L3_error)
+    __pyx_v_macro_shear = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_macro_shear == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 89, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("caustic_characteristic_inplace", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 88, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("caustic_characteristic_inplace", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 89, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("mirage.calculator.optimized_funcs.caustic_characteristic_inplace", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_stars), __pyx_ptype_5numpy_ndarray, 1, "stars", 0))) __PYX_ERR(0, 88, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_locations), __pyx_ptype_5numpy_ndarray, 1, "locations", 0))) __PYX_ERR(0, 88, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_stars), __pyx_ptype_5numpy_ndarray, 1, "stars", 0))) __PYX_ERR(0, 89, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_locations), __pyx_ptype_5numpy_ndarray, 1, "locations", 0))) __PYX_ERR(0, 89, __pyx_L1_error)
   __pyx_r = __pyx_pf_6mirage_10calculator_15optimized_funcs_4caustic_characteristic_inplace(__pyx_self, __pyx_v_stars, __pyx_v_locations, __pyx_v_macro_convergence, __pyx_v_macro_shear);
 
   /* function exit code */
@@ -3797,16 +3780,16 @@ static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_4caustic_charac
   __pyx_pybuffernd_locations.rcbuffer = &__pyx_pybuffer_locations;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_stars.rcbuffer->pybuffer, (PyObject*)__pyx_v_stars, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 88, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_stars.rcbuffer->pybuffer, (PyObject*)__pyx_v_stars, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 89, __pyx_L1_error)
   }
   __pyx_pybuffernd_stars.diminfo[0].strides = __pyx_pybuffernd_stars.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_stars.diminfo[0].shape = __pyx_pybuffernd_stars.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_stars.diminfo[1].strides = __pyx_pybuffernd_stars.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_stars.diminfo[1].shape = __pyx_pybuffernd_stars.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_locations.rcbuffer->pybuffer, (PyObject*)__pyx_v_locations, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 88, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_locations.rcbuffer->pybuffer, (PyObject*)__pyx_v_locations, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 89, __pyx_L1_error)
   }
   __pyx_pybuffernd_locations.diminfo[0].strides = __pyx_pybuffernd_locations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_locations.diminfo[0].shape = __pyx_pybuffernd_locations.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_locations.diminfo[1].strides = __pyx_pybuffernd_locations.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_locations.diminfo[1].shape = __pyx_pybuffernd_locations.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characteristic_inplace(((PyArrayObject *)__pyx_v_stars), ((PyArrayObject *)__pyx_v_locations), __pyx_v_macro_convergence, __pyx_v_macro_shear, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characteristic_inplace(((PyArrayObject *)__pyx_v_stars), ((PyArrayObject *)__pyx_v_locations), __pyx_v_macro_convergence, __pyx_v_macro_shear, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6330,7 +6313,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_numpy_core_multiarray_failed_to, __pyx_k_numpy_core_multiarray_failed_to, sizeof(__pyx_k_numpy_core_multiarray_failed_to), 0, 0, 1, 0},
   {&__pyx_kp_s_numpy_core_umath_failed_to_impor, __pyx_k_numpy_core_umath_failed_to_impor, sizeof(__pyx_k_numpy_core_umath_failed_to_impor), 0, 0, 1, 0},
   {&__pyx_n_s_object, __pyx_k_object, sizeof(__pyx_k_object), 0, 0, 1, 1},
-  {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_pt1, __pyx_k_pt1, sizeof(__pyx_k_pt1), 0, 0, 1, 1},
   {&__pyx_n_s_pt2, __pyx_k_pt2, sizeof(__pyx_k_pt2), 0, 0, 1, 1},
   {&__pyx_n_u_rad, __pyx_k_rad, sizeof(__pyx_k_rad), 0, 1, 0, 1},
@@ -6352,9 +6334,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_object = __Pyx_GetBuiltinName(__pyx_n_s_object); if (!__pyx_builtin_object) __PYX_ERR(0, 15, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 16, __pyx_L1_error)
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_builtin_object = __Pyx_GetBuiltinName(__pyx_n_s_object); if (!__pyx_builtin_object) __PYX_ERR(0, 17, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 18, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(1, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 1038, __pyx_L1_error)
@@ -6367,14 +6348,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "mirage/calculator/optimized_funcs.pyx":59
+  /* "mirage/calculator/optimized_funcs.pyx":61
  *         if not (x >= lefX and x <= rigX and y >= botY and y <= topY):
  *             flag = 0
  *     return buff[:count,:]             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_slice_ = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice_)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_slice_ = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice_)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice_);
   __Pyx_GIVEREF(__pyx_slice_);
 

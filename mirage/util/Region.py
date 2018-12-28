@@ -14,13 +14,18 @@ class Region(Jsonable):
     """ 
 
     def __init__(self,center:Vec2D, dims:Vec2D) -> None:
-        self._center = center
-        self._dims = dims.to(center.unit)
+        self._center = center.to(dims.unit)
+        self._dims = dims
 
     def to(self,unit:str):
         self._center = self._center.to(unit)
         self._dims = self._dims.to(unit)
         return self
+
+    @property
+    def unit(self):
+        return self._dims.unit
+    
 
 
     @property
@@ -43,8 +48,8 @@ class Region(Jsonable):
 
     @property
     def extent(self):
-        left = self.center - self.dimensions/2
-        right = self.center+self.dimensions/2
+        left  = self.center - self.dimensions/2
+        right = self.center + self.dimensions/2
         return(left.x,left.y,right.x,right.y)
         
 
@@ -54,8 +59,8 @@ class Region(Jsonable):
 
     @classmethod
     def from_json(cls,js):
-        center = Vec2D.from_json(js['center'])
         dims = Vec2D.from_json(js['dims'])
+        center = Vec2D.from_json(js['center']).to(dims.unit)
         return cls(center,dims)
 
     def __repr__(self):
@@ -121,6 +126,7 @@ class PixelRegion(Region):
 
 
     def loc_to_pixel(self,loc:Vec2D) -> Vec2D:
+        loc = loc.to(self.unit)
         delta = loc - self.center
         dx = loc.x - self.center.x
         dy = self.center.y - loc.y
@@ -134,7 +140,10 @@ class PixelRegion(Region):
     def pixel_to_loc(self,pixel:Vec2D) -> Vec2D:
         shiftp = pixel - self.resolution/2
         delta = self.dTheta*shiftp
-        return delta + self.center.to(delta.unit)
+        return Vec2D((self.center.x + delta.x).value,(self.center.y - delta.y).value,self.unit)
+        # return delta + self.center.to(delta.unit)
+        #dy = c - l
+        #l = c - dy
 
 
     @property
@@ -145,8 +154,8 @@ class PixelRegion(Region):
 
     @classmethod
     def from_json(cls,js):
-        center = Vec2D.from_json(js['center'])
         dims = Vec2D.from_json(js['dims'])
+        center = Vec2D.from_json(js['center']).to(dims.unit)
         resolution = Vec2D.from_json(js['resolution'])
         return cls(center,dims,resolution)
 

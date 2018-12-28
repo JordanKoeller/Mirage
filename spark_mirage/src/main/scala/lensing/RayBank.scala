@@ -31,6 +31,9 @@ class RayBank(lensPosition:Array[Double],sourcePosition:Array[Double]) extends S
     setSourceY(i,sourceY(j))
     setTuple(j,tmp)
   }
+  override def toString():String = {
+    (for (i <- 0 until size) yield "[%.2f, %.2f]".format(x(i),y(i))).mkString(",")
+  }
 }
 
 
@@ -41,8 +44,8 @@ object RayBank {
     val srcPos = lensPos//Array.fill(number*2)(0.0)
     for (ind <- input.indices) {
       val long = input(ind)
+      lensPos(ind*2+1) = ((long / w) - h/2).toDouble*dy
       lensPos(ind*2) = ((long % w) - w/2).toDouble*dx
-      lensPos(ind*2+1) = (h/2 - (long/w)).toDouble*dy
     }
     new RayBank(lensPos,srcPos)
   }

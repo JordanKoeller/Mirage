@@ -13,8 +13,8 @@ class Vec2D(Jsonable):
             self._quant = u.Quantity([x,y],unit)
 
     def to(self,unit):
-        self._quant = self._quant.to(unit)
-        return self
+        quant = self._quant.to(unit)
+        return Vec2D.from_quant(quant)
 
     @property
     def x(self):

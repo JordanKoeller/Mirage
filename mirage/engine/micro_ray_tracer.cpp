@@ -2518,9 +2518,9 @@ static PyObject *__pyx_tuple__31;
 static PyObject *__pyx_codeobj__32;
 /* Late includes */
 
-/* "mirage/engine/micro_ray_tracer.pyx":12
- * 
+/* "mirage/engine/micro_ray_tracer.pyx":11
  * from cython.parallel import prange
+ * 
  * cdef pair[double,double] ray_trace_helper(double &x,             # <<<<<<<<<<<<<<
  *         double &y,
  *         double &gMax,
@@ -2547,7 +2547,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
   Py_ssize_t __pyx_t_11;
   std::pair<double,double>  __pyx_t_12;
 
-  /* "mirage/engine/micro_ray_tracer.pyx":21
+  /* "mirage/engine/micro_ray_tracer.pyx":20
  *     cdef int s
  *     cdef double dx, dy, retx, rety, r
  *     retx = gMin*x - kap*x             # <<<<<<<<<<<<<<
@@ -2556,7 +2556,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
  */
   __pyx_v_retx = ((__pyx_v_gMin * __pyx_v_x) - (__pyx_v_kap * __pyx_v_x));
 
-  /* "mirage/engine/micro_ray_tracer.pyx":22
+  /* "mirage/engine/micro_ray_tracer.pyx":21
  *     cdef double dx, dy, retx, rety, r
  *     retx = gMin*x - kap*x
  *     rety = y*gMax - kap*y             # <<<<<<<<<<<<<<
@@ -2565,7 +2565,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
  */
   __pyx_v_rety = ((__pyx_v_y * __pyx_v_gMax) - (__pyx_v_kap * __pyx_v_y));
 
-  /* "mirage/engine/micro_ray_tracer.pyx":23
+  /* "mirage/engine/micro_ray_tracer.pyx":22
  *     retx = gMin*x - kap*x
  *     rety = y*gMax - kap*y
  *     for s in range(num_stars):             # <<<<<<<<<<<<<<
@@ -2577,7 +2577,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_s = __pyx_t_3;
 
-    /* "mirage/engine/micro_ray_tracer.pyx":24
+    /* "mirage/engine/micro_ray_tracer.pyx":23
  *     rety = y*gMax - kap*y
  *     for s in range(num_stars):
  *         dx = x - stars[s,0]             # <<<<<<<<<<<<<<
@@ -2588,7 +2588,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
     __pyx_t_5 = 0;
     __pyx_v_dx = (__pyx_v_x - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_stars.data + __pyx_t_4 * __pyx_v_stars.strides[0]) ) + __pyx_t_5 * __pyx_v_stars.strides[1]) ))));
 
-    /* "mirage/engine/micro_ray_tracer.pyx":25
+    /* "mirage/engine/micro_ray_tracer.pyx":24
  *     for s in range(num_stars):
  *         dx = x - stars[s,0]
  *         dy = y - stars[s,1]             # <<<<<<<<<<<<<<
@@ -2599,7 +2599,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
     __pyx_t_7 = 1;
     __pyx_v_dy = (__pyx_v_y - (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_stars.data + __pyx_t_6 * __pyx_v_stars.strides[0]) ) + __pyx_t_7 * __pyx_v_stars.strides[1]) ))));
 
-    /* "mirage/engine/micro_ray_tracer.pyx":26
+    /* "mirage/engine/micro_ray_tracer.pyx":25
  *         dx = x - stars[s,0]
  *         dy = y - stars[s,1]
  *         r = dx*dx + dy*dy             # <<<<<<<<<<<<<<
@@ -2608,7 +2608,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
  */
     __pyx_v_r = ((__pyx_v_dx * __pyx_v_dx) + (__pyx_v_dy * __pyx_v_dy));
 
-    /* "mirage/engine/micro_ray_tracer.pyx":27
+    /* "mirage/engine/micro_ray_tracer.pyx":26
  *         dy = y - stars[s,1]
  *         r = dx*dx + dy*dy
  *         retx -= stars[s,2]*dx/r             # <<<<<<<<<<<<<<
@@ -2619,7 +2619,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
     __pyx_t_9 = 2;
     __pyx_v_retx = (__pyx_v_retx - (((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_stars.data + __pyx_t_8 * __pyx_v_stars.strides[0]) ) + __pyx_t_9 * __pyx_v_stars.strides[1]) ))) * __pyx_v_dx) / __pyx_v_r));
 
-    /* "mirage/engine/micro_ray_tracer.pyx":28
+    /* "mirage/engine/micro_ray_tracer.pyx":27
  *         r = dx*dx + dy*dy
  *         retx -= stars[s,2]*dx/r
  *         rety -= stars[s,2]*dy/r             # <<<<<<<<<<<<<<
@@ -2631,7 +2631,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
     __pyx_v_rety = (__pyx_v_rety - (((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_stars.data + __pyx_t_10 * __pyx_v_stars.strides[0]) ) + __pyx_t_11 * __pyx_v_stars.strides[1]) ))) * __pyx_v_dy) / __pyx_v_r));
   }
 
-  /* "mirage/engine/micro_ray_tracer.pyx":29
+  /* "mirage/engine/micro_ray_tracer.pyx":28
  *         retx -= stars[s,2]*dx/r
  *         rety -= stars[s,2]*dy/r
  *     return pair[double,double](retx,rety)             # <<<<<<<<<<<<<<
@@ -2648,14 +2648,14 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
     #ifdef WITH_THREAD
     __Pyx_PyGILState_Release(__pyx_gilstate_save);
     #endif
-    __PYX_ERR(0, 29, __pyx_L1_error)
+    __PYX_ERR(0, 28, __pyx_L1_error)
   }
   __pyx_r = __pyx_t_12;
   goto __pyx_L0;
 
-  /* "mirage/engine/micro_ray_tracer.pyx":12
- * 
+  /* "mirage/engine/micro_ray_tracer.pyx":11
  * from cython.parallel import prange
+ * 
  * cdef pair[double,double] ray_trace_helper(double &x,             # <<<<<<<<<<<<<<
  *         double &y,
  *         double &gMax,
@@ -2669,7 +2669,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_16micro_ray_tracer_ray_
   return __pyx_r;
 }
 
-/* "mirage/engine/micro_ray_tracer.pyx":31
+/* "mirage/engine/micro_ray_tracer.pyx":30
  *     return pair[double,double](retx,rety)
  * 
  * cpdef np.ndarray[np.float64_t,ndim=3] ray_trace(np.ndarray[np.float64_t, ndim=3] rays,             # <<<<<<<<<<<<<<
@@ -2754,16 +2754,16 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
   __pyx_pybuffernd_stars.rcbuffer = &__pyx_pybuffer_stars;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_rays.rcbuffer->pybuffer, (PyObject*)__pyx_v_rays, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 31, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_rays.rcbuffer->pybuffer, (PyObject*)__pyx_v_rays, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 30, __pyx_L1_error)
   }
   __pyx_pybuffernd_rays.diminfo[0].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_rays.diminfo[0].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_rays.diminfo[1].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_rays.diminfo[1].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_rays.diminfo[2].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_rays.diminfo[2].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[2];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_stars.rcbuffer->pybuffer, (PyObject*)__pyx_v_stars, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 31, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_stars.rcbuffer->pybuffer, (PyObject*)__pyx_v_stars, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 30, __pyx_L1_error)
   }
   __pyx_pybuffernd_stars.diminfo[0].strides = __pyx_pybuffernd_stars.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_stars.diminfo[0].shape = __pyx_pybuffernd_stars.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_stars.diminfo[1].strides = __pyx_pybuffernd_stars.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_stars.diminfo[1].shape = __pyx_pybuffernd_stars.rcbuffer->pybuffer.shape[1];
 
-  /* "mirage/engine/micro_ray_tracer.pyx":37
+  /* "mirage/engine/micro_ray_tracer.pyx":36
  *         np.ndarray[np.float64_t, ndim=2] stars):
  *     cdef int i,j
  *     cdef int width = rays.shape[0]             # <<<<<<<<<<<<<<
@@ -2772,7 +2772,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
  */
   __pyx_v_width = (__pyx_v_rays->dimensions[0]);
 
-  /* "mirage/engine/micro_ray_tracer.pyx":38
+  /* "mirage/engine/micro_ray_tracer.pyx":37
  *     cdef int i,j
  *     cdef int width = rays.shape[0]
  *     cdef int height = rays.shape[0]             # <<<<<<<<<<<<<<
@@ -2781,7 +2781,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
  */
   __pyx_v_height = (__pyx_v_rays->dimensions[0]);
 
-  /* "mirage/engine/micro_ray_tracer.pyx":39
+  /* "mirage/engine/micro_ray_tracer.pyx":38
  *     cdef int width = rays.shape[0]
  *     cdef int height = rays.shape[0]
  *     cdef int num_stars = stars.shape[0]             # <<<<<<<<<<<<<<
@@ -2790,7 +2790,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
  */
   __pyx_v_num_stars = (__pyx_v_stars->dimensions[0]);
 
-  /* "mirage/engine/micro_ray_tracer.pyx":40
+  /* "mirage/engine/micro_ray_tracer.pyx":39
  *     cdef int height = rays.shape[0]
  *     cdef int num_stars = stars.shape[0]
  *     cdef double gMin = 1.0 - gam             # <<<<<<<<<<<<<<
@@ -2799,7 +2799,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
  */
   __pyx_v_gMin = (1.0 - __pyx_v_gam);
 
-  /* "mirage/engine/micro_ray_tracer.pyx":41
+  /* "mirage/engine/micro_ray_tracer.pyx":40
  *     cdef int num_stars = stars.shape[0]
  *     cdef double gMin = 1.0 - gam
  *     cdef double gMax = 1.0 + gam             # <<<<<<<<<<<<<<
@@ -2808,7 +2808,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
  */
   __pyx_v_gMax = (1.0 + __pyx_v_gam);
 
-  /* "mirage/engine/micro_ray_tracer.pyx":44
+  /* "mirage/engine/micro_ray_tracer.pyx":43
  *     cdef int s
  *     cdef double dx, dy, retx, rety, r
  *     for i in prange(0,width,1,nogil=True,schedule='static',num_threads=thread_count):             # <<<<<<<<<<<<<<
@@ -2851,7 +2851,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
                             __pyx_v_r = ((double)__PYX_NAN());
                             __pyx_v_s = ((int)0xbad0bad0);
 
-                            /* "mirage/engine/micro_ray_tracer.pyx":45
+                            /* "mirage/engine/micro_ray_tracer.pyx":44
  *     cdef double dx, dy, retx, rety, r
  *     for i in prange(0,width,1,nogil=True,schedule='static',num_threads=thread_count):
  *         for j in range(0,height):             # <<<<<<<<<<<<<<
@@ -2863,7 +2863,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
                             for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
                               __pyx_v_j = __pyx_t_6;
 
-                              /* "mirage/engine/micro_ray_tracer.pyx":46
+                              /* "mirage/engine/micro_ray_tracer.pyx":45
  *     for i in prange(0,width,1,nogil=True,schedule='static',num_threads=thread_count):
  *         for j in range(0,height):
  *             rays[i,j,0] = gMin*rays[i,j,0] - kap*rays[i,j,0]             # <<<<<<<<<<<<<<
@@ -2881,7 +2881,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
                               __pyx_t_15 = 0;
                               *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_15, __pyx_pybuffernd_rays.diminfo[2].strides) = ((__pyx_v_gMin * (*__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_7, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_9, __pyx_pybuffernd_rays.diminfo[2].strides))) - (__pyx_v_kap * (*__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_10, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_11, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_12, __pyx_pybuffernd_rays.diminfo[2].strides))));
 
-                              /* "mirage/engine/micro_ray_tracer.pyx":47
+                              /* "mirage/engine/micro_ray_tracer.pyx":46
  *         for j in range(0,height):
  *             rays[i,j,0] = gMin*rays[i,j,0] - kap*rays[i,j,0]
  *             rays[i,j,1] = rays[i,j,1]*gMax - kap*rays[i,j,1]             # <<<<<<<<<<<<<<
@@ -2899,7 +2899,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
                               __pyx_t_24 = 1;
                               *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_22, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_23, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_24, __pyx_pybuffernd_rays.diminfo[2].strides) = (((*__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_16, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_17, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_18, __pyx_pybuffernd_rays.diminfo[2].strides)) * __pyx_v_gMax) - (__pyx_v_kap * (*__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_21, __pyx_pybuffernd_rays.diminfo[2].strides))));
 
-                              /* "mirage/engine/micro_ray_tracer.pyx":48
+                              /* "mirage/engine/micro_ray_tracer.pyx":47
  *             rays[i,j,0] = gMin*rays[i,j,0] - kap*rays[i,j,0]
  *             rays[i,j,1] = rays[i,j,1]*gMax - kap*rays[i,j,1]
  *             for s in range(num_stars):             # <<<<<<<<<<<<<<
@@ -2911,7 +2911,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
                               for (__pyx_t_27 = 0; __pyx_t_27 < __pyx_t_26; __pyx_t_27+=1) {
                                 __pyx_v_s = __pyx_t_27;
 
-                                /* "mirage/engine/micro_ray_tracer.pyx":49
+                                /* "mirage/engine/micro_ray_tracer.pyx":48
  *             rays[i,j,1] = rays[i,j,1]*gMax - kap*rays[i,j,1]
  *             for s in range(num_stars):
  *                 dx = rays[i,j,0] - stars[s,0]             # <<<<<<<<<<<<<<
@@ -2925,7 +2925,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
                                 __pyx_t_32 = 0;
                                 __pyx_v_dx = ((*__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_28, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_29, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_30, __pyx_pybuffernd_rays.diminfo[2].strides)) - (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_stars.rcbuffer->pybuffer.buf, __pyx_t_31, __pyx_pybuffernd_stars.diminfo[0].strides, __pyx_t_32, __pyx_pybuffernd_stars.diminfo[1].strides)));
 
-                                /* "mirage/engine/micro_ray_tracer.pyx":50
+                                /* "mirage/engine/micro_ray_tracer.pyx":49
  *             for s in range(num_stars):
  *                 dx = rays[i,j,0] - stars[s,0]
  *                 dy = rays[i,j,1] - stars[s,1]             # <<<<<<<<<<<<<<
@@ -2939,7 +2939,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
                                 __pyx_t_37 = 1;
                                 __pyx_v_dy = ((*__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_33, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_34, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_35, __pyx_pybuffernd_rays.diminfo[2].strides)) - (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_stars.rcbuffer->pybuffer.buf, __pyx_t_36, __pyx_pybuffernd_stars.diminfo[0].strides, __pyx_t_37, __pyx_pybuffernd_stars.diminfo[1].strides)));
 
-                                /* "mirage/engine/micro_ray_tracer.pyx":51
+                                /* "mirage/engine/micro_ray_tracer.pyx":50
  *                 dx = rays[i,j,0] - stars[s,0]
  *                 dy = rays[i,j,1] - stars[s,1]
  *                 r = dx*dx + dy*dy             # <<<<<<<<<<<<<<
@@ -2948,7 +2948,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
  */
                                 __pyx_v_r = ((__pyx_v_dx * __pyx_v_dx) + (__pyx_v_dy * __pyx_v_dy));
 
-                                /* "mirage/engine/micro_ray_tracer.pyx":52
+                                /* "mirage/engine/micro_ray_tracer.pyx":51
  *                 dy = rays[i,j,1] - stars[s,1]
  *                 r = dx*dx + dy*dy
  *                 rays[i,j,0] -= stars[s,2]*dx/r             # <<<<<<<<<<<<<<
@@ -2962,7 +2962,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
                                 __pyx_t_42 = 0;
                                 *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_rays.rcbuffer->pybuffer.buf, __pyx_t_40, __pyx_pybuffernd_rays.diminfo[0].strides, __pyx_t_41, __pyx_pybuffernd_rays.diminfo[1].strides, __pyx_t_42, __pyx_pybuffernd_rays.diminfo[2].strides) -= (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_stars.rcbuffer->pybuffer.buf, __pyx_t_38, __pyx_pybuffernd_stars.diminfo[0].strides, __pyx_t_39, __pyx_pybuffernd_stars.diminfo[1].strides)) * __pyx_v_dx) / ((__pyx_t_5numpy_float64_t)__pyx_v_r));
 
-                                /* "mirage/engine/micro_ray_tracer.pyx":53
+                                /* "mirage/engine/micro_ray_tracer.pyx":52
  *                 r = dx*dx + dy*dy
  *                 rays[i,j,0] -= stars[s,2]*dx/r
  *                 rays[i,j,1] -= stars[s,2]*dy/r             # <<<<<<<<<<<<<<
@@ -2989,7 +2989,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
         #endif
       }
 
-      /* "mirage/engine/micro_ray_tracer.pyx":44
+      /* "mirage/engine/micro_ray_tracer.pyx":43
  *     cdef int s
  *     cdef double dx, dy, retx, rety, r
  *     for i in prange(0,width,1,nogil=True,schedule='static',num_threads=thread_count):             # <<<<<<<<<<<<<<
@@ -3008,7 +3008,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
       }
   }
 
-  /* "mirage/engine/micro_ray_tracer.pyx":54
+  /* "mirage/engine/micro_ray_tracer.pyx":53
  *                 rays[i,j,0] -= stars[s,2]*dx/r
  *                 rays[i,j,1] -= stars[s,2]*dy/r
  *     return rays             # <<<<<<<<<<<<<<
@@ -3018,7 +3018,7 @@ static PyArrayObject *__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(PyArr
   __pyx_r = ((PyArrayObject *)__pyx_v_rays);
   goto __pyx_L0;
 
-  /* "mirage/engine/micro_ray_tracer.pyx":31
+  /* "mirage/engine/micro_ray_tracer.pyx":30
  *     return pair[double,double](retx,rety)
  * 
  * cpdef np.ndarray[np.float64_t,ndim=3] ray_trace(np.ndarray[np.float64_t, ndim=3] rays,             # <<<<<<<<<<<<<<
@@ -3087,29 +3087,29 @@ static PyObject *__pyx_pw_6mirage_6engine_16micro_ray_tracer_1ray_trace(PyObject
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_kap)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, 1); __PYX_ERR(0, 31, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, 1); __PYX_ERR(0, 30, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_gam)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, 2); __PYX_ERR(0, 31, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, 2); __PYX_ERR(0, 30, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_thread_count)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, 3); __PYX_ERR(0, 31, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, 3); __PYX_ERR(0, 30, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_stars)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, 4); __PYX_ERR(0, 31, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, 4); __PYX_ERR(0, 30, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "ray_trace") < 0)) __PYX_ERR(0, 31, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "ray_trace") < 0)) __PYX_ERR(0, 30, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
@@ -3121,21 +3121,21 @@ static PyObject *__pyx_pw_6mirage_6engine_16micro_ray_tracer_1ray_trace(PyObject
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
     }
     __pyx_v_rays = ((PyArrayObject *)values[0]);
-    __pyx_v_kap = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_kap == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 32, __pyx_L3_error)
-    __pyx_v_gam = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_gam == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
-    __pyx_v_thread_count = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_thread_count == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
+    __pyx_v_kap = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_kap == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 31, __pyx_L3_error)
+    __pyx_v_gam = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_gam == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 32, __pyx_L3_error)
+    __pyx_v_thread_count = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_thread_count == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
     __pyx_v_stars = ((PyArrayObject *)values[4]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 31, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("ray_trace", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 30, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("mirage.engine.micro_ray_tracer.ray_trace", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_rays), __pyx_ptype_5numpy_ndarray, 1, "rays", 0))) __PYX_ERR(0, 31, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_stars), __pyx_ptype_5numpy_ndarray, 1, "stars", 0))) __PYX_ERR(0, 35, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_rays), __pyx_ptype_5numpy_ndarray, 1, "rays", 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_stars), __pyx_ptype_5numpy_ndarray, 1, "stars", 0))) __PYX_ERR(0, 34, __pyx_L1_error)
   __pyx_r = __pyx_pf_6mirage_6engine_16micro_ray_tracer_ray_trace(__pyx_self, __pyx_v_rays, __pyx_v_kap, __pyx_v_gam, __pyx_v_thread_count, __pyx_v_stars);
 
   /* function exit code */
@@ -3166,16 +3166,16 @@ static PyObject *__pyx_pf_6mirage_6engine_16micro_ray_tracer_ray_trace(CYTHON_UN
   __pyx_pybuffernd_stars.rcbuffer = &__pyx_pybuffer_stars;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_rays.rcbuffer->pybuffer, (PyObject*)__pyx_v_rays, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 31, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_rays.rcbuffer->pybuffer, (PyObject*)__pyx_v_rays, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 30, __pyx_L1_error)
   }
   __pyx_pybuffernd_rays.diminfo[0].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_rays.diminfo[0].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_rays.diminfo[1].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_rays.diminfo[1].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_rays.diminfo[2].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_rays.diminfo[2].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[2];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_stars.rcbuffer->pybuffer, (PyObject*)__pyx_v_stars, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 31, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_stars.rcbuffer->pybuffer, (PyObject*)__pyx_v_stars, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 30, __pyx_L1_error)
   }
   __pyx_pybuffernd_stars.diminfo[0].strides = __pyx_pybuffernd_stars.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_stars.diminfo[0].shape = __pyx_pybuffernd_stars.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_stars.diminfo[1].strides = __pyx_pybuffernd_stars.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_stars.diminfo[1].shape = __pyx_pybuffernd_stars.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(((PyArrayObject *)__pyx_v_rays), __pyx_v_kap, __pyx_v_gam, __pyx_v_thread_count, ((PyArrayObject *)__pyx_v_stars), 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_6mirage_6engine_16micro_ray_tracer_ray_trace(((PyArrayObject *)__pyx_v_rays), __pyx_v_kap, __pyx_v_gam, __pyx_v_thread_count, ((PyArrayObject *)__pyx_v_stars), 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -19219,7 +19219,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 22, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(1, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 1038, __pyx_L1_error)
@@ -19985,16 +19985,16 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "mirage/engine/micro_ray_tracer.pyx":8
- * # from libcpp.pair cimport pair
+  /* "mirage/engine/micro_ray_tracer.pyx":6
+ * # cython: language_level=3
  * 
  * import numpy as np             # <<<<<<<<<<<<<<
  * cimport numpy as np
  * 
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "mirage/engine/micro_ray_tracer.pyx":1

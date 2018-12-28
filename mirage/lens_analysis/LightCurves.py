@@ -119,21 +119,7 @@ def bucket_and_clean(dataset):
         buckets[k] = {'mean':mean.flatten(),'std':std.flatten(),'asym':k/100,'num':arr.shape[0]} 
     return buckets 
 
-   # ...: peaks = map(lambda e: e.get_events(min_separation=20*data[0].parameters.
 
-
-    # In [120]: def iterator(): 
-    #      ...:     peak_batch = next(peaks) #each peak_batch is a LightCurveBatch of isolated events.
-    #      ...:     for peak in peak_batch: #Data is the datafile from la.open
-    #      ...:         symm = peak.symmetry(20*data[0].parameters.quasar.r_g) 
-    #      ...:         ret_asyms.append(symm) 
-    #      ...:         lines = data.correlate_lc_peaks([peak],matrix) #matrix is the lookup of all light curves from Result.lookup_matrix
-    #      ...:         shifts = calculate_peak_shifts(lines) 
-    #      ...:         ret_shifts.append(shifts)
-
-
-# I need to make a common interface and weigh pros and cons.
-# For this, I will pass around query points as well.
 class LightCurveBatch(object):
 
     def __init__(self,data:'list[LightCurve]'):

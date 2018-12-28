@@ -27,6 +27,7 @@ object Main {
     val stars = FileHandler.getStars(starsfile,numStars)
     val pixels = sc.range(0,width*height,1,numPartitions)
     val raybanks = pixels.glom().map(arr => RayBank(arr,dx,dy,width,height))
+    //println(raybanks.collect.mkString(","))
     val parameters = MicroParameters(
       stars,
       shear,

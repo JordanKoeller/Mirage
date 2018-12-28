@@ -1,8 +1,8 @@
 {
-  "name": "PresentationSimulation",
-  "description": "Simulation config file for running while presenting as part of my Honor's thesis presentation.",
+  "name": "TestMagMapResolutionLimits",
+  "description": "Just want to learn the limits of the dimensions of a magnification map that I can make.",
   "trial_count": 1,
-  "variation": "new_parameters = old_parameters",
+  "variation": "new_parameters = old_parameters\narr = np.linspace(2,30,16)\nnew_parameters.quasar.update(radius=arr[trial_number]*new_parameters.quasar.r_g)",
   "parameters": {
     "lens": {
       "ellipticity": {
@@ -32,12 +32,12 @@
         "unit": "solMass"
       },
       "radius": {
-        "values": 80,
-        "unit": "r_g"
+        "values": 0.1668926429474753,
+        "unit": "uas"
       }
     },
     "star_generator": {
-      "seed": 321342,
+      "seed": 613,
       "mass_limits": [
         0.08,
         0.5,
@@ -50,7 +50,7 @@
         -2.3
       ]
     },
-    "percent_stars": 40.0,
+    "percent_stars": 100.0,
     "source_plane": {
       "center": {
         "x": 0.0,
@@ -58,15 +58,15 @@
         "unit": "theta_E"
       },
       "dims": {
-        "x": 20.0,
-        "y": 20.0,
+        "x": 10.0,
+        "y": 10.0,
         "unit": "theta_E"
       }
     },
     "image_center": {
       "x": 201597.14708678823,
       "y": 201597.14708678823,
-      "unit": "xi"
+      "unit": "theta_E"
     },
     "ray_count": {
       "x": 4000,
@@ -81,15 +81,6 @@
         "y": 100,
         "unit": ""
       }
-    },
-    "lightcurves": {
-      "seed": 3228,
-      "num_curves": 100,
-      "sample_density": {
-        "values": 10.0,
-        "unit": "1 / uas"
-      }
-
     }
   }
 }

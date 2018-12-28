@@ -27,7 +27,9 @@ object FileHandler {
     val numRead = file.read(buff)
     val bb = java.nio.ByteBuffer.wrap(buff)
     bb.order(nativeOrder())
-    Array.fill(count)(Star(bb.getDouble,bb.getDouble,bb.getDouble))
+    val ret = Array.fill(count)(Star(bb.getDouble,bb.getDouble,bb.getDouble))
+    //ret.take(10) foreach println
+    ret
   }
 
   def saveMagnifications(filename: String, data: Array[Array[Int]]): Unit = {
@@ -76,6 +78,7 @@ object FileHandler {
       ret(i) = tmp
     }
     file.close()
+    //println(ret.map(_.map(e => "(%.2f, %.2f)".format(e._1,e._2)).mkString(" ")).mkString("\n"))
     ret
   }
 

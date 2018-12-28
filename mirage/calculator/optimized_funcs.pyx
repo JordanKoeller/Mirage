@@ -12,6 +12,8 @@ from libc.math cimport sin, cos, atan, round
 
 
 cpdef interpolate(object region, object two_points_list,sample_density):
+    # cdef double lx, ly, rx, ry = region.extent
+        
     ret = np.ndarray(two_points_list.shape[0], dtype=object)
     for i in range(len(ret)):
         line = two_points_list[i]
@@ -71,7 +73,6 @@ cpdef arbitrary_slice_axis(pt1,pt2,region,data):
         uy = unit_vec.y.value
         sx = start.x.value
         sy = start.y.value
-        print(data.shape)
         cdef int length = int(delta.magnitude.value)
         cdef int i = 0
         cdef np.ndarray[np.float64_t,ndim=1] ret = np.ndarray(length)

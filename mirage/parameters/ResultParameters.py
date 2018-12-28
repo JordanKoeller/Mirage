@@ -117,22 +117,19 @@ class LightCurvesParameters(ResultParameters):
         scaled = rng.rand(self.num_curves,4) - 0.5
         #np.random.rand returns an array of (number,4) dimension of doubles over interval [0,1).
         #I subtract 0.5 to center on 0.0
-        center = region.center.to('rad')
-        dims = region.dimensions.to('rad')
+        center = region.center
+        dims = region.dimensions
         width = dims.x.value
         height = dims.y.value
         scaled[:,0] *= width
         scaled[:,1] *= height
         scaled[:,2] *= width
         scaled[:,3] *= height
-#        scaled[:,0] += center.x.value
-#        scaled[:,1] += center.y.value
-#        scaled[:,2] += center.x.value
-#        scaled[:,3] += center.y.value
-        # lines = u.Quantity(scaled,'rad')
-        from mirage.calculator import interpolate
+        # from mirage.calculator import interpolate
         # slices = map(lambd/a line: u.Quantity(np.array(self._slice_line(line,region)).T,'rad'),scaled)
-        return interpolate(region,scaled,self.sample_density)
+        ends = self.end_points(region,scaled*region.unit)
+        ret = self.interpolate(ends,1/self.sample_density)
+        return ret
 
     # def line_ends(self,region:Region) -> np.ndarray
     #     rng = np.random.RandomState(self.seed)
@@ -150,40 +147,38 @@ class LightCurvesParameters(ResultParameters):
     #     from mirage.calculator import interpolate_ends
     #     return = interpolate_ends(region,scaled,self.sample_density)
 
-    def _slice_line(self,pts,region):
-        #pts is an array of [x1,y1,x2,y2]
-        #Bounding box is a MagMapParameters instance
-        #resolution is a specification of angular separation per data point
-        x1,y1,x2,y2 = pts
-        m = (y2 - y1)/(x2 - x1)
-        angle = math.atan(m)
-        resolution = ((self.sample_density)**(-1)).to('rad')
-        dx = resolution.value*math.cos(angle)
-        dy = resolution.value*math.sin(angle)
-        dims = region.dimensions.to('rad')
-        center = region.center.to('rad')
-        lefX =  - dims.x.value/2
-        rigX =  + dims.x.value/2
-        topY =  + dims.y.value/2 
-        botY =  - dims.y.value/2
-        flag = True
-        x = x1
-        y = y1
-        retx = [] 
-        rety = [] 
-        while flag:
-            x -= dx
-            y -= dy
-            flag = x >= lefX and x <= rigX and y >= botY and y <= topY
-        flag = True
-        while flag:
-            x += dx
-            y += dy
-            retx.append(x)
-            rety.append(y)
-            flag = x >= lefX and x <= rigX and y >= botY and y <= topY
-        retx = retx[:-1]
-        rety = rety[:-1]
-        return [retx,rety]
-    
-    
+
+    def end_points(self,region,two_points):
+        two_points = two_points.to(region.unit)
+        lX, lY, rX, rY = region.extent 
+        deltas = two_points[:,2:] #two_points[:,2:] - two_points[:,0:2]
+        a_point = two_points[:,0:2]
+        t_values = np.ndarray((two_points.shape[0],4))  
+        t_values[:,0] = (lX - a_point[:,0])/deltas[:,0] 
+        t_values[:,1] = (lY - a_point[:,1])/deltas[:,1] 
+        t_values[:,2] = (rX - a_point[:,0])/deltas[:,0] 
+        t_values[:,3] = (rY - a_point[:,1])/deltas[:,1] 
+        sorts = np.sort(t_values,axis=1) 
+        good_t_values = sorts[:,1:3] 
+        intersection_points = np.ndarray(t_values.shape) 
+        intersection_points[:,0] = a_point[:,0] + good_t_values[:,0]*deltas[:,0] 
+        intersection_points[:,1] = a_point[:,1] + good_t_values[:,0]*deltas[:,1] 
+        intersection_points[:,2] = a_point[:,0] + good_t_values[:,1]*deltas[:,0] 
+        intersection_points[:,3] = a_point[:,1] + good_t_values[:,1]*deltas[:,1] 
+        return intersection_points*region.unit
+
+    def interpolate(self,end_points,density): 
+        du = end_points.unit
+        density = density.to(du).value
+        end_points = end_points.value
+        def interp(row): 
+            distance = np.sqrt((row[2] - row[1])**2.0 + (row[3] - row[1])**2.0) 
+            num_points = int(distance/density) 
+            xx = np.linspace(row[0],row[2],num_points) 
+            yy = np.linspace(row[1],row[3],num_points) 
+            return np.dstack((xx,yy)) 
+        interped = map(interp,end_points) 
+        ret = [i.reshape((i.shape[1],2))*du for i in interped] 
+        return ret 
+
+

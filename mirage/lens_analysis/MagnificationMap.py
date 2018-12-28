@@ -11,7 +11,7 @@ class MagnificationMap(object):
         theta_E = simulation.parameters.theta_E
         r = simulation['magmap'].resolution
         self._source_plane = PixelRegion(zero_vector(theta_E),sp.dimensions.to(theta_E),r)
-        self._data = data
+        self._data = np.flip(data,1)
 
     @property
     def data(self):

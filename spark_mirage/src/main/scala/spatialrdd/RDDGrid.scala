@@ -18,7 +18,7 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
     val bgen = sc.broadcast(gen)
     val r = sc.broadcast(radius)
     val queries = rdd.flatMap { grid =>
-      var rett: List[(Int, Int)] = Nil
+      var rett: List[(Long, Int)] = Nil
       val iter = bgen.value.iterator
       while (iter.hasNext) {
         val qPt = iter.next
@@ -47,7 +47,7 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
     val queryBank = QueryPointBank(pts)
     val queryPts = sc.broadcast(queryBank)
     val queries = rdd.flatMap { grid =>
-      var rett: List[(Int,Int)] = Nil
+      var rett: List[(Long,Int)] = Nil
       val iter = queryPts.value.iterator
       while (iter.hasNext) {
         val pt = iter.next()

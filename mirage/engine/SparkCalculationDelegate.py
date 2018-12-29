@@ -110,11 +110,8 @@ class MicroSparkDelegate(CalculationDelegate):
         return file.name
 
     def get_data_file(self,data:np.ndarray):
-        # print("Shape of " + str(data.shape))
-        # print(data)
         file = tempfile.NamedTemporaryFile('w+',delete = False)
         sizes = np.ndarray(data.shape[0],dtype=np.int32)
-#        print(data)
         for i in range(data.shape[0]):
             sizes[i] = data[i].shape[0]
         sizes.tofile(file)

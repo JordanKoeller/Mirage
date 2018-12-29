@@ -7,15 +7,15 @@ package object utility {
     
     
     
-    class IndexPair(val v:Int=0) extends AnyVal with Serializable {
-      def _2:Short = {
-        ((v << 16) >> 16).toShort
+    class IndexPair(val v:Long=0l) extends AnyVal with Serializable {
+      def _2:Int = {
+        ((v << 32) >> 32).toInt
       }
       
       
       
-      def _1:Short ={
-         (v >> 16).toShort 
+      def _1:Int ={
+         (v >> 32).toShort 
       }
 
       def x:Int = _1.toInt
@@ -26,7 +26,7 @@ package object utility {
       }
     }
     def mkPair(x:Index, y:Index):IndexPair = {
-    		new IndexPair((x.toInt << 16) + y.toInt)
+    		new IndexPair((x.toLong << 32) + y.toLong)
     }
     
 //    def mkPair(x:Int, y:Int):IndexPair = {

@@ -69,16 +69,16 @@
       "unit": "xi"
     },
     "ray_count": {
-      "x": 4000,
-      "y": 4000,
+      "x": 5000,
+      "y": 5000,
       "unit": ""
     }
   },
   "results": {
     "magmap": {
       "magmap_resolution": {
-        "x": 100,
-        "y": 100,
+        "x": 2000,
+        "y": 2000,
         "unit": ""
       }
     },

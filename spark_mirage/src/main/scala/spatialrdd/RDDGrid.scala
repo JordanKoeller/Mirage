@@ -30,15 +30,12 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
       rett
     }
     bgen.unpersist()
-    val reduced = queries.reduceByKey((acc,n) => acc + n).map{elem =>
-      val structured = new IndexPair(elem._1)
-      pixelLongConstructor(structured.x,structured.y,elem._2)
-    }
+    val reduced = queries.reduceByKey((acc,n) => acc + n)
     val ret = Array.fill(gen.xDim, gen.yDim)(0)
     val collected = reduced.collect
     collected.foreach { elem =>
-      val sortable = new PixelValue(elem)
-      ret(sortable.x)(sortable.y) += sortable.value
+      val sortable = new PixelValue(elem._1)
+      ret(sortable.x)(sortable.y) += elem._2
     }
     ret
   }
@@ -67,16 +64,13 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
       rett
     }
     queryPts.unpersist(true)
-    val reduced = queries.reduceByKey((acc,n) => acc + n).map{elem =>
-      val structured = new IndexPair(elem._1)
-      pixelLongConstructor(structured.x,structured.y,elem._2)
-    }
+    val reduced = queries.reduceByKey((acc,n) => acc + n)
     val collected = reduced.collect
     val ret = Array.fill(pts.length)(Array[Int]())
     for (i <- 0 until pts.length) ret(i) = Array.fill(pts(i).length)(0)
     collected.foreach { elem =>
-      val sortable = new PixelValue(elem)
-      ret(sortable.x)(sortable.y) += sortable.value
+      val sortable = new PixelValue(elem._1)
+      ret(sortable.x)(sortable.y) += elem._2
     }
     ret
   }
@@ -123,7 +117,6 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
     queryPts.unpersist()
     val ret = Array.fill(pts.length)(0)
     val reduced = queries.reduceByKey((acc,n) => acc + n)
-//    readLine("Press Enter to continue!")
     val collected = reduced.collect
     collected.foreach { elem =>
       val k = elem._1

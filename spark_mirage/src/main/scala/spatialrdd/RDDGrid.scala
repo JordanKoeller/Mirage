@@ -34,7 +34,7 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
     val ret = Array.fill(gen.xDim, gen.yDim)(0)
     val collected = reduced.collect
     collected.foreach { elem =>
-      val sortable = new PixelValue(elem._1)
+      val sortable = new IndexPair(elem._1)
       ret(sortable.x)(sortable.y) += elem._2
     }
     ret
@@ -69,7 +69,7 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
     val ret = Array.fill(pts.length)(Array[Int]())
     for (i <- 0 until pts.length) ret(i) = Array.fill(pts(i).length)(0)
     collected.foreach { elem =>
-      val sortable = new PixelValue(elem._1)
+      val sortable = new IndexPair(elem._1)
       ret(sortable.x)(sortable.y) += elem._2
     }
     ret
@@ -156,7 +156,7 @@ object RDDGrid {
 //    new RDDGrid(ret)
 //  }
   def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => OptTree[A]): RDDGrid[A] = {
-    val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY).setName("RDDGrid")
+    val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY_SER).setName("RDDGrid")
     new RDDGrid(ret)
   }
 //  def fromFile(file: String, numPartitions: Int, sc: SparkContext): RDDGrid = {

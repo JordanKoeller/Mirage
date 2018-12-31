@@ -20,10 +20,6 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
 
     override def toString() = "Node"
 
-    def print = {
-      println("Node with " + size + " elements from " + indI + " to " + indJ)
-    }
-
     def search(x: Double, y: Double, r2: Double): Int = {
       var counter = 0
       var dx = 0.0
@@ -54,7 +50,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
       }
     }
 
-    def containedBy(x: Double, y: Double, r: Double): Boolean = {
+    def containedBy(x:Double, y:Double ,r:Double, level:Int, index:Int):Boolean = {
       false
     }
   }
@@ -90,7 +86,6 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
       val dy = cdy - h / 2.0
       dx * dx + dy * dy <= r * r
     }
-
   }
 
   def brute_search(x: Double, y: Double, r: Double): Int = {
@@ -113,7 +108,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
       toSearch = toSearch.tail
       //Two cases: It overlaps the circle, or is completely enclosed by the circle
       //Case 1: completely encloses the circle
-      if (boxes(searching).containedBy(x, y, r2)) counter += boxes(searching).size
+      if (false) counter += boxes(searching).size //This is the contained_by statement. ****************************************
       //Case 2: box overlaps the circle
       else {
         //Two cases. It is a leaf or a branch
@@ -130,9 +125,6 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
     counter
   }
 
-  def printt: Unit = {
-    for (box <- boxes) box.print
-  }
 
   private def list_constructNodes(): Array[Node] = {
     val tmpBoxes: collection.mutable.ArrayBuffer[Node] = collection.mutable.ArrayBuffer[Node](new Node(0,size, 0.0))
@@ -158,10 +150,8 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
           }
         level += 1
       }
-
     }
     tmpBoxes.toArray
-
   }
 
 
@@ -186,7 +176,6 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
         i = l + 1
         j = ir
         a = values.getTuple(l+1+start)
-//        b = other(l + 1 + start)
         var flag = true
         while (flag) {
           do { i += 1 } while (values.sourceX((i + start)) < a._3)
@@ -195,11 +184,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
           else values.swap(i + start, j + start)
         }
         values.setTuple(l+1+start,values.getTuple(j+start))
-//        indices(l + 1 + start) = indices(j + start)
-//        other(l + 1 + start) = other(j + start)
         values.setTuple(j+start,a)
-//        indices(j + start) = a
-//        other(j + start) = b
         if (j >= k) ir = j - 1
         if (j <= k) l = i
       }
@@ -210,7 +195,6 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
   private def selectY(k: Int, n: Int, start: Int): Double = {
     if (n < 2) return 0
     var a = (0.0,0.0,0.0,0.0)
-    //    var b = 0.0
     var l = 0
     var ir = n - 1
     var j = 0
@@ -229,7 +213,6 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
         i = l + 1
         j = ir
         a = values.getTuple(l+1+start)
-        //        b = other(l + 1 + start)
         var flag = true
         while (flag) {
           do { i += 1 } while (values.sourceY((i + start)) < a._4)
@@ -238,25 +221,13 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
           else values.swap(i + start, j + start)
         }
         values.setTuple(l+1+start,values.getTuple(j+start))
-        //        indices(l + 1 + start) = indices(j + start)
-        //        other(l + 1 + start) = other(j + start)
         values.setTuple(j+start,a)
-        //        other(j + start) = b
         if (j >= k) ir = j - 1
         if (j <= k) l = i
       }
     }
     -1
   }
-
-
-//  private def swap(i: Int, j: Int): Unit = {
-//    val tmp = indices(i)
-//    indices(i) = indices(j)
-//    indices(j) = tmp
-//  }
-
-
 }
 
 object OptTree {

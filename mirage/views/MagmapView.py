@@ -1,5 +1,6 @@
 from matplotlib.lines import Line2D
 from matplotlib import pyplot as plt
+import matplotlib
 import numpy as np
 
 from mirage.util import Vec2D
@@ -16,6 +17,7 @@ class MagnificationMapView(ImageCurveView):
         self.line = Line2D([0,0],[0,0],color='r',antialiased=True)
         self.axes.add_line(self.line)
         self._current_curve = None
+        self._with_colorbar = True
 
     def connect(self):
         'connect to all the events we need'
@@ -77,7 +79,12 @@ class MagnificationMapView(ImageCurveView):
         self.figure.canvas.draw()
         self.axes.draw_artist(self.line)
 
+    def save_image(self,filename,dpi=300):
+        extent = self.axes.get_window_extent().transformed(self.figure.dpi_scale_trans.inverted())
+        self.figure.savefig(filename, bbox_inches=extent.expanded(1.5,1.0),dpi=dpi)
 
+    def save(self,filename,dpi=300):
+        self.figure.savefig(filename,dpi=dpi)
 
 
     def disconnect(self):
@@ -102,7 +109,10 @@ class MagnificationMapView(ImageCurveView):
             extent = magmap.region.dimensions/2
             x = extent.x.value
             y = extent.y.value
-            self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y])
+            img = self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y])
+            if self._with_colorbar:
+                cb = self.figure.colorbar(img,ax=self.axes,pad=0.01,fraction=0.05)
+                cb.set_label("Magnitudes")
             self._magmap = magmap
             self._unit = magmap.region.dimensions.unit
             self.figure.show()

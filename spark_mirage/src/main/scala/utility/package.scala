@@ -15,11 +15,11 @@ package object utility {
       
       
       def _1:Int ={
-         (v >> 32).toShort 
+         (v >> 32).toInt
       }
 
-      def x:Int = _1.toInt
-      def y:Int = _2.toInt
+      def x:Int = _1
+      def y:Int = _2
       
      override def toString():String = {
         "(" + this._1+","+this._2+")"

@@ -12,8 +12,6 @@ import scala.reflect.ClassTag
 
 class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProperty {
 
-  sealed case class RetValue(x: Int, y: Int, value: Int)
-
   def queryPointsFromGen(gen: GridGenerator, radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Int]] = {
     val bgen = sc.broadcast(gen)
     val r = sc.broadcast(radius)
@@ -30,15 +28,11 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
       rett
     }
     bgen.unpersist()
-    val reduced = queries.reduceByKey((acc,n) => acc + n)
     val ret = Array.fill(gen.xDim, gen.yDim)(0)
-    val collected = reduced.collect
-    collected.foreach { elem =>
-      val sortable = new IndexPair(elem._1)
-      ret(sortable.x)(sortable.y) += elem._2
-    }
+    this.collect(queries,ret)
     ret
   }
+
   def queryPoints(pts: Array[Array[DoublePair]], radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Index]] = {
     val r = sc.broadcast(radius)
     val queryBank = QueryPointBank(pts)
@@ -53,26 +47,42 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
           if (num != 0) rett ::= (mkPair(pt.i,pt.j).v,num)
         }
       }
-//      for (i <- 0 until queryPts.value.length) {
-//        for (j <- 0 until queryPts.value(i).length) {
-//          if (grid.intersects(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)) {
-//            val num = grid.query_point_count(queryPts.value(i)(j)._1, queryPts.value(i)(j)._2, r.value)
-//            if (num != 0) rett ::= (mkPair(i,j).v,num)
-//          }
-//        }
-//      }
       rett
     }
     queryPts.unpersist(true)
-    val reduced = queries.reduceByKey((acc,n) => acc + n)
-    val collected = reduced.collect
     val ret = Array.fill(pts.length)(Array[Int]())
     for (i <- 0 until pts.length) ret(i) = Array.fill(pts(i).length)(0)
-    collected.foreach { elem =>
-      val sortable = new IndexPair(elem._1)
-      ret(sortable.x)(sortable.y) += elem._2
-    }
+    this.collect(queries,ret)
     ret
+  }
+
+
+  def searchBatch(iter:QueryIterator,radius:Double,sc:SparkContext):Array[Array[Int]] = {
+    while (iter.hasNext) {
+      println("Next Batch")
+      val localIter = iter.nextBatch()
+      val broadcasted = sc.broadcast(localIter)
+      val queries = rdd.flatMap {
+        grid =>
+          var rett: List[(Int,Int)] = Nil
+          for (i <- 0 until broadcasted.value.size) {
+            val qloc = broadcasted.value(i)
+            val num = grid.query_point_count(qloc._1,qloc._2,radius)
+            if (num != 0) rett ::= (i,num)
+          }
+          rett
+      }
+      val reduced = queries.reduceByKey((acc,n) => acc + n).collect
+      val batchResult = reduced.sortBy(_._1).map(_._2)
+      iter.takeInResult(batchResult)
+    }
+    iter.collect
+  }
+
+  private def collect(data:RDD[(Long,Int)], accumulator:Array[Array[Int]]):Unit = {
+    val reduced = data.reduceByKey((acc,cnt) => acc + cnt).map{elem => new IndexPair(elem._1) -> elem._2}
+    val collected = reduced.collect
+    collected.foreach{elem => accumulator(elem._1.x)(elem._1.y) += elem._2}
   }
 
 //  def queryCaustics(pts: Array[Array[DoublePair]], radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Boolean]] = {
@@ -147,21 +157,12 @@ class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProp
 }
 
 object RDDGrid {
-//  def apply(data: RDD[Array[Ray]], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: Array[Ray] => SpatialData = kDTree.apply): RDDGrid = {
-//    val rddProfiled = partitioner.profileData(data)
-//    val rddTraced = rddProfiled.partitionBy(partitioner)
-//    val glommed: RDD[Array[Ray]] = rddTraced.map(_._2).glom().map(RayBankVal.apply)
-//
-//    val ret = glommed.map(arr => nodeStructure(arr)).cache()
-//    new RDDGrid(ret)
-//  }
+
+  val numBatches = 100
+
   def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => OptTree[A]): RDDGrid[A] = {
-    val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY_SER).setName("RDDGrid")
+    val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY).setName("RDDGrid")
     new RDDGrid(ret)
   }
-//  def fromFile(file: String, numPartitions: Int, sc: SparkContext): RDDGrid = {
-//    val rdd = sc.objectFile[SpatialData](file, numPartitions)
-//    new RDDGrid(rdd)
-//  }
 
 }

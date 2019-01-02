@@ -26,6 +26,8 @@ a.out
 *.dat
 *.npy
 *.npz
+*.res
+*/*.res
 .GPUInfo
 scripts/mirage
 *.un~

@@ -4,7 +4,7 @@ package main
 import lensing._
 import org.apache.spark.api.java.JavaRDD
 import spatialrdd._
-import utility.FileHandler
+import utility.{ArrayQueryIterator, FileHandler}
 
 object Main {
 
@@ -59,7 +59,8 @@ object Main {
   def sampleLightCurves(pointsFile: String, retFile:String, numLines:Int,radius: Double, ctx: JavaRDD[Int]):Unit = {
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
-    val retArr = rddGrid.queryPoints(lightCurves, radius, sc)
+    val collector = new ArrayQueryIterator(lightCurves)
+    val retArr = rddGrid.searchBatch(collector,radius,sc)
     FileHandler.saveMagnifications(retFile,retArr)
   }
 

@@ -125,7 +125,7 @@ class MicroSparkDelegate(CalculationDelegate):
         file = open(filename,'rb')
         if qpts.dtype == object:
             for i in range(qpts.shape[0]):
-                ret[i] = np.fromfile(file,np.int32,qpts[i].size)
+                ret[i] = np.fromfile(file,np.int32,qpts[i].shape[0])
             file.close()
             return ret
         else:

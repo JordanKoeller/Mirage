@@ -70,7 +70,7 @@ object FileHandler {
     val ret:Array[Array[(Double,Double)]] = Array.fill(numRows)(null)
     for (i <- 0 until numRows) {
       val length = sizeIter.getInt()
-      val bb = Array.fill(length*16)(0.toByte)
+      val bb = Array.fill(length*8)(0.toByte)
       file.read(bb)
       val buff = java.nio.ByteBuffer.wrap(bb)
     buff.order(nativeOrder())

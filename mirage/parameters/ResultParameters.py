@@ -131,21 +131,23 @@ class LightCurvesParameters(ResultParameters):
         ret = self.interpolate(ends,1/self.sample_density)
         return ret
 
-    # def line_ends(self,region:Region) -> np.ndarray
-    #     rng = np.random.RandomState(self.seed)
-    #     scaled = rng.rand(self.num_curves,4) - 0.5
-    #     #np.random.rand returns an array of (number,4) dimension of doubles over interval [0,1).
-    #     #I subtract 0.5 to center on 0.0
-    #     center = region.center.to('rad')
-    #     dims = region.dimensions.to('rad')
-    #     width = dims.x.value
-    #     height = dims.y.value
-    #     scaled[:,0] *= width
-    #     scaled[:,1] *= height
-    #     scaled[:,2] *= width
-    #     scaled[:,3] *= height
-    #     from mirage.calculator import interpolate_ends
-    #     return = interpolate_ends(region,scaled,self.sample_density)
+    def line_ends(self,region:Region) -> np.ndarray:
+        rng = np.random.RandomState(self.seed)
+        scaled = rng.rand(self.num_curves,4) - 0.5
+        #np.random.rand returns an array of (number,4) dimension of doubles over interval [0,1).
+        #I subtract 0.5 to center on 0.0
+        center = region.center
+        dims = region.dimensions
+        width = dims.x.value
+        height = dims.y.value
+        scaled[:,0] *= width
+        scaled[:,1] *= height
+        scaled[:,2] *= width
+        scaled[:,3] *= height
+        # from mirage.calculator import interpolate
+        # slices = map(lambd/a line: u.Quantity(np.array(self._slice_line(line,region)).T,'rad'),scaled)
+        ends = self.end_points(region,scaled*region.unit)
+        return ends
 
 
     def end_points(self,region,two_points):

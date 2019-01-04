@@ -16,7 +16,7 @@ class ArrayQueryIterator(qpts:Array[Array[DoublePair]]) extends QueryIterator {
       dispatchedRows += lastSent
       lastSent += 1
     }
-    new ArrayLocalQueryIterator(qpts.slice(dispatchedRows.head,dispatchedRows.last).flatten)
+    new ArrayLocalQueryIterator(qpts.slice(dispatchedRows.head,dispatchedRows.last+1).flatten)
   }
 
   def hasNext:Boolean = lastSent < qpts.size

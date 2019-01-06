@@ -40,7 +40,7 @@ class Result(object):
     def lightcurve_matrix(self):
         matrix_dims = (self.num_trials,self.simulation['lightcurves'].num_curves)
         lc_matrix = np.ndarray(matrix_dims, dtype=object)
-        lightcurve_data_index = 0 #Hard-coded in the requires decorator. See below.
+        lightcurve_data_index = self.simulation.keys.index('lightcurves')
         for i in range(self.num_trials):
             lc_matrix[i] = self._fm.get_result(i,lightcurve_data_index)
         return lc_matrix

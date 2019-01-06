@@ -3,7 +3,7 @@
 #If any are overwritten here, then we need to pull out the new version and assign it here.
 #Usage: extract_arg KWRD DEFAULT_VALUE
 cmds=( "$@" )
-source cluster_config
+source $PYTHONPATH/scripts/cluster_config
 function extract_arg() {
 	for ((idx=0; idx<${#cmds[@]}; ++idx)); do
 		if [ "${cmds[idx]}" = "$1" ]
@@ -49,7 +49,7 @@ then
 	export LA_EXIT_ON_COMPLETE="TRUE"
 	export LA_INFILE="${cmds[$(expr $# - 2)]}"
 	export LA_OUTFILE="${cmds[$(expr $# - 1)]}"
-	cmd="spark-submit --jars "$JAR_LOC" --conf spark.driver.maxResultSize="0" --master $MASTER --executor-memory $EXECUTOR_MEMORY --driver-memory $DRIVER_MEMORY "$EXTRA_ARGS" ../main.py --run "$LA_INFILE" --outfile "$LA_OUTFILE""
+	cmd="spark-submit --name "$LA_INFILE:$LA_OUTFILE" --jars "$JAR_LOC" --conf spark.driver.maxResultSize="0" --master $MASTER --executor-memory $EXECUTOR_MEMORY --driver-memory $DRIVER_MEMORY "$EXTRA_ARGS" $PYTHONPATH/main.py --run "$LA_INFILE" --outfile "$LA_OUTFILE""
 	$cmd
 	exit
 

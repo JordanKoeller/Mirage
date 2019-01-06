@@ -51,23 +51,24 @@ class ResultCalculator(object):
         dims = src_plane.dimensions
         zv = zero_vector('rad')
         results = []
-        if 'magmap' in simulation:
-            resolution = simulation['magmap'].resolution
-            pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
-            ret = engine.query_region(pr,radius)
-            results.append(ret)
-        if 'lightcurves' in simulation:
-            region = Region(zv,dims)
-            lines = simulation['lightcurves'].lines(region)
-            scaled = np.array(list(map(lambda line: line.to(params.eta_0).value,lines)))
-            ret = engine.query_points(scaled,radius)
-            results.append(ret)
-        if 'causticmap' in simulation:
-            resolution = simulation['causticmap'].resolution
-            pr = PixelRegion(zv,dims,resolution)
-            pts = pr.pixels.to(params.eta_0)
-            ret = engine.query_caustics(pts.value,radius)
-            results.append(ret)
+        for k in simulation.keys:
+            if k == 'magmap':
+                resolution = simulation['magmap'].resolution
+                pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
+                ret = engine.query_region(pr,radius)
+                results.append(ret)
+            if k == 'lightcurves':
+                region = Region(zv,dims)
+                lines = simulation['lightcurves'].lines(region)
+                scaled = np.array(list(map(lambda line: line.to(params.eta_0).value,lines)))
+                ret = engine.query_points(scaled,radius)
+                results.append(ret)
+            if k == 'causticmap':
+                resolution = simulation['causticmap'].resolution
+                pr = PixelRegion(zv,dims,resolution)
+                pts = pr.pixels.to(params.eta_0)
+                ret = engine.query_caustics(pts.value,radius)
+                results.append(ret)
         return results
 
 

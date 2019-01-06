@@ -67,18 +67,19 @@ def requires(dtype):
     def decorator(fn):
         def decorated(self,*args,**kwargs):
             if dtype in self.simulation:
-                index = 0
-                if len(self.simulation) > 1:
-                    if dtype == 'magmap':
-                        index = 0
-                    elif dtype == 'lightcurves':
-                        index = 1
-                    elif dtype == 'causticmap':
-                        index = 2
+                index = self.simulation.keys.index(dtype)
+                # index = 0
+                # if len(self.simulation) > 1:
+                #     if dtype == 'magmap':
+                #         index = 0
+                #     elif dtype == 'lightcurves':
+                #         index = 1
+                #     elif dtype == 'causticmap':
+                #         index = 2
                 dataset = self._fm.get_result(self.trial_number,index)
                 return fn(self,dataset,*args,**kwargs)
             else:
-                raise AttributeError("Trial does not contain "+dtype +" data.")
+                raise AttributeError("Trial does not contain " + dtype + " data.")
         setattr(decorated,'__doc__',getattr(fn, '__doc__'))
         return decorated
     return decorator
@@ -122,12 +123,6 @@ class Trial(object):
     def lightcurves(self,dataset):
         from mirage.lens_analysis import LightCurveBatch
         qpts = self.simulation['lightcurves'].line_ends(self.simulation.parameters.source_plane)
-        # qpt_format = np.ndarray((len(qpts), 4))
-        # for gp in range(len(qpts)):
-        #     tmp = qpts[gp]
-        #     qpt_format[gp] = [tmp[0, 0].value, tmp[0, 1].value, tmp[-1, 0].value, tmp[-1, 1].value]
-        # ret_qp = u.Quantity(qpt_format, qpts[0].unit)
-        # del(qpts)
         return LightCurveBatch.from_arrays(dataset, qpts,with_id=True)
     
 

@@ -63,7 +63,7 @@ class MagnificationMapView(ImageCurveView):
         sv = Vec2D(start[0],start[1],self.map_unit)
         ev = Vec2D(end[0],end[1],self.map_unit)
         if self._magmap:
-            curve = self._magmap.slice_line(sv,ev)
+            curve = 2.5*np.log10(self._magmap.slice_line(sv,ev))
             dist = (ev-sv).magnitude.value
             x_ax = np.linspace(0,dist,len(curve))
             self.plot(curve,x_ax=x_ax)

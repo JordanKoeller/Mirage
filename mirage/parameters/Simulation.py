@@ -114,6 +114,10 @@ class Simulation(Jsonable):
     def __len__(self):
         return len(self._results)
 
+    @property
+    def keys(self):
+        return sorted(self._results.keys(),reverse=True)
+
     def __repr__(self):
         l1 = self._name
         l2 = self._description

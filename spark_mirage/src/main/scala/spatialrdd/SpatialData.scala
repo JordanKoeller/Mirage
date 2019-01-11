@@ -1,7 +1,5 @@
 package spatialrdd
-import utility.Index
-import utility.IndexPair
-import utility.DoublePair
+
 trait SpatialData extends Serializable {
   
 

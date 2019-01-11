@@ -87,13 +87,13 @@ def calculate_peak_shifts(data:'np.ndarray'):
     return shifts
 
 
-def step_through_buckets(buccs): 
-    for k in sorted(buccs.keys()): 
-        bucket = buccs[k] 
-        plt.errorbar(np.linspace(1,30,20),bucket['mean'],yerr=bucket['std']) 
-        plt.title("Asymmetry = %.2f, N = %d" % (bucket['asym'],bucket['num']))  
-        input("Press Enter!")  
-        plt.close()
+# def step_through_buckets(buccs):
+#     for k in sorted(buccs.keys()): 
+#         bucket = buccs[k] 
+#         plt.errorbar(np.linspace(1,30,20),bucket['mean'],yerr=bucket['std']) 
+#         plt.title("Asymmetry = %.2f, N = %d" % (bucket['asym'],bucket['num']))  
+#         input("Press Enter!")  
+#         plt.close()
 
 def into_buckets(dataset):
     buckets = {} 
@@ -117,7 +117,26 @@ def bucket_and_clean(dataset):
         mean = np.mean(arr,axis=0) 
         std = np.std(arr,axis=0) 
         buckets[k] = {'mean':mean.flatten(),'std':std.flatten(),'asym':k/100,'num':arr.shape[0]} 
-    return buckets 
+    return buckets
+
+def scatter_buckets(dataset):
+    for k in sorted(buckets.keys()):
+        asym = k
+        for p in buckets[k]:
+            plt.plot(p.flatten())
+        plt.title(str(k))
+    input("Press Enter!")
+    plt.close()
+
+def sample_buckets(dataset): 
+    for k in sorted(dataset.keys()): 
+        asym = k 
+        print(len(dataset[k])) 
+        for p in dataset[k][0:5]: 
+            plt.plot(p.flatten()) 
+        plt.title(str(k)) 
+        input("Press Enter!") 
+        plt.close()
 
 
 class LightCurveBatch(object):

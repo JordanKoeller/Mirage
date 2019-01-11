@@ -3,10 +3,10 @@ package utility
 import scala.collection.mutable.ListBuffer
 
 class ArrayQueryIterator(qpts:Array[Array[DoublePair]]) extends QueryIterator {
+  override val resultDump = Array.fill(qpts.size)(new Array[Int](0))
 
-  var dispatchedRows:ListBuffer[Int] = ListBuffer[Int]()
-  var lastSent = 0
-  val resultDump = Array.fill(qpts.size)(Array[Int]())
+  private var dispatchedRows:ListBuffer[Int] = ListBuffer[Int]()
+  private var lastSent = 0
 
   def nextBatch():ArrayLocalQueryIterator = {
     var counter = 0
@@ -29,7 +29,6 @@ class ArrayQueryIterator(qpts:Array[Array[DoublePair]]) extends QueryIterator {
     }
   }
 
-  def collect:Array[Array[Int]] = resultDump
 
 }
 

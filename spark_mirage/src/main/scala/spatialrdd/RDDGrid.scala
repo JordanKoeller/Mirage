@@ -10,7 +10,7 @@ import spatialrdd.partitioners.BalancedColumnPartitioner
 
 import scala.reflect.ClassTag
 
-class RDDGrid[A <: RayBank : ClassTag](rdd: RDD[OptTree[A]]) extends RDDGridProperty {
+class RDDGrid[A <: RayBank : ClassTag, SD <: SpatialData : ClassTag](rdd: RDD[SD]) extends RDDGridProperty {
 
   def queryPointsFromGen(gen: GridGenerator, radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Int]] = {
     val bgen = sc.broadcast(gen)
@@ -160,7 +160,7 @@ object RDDGrid {
 
   val numBatches = 100
 
-  def apply[A <: RayBank: ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => OptTree[A]): RDDGrid[A] = {
+  def apply[A <: RayBank: ClassTag, SD <: SpatialData : ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => SD): RDDGrid[A,SD] = {
     val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY).setName("RDDGrid")
     new RDDGrid(ret)
   }

@@ -4,7 +4,10 @@ trait QueryIterator {
   def nextBatch():LocalQueryIterator
   def hasNext:Boolean
   def takeInResult(res:Array[Int])
-  def collect:Array[Array[Int]]
+  protected val resultDump:Array[Array[Int]]
+  def collect:Array[Array[Int]] = resultDump
+
+
 }
 
 trait LocalQueryIterator extends Serializable {

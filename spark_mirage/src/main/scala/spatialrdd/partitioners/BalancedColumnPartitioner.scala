@@ -1,8 +1,10 @@
 package spatialrdd.partitioners
 
-import lensing.RayBankVal.Ray
+import lensing.RayBank
 import org.apache.spark.rdd.RDD
 import org.apache.spark.RangePartitioner
+
+import scala.reflect.ClassTag
 class BalancedColumnPartitioner extends SpatialPartitioning {
   private var _numPartitions = 1
   private var _ranger: RangePartitioner[Double, Array[Byte]] = _
@@ -21,10 +23,10 @@ class BalancedColumnPartitioner extends SpatialPartitioning {
     _numPartitions
   }
 
-  override def profileData(data: RDD[Array[Ray]]): RDD[(Double,Array[Byte])] = {
-    val serialRays = data.flatMap(arr => arr.map(r => (r.sourceX, r.packed)))
-    _numPartitions = data.getNumPartitions
-    _ranger = new RangePartitioner(_numPartitions, serialRays)
-    serialRays
-  }
+//  def profileData[A <: RayBank: ClassTag](data: RDD[A]):RDD[(Double,Array[Byte])] = {
+//    val serialRays = data.flatMap(arr => arr.map(r => (r.sourceX, r.packed)))
+//    _numPartitions = data.getNumPartitions
+//    _ranger = new RangePartitioner(_numPartitions, serialRays)
+//    serialRays
+//  }
 }

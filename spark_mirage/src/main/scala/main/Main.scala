@@ -4,11 +4,26 @@ package main
 import lensing._
 import org.apache.spark.api.java.JavaRDD
 import spatialrdd._
-import utility.{ArrayQueryIterator, FileHandler}
+import utility.{ArrayQueryIterator, FileHandler, GridQueryGenerator}
 
 object Main {
 
   private var rddGrid: RDDGridProperty = null
+
+  /**
+    * Entry point for ray-tracing a lensing system and creating the RDDGrid. Note that this method does not actually
+    * compute anything. The source plane is lazily evaluated when the RDDGrid is queried.
+    * @param starsfile Binary file with all star's locations and masses. Usually a tempfile.
+    * @param numStars The number of files specified in the starsFile.
+    * @param shear Local shear value for the starry region.
+    * @param smooth Local convergence value for the starry region in continuous (dark) matter.
+    * @param dx Width of a pixel in units of \xi_0
+    * @param dy Height of a pixel in units of \xi_0
+    * @param width Number of columns of pixels in the rays traced.
+    * @param height Number of rows of pixels in the rays traced.
+    * @param jrdd Reference to a JavaRDD instance.
+    * @param numPartitions Number of partitions to break the RDDGrid up into.
+    */
 
   def createRDDGrid(
                      starsfile:String,
@@ -27,7 +42,6 @@ object Main {
     val stars = FileHandler.getStars(starsfile,numStars)
     val pixels = sc.range(0,width*height,1,numPartitions)
     val raybanks = pixels.glom().map(arr => RayBank(arr,dx,dy,width,height))
-    //println(raybanks.collect.mkString(","))
     val parameters = MicroParameters(
       stars,
       shear,
@@ -40,22 +54,41 @@ object Main {
     val tracer = new RayBankTracer()
     val srcPlane = tracer(raybanks,broadParams)
     val causticTracer = new CausticTracer()
-    val caustics = srcPlane//causticTracer(srcPlane,broadParams)
+    val caustics = srcPlane
     broadParams.unpersist(true)
-    rddGrid = RDDGrid[RayBank](caustics,nodeStructure = OptTree.apply)
+    rddGrid = RDDGrid[RayBank,BoundOptTree[RayBank]](caustics,nodeStructure = BoundOptTree.apply)
   }
 
-
+  /**
+    * This method creates an equally spaced grid to query. Useful for making a magnification map.
+    * @param x0 "left" x value in units of \xi_0
+    * @param y0 "bottom" y value in units of \xi_0
+    * @param x1 "right" x value in units of \xi_0
+    * @param y1 "top" y value in units of \xi_0
+    * @param xDim Number of columns in the grid.
+    * @param yDim Number of rows in the grid.
+    * @param radius Radius of the query circle in units of \xi_0
+    * @param retFile Filename to save the magnifications to.
+    * @param ctx References to a JavaRDD instance.
+    */
 
   def queryPoints(x0: Double, y0: Double, x1: Double, y1: Double,
                   xDim: Int, yDim: Int, radius: Double, retFile:String,
                   ctx: JavaRDD[Int]):Unit = {
     val sc = ctx.context
-    val generator = new GridGenerator(x0, y0, x1, y1, xDim, yDim)
-    val retArr = rddGrid.queryPointsFromGen(generator, radius, sc, verbose = false)
+    val collector = new GridQueryGenerator(x0, y0, x1, y1, xDim, yDim)
+    val retArr = rddGrid.searchBatch(collector, radius, sc)
     FileHandler.saveMagnifications(retFile,retArr)
   }
 
+  /**
+    * Request a large batch of light curves be sampled. Note that the light curves can be of different lengths.
+    * @param pointsFile Filename where the query points are specified.
+    * @param retFile Filename to save the magnifications to.
+    * @param numLines The number of light curves specified in the pointsFile.
+    * @param radius Radius of quasar to simulation in units of \xi_0
+    * @param ctx Reference to a JavaRDD instance.
+    */
   def sampleLightCurves(pointsFile: String, retFile:String, numLines:Int,radius: Double, ctx: JavaRDD[Int]):Unit = {
     val sc = ctx.context
     val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)
@@ -63,6 +96,8 @@ object Main {
     val retArr = rddGrid.searchBatch(collector,radius,sc)
     FileHandler.saveMagnifications(retFile,retArr)
   }
+
+
 
   def querySingleCurve(pointsFile: String, retFile:String, radius: Double, ctx: JavaRDD[Int]):Unit = {
     val sc = ctx.context

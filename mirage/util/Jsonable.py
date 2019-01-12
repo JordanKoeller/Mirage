@@ -3,8 +3,7 @@ from abc import ABC, abstractmethod, abstractproperty, abstractclassmethod
 from astropy.units import Quantity
 
 class Jsonable(ABC):
-    """Abstract base class for objects that have methods for converting to and from
-    JSON representations."""
+    """Abstract base class for objects that have methods for converting to and from JSON representations."""
     def __init__(self):
         pass
 
@@ -21,6 +20,8 @@ class Jsonable(ABC):
 
     @staticmethod
     def encode_quantity(quant:Quantity) -> 'Dict':
+        """convenience function for converting an :class:`astropy.units.Quantity` instance into a JSON representation.
+        """
         ret = {}
         if isinstance(quant.value,int) or isinstance(quant.value,float):
             ret['values'] = quant.value
@@ -31,6 +32,9 @@ class Jsonable(ABC):
 
     @staticmethod
     def decode_quantity(js:'Dict') -> Quantity:
+        """
+        method for constructing a :class:`astropy.units.Quantity` from a JSON representation.
+        """
          values = js['values']
          unit = js['unit']
          return Quantity(values,unit)

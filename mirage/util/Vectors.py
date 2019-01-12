@@ -134,9 +134,10 @@ class PolarVec(Jsonable):
         Accepts a magnitude and direction for the vector, as well as an optional field for a unit.
 
         Arguments:
-            `magnitude` may be a float, int, or Quantity.
-            `direction` may be a float, int, or Quantity. If the supplied field is not a Quantity, it is assumed to be in degrees.
-            `unit` (optional) `str` specifiying the dimension of the vector. This argument is only used if the `magnitude` argument is not a Quantity. If `magnitude` is a Quantity, this argument is ignored.
+
+        * `magnitude` may be a float, int, or Quantity.
+        * `direction` may be a float, int, or Quantity. If the supplied field is not a Quantity, it is assumed to be in degrees.
+        * `unit` (optional) `str` specifiying the dimension of the vector. This argument is only used if the `magnitude` argument is not a Quantity. If `magnitude` is a Quantity, this argument is ignored.
         """ 
         if isinstance(magnitude, u.Quantity):
             self._magnitude = magnitude

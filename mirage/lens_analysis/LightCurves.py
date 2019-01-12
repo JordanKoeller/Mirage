@@ -86,15 +86,6 @@ def calculate_peak_shifts(data:'np.ndarray'):
             shifts[i,j] = shift
     return shifts
 
-
-# def step_through_buckets(buccs):
-#     for k in sorted(buccs.keys()): 
-#         bucket = buccs[k] 
-#         plt.errorbar(np.linspace(1,30,20),bucket['mean'],yerr=bucket['std']) 
-#         plt.title("Asymmetry = %.2f, N = %d" % (bucket['asym'],bucket['num']))  
-#         input("Press Enter!")  
-#         plt.close()
-
 def into_buckets(dataset):
     buckets = {} 
     for i in range(len(dataset['asymmetry'])): 

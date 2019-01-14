@@ -27,7 +27,7 @@ scala-module: spark_mirage/build.sbt
 # You can set these variables from the command line.
 .PHONY: docs
 docs:
-	sphinx-build docs/source docs/build
+	sphinx-build docs/source docs/build -a
 
 
 

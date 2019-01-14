@@ -35,9 +35,9 @@ class Jsonable(ABC):
         """
         method for constructing a :class:`astropy.units.Quantity` from a JSON representation.
         """
-         values = js['values']
-         unit = js['unit']
-         return Quantity(values,unit)
+        values = js['values']
+        unit = js['unit']
+        return Quantity(values,unit)
         
 
     #Method template

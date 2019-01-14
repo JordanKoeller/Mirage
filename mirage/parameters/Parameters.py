@@ -196,7 +196,7 @@ class MicrolensingParameters(Parameters):
 
     @property
     def get_macro_parameters(self):
-        print("Temporary implimentation for macr_parameters")
+        print("Temporary implimentation for macro_parameters")
         ray_region = self.ray_region
         return Parameters(self.quasar,self.lens,ray_region)
 

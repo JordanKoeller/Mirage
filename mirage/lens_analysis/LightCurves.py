@@ -186,6 +186,8 @@ class LightCurve(object):
         self._start = start
         self._end = end
         self._line_id = line_id
+        self._sample_density = self.distance_axis
+        self._sample_density = (self._sample_density[1] - self._sample_density[0]).to('uas')
 
     def __len__(self):
         return len(self._data)
@@ -200,6 +202,11 @@ class LightCurve(object):
             return self._line_id
         else:
             raise AttributeError("LightCurve instance does not have a trial id.")
+
+    @property
+    def sample_density(self):
+        return self._sample_density
+    
     
 
     @property
@@ -246,7 +253,7 @@ class LightCurve(object):
         y = self.curve
         return x,y
 
-    def get_event_slices(self,threshold=0.8,smoothing_factor=1.1,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
+    def get_event_slices(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
         x = self.distance_axis.to(min_separation.unit)
         dx = x[1] - x[0]
         min_sep = int((min_separation/dx).value)
@@ -259,7 +266,7 @@ class LightCurve(object):
         return obj_list
 
 
-    def get_events(self,threshold=0.8,smoothing_factor=1.1,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
+    def get_events(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
         slice_list = self.get_event_slices(threshold, smoothing_factor, min_separation, require_isolation)
         ret = []
         for slicer in slice_list:
@@ -268,7 +275,7 @@ class LightCurve(object):
         # print("Returning batch with %d events" % len(ret))
         return LightCurveBatch(ret)
 
-    def get_peaks(self,threshold=0.8,smoothing_factor=1.1,min_sep=1,require_isolation=False):
+    def get_peaks(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_sep=1,require_isolation=False):
         '''
             Locate peaks of this light curve via a sobel edge detection convolution.
             Recommended settings for my 80k batch, trail 5 R_g:
@@ -276,9 +283,15 @@ class LightCurve(object):
                 smoothing_factor=1.1
 
         '''
+        print(self.sample_density.to('uas')**-1)
+        threshold = threshold.to('1/uas')
+        smoothing_factor = smoothing_factor.to('uas')
+        thresh = threshold*self.sample_density
+        smoothFac = smoothing_factor/self.sample_density
+        print("Passing %.3f,%.3f" % (thresh.value,smoothFac.value))
         from mirage.calculator import sobel_detect
         curve = self._data
-        return sobel_detect(curve,threshold,smoothing_factor,min_sep,require_isolation)
+        return sobel_detect(curve,thresh.value,smoothFac.value,min_sep,require_isolation)
 
     def smooth_with_window(self,window:int):
         data = self._data

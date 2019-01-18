@@ -38,6 +38,11 @@ class IMF(object):
         return
 
     @property
+    def mass_limits(self):
+        return self._mass_limits
+    
+
+    @property
     def random_number_generator(self):
         return self._random_number_generator
 
@@ -297,6 +302,15 @@ class IMF_broken_powerlaw(IMF):
         self.coeffs = coeffs
         self.k = 1
 
+    @property
+    def powers(self):
+        return self._powers
+
+    @property
+    def mass_limits(self):
+        return self._mass_limits
+    
+    
 
     def set_seed(self,seed):
         self._seed = seed
@@ -624,6 +638,11 @@ class Evolved_IMF(IMF_broken_powerlaw):
                 k = float(k)
             self.__conversions.append([k,v])
         self.__conversions = np.array(self.__conversions)
+
+    @property
+    def conversions(self):
+        return self.__conversions
+    
 
 
     def generate_cluster(self, totalMass):

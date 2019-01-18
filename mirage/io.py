@@ -221,3 +221,19 @@ class FITSFileManager(FileManager):
     @property
     def extension(self):
         return ".fits"
+
+def open_parameters(filename):
+    if '.res' in filename or '.sim' in filename:
+        from mirage import lens_analysis as la
+        params = la.load_simulation(filename).parameters
+        return params
+    else:
+        fm = None
+        if '.mp' in filename:
+            fm = MicroParametersFileManager()
+        else:
+            fm = ParametersFileManager()
+        fm.open(filename)
+        params = fm.read()
+        fm.close()
+        return params

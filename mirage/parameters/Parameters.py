@@ -73,9 +73,8 @@ class Parameters(Jsonable, CalculationDependency):
 
     @property
     def einstein_radius(self):
-        ret = 4 * pi * self.lens.velocity_dispersion**2*self.dLS/self.dL/const.c**2
-        ret = ret.to('')
-        return u.Quantity(ret.value,'rad')
+        return Parameters.static_einstein_radius(self.velocity_dispersion,self.quasar.redshift,self.lens.redshift)
+
 
     @property
     def einstein_radius_unit(self):
@@ -105,7 +104,7 @@ class Parameters(Jsonable, CalculationDependency):
             t1 = loc.x.value
             t2 = loc.y.value
             b = self.einstein_radius
-            q = self.lens.ellipticity
+            q = 1 - self.lens.ellipticity
             om = sqrt(q*q*t1*t1+t2*t2)
             conv = b/(2*om)
             print("Calculating conv of %f" % conv)
@@ -122,7 +121,7 @@ class Parameters(Jsonable, CalculationDependency):
             b = self.einstein_radius
             t1 = loc.x.value
             t2 = loc.y.value
-            q = self.lens.ellipticity
+            q = 1 - self.lens.ellipticity
             psi_11 = b*q*t2**2/((t1**2 + t2**2)*sqrt(q**2*t1**2 + t2**2))
             psi_22 = b*q*t1**2/((t1**2 + t2**2)*sqrt(q**2*t1**2 + t2**2))
             psi_12 = -b*q*t1*t2/((t1**2 + t2**2)*sqrt(q**2*t1**2 + t2**2))
@@ -165,6 +164,26 @@ class Parameters(Jsonable, CalculationDependency):
         theta_E = Parameters.static_theta_E(z_s,z_l)
         xi = u.def_unit('xi',(1*theta_E).to('rad'))
         return [r_g, theta_E, xi]
+
+    @staticmethod
+    def static_einstein_radius(vDispersion, z_s, z_l):
+        dLS = Cosmic.cosmology.angular_diameter_distance_z1z2(z_l,z_s)
+        dL = Cosmic.cosmology.angular_diameter_distance(z_l)
+        ret = 4 * pi * vDispersion**2*dLS/dL/const.c**2
+        ret = ret.to('')
+        return u.Quantity(ret.value,'rad')
+
+    def to_microlensing_parameters(self, pcnt_stars:float,
+        image_center:Vec2D,
+        minor_axis:u.Quantity,
+        star_generator:MassFunction) -> 'MicrolensingParameters':
+        bounding_box = Region(zero_vector('uas'),Vec2D(minor_axis.value,minor_axis.value,minor_axis.unit))
+        return MicrolensingParameters(self.quasar, self.lens,
+            pcnt_stars,
+            image_center,
+            self.ray_region.resolution,
+            bounding_box,
+            star_generator)
 
 class MicrolensingParameters(Parameters):
 

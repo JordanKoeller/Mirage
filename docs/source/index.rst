@@ -45,7 +45,7 @@ calculation engine, however, gives you options to specify where the heavy liftin
    gettingstarted
    filespecification
    dependencies
-   documentation
+   API Documentation <mirage>
    publications 
    licensing
    citing

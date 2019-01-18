@@ -2,37 +2,6 @@ import argparse
 from datetime import datetime as DT
 import logging
 import os
-
-def run_simulation(simfile,savefile):
-    """
-    Entry point function for running a simulation. Given a `.sim` file, computes the described simulation and saves the results to `savefile`.
-
-    Arguments:
-
-    * `simfile` (`str`): The file containing a specification of a simulation to compute. Should have a `.sim` extension.
-    * `savefile` (`str`): The filename to save the result of the simulation to. If `savefile` does not have the proper extension, the proper extension (`.res`) will be appended on to `savefile`.
-
-    .. seealso:: This method **does not** include any options for specifying the context that should be used to perform the computation. In order to learn how to choose a context, see |GettingStartedWithMirage|.
-
-    .. warning:: If `savefile` already exists in the file system, this method will overwrite `savefile`!
-    """
-    from mirage.calculator import ResultCalculator
-    from mirage.io import SimulationFileManager
-    loader = SimulationFileManager()
-    loader.open(simfile)
-    sim = loader.read()
-    loader.close()
-    calculator = ResultCalculator()
-    print("Input accepted. Starting computation.")
-    print("_____________________________________\n\n")
-    saver = calculator.calculate(sim,name = savefile)
-    print("Done. All results saved to " + saver.filename)
-    try:
-        from mirage import lens_analysis as la
-        return la.load(saver.filename)
-    except:
-        return 
-    # return engine
     
 
 
@@ -49,8 +18,9 @@ if __name__ == "__main__":
     if args.log:
         logging.basicConfig(filename=args.log[0],level=logging.INFO)
     if args.run:
+        from mirage import runSimulation
         simfile = args.run[0]
         savefile = args.outfile[0]
-        run_simulation(simfile,savefile)
+        runSimulation(simfile,savefile)
     else:
         print("Did not specify a command.")

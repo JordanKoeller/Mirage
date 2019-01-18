@@ -1,5 +1,11 @@
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+
+from PyQt5.QtWidgets import QApplication
+import sys
+
+app = QApplication(sys.argv)
+
 class ImageCurveView:
     def __init__(self):
         self._cmap = plt.get_cmap('RdBu_r')
@@ -7,15 +13,8 @@ class ImageCurveView:
 
     @staticmethod
     def get_view(with_figure=False,name=None):
-        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-        from matplotlib.figure import Figure
-
-        fig = Figure()
-        # A canvas must be manually attached to the figure (pyplot would automatically
-        # do it).  This is done by instantiating the canvas with the figure as
-        # argument.
-        FigureCanvas(fig)
-        # fig = plt.figure(name)
+        # fig = 
+        # fig = Figure()
         gs = GridSpec(2,1,figure=fig,height_ratios = [1,5])
         # gsLower = GridSpecFromSubplotSpec(2,1,subplot_spec = gs[1,0],hspace=0.0,height_ratios=[11,1])
         # axes = fig.subplots(2,1)#,gridspec_kw={'height_ratios':[1,5]})

@@ -26,6 +26,11 @@ class MassFunction(Jsonable):
         return self._seed
 
     @property
+    def IMF(self):
+        return self._IMF
+    
+
+    @property
     def stars(self):
         if len(self._stars) > 0:
             return self._stars
@@ -35,12 +40,18 @@ class MassFunction(Jsonable):
 
     @property
     def json(self):
+        from .InitialMassFunction import Kroupa_2001, Kroupa_2001_Modified
         ret = {}
         ret['seed'] = self._seed
-        ret['mass_limits'] = self._IMF._mass_limits.tolist()
-        ret['powers'] = self._IMF._powers.tolist()
-        if isinstance(self._IMF, Evolved_IMF):
-            ret['conversions'] = self._IMF.conversions.tolist()
+        if isinstance(self._IMF, Kroupa_2001):
+            ret['type'] = "Kroupa_2001"
+        elif isinstance(self._IMF,Kroupa_2001_Modified):
+            ret['type'] = "Pooley_2011"
+        else:
+            ret['mass_limits'] = self._IMF.mass_limits.tolist()
+            ret['powers'] = self._IMF.powers.tolist()
+            if isinstance(self._IMF, Evolved_IMF):
+                ret['conversions'] = self._IMF.conversions.tolist()
         return ret
 
     @classmethod
@@ -79,18 +90,24 @@ class StationaryMassFunction(MassFunction):
 
     @classmethod
     def from_json(cls,js):
+        from .InitialMassFunction import Kroupa_2001, Kroupa_2001_Modified
         seed = js['seed']
-        ml = js['mass_limits']
-        pows = js['powers']
-        if 'conversions' in js:
-            convs = js['conversions']
-            imf = Evolved_IMF(conversions = convs,
-                powers = pows,
-                massLimits = ml)
-            return cls(imf,seed)
+        if 'type' in js:
+            if js['type'] == "Kroupa_2001":
+                imf = Kroupa_2001()
+                return cls(imf,seed)
         else:
-            imf = IMF_broken_powerlaw(ml,pows)
-            return cls(imf,seed)
+            ml = js['mass_limits']
+            pows = js['powers']
+            if 'conversions' in js:
+                convs = js['conversions']
+                imf = Evolved_IMF(conversions = convs,
+                    powers = pows,
+                    massLimits = ml)
+                return cls(imf,seed)
+            else:
+                imf = IMF_broken_powerlaw(ml,pows)
+                return cls(imf,seed)
 
 
 class AnimatedMassFunction(MassFunction):
@@ -204,28 +221,35 @@ class AnimatedMassFunction(MassFunction):
 
     @classmethod
     def from_json(cls,js):
+        from .InitialMassFunction import Kroupa_2001, Kroupa_2001_Modified
         seed = js['seed']
         ml = js['mass_limits']
         pows = js['powers']
         velocity = Jsonable.decode_quantity(js['mean_velocity'])
         sigma = Jsonable.decode_quantity(js['stderr_velocity'])
         dt = Jsonable.decode_quantity(js['dt'])
-        if 'conversions' in js:
-            convs = js['conversions']
-            imf = Evolved_IMF(conversions = convs,
-                powers = pows,
-                massLimits = ml)
-            return cls(imf,velocity,sigma,dt,seed)
+        if 'type' in js:
+            if js['type'] == "Kroupa_2001":
+                imf = Kroupa_2001()
+            else:
+                imf = Kroupa_2001_Modified()
         else:
-            imf = IMF_broken_powerlaw(ml,pows)
-            return cls(imf,velocity,sigma,dt,seed)
+            if 'conversions' in js:
+                convs = js['conversions']
+                imf = Evolved_IMF(conversions = convs,
+                    powers = pows,
+                    massLimits = ml)
+                return cls(imf,velocity,sigma,dt,seed)
+            else:
+                imf = IMF_broken_powerlaw(ml,pows)
+                return cls(imf,velocity,sigma,dt,seed)
 
 
 
 
 
 
-def getMassFunction() -> MassFunction:
+def getMassFunction(seed=None,fn=None) -> MassFunction:
     from .InitialMassFunction import Kroupa_2001, Kroupa_2001_Modified
     # from .InitialMassFunction import Kroupa_2001
     # seed = 123
@@ -233,8 +257,8 @@ def getMassFunction() -> MassFunction:
     # return StationaryMassFunction(Kroupa_2001(),seed)
     import numpy as np
     from mirage import GlobalPreferences
-    seed = GlobalPreferences['star_generator_seed']
-    fn = GlobalPreferences['mass_function']
+    seed = seed or GlobalPreferences['star_generator_seed']
+    fn = fn or GlobalPreferences['mass_function']
     if fn == "Kroupa_2001":
         return StationaryMassFunction(Kroupa_2001(),seed)
     elif fn == "Pooley_2011":

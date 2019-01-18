@@ -68,3 +68,69 @@ class _GlobalPreferences(_PreferencesParser):
 
 project_directory = os.path.abspath(__file__).split('mirage')[0]
 GlobalPreferences = _GlobalPreferences(project_directory+'.custom_preferences.json')
+
+def getParametersView(file_or_object=None):
+    from mirage.views import ParametersWidget, Window
+    window = Window()
+    view = ParametersWidget()
+    window.bind_widget(view)
+    window.show()
+    if file_or_object:
+        params = None
+        from mirage.parameters import Parameters, Simulation
+        if isinstance(file_or_object,str):
+            from mirage import io
+            params = io.open_parameters(file_or_object)
+        else:
+            if isinstance(file_or_object,Simulation):
+                params = file_or_object.parameters
+            elif isinstance(file_or_object,Parameters):
+                params = file_or_object
+        view.set_object(params)
+    return window
+
+def getSimulationView(window=None,filename=None):
+    from mirage.views import SimulationWidget
+    window = window or getParametersView()
+    sw = SimulationWidget(window.widget)
+    window.bind_widget(sw)
+    if filename:
+        from mirage.lens_analysis import load_simulation
+        window.set_object(load_simulation(filename))
+    return window
+
+def getLensedView(params):
+    print("NEEDS WORK")
+    from mirage.views import LensView
+    view = LensView("Lens View")
+
+
+def runSimulation(simfile,savefile):
+    """
+    Entry point function for running a simulation. Given a `.sim` file, computes the described simulation and saves the results to `savefile`.
+
+    Arguments:
+
+    * `simfile` (`str`): The file containing a specification of a simulation to compute. Should have a `.sim` extension.
+    * `savefile` (`str`): The filename to save the result of the simulation to. If `savefile` does not have the proper extension, the proper extension (`.res`) will be appended on to `savefile`.
+
+    .. seealso:: This method **does not** include any options for specifying the context that should be used to perform the computation. In order to learn how to choose a context, see |GettingStartedWithMirage|.
+
+    .. warning:: If `savefile` already exists in the file system, this method will overwrite `savefile`!
+    """
+    from mirage.calculator import ResultCalculator
+    from mirage.io import SimulationFileManager
+    loader = SimulationFileManager()
+    loader.open(simfile)
+    sim = loader.read()
+    loader.close()
+    calculator = ResultCalculator()
+    print("Input accepted. Starting computation.")
+    print("_____________________________________\n\n")
+    saver = calculator.calculate(sim,name = savefile)
+    print("Done. All results saved to " + saver.filename)
+    try:
+        from mirage import lens_analysis as la
+        return la.load(saver.filename)
+    except:
+        return 

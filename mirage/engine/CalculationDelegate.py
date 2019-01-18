@@ -41,7 +41,7 @@ class MacroCPUDelegate(CalculationDelegate):
             parameters.dLS.to('m').value,
             parameters.lens.shear.magnitude.value,
             parameters.lens.shear.direction.to('rad').value,
-            parameters.lens.ellipticity.magnitude.value,
+            1 - parameters.lens.ellipticity.magnitude.value,
             parameters.lens.ellipticity.direction.to('rad').value,
             parameters.einstein_radius.to('rad').value,
             4)#self.core_count)

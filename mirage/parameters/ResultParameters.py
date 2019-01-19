@@ -172,10 +172,12 @@ class LightCurvesParameters(ResultParameters):
     def interpolate(self,end_points,density): 
         du = end_points.unit
         density = density.to(du).value
+        print(du)
         end_points = end_points.value
         def interp(row): 
-            distance = np.sqrt((row[2] - row[1])**2.0 + (row[3] - row[1])**2.0) 
-            num_points = int(distance/density) 
+            distance = np.sqrt((row[2] - row[0])**2.0 + (row[3] - row[1])**2.0)
+            print(distance*du.to('uas'))
+            num_points = int(distance/density)
             xx = np.linspace(row[0],row[2],num_points) 
             yy = np.linspace(row[1],row[3],num_points) 
             return np.dstack((xx,yy)) 

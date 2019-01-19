@@ -39,7 +39,7 @@ class AnimationController(object):
 class LensView(ImageCurveView):
 
     def __init__(self,name=None) -> None:
-        self._fig, self._imgAx, self._lcAx = self.get_view(True,name)
+        self._fig, self._imgAx, self._lcAx, self._dynamic_canvas = self.get_view(True,name,True)
         self._playing = False
         self._frame_number = 0
         self._runner = None
@@ -82,32 +82,39 @@ class LensView(ImageCurveView):
         renderer = get_renderer(runner_controller.simulation)
         cmap = self._get_img_colormap()
         self._frame_number = 0
-        def run(*args):
-            if self._playing:
-                self._imgAx.clear()
-                self._frame_number += 1
-                q_center, pixels = runner_controller.get_at_frame(self._frame_number)
-                frame = renderer.get_frame(pixels)
-                self._quasarPatch.center = q_center.as_value_tuple()
-                self._quasarPatch.set_radius(min(sim.parameters.ray_region.dimensions.as_value_tuple())/200)
-                if len(self._curve_plot) <= self._frame_number:
-                    self._curve_plot = np.append(self._curve_plot,np.zeros(len(self._curve_plot)))
-                    self._curve_ax = np.arange(len(self._curve_plot))
-                    self._lcAx.set_xlim(0,len(self._curve_ax))
-                self._curve_plot[self._frame_number] = len(pixels)
-                if self._curve_plot[self._frame_number] > self._curve_max:
-                    self._curve_max = self._curve_plot[self._frame_number]*2
-                    self._lcAx.set_ylim(0,self._curve_max)
-                self._curve.set_data(self._curve_ax,self._curve_plot)
-                return [
-                self._imgAx.imshow(frame,animated=True,extent=[-x,x,y,-y],cmap=cmap),
-                self._curve,
-                # self._imgAx.imshow(frame,animated=True,extent=[minx.value,maxx.value,maxy.value,miny.value],cmap=cmap),
-                self._imgAx.add_artist(self._galPatch),
-                self._imgAx.add_artist(self._quasarPatch),
-                ]
-            else:
-                []
+        def run(*args,**kwargs):
+            self._imgAx.clear()
+            self._frame_number += 1
+            q_center, pixels = runner_controller.get_at_frame(self._frame_number)
+            frame = renderer.get_frame(pixels)
+            self._imgAx.imshow(frame,animated=True,extent = [-x,x,y,-y],cmap=cmap)
+            self._imgAx.figure.canvas.draw()
+        # def run(*args):
+        #     if self._playing:
+        #         self._imgAx.clear()
+        #         self._frame_number += 1
+        #         q_center, pixels = runner_controller.get_at_frame(self._frame_number)
+        #         frame = renderer.get_frame(pixels)
+        #         self._quasarPatch.center = q_center.as_value_tuple()
+        #         self._quasarPatch.set_radius(min(sim.parameters.ray_region.dimensions.as_value_tuple())/200)
+        #         if len(self._curve_plot) <= self._frame_number:
+        #             self._curve_plot = np.append(self._curve_plot,np.zeros(len(self._curve_plot)))
+        #             self._curve_ax = np.arange(len(self._curve_plot))
+        #             self._lcAx.set_xlim(0,len(self._curve_ax))
+        #         self._curve_plot[self._frame_number] = len(pixels)
+        #         if self._curve_plot[self._frame_number] > self._curve_max:
+        #             self._curve_max = self._curve_plot[self._frame_number]*2
+        #             self._lcAx.set_ylim(0,self._curve_max)
+        #         self._curve.set_data(self._curve_ax,self._curve_plot)
+        #         return [
+        #         self._imgAx.imshow(frame,animated=True,extent=[-x,x,y,-y],cmap=cmap),
+        #         self._curve,
+        #         # self._imgAx.imshow(frame,animated=True,extent=[minx.value,maxx.value,maxy.value,miny.value],cmap=cmap),
+        #         self._imgAx.add_artist(self._galPatch),
+        #         self._imgAx.add_artist(self._quasarPatch),
+        #         ]
+        #     else:
+        #         []
         self._runner = run
         self._playing = True
         self._runner()
@@ -125,7 +132,8 @@ class LensView(ImageCurveView):
         if self._animation:
             pass
         else:
-            self._animation = FuncAnimation(self._fig,self._runner,blit=True,interval=200,save_count=0)
+            self._animation = self._dynamic_canvas.new_timer(1000/60,[(self._runner,(),{})])
+            self._animation.start()
 
     def pause(self):
         self._playing = False

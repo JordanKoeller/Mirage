@@ -14,6 +14,9 @@ except ImportError as e:
 try:
     from .Window import Window
     from .Widgets import ParametersWidget, SimulationWidget
+    from PyQt5.QtWidgets import QApplication
+    import sys
+    _app = QApplication(sys.argv)
 except ImportError as e:
     print("Warning: PyQt5 not detected.")
 

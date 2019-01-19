@@ -168,13 +168,14 @@ class LightCurveBatch(object):
         ret_data = np.ndarray(len(data),dtype=object)
         for i in range(len(data)):
             datum = data[i]
-            ends = query_ends[i]
-            s = ends[0:2]
-            e = ends[2:]
-            if with_id:
-                ret_data[i] = LightCurve(datum,s,e,i)
-            else:
-                ret_data[i] = LightCurve(datum,s,e)
+            if len(datum) > 0:
+                ends = query_ends[i]
+                s = ends[0:2]
+                e = ends[2:]
+                if with_id:
+                    ret_data[i] = LightCurve(datum,s,e,i)
+                else:
+                    ret_data[i] = LightCurve(datum,s,e)
         return cls(ret_data)
 
 
@@ -182,7 +183,8 @@ class LightCurveBatch(object):
 class LightCurve(object):
 
     def __init__(self,data,start,end,line_id = -1):
-        self._data = np.array(data)
+        self._data = np.array(data).flatten()
+        # print(self._data.shape)
         self._start = start
         self._end = end
         self._line_id = line_id

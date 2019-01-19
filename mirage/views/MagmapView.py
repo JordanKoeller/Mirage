@@ -103,19 +103,19 @@ class MagnificationMapView(ImageCurveView):
         return self._unit
 
     def display(self,magmap:MagnificationMap=None):
-        if magmap is None:
-            self.figure.show()
-        else:
-            extent = magmap.region.dimensions/2
-            x = extent.x.value
-            y = extent.y.value
-            img = self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y])
-            if self._with_colorbar:
-                cb = self.figure.colorbar(img,ax=self.axes,pad=0.01,fraction=0.05)
-                cb.set_label("Magnitudes")
-            self._magmap = magmap
-            self._unit = magmap.region.dimensions.unit
-            self.figure.show()
+        # if magmap is None:
+        #     self.figure.show()
+        # else:
+        extent = magmap.region.dimensions/2
+        x = extent.x.value
+        y = extent.y.value
+        img = self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y])
+        if self._with_colorbar:
+            cb = self.figure.colorbar(img,ax=self.axes,pad=0.01,fraction=0.05)
+            cb.set_label("Magnitudes")
+        self._magmap = magmap
+        self._unit = magmap.region.dimensions.unit
+            # self.figure.show()
 
     def show(self,*args,**kwargs):
         return self.display(*args,**kwargs)

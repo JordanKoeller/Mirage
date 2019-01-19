@@ -1,6 +1,6 @@
 package utility
 
-trait QueryIterator {
+trait QueryIterator extends Serializable {
   def nextBatch():LocalQueryIterator
   def hasNext:Boolean
   def takeInResult(res:Array[Int])

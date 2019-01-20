@@ -20,10 +20,10 @@ cdef pair[double,double] ray_trace_helper(double &x,
     cdef double r, cosShear, sinShear, cosEl, sinEl, q1, res_x, res_y
     cdef double eex, eey, phi, ex, ey
     r = sqrt(x*x + y*y)
-    cosShear = cos(-shear_angle)
-    sinShear = sin(-shear_angle)
     cosEl = cos(el_angle)
     sinEl = sin(el_angle)
+    sinShear = shear_mag*sin(2*shear_angle)
+    cosShear = shear_mag*cos(2*shear_angle)
     q1 = sqrt(1.0 - el_mag*el_mag)
     #Elliptical SIS
     if r != 0.0:
@@ -33,18 +33,24 @@ cdef pair[double,double] ray_trace_helper(double &x,
         else:
             eex = x*sinEl+y*cosEl
             eey = y*sinEl-x*cosEl
-            ex = el_mag*b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
-            ey = el_mag*b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+            ex = b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+            ey = b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
             res_x = ex*sinEl-ey*cosEl
             res_y = ex*sinEl + ey*sinEl
+    else:
+        res_x = 0.0
+        res_y = 0.0
 
     #shear
-    phi = 2.0 * (pi/2.0 - shear_angle) - atan2(y,x)
-    res_x += shear_mag*r*cos(phi)
-    res_y += shear_mag*r*sin(phi)
+    # phi = 2.0 * (pi/2.0 - shear_angle) - atan2(y,x)
+    res_x += cosShear*x+sinShear*y
+    res_y += sinShear*x - cosShear*y
     res_x = x - res_x
     res_y = y - res_y
     return pair[double,double](res_x,res_y)
+
+
+
 
 cdef pair[double,double] micro_ray_helper(double &conv,
                                           double &sMin,
@@ -121,6 +127,7 @@ cpdef ray_trace(np.ndarray[np.float64_t, ndim=3] rays,
     cdef int width = rays.shape[0]
     cdef int height = rays.shape[1]
     cdef pair[double,double] traced_ray
+    print("Tracing here")
     for i in prange(0, width,1,nogil=True,schedule='static',num_threads=thread_count):
         for j in range(0,height):
             traced_ray = ray_trace_helper(

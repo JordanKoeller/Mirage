@@ -1,4 +1,4 @@
-from math import pi, sqrt
+from math import pi, sqrt, sin, cos, atan, atan2
 
 from astropy import units as u
 from astropy import constants as const
@@ -73,7 +73,7 @@ class Parameters(Jsonable, CalculationDependency):
 
     @property
     def einstein_radius(self):
-        return Parameters.static_einstein_radius(self.velocity_dispersion,self.quasar.redshift,self.lens.redshift)
+        return Parameters.static_einstein_radius(self.lens.velocity_dispersion,self.quasar.redshift,self.lens.redshift)
 
 
     @property
@@ -99,38 +99,34 @@ class Parameters(Jsonable, CalculationDependency):
         # print("NOTE: Have not implimented convergence yet!")
         #Assumes SIE mass model with external shear.
         #STILL NOT GOOD _ NOT ACCOUNTING FOR EXTERNAL SHEAR
-        try:
-            loc = loc.to(self.xi_0)
-            t1 = loc.x.value
-            t2 = loc.y.value
-            b = self.einstein_radius
-            q = 1 - self.lens.ellipticity
-            om = sqrt(q*q*t1*t1+t2*t2)
-            conv = b/(2*om)
-            print("Calculating conv of %f" % conv)
-        except:
-            pass
-        return 0.7
+        b = self.einstein_radius.to('rad').value
+        x = loc.x.to('rad').value
+        y = loc.y.to('rad').value
+        E = self.lens.ellipticity.direction.to('rad').value
+        t1 = x*sin(E) + y*cos(E)
+        t2 = y*sin(E) - x*cos(E)
+        p = self.lens.shear.direction.to('rad').value
+        g = self.lens.shear.magnitude.value
+        q = 1 - self.lens.ellipticity.magnitude.value
+        ret_val = b/(2*sqrt(q**2*t1**2 + t2**2)) + 3*g*cos(E - p + atan(t2/t1))/4
+        # ret_val = b/2/sqrt(t1**2+t2**2/q**2)
+        return ret_val
 
     def shear(self,loc:Vec2D) -> float:
         # print("NOTE: Have not implimented Shear yet!")
         #Expressions calculated using Sympy, from \Psi = \theta \dot \alpha
         #STILL NOT GOOD _ NOT ACCOUNTING FOR EXTERNAL SHEAR
-        try:
-            loc = loc.to(self.xi_0)
-            b = self.einstein_radius
-            t1 = loc.x.value
-            t2 = loc.y.value
-            q = 1 - self.lens.ellipticity
-            psi_11 = b*q*t2**2/((t1**2 + t2**2)*sqrt(q**2*t1**2 + t2**2))
-            psi_22 = b*q*t1**2/((t1**2 + t2**2)*sqrt(q**2*t1**2 + t2**2))
-            psi_12 = -b*q*t1*t2/((t1**2 + t2**2)*sqrt(q**2*t1**2 + t2**2))
-            shear = (1/2*(psi_11 - psi_22))**2 + psi_12**2
-            print("Calculating shear of %f" % shear)
-        except:
-            pass
-        return 0.7
-
+        b = self.einstein_radius.to('rad').value
+        x = loc.x.to('rad').value
+        y = loc.y.to('rad').value
+        E = self.lens.ellipticity.direction.to('rad').value
+        t1 = x*sin(E) + y*cos(E)
+        t2 = y*sin(E) - x*cos(E)
+        p = self.lens.shear.direction.to('rad').value
+        g = self.lens.shear.magnitude.value
+        q = 1 - self.lens.ellipticity.magnitude.value
+        ret_val = sqrt(t1**2*(2*b*t2*(t1**2 + t2**2)*sqrt(q**2*t1**2 + t2**2) + g*sqrt((t1**2 + t2**2)/t1**2)*(t1**2*(q**2*t1**3*sin(E - p) - q**2*t2**3*cos(E - p) + t1*t2**2*sin(E - p)) - t2**5*cos(E - p)))**2/(4*(t1**2 + t2**2)**2*(q**2*t1**4 + q**2*t1**2*t2**2 + t1**2*t2**2 + t2**4)**2) + (-b*t1**2*sqrt(q**2*t1**2 + t2**2)/2 + b*t2**2*sqrt(q**2*t1**2 + t2**2)/2 + g*q**2*t1**4*cos(E - p + atan(t2/t1))/4 + g*q**2*t1**3*t2*sin(E - p + atan(t2/t1)) - g*q**2*t1**2*t2**2*cos(E - p + atan(t2/t1))/4 + g*t1**2*t2**2*cos(E - p + atan(t2/t1))/4 + g*t1*t2**3*sin(E - p + atan(t2/t1)) - g*t2**4*cos(E - p + atan(t2/t1))/4)**2/(q**2*t1**4 + q**2*t1**2*t2**2 + t1**2*t2**2 + t2**4)**2)
+        return ret_val
     @property
     def json(self):
         ret = {}
@@ -168,8 +164,8 @@ class Parameters(Jsonable, CalculationDependency):
     @staticmethod
     def static_einstein_radius(vDispersion, z_s, z_l):
         dLS = Cosmic.cosmology.angular_diameter_distance_z1z2(z_l,z_s)
-        dL = Cosmic.cosmology.angular_diameter_distance(z_l)
-        ret = 4 * pi * vDispersion**2*dLS/dL/const.c**2
+        dS = Cosmic.cosmology.angular_diameter_distance(z_s)
+        ret = (4 * pi * vDispersion.to('m/s')**2*dLS)/(dS*const.c**2)
         ret = ret.to('')
         return u.Quantity(ret.value,'rad')
 

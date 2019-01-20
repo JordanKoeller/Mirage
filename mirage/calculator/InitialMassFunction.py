@@ -673,7 +673,7 @@ class Evolved_IMF(IMF_broken_powerlaw):
         massCounter = 0.0
         tolerance = 3.0
         while (totalMass - massCounter > tolerance):
-            rawMasses = IMF_broken_powerlaw.generate_cluster(totalMass-massCounter)[0]
+            rawMasses = IMF_broken_powerlaw.generate_cluster(self,totalMass-massCounter)
             for mass in rawMasses:
                 if mass < self.__conversions[0][0]:
                     retArr.append(mass)

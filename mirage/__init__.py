@@ -99,10 +99,26 @@ def getSimulationView(window=None,filename=None):
         window.set_object(load_simulation(filename))
     return window
 
-def getLensedView(params):
-    print("NEEDS WORK")
-    from mirage.views import LensView
+def getLensedView(params_or_sim):
+    from mirage.views import LensView, AnimationController
+    from mirage.engine import getVisualEngine
+    from mirage.util import Vec2D
+    from mirage.parameters import AnimationSimulation
+    anim = None
+    if isinstance(params_or_sim,AnimationSimulation):
+        anim = params_or_sim
+        params = params_or_sim.parameters
+    else:
+        params = params_or_sim
+        sp = Vec2D(0.0,0.0,'arcsec')
+        vel = Vec2D(0,0,'arcsec/s')
+        anim = AnimationSimulation(params,sp,vel)
+    eng = getVisualEngine(params)
+    controller = AnimationController(anim,eng)
+    eng.update_parameters(params)
     view = LensView("Lens View")
+    view.connect_runner(controller)
+    return view
 
 
 def runSimulation(simfile,savefile):

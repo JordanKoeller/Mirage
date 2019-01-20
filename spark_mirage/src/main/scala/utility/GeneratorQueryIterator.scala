@@ -12,8 +12,9 @@ class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDi
   private var currRow = 0
 
   override def nextBatch(): LocalQueryIterator = {
-    val ret = new GridLocalIterator(xStep,yStep,x0,y0, xDim, currRow, math.min(currRow + numRow, yDim))
-    currRow += numRow
+    val batchSize = math.min(currRow+numRow,yDim)
+    val ret = new GridLocalIterator(xStep,yStep,x0,y0, xDim, currRow, batchSize)
+    currRow += batchSize
     ret
   }
 

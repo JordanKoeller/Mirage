@@ -67,6 +67,11 @@ class LensView(ImageCurveView):
     def show(self):
         self._fig.show()
 
+    @property
+    def simulation(self):
+        return self._controller_ref.simulation
+    
+
     def connect_runner(self,runner_controller:AnimationController):
         self._controller_ref = runner_controller
         if self._animation:

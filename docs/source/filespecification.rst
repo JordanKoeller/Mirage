@@ -30,10 +30,20 @@ The :func:`load_simulation <mirage.lens_analysis.load_simulation>` function can 
 
 .. note:: :func:`load_simulation <mirage.lens_analysis.load_simulation>` will return an |AnimationSimulation| if reading from a `.msim` file rather than a |Simulation| object.
 
-.. note:: In the case where you are reading from a `.res` file, :func:`load_simulation <mirage.lens_analysis.load_simulation>` will only read the |Simulation| object used to run the computation, then close the file before looking at any of the actual computed results.
+.. seealso:: Similar to the :func:`load_simulation <mirage.lens_analysis.load_simulation>` is the :func:`load_parameters <mirage.lens_analysis.load_parameters>` function, which will return a |Parmameters| or |MicroParameters| instance from an `.sim`, `.msim`, `.res`, `.param`, or `.mparam` file.
 
 Lastly, |lens_analysis| also includes the :func:`describe <mirage.lens_analysis.describe>` function, which can be used to print a synopsis of the contents of a file.::
 	
 	>>> la.describe("examples/qso2237Sim.sim")
 
-TODO
+Writing Files
+-------------
+
+Writing objects to file is most easily accomplished with the :func:`la.write <mirage.lens_analysis.write>` function. This function is a general-purpose writing function. It accepts a |Parameters|, |MicroParameters|, |Simulation|, |AnimationSimulation|, or |Result| object writes it to the appropriate file with appropriate extension. ::
+	
+	>>> #Let obj be a Parameters instance
+	>>> la.write(obj,"parametersFile")
+	parametersFile.param saved.
+
+.. warning:: :func:`la.write <mirage.lens_analysis.write>` will always append the appropriate extension to the filename, regardless of any extensions already present in the filename. It is recommended you do not supply any extension.
+

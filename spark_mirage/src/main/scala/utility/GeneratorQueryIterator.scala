@@ -18,7 +18,7 @@ class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDi
     ret
   }
 
-  override def hasNext: Boolean = currRow < yDim
+  override def hasNext: Boolean = endRow < yDim
 
   override def takeInResult(res: Array[Index]): Unit = {
     var counter = 0

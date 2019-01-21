@@ -128,6 +128,7 @@ class Parameters(Jsonable, CalculationDependency):
         ret_val = sqrt(t1**2*(2*b*t2*(t1**2 + t2**2)*sqrt(q**2*t1**2 + t2**2) + g*sqrt((t1**2 + t2**2)/t1**2)*(t1**2*(q**2*t1**3*sin(E - p) - q**2*t2**3*cos(E - p) + t1*t2**2*sin(E - p)) - t2**5*cos(E - p)))**2/(4*(t1**2 + t2**2)**2*(q**2*t1**4 + q**2*t1**2*t2**2 + t1**2*t2**2 + t2**4)**2) + (-b*t1**2*sqrt(q**2*t1**2 + t2**2)/2 + b*t2**2*sqrt(q**2*t1**2 + t2**2)/2 + g*q**2*t1**4*cos(E - p + atan(t2/t1))/4 + g*q**2*t1**3*t2*sin(E - p + atan(t2/t1)) - g*q**2*t1**2*t2**2*cos(E - p + atan(t2/t1))/4 + g*t1**2*t2**2*cos(E - p + atan(t2/t1))/4 + g*t1*t2**3*sin(E - p + atan(t2/t1)) - g*t2**4*cos(E - p + atan(t2/t1))/4)**2/(q**2*t1**4 + q**2*t1**2*t2**2 + t1**2*t2**2 + t2**4)**2)
         return 0.7
         return ret_val
+
     @property
     def json(self):
         ret = {}

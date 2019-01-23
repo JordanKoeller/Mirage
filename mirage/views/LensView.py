@@ -1,10 +1,12 @@
 import time
+from multiprocessing import Process, Queue, Pipe
 
 from astropy import units as u
 from matplotlib .animation import FuncAnimation
 from matplotlib import patches
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.lines import Line2D
+from PyQt5.QtCore import QTimer
 import numpy as np
 
 from . import ImageCurveView
@@ -13,12 +15,54 @@ from mirage import GlobalPreferences
 from mirage.util import Vec2D
 
 
+def _processThreadFunc(dt,sim,engine,queue,in_queue):
+    time = dt*0
+    flag = True
+    renderer = get_renderer(sim)
+    from mirage.parameters import Simulation
+    while True:
+    # def timer_executor():
+        # if pipe.empty():
+        flag = False
+        data = None
+        data = in_queue.get(True)
+        # while in_queue.qsize() > 1:
+        #     data = in_queue.get(True)
+        if isinstance(data,Vec2D):
+            location = data
+            pixels = engine.get_pixels(location,radius)
+            frame = renderer.get_frame(pixels)
+            queue.put([location,frame])
+        elif isinstance(data,u.Quantity):
+            time = data
+            flag = True
+        elif isinstance(data,Simulation):
+            simulation = data
+            engine.update_parameters(simulation.parameters)
+            flag = True
+        elif isinstance(data,str):
+            time += dt
+            location,radius = sim.query_info(time)
+            pixels = engine.get_pixels(location,radius)
+            frame = renderer.get_frame(pixels)
+            queue.put([location,frame])
+
 class AnimationController(object):
+
+    buffer_sz = 10
 
     def __init__(self,simulation:'AnimationSimulation', engine:'AbstractEngine'):
         self._simulation = simulation
         self._engine = engine
+        self._engine.update_parameters(simulation.parameters)
         self._dt = u.Quantity(0.1,'s')
+        self._queue = Queue(maxsize=self.buffer_sz)
+        self._sender = Queue(maxsize=10)
+        self._process = Process(target=_processThreadFunc,args=(self._dt,self._simulation,self._engine,self._queue,self._sender),daemon=True)
+        self._process.start()
+
+    def close(self):
+        self._process.close()
 
 
     @property
@@ -27,19 +71,44 @@ class AnimationController(object):
     @property
     def engine(self):
         return self._engine
+
+    @property
+    def extent(self):
+        extent = self.simulation.parameters.ray_region.dimensions.to(self.unit)/2
+        x = extent.x.value
+        y = extent.y.value
+        return [-x,x,y,-y]
+
+    @property
+    def unit(self):
+        if self.simulation.parameters.ray_region.dimensions.to(self.simulation.parameters.theta_E).magnitude.value > 1000:
+            return u.arcsec
+        else:
+            return self.simulation.parameters.theta_E
     
+    def query_location(self,loc,blocking=False):
+        self._sender.put(loc,blocking)
 
-    def get_at_frame(self,frame_number):
-        time = frame_number*self._dt
-        location, radius = self.simulation.query_info(time)
-        pixels = self.engine.get_pixels(location,radius)
-        return (location,pixels)
+    def next_frame(self,block=False):
+        if block:
+            return self._queue.get(True)
+        elif self._queue.empty():
+            return None
+        else:
+            return self._queue.get(False)
 
+    def request_next(self,force=False):
+        if force or self._queue.empty():
+            try:
+                self._sender.put("Next",False)
+            except:
+                pass
 
 class LensView(ImageCurveView):
 
     def __init__(self,name=None) -> None:
         self._fig, self._imgAx, self._lcAx, self._dynamic_canvas = self.get_view(True,name,True)
+        # toolbar = self._window.toolbar
         self._playing = False
         self._frame_number = 0
         self._runner = None
@@ -56,21 +125,28 @@ class LensView(ImageCurveView):
         self._curve_max = 1
         self._lcAx.set_ylim(0,self._curve_max)
         self.connect()
+        self._cmap = self._get_img_colormap()
 
     def _get_img_colormap(self):
         bg = GlobalPreferences['background_color']
         fg = GlobalPreferences['image_color']
         clist = [(0,bg),(1,fg)]
         return LinearSegmentedColormap.from_list("LensViewCMap",clist)
-    
+
+    @property
+    def cmap(self):
+        return self._cmap
+
+    @property
+    def controller(self):
+        return self._controller_ref
 
     def show(self):
         self._fig.show()
 
     @property
     def simulation(self):
-        return self._controller_ref.simulation
-    
+        return self._controller_ref.simulation 
 
     def connect_runner(self,runner_controller:AnimationController):
         self._controller_ref = runner_controller
@@ -78,53 +154,34 @@ class LensView(ImageCurveView):
             self._animation._stop()
             del(self._animation)
             self._animation = None
-        sim = runner_controller.simulation
-        extent = sim.parameters.ray_region.dimensions/2
-        # minx,miny,maxx,maxy = sim.parameters.ray_region.to(sim.parameters.theta_E).extent
-        x = extent.x.value
-        y = extent.y.value
-        self._galPatch.set_radius(extent.x.value/100)
-        renderer = get_renderer(runner_controller.simulation)
-        cmap = self._get_img_colormap()
-        self._frame_number = 0
         def run(*args,**kwargs):
-            self._imgAx.clear()
-            self._frame_number += 1
-            q_center, pixels = runner_controller.get_at_frame(self._frame_number)
-            frame = renderer.get_frame(pixels)
-            self._imgAx.imshow(frame,animated=True,extent = [-x,x,y,-y],cmap=cmap)
-            self._imgAx.figure.canvas.draw()
-        # def run(*args):
-        #     if self._playing:
-        #         self._imgAx.clear()
-        #         self._frame_number += 1
-        #         q_center, pixels = runner_controller.get_at_frame(self._frame_number)
-        #         frame = renderer.get_frame(pixels)
-        #         self._quasarPatch.center = q_center.as_value_tuple()
-        #         self._quasarPatch.set_radius(min(sim.parameters.ray_region.dimensions.as_value_tuple())/200)
-        #         if len(self._curve_plot) <= self._frame_number:
-        #             self._curve_plot = np.append(self._curve_plot,np.zeros(len(self._curve_plot)))
-        #             self._curve_ax = np.arange(len(self._curve_plot))
-        #             self._lcAx.set_xlim(0,len(self._curve_ax))
-        #         self._curve_plot[self._frame_number] = len(pixels)
-        #         if self._curve_plot[self._frame_number] > self._curve_max:
-        #             self._curve_max = self._curve_plot[self._frame_number]*2
-        #             self._lcAx.set_ylim(0,self._curve_max)
-        #         self._curve.set_data(self._curve_ax,self._curve_plot)
-        #         return [
-        #         self._imgAx.imshow(frame,animated=True,extent=[-x,x,y,-y],cmap=cmap),
-        #         self._curve,
-        #         # self._imgAx.imshow(frame,animated=True,extent=[minx.value,maxx.value,maxy.value,miny.value],cmap=cmap),
-        #         self._imgAx.add_artist(self._galPatch),
-        #         self._imgAx.add_artist(self._quasarPatch),
-        #         ]
-        #     else:
-        #         []
+            if self._playing:
+                self.controller.request_next()
+            ret = runner_controller.next_frame()
+            if ret is not None:
+                q_center, frame = ret
+                self._set_frame(q_center,frame)
         self._runner = run
-        self._playing = True
-        self._runner()
         self._playing = False
+        self.controller.request_next()
+        q_center, frame = runner_controller.next_frame(True)
+        self._set_frame(q_center,frame,default_limits=True)
+        self._animation = self._dynamic_canvas.new_timer(100/60,[(self._runner,(),{})])
+        self._animation.start()
 
+    def _set_frame(self, q_loc, frame,default_limits=False):
+        if not default_limits:
+            xlim = self._imgAx.get_xlim()
+            ylim = self._imgAx.get_ylim()
+        self._imgAx.clear()
+        self._quasarPatch.center = q_loc.to(self.controller.unit).as_value_tuple()
+        self._quasarPatch.set_radius(0.04)
+        self._imgAx.imshow(frame,animated=True,extent=self.controller.extent,cmap=self.cmap)
+        self._imgAx.add_artist(self._quasarPatch)
+        if not default_limits:
+            self._imgAx.set_xlim(xlim)
+            self._imgAx.set_ylim(ylim)
+        self._imgAx.figure.canvas.draw()
 
     def toggle(self):
         if not self._playing:
@@ -134,18 +191,16 @@ class LensView(ImageCurveView):
 
     def play(self):
         self._playing = True
-        if self._animation:
-            pass
-        else:
-            self._animation = self._dynamic_canvas.new_timer(1000/60,[(self._runner,(),{})])
-            self._animation.start()
+        # if self._animation:
+        #     pass
+        # else:
 
     def pause(self):
         self._playing = False
-        if self._animation:
-            self._animation._stop()
-            del(self._animation)
-            self._animation = None
+        # if self._animation:
+        #     self._animation.stop()
+        #     del(self._animation)
+        #     self._animation = None
         #     self._animation = None
 
     def reset(self):
@@ -166,38 +221,52 @@ class LensView(ImageCurveView):
 
     def on_press(self,event):
         if event.inaxes != self._imgAx or event.button != 3 or self._playing: return
-        canvas = self._fig.canvas
-        self.line.set_xdata([0,0])
-        self.line.set_ydata([0,0])
-        # self.line.set_animated(True)
-        canvas.draw()
-        self.background = canvas.copy_from_bbox(self._imgAx.bbox)
+        if self._quasarPatch.contains(event):
+            self._grabbed_quasar = True
+        else:
+            canvas = self._fig.canvas
+            self.line.set_xdata([0,0])
+            self.line.set_ydata([0,0])
+            canvas.draw()
+            self.background = canvas.copy_from_bbox(self._imgAx.bbox)
+            self._imgAx.draw_artist(self.line)
+            canvas.blit(self._imgAx.bbox)
         self.press = event.xdata, event.ydata
-        self._imgAx.draw_artist(self.line)
-        canvas.blit(self._imgAx.bbox)
 
     def on_motion(self, event):
         'on motion we will move the rect if the mouse is over us'
         if self.press is None: return
         if event.inaxes != self._imgAx or event.button != 3: return
-        xpress, ypress = self.press
-        self.line.set_xdata([xpress,event.xdata])
-        self.line.set_ydata([ypress,event.ydata])
-        self._fig.canvas.restore_region(self.background)
-        self._imgAx.draw_artist(self.line)
-        self._fig.canvas.blit(self._imgAx.bbox)
+        xpress, ypress = event.xdata,event.ydata
+        if self._grabbed_quasar:
+            sim = self._controller_ref.simulation
+            loc = Vec2D(xpress,ypress,self.controller.unit)
+            self._controller_ref.query_location(loc)
+        else:
+            self.line.set_xdata([xpress,event.xdata])
+            self.line.set_ydata([ypress,event.ydata])
+            self._fig.canvas.restore_region(self.background)
+            self._imgAx.draw_artist(self.line)
+            self._fig.canvas.blit(self._imgAx.bbox)
 
     def on_release(self,event):
         if event.button != 3: return
         start = self.press
-        end = event.xdata, event.ydata
-        if not start or not end: return
-        self.press = None
-        sim = self._controller_ref.simulation
-        pos_unit = sim.start_position.unit
-        vel_unit = sim.velocity.unit 
-        self.line.set_xdata([0,0])
-        self.line.set_ydata([0,0])
-        sv = Vec2D(start[0],start[1],pos_unit)
-        vel = Vec2D(end[0] - start[0],end[1] - start[1],vel_unit)
-        sim.update(start_position=sv,velocity=vel/20)
+        if self._grabbed_quasar:
+            xpress, ypress = event.xdata,event.ydata
+            sim = self._controller_ref.simulation
+            loc = Vec2D(xpress,ypress,self.controller.unit)
+            self._controller_ref.query_location(loc,blocking=True)
+            self._grabbed_quasar = False
+        else:
+            end = event.xdata, event.ydata
+            if not start or not end: return
+            self.press = None
+            sim = self._controller_ref.simulation
+            pos_unit = sim.start_position.unit
+            vel_unit = sim.velocity.unit 
+            self.line.set_xdata([0,0])
+            self.line.set_ydata([0,0])
+            sv = Vec2D(start[0],start[1],pos_unit)
+            vel = Vec2D(end[0] - start[0],end[1] - start[1],vel_unit)
+            sim.update(start_position=sv,velocity=vel/20)

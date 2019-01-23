@@ -1995,7 +1995,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_10ray_tracer_ray_trace_
  *         else:
  *             eex = x*sinEl+y*cosEl             # <<<<<<<<<<<<<<
  *             eey = y*sinEl-x*cosEl
- *             ex = el_mag*b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+ *             ex = b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
  */
     /*else*/ {
       __pyx_v_eex = ((__pyx_v_x * __pyx_v_sinEl) + (__pyx_v_y * __pyx_v_cosEl));
@@ -2004,16 +2004,16 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_10ray_tracer_ray_trace_
  *         else:
  *             eex = x*sinEl+y*cosEl
  *             eey = y*sinEl-x*cosEl             # <<<<<<<<<<<<<<
- *             ex = el_mag*b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
- *             ey = el_mag*b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+ *             ex = b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+ *             ey = b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
  */
       __pyx_v_eey = ((__pyx_v_y * __pyx_v_sinEl) - (__pyx_v_x * __pyx_v_cosEl));
 
       /* "mirage/engine/ray_tracer.pyx":36
  *             eex = x*sinEl+y*cosEl
  *             eey = y*sinEl-x*cosEl
- *             ex = el_mag*b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1             # <<<<<<<<<<<<<<
- *             ey = el_mag*b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+ *             ex = b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1             # <<<<<<<<<<<<<<
+ *             ey = b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
  *             res_x = ex*sinEl-ey*cosEl
  */
       __pyx_t_2 = (__pyx_v_q1 * __pyx_v_eex);
@@ -2028,7 +2028,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_10ray_tracer_ray_trace_
         #endif
         __PYX_ERR(0, 36, __pyx_L1_error)
       }
-      __pyx_t_4 = ((__pyx_v_el_mag * __pyx_v_b) * atan((__pyx_t_2 / __pyx_t_3)));
+      __pyx_t_4 = (__pyx_v_b * atan((__pyx_t_2 / __pyx_t_3)));
       if (unlikely(__pyx_v_q1 == 0)) {
         #ifdef WITH_THREAD
         PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
@@ -2043,8 +2043,8 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_10ray_tracer_ray_trace_
 
       /* "mirage/engine/ray_tracer.pyx":37
  *             eey = y*sinEl-x*cosEl
- *             ex = el_mag*b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
- *             ey = el_mag*b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1             # <<<<<<<<<<<<<<
+ *             ex = b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+ *             ey = b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1             # <<<<<<<<<<<<<<
  *             res_x = ex*sinEl-ey*cosEl
  *             res_y = ex*sinEl + ey*sinEl
  */
@@ -2060,7 +2060,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_10ray_tracer_ray_trace_
         #endif
         __PYX_ERR(0, 37, __pyx_L1_error)
       }
-      __pyx_t_2 = ((__pyx_v_el_mag * __pyx_v_b) * atanh((__pyx_t_4 / __pyx_t_3)));
+      __pyx_t_2 = (__pyx_v_b * atanh((__pyx_t_4 / __pyx_t_3)));
       if (unlikely(__pyx_v_q1 == 0)) {
         #ifdef WITH_THREAD
         PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
@@ -2074,8 +2074,8 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_10ray_tracer_ray_trace_
       __pyx_v_ey = (__pyx_t_2 / __pyx_v_q1);
 
       /* "mirage/engine/ray_tracer.pyx":38
- *             ex = el_mag*b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
- *             ey = el_mag*b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+ *             ex = b*atan(q1*eex/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+ *             ey = b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
  *             res_x = ex*sinEl-ey*cosEl             # <<<<<<<<<<<<<<
  *             res_y = ex*sinEl + ey*sinEl
  *     else:
@@ -2083,7 +2083,7 @@ static std::pair<double,double>  __pyx_f_6mirage_6engine_10ray_tracer_ray_trace_
       __pyx_v_res_x = ((__pyx_v_ex * __pyx_v_sinEl) - (__pyx_v_ey * __pyx_v_cosEl));
 
       /* "mirage/engine/ray_tracer.pyx":39
- *             ey = el_mag*b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
+ *             ey = b*atanh(q1*eey/sqrt(el_mag*el_mag*eex*eex+eey*eey))/q1
  *             res_x = ex*sinEl-ey*cosEl
  *             res_y = ex*sinEl + ey*sinEl             # <<<<<<<<<<<<<<
  *     else:

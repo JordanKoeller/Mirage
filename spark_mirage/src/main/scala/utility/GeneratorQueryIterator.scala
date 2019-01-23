@@ -27,7 +27,6 @@ class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDi
       counter += xDim
     }
   }
-
 }
 
 

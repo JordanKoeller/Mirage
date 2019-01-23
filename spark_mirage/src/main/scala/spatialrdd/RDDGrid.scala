@@ -73,8 +73,9 @@ class RDDGrid[A <: RayBank : ClassTag, SD <: SpatialData : ClassTag](rdd: RDD[SD
           rett
       }
       val reduced = queries.reduceByKey((acc,n) => acc + n).collect
-      val batchResult = reduced.sortBy(_._1).map(_._2)
-      iter.takeInResult(batchResult)
+      val retList = Array.fill(localIter.size)(0)
+      reduced.foreach{e => retList(e._1) = e._2}
+      iter.takeInResult(retList)
     }
     iter.collect
   }

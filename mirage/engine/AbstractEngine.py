@@ -14,6 +14,11 @@ class EngineHandler(object):
     def calculation_delegate(self):
         return self._calculation_delegate
 
+    @property
+    def parameters(self):
+        return self._parameters
+    
+
     def update_parameters(self,params:Parameters,force_recalculate=False) -> bool:
         if not self._parameters or force_recalculate or not self._parameters.is_similar(params):
             self._parameters = params

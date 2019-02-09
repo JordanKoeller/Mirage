@@ -74,8 +74,7 @@ From the |SimulationView| you can specify if you want to compute light curves, m
 Once you have the simulation configured as desired, you will need to save the |Simulation| object to a `.sim` file either programatically (see :doc:`filespecification`) or from the |SimulationView| menu. ::
 	
 	>>> simulation = simulation_view.get_simulation()
-	>>> from mirage.io import save_simulation
-	>>> save_simulation(simulation,"filename.sim")
+	>>> la.write(simulation,"filename")
 
 Finally, to calculate the simulation, use the :func:`run_simulation <mirage.run_simulation>` function. ::
 	

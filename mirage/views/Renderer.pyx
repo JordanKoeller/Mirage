@@ -8,8 +8,8 @@ cimport numpy as np
 
 cdef class LensRenderer:
 
-	def __init__(self,object simulation):
-		self.region = simulation.parameters.ray_region.resolution.as_value_tuple()
+	def __init__(self,object parameters):
+		self.region = parameters.ray_region.resolution.as_value_tuple()
 
 	def blank_frame(self):
 		return np.zeros(self.region,dtype=np.int8)

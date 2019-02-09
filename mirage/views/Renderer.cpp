@@ -1193,7 +1193,7 @@ struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer {
  * 
  * cdef class LensRenderer:             # <<<<<<<<<<<<<<
  * 
- * 	def __init__(self,object simulation):
+ * 	def __init__(self,object parameters):
  */
 
 struct __pyx_vtabstruct_6mirage_5views_8Renderer_LensRenderer {
@@ -1808,7 +1808,6 @@ static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_ray_region[] = "ray_region";
 static const char __pyx_k_resolution[] = "resolution";
-static const char __pyx_k_simulation[] = "simulation";
 static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_PickleError[] = "PickleError";
 static const char __pyx_k_LensRenderer[] = "LensRenderer";
@@ -1875,14 +1874,13 @@ static PyObject *__pyx_n_s_reduce_ex;
 static PyObject *__pyx_n_s_resolution;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
-static PyObject *__pyx_n_s_simulation;
 static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_uint8;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_zeros;
-static int __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *__pyx_v_self, PyObject *__pyx_v_simulation); /* proto */
+static int __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *__pyx_v_self, PyObject *__pyx_v_parameters); /* proto */
 static PyObject *__pyx_pf_6mirage_5views_8Renderer_12LensRenderer_2blank_frame(struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_6mirage_5views_8Renderer_12LensRenderer_4get_frame(struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *__pyx_v_self, PyArrayObject *__pyx_v_pixels); /* proto */
 static PyObject *__pyx_pf_6mirage_5views_8Renderer_12LensRenderer_6__reduce_cython__(struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *__pyx_v_self); /* proto */
@@ -1906,20 +1904,20 @@ static PyObject *__pyx_codeobj__9;
 /* "mirage/views/Renderer.pyx":11
  * cdef class LensRenderer:
  * 
- * 	def __init__(self,object simulation):             # <<<<<<<<<<<<<<
- * 		self.region = simulation.parameters.ray_region.resolution.as_value_tuple()
+ * 	def __init__(self,object parameters):             # <<<<<<<<<<<<<<
+ * 		self.region = parameters.ray_region.resolution.as_value_tuple()
  * 
  */
 
 /* Python wrapper */
 static int __pyx_pw_6mirage_5views_8Renderer_12LensRenderer_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_6mirage_5views_8Renderer_12LensRenderer_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  PyObject *__pyx_v_simulation = 0;
+  PyObject *__pyx_v_parameters = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_simulation,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_parameters,0};
     PyObject* values[1] = {0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
@@ -1933,7 +1931,7 @@ static int __pyx_pw_6mirage_5views_8Renderer_12LensRenderer_1__init__(PyObject *
       kw_args = PyDict_Size(__pyx_kwds);
       switch (pos_args) {
         case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_simulation)) != 0)) kw_args--;
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_parameters)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
@@ -1944,7 +1942,7 @@ static int __pyx_pw_6mirage_5views_8Renderer_12LensRenderer_1__init__(PyObject *
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
     }
-    __pyx_v_simulation = values[0];
+    __pyx_v_parameters = values[0];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -1954,14 +1952,14 @@ static int __pyx_pw_6mirage_5views_8Renderer_12LensRenderer_1__init__(PyObject *
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(((struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *)__pyx_v_self), __pyx_v_simulation);
+  __pyx_r = __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(((struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *)__pyx_v_self), __pyx_v_parameters);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *__pyx_v_self, PyObject *__pyx_v_simulation) {
+static int __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(struct __pyx_obj_6mirage_5views_8Renderer_LensRenderer *__pyx_v_self, PyObject *__pyx_v_parameters) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1971,37 +1969,34 @@ static int __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(struct __py
 
   /* "mirage/views/Renderer.pyx":12
  * 
- * 	def __init__(self,object simulation):
- * 		self.region = simulation.parameters.ray_region.resolution.as_value_tuple()             # <<<<<<<<<<<<<<
+ * 	def __init__(self,object parameters):
+ * 		self.region = parameters.ray_region.resolution.as_value_tuple()             # <<<<<<<<<<<<<<
  * 
  * 	def blank_frame(self):
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_simulation, __pyx_n_s_parameters); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_parameters, __pyx_n_s_ray_region); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_ray_region); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_resolution); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_resolution); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_as_value_tuple); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_as_value_tuple); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 12, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = NULL;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
-    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
-    if (likely(__pyx_t_2)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-      __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_3 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_3)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_3);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __Pyx_DECREF_SET(__pyx_t_2, function);
     }
   }
-  __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->region);
   __Pyx_DECREF(__pyx_v_self->region);
@@ -2011,8 +2006,8 @@ static int __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(struct __py
   /* "mirage/views/Renderer.pyx":11
  * cdef class LensRenderer:
  * 
- * 	def __init__(self,object simulation):             # <<<<<<<<<<<<<<
- * 		self.region = simulation.parameters.ray_region.resolution.as_value_tuple()
+ * 	def __init__(self,object parameters):             # <<<<<<<<<<<<<<
+ * 		self.region = parameters.ray_region.resolution.as_value_tuple()
  * 
  */
 
@@ -2031,7 +2026,7 @@ static int __pyx_pf_6mirage_5views_8Renderer_12LensRenderer___init__(struct __py
 }
 
 /* "mirage/views/Renderer.pyx":14
- * 		self.region = simulation.parameters.ray_region.resolution.as_value_tuple()
+ * 		self.region = parameters.ray_region.resolution.as_value_tuple()
  * 
  * 	def blank_frame(self):             # <<<<<<<<<<<<<<
  * 		return np.zeros(self.region,dtype=np.int8)
@@ -2098,7 +2093,7 @@ static PyObject *__pyx_pf_6mirage_5views_8Renderer_12LensRenderer_2blank_frame(s
   goto __pyx_L0;
 
   /* "mirage/views/Renderer.pyx":14
- * 		self.region = simulation.parameters.ray_region.resolution.as_value_tuple()
+ * 		self.region = parameters.ray_region.resolution.as_value_tuple()
  * 
  * 	def blank_frame(self):             # <<<<<<<<<<<<<<
  * 		return np.zeros(self.region,dtype=np.int8)
@@ -5721,7 +5716,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_resolution, __pyx_k_resolution, sizeof(__pyx_k_resolution), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
-  {&__pyx_n_s_simulation, __pyx_k_simulation, sizeof(__pyx_k_simulation), 0, 0, 1, 1},
   {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_uint8, __pyx_k_uint8, sizeof(__pyx_k_uint8), 0, 0, 1, 1},

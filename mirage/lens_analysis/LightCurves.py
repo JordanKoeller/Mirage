@@ -10,7 +10,13 @@ from scipy.optimize import minimize
 from astropy import units as u
 import numpy as np
 
-# from matplotlib import pyplot as plt
+# Things I want to show for giving to Dave.
+
+# 1) Sobell Edge detection working beautifully
+# 2) Doublet isolation
+# 3) Asymmetry binning - show pulling from bins
+# 4) Histograms 
+# 5) Best fit line for the peak shift
 
 
 def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event_finding_args):

@@ -2,7 +2,6 @@ import time
 from multiprocessing import Process, Queue, Pipe
 
 from astropy import units as u
-from matplotlib .animation import FuncAnimation
 from matplotlib import patches
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.lines import Line2D
@@ -18,18 +17,16 @@ from mirage.util import Vec2D
 def _processThreadFunc(dt,sim,engine,queue,in_queue):
     time = dt*0
     flag = True
-    renderer = get_renderer(sim)
+    renderer = get_renderer(engine.parameters)
     from mirage.parameters import Simulation
     while True:
-    # def timer_executor():
-        # if pipe.empty():
         flag = False
         data = None
         data = in_queue.get(True)
-        # while in_queue.qsize() > 1:
-        #     data = in_queue.get(True)
         if isinstance(data,Vec2D):
             location = data
+            time *= 0
+            sim.update(start_position = location)
             pixels = engine.get_pixels(location,radius)
             frame = renderer.get_frame(pixels)
             queue.put([location,frame])
@@ -58,16 +55,21 @@ class AnimationController(object):
         self._dt = u.Quantity(0.1,'s')
         self._queue = Queue(maxsize=self.buffer_sz)
         self._sender = Queue(maxsize=10)
+        # recv, self._sim_send = Pipe()
         self._process = Process(target=_processThreadFunc,args=(self._dt,self._simulation,self._engine,self._queue,self._sender),daemon=True)
         self._process.start()
 
     def close(self):
         self._process.close()
 
+    def update_simulation(self,sim):
+        self._simulation = sim
+        self._sender.put(sim,True)
 
     @property
     def simulation(self):
         return self._simulation
+
     @property
     def engine(self):
         return self._engine
@@ -87,6 +89,7 @@ class AnimationController(object):
             return self.simulation.parameters.theta_E
     
     def query_location(self,loc,blocking=False):
+        self.simulation.update(start_position=loc)
         self._sender.put(loc,blocking)
 
     def next_frame(self,block=False):

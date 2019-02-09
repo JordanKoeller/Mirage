@@ -171,10 +171,10 @@ class Parameters(Jsonable, CalculationDependency):
         ret = ret.to('')
         return u.Quantity(ret.value,'rad')
 
-    def to_microlensing_parameters(self, pcnt_stars:float,
-        image_center:Vec2D,
-        minor_axis:u.Quantity,
-        star_generator:MassFunction) -> 'MicrolensingParameters':
+    def to_microParams(self, pcnt_stars:float,
+                       image_center:Vec2D,
+                       minor_axis:u.Quantity,
+                       star_generator:MassFunction) -> 'MicrolensingParameters':
         bounding_box = Region(zero_vector('uas'),Vec2D(minor_axis.value,minor_axis.value,minor_axis.unit))
         return MicrolensingParameters(self.quasar, self.lens,
             pcnt_stars,
@@ -182,6 +182,7 @@ class Parameters(Jsonable, CalculationDependency):
             self.ray_region.resolution,
             bounding_box,
             star_generator)
+
 
 class MicrolensingParameters(Parameters):
 
@@ -194,7 +195,6 @@ class MicrolensingParameters(Parameters):
                  quasar_position_bounding_box:Region,
                  star_generator:MassFunction = getMassFunction()):
         try:
-            # eprint("NOTE: Need to specify the factor for going from source plane to ray plane.")
             factor = GlobalPreferences['microlensing_window_buffer']
             tmp_p = Parameters(quasar,lens)
             conv = tmp_p.convergence(image_center)
@@ -211,11 +211,12 @@ class MicrolensingParameters(Parameters):
         except:
             raise ParametersError("Could not construct MicrolensingParameters from the supplied arguments.")
 
-    @property
-    def get_macro_parameters(self):
-        print("Temporary implimentation for macro_parameters")
-        ray_region = self.ray_region
-        return Parameters(self.quasar,self.lens,ray_region)
+    def to_macroParams(self,pixels=Vec2D(2000,2000)):
+        region_dims = zero_vector('arcsec')+self.einstein_radius.to('arcsec')*2.0
+        new_region = PixelRegion(zero_vector('arcsec'),region_dims,pixels)
+        params = Parameters(self.quasar,self.lens,new_region)
+        return params
+
 
     @property
     def starry_region(self):
@@ -291,8 +292,6 @@ class MicrolensingParameters(Parameters):
             return ret
         except KeyError as e:
             ret = Parameters.json.fget(self)
-            # print("Sloppy implementation here. Need to redo it with better json of micromagmap")
-            # del(ret['ray_region'])
             ret['star_generator'] = self.star_generator.json
             ret['percent_stars'] = self.percent_stars*100
             ret['source_plane'] = self.source_plane.to(self.theta_E).json

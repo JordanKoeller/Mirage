@@ -11,7 +11,11 @@ from astropy import units as u
 import numpy as np
 
 # from matplotlib import pyplot as plt
-
+# 1) Sobell Edge detection working beautifully
+# 2) Doublet isolation
+# 3) Asymmetry binning - show pulling from bins
+# 4) Histograms 
+# 5) Best fit line for the peak shift
 
 def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event_finding_args):
     from mirage import lens_analysis as la
@@ -303,57 +307,32 @@ class LightCurve(object):
     # @property
     def symmetry(self,slice_length:u.Quantity):
         line = self.curve
-        peak_left_scan = int(len(line)/2 - 1)
-        peak = np.argmax(line[peak_left_scan:peak_left_scan+3]) + peak_left_scan
-        dist_ax = self.distance_axis.to(slice_length.unit)
-        slice_length = int(slice_length/2/(dist_ax[1] - dist_ax[0]))
-        slice_length = min([slice_length,peak, len(line) - peak])
-        line = line[peak-slice_length+1:peak+slice_length+1]
-        min_val = line.min()
-        line += abs(min_val)
-        line /= line.max()
-        l_side = line[1:slice_length+1]
-        right_side = line[slice_length:]
-        r_flipped = right_side[::-1]
-        dw = 2.0/len(line)
-        diff = dw*0.5*abs(l_side[0:-1]+l_side[1:] - r_flipped[0:-1] - l_side[1:]).sum()
-        return diff
-        # possibles = argrelmax(line,order=5)[0] 
-        # p1 = possibles[0] 
-        # p2 = possibles[0] 
-        # for i in possibles: 
-        #     if line[i] >= line[p1]: 
-        #         p1 = i 
-        # if p1 == p2: 
-        #     p2 = possibles[1] 
-        # for i in possibles: 
-        #     if i != p1 and line[i] >= line[p2]: 
-        #         p2 = i 
-        # curve_min = None
-        # slice_length = None
-        # l_side = None
-        # r_side = None
-        # if p2 < p1: 
-        #     curve_min = np.argmin(line[p2:p1]) + p2 
-        #     slice_length = min([p1-curve_min,len(line)-p1])
-        #     l_side = line[curve_min+1:p1+1] 
-        #     r_side = line[p1:p1+slice_length].copy()
-        # else: 
-        #     curve_min = np.argmin(line[p1:p2]) + p1 
-        #     slice_length = min([curve_min-p1,p1]) 
-        #     l_side = line[p1-slice_length+1:p1+1] 
-        #     r_side = line[p1:p1+slice_length].copy()
-        #Normalization Step
-        # min_val = min([l_side.min(),r_side.min()])
-        # l_side += abs(min_val)
-        # r_side += abs(min_val)
-        # max_val = max([l_side.max(),r_side.max()])
-        # l_side /= abs(max_val)
-        # r_side /= abs(max_val)
-        #To find the difference value, we take the (normalized) lines and take the absolute value of the difference and their integrals
-        #Integral simply through a trapezoidal sum.
-        # dw = 1.0/(len(l_side)*2)
-        # r_flipped = r_side[::-1] 
+        peak = np.argmax(line)
+        slice_length = min(peak,len(line)-peak) - 1
+        lhs = line[peak-slice_length:peak][::-1]*100
+        rhs = line[peak+1:peak+1+slice_length]*100
+        diffs = abs(rhs-lhs)**2
+        tot = np.sqrt(diffs.sum())
+        return tot
+
+
+        # line = self.curve
+        # peak_left_scan = int(len(line)/2 - 1)
+        # peak = np.argmax(line[peak_left_scan:peak_left_scan+3]) + peak_left_scan
+        # dist_ax = self.distance_axis.to(slice_length.unit)
+        # slice_length = int(slice_length/2/(dist_ax[1] - dist_ax[0]))
+        # slice_length = min([slice_length,peak, len(line) - peak])
+        # line = line[peak-slice_length+1:peak+slice_length+1]
+        # min_val = line.min()
+        # line += abs(min_val)
+        # line /= line.max()
+        # l_side = line[1:slice_length+1]
+        # right_side = line[slice_length:]
+        # r_flipped = right_side[::-1]
+        # dw = 2.0/len(line)
+        # diff = dw*0.5*abs(l_side[0:-1]+l_side[1:] - r_flipped[0:-1] - l_side[1:]).sum()
+        # return diff
+
 
 
     def __getitem__(self,given):

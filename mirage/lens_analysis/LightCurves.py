@@ -307,10 +307,10 @@ class LightCurve(object):
     def symmetry(self,slice_length:u.Quantity):
         line = self.curve
         peak = np.argmax(line)
-        slice_length = min(peak,len(line)-peak) - 1
+        slice_length = min(peak,len(line)-peak)-1
         lhs = line[peak-slice_length:peak][::-1]*100
         rhs = line[peak+1:peak+1+slice_length]*100
-        diffs = abs(rhs-lhs)**2
+        diffs = (rhs-lhs)**2
         tot = np.sqrt(diffs.sum())
         return tot
 
@@ -318,7 +318,7 @@ class LightCurve(object):
         # line = self.curve
         # peak_left_scan = int(len(line)/2 - 1)
         # peak = np.argmax(line[peak_left_scan:peak_left_scan+3]) + peak_left_scan
-        # dist_ax = self.distance_axis.to(slice_length.unit)
+        # dist_ax = selhslf.distance_axis.to(slice_length.unit)
         # slice_length = int(slice_length/2/(dist_ax[1] - dist_ax[0]))
         # slice_length = min([slice_length,peak, len(line) - peak])
         # line = line[peak-slice_length+1:peak+slice_length+1]

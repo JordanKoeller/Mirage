@@ -122,10 +122,10 @@ class ParametersWidget(UserInputWidget):
                     else:
                         mass_fn = self.imfInput.currentText()
                     star_generator = getMassFunction(mass_fn_seed,mass_fn)
-                    micro_params = macro_parameters.to_microlensing_parameters(self.pcntStarsInput.value(),
-                        imgLocation,
-                        minorAxis,
-                        star_generator)
+                    micro_params = macro_parameters.to_microParams(self.pcntStarsInput.value(),
+                                                                   imgLocation,
+                                                                   minorAxis,
+                                                                   star_generator)
                     return micro_params
                 else:
                     return macro_parameters

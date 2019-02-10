@@ -85,31 +85,6 @@ def show_map(data,trial_number=0):
     view.display(trial.magmap)
     return view,trial
 
-def animate(simulation):
-    """
-    Constructs and returns a |LensView|, ready to displayed lensed images of `simulation`.
-
-    Arguments:
-
-    * `simulation` (|AnimationSimulation|) The simulation to animate. 
-
-    Returns:
-
-    * |LensView|
-
-    """
-    from mirage.parameters import AnimationSimulation
-    from mirage.views import LensView, AnimationController
-    from mirage.engine import getVisualEngine
-    if isinstance(simulation,str):
-        simulation = load_simulation(simulation)
-    view = LensView("Lens View")
-    eng = getVisualEngine(simulation.parameters)
-    controller = AnimationController(simulation,eng)
-    eng.update_parameters(simulation.parameters)
-    view.connect_runner(controller)
-    return view
-
 def describe(filename_or_result_type):
     """
     Convenience function to print a synopsis of the data included in a file, |Result|, or |Trial| instance.
@@ -118,6 +93,26 @@ def describe(filename_or_result_type):
         filename_or_result_type = load(filename_or_result_type)
     print(filename_or_result_type.simulation)
 
+def write(data,filename):
+    from mirage.io import MicroParametersFileManager, \
+    ParametersFileManager, AnimationFileManager, SimulationFileManager
+    from mirage.parameters import Parameters, \
+    AnimationSimulation, Simulation, MicrolensingParameters
+    fm = None
+    if isinstance(data,MicrolensingParameters):
+        fm = MicroParametersFileManager()
+    elif isinstance(data,Parameters):
+        fm = ParametersFileManager()
+    elif isinstance(data,AnimationSimulation):
+        fm = AnimationFileManager()
+    elif isinstance(data,Simulation):
+        fm = SimulationFileManager()
+    else:
+        raise ValueError("type " + str(type(data)) + " not recognized as a valid type to write to file.")
+    fm.open(filename)
+    fm.write(data)
+    fm.close()
+    print("data saved to %s" % (filename+fm.extension))
 
 # def load_result(filename):
 

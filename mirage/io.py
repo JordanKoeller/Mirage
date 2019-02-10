@@ -11,8 +11,11 @@ class FileManager(ABC):
         self._filename = ''
         self._file = None
 
-    def open(self,filename):
-        self._filename = filename
+    def open(self,filename,force_extension=False):
+        if force_extension or filename[-len(self.extension):] == self.extension:
+            self._filename = filename
+        else:
+            self._filename = filename + self.extension
         self._file = "exists"
 
     @abstractmethod
@@ -154,7 +157,7 @@ class ResultFileManager(FileManager):
         self._pfw.close()
 
     def read(self):
-        self._pfw.open(self._filename)
+        self._pfw.open(self._filename,force_extension=True)
         self._simulation = self._pfw.read()
         file = self._pfw.file
         # file.read()

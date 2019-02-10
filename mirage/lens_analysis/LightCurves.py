@@ -303,8 +303,8 @@ class LightCurve(object):
         data = wiener(data,window)
         return LightCurve(data,self._start,self._end,self._line_id)
 
-    # @property
-    def symmetry(self,slice_length:u.Quantity):
+    @property
+    def symmetry(self):
         line = self.curve
         peak = np.argmax(line)
         slice_length = min(peak,len(line)-peak)-1
@@ -313,26 +313,6 @@ class LightCurve(object):
         diffs = (rhs-lhs)**2
         tot = np.sqrt(diffs.sum())
         return tot
-
-
-        # line = self.curve
-        # peak_left_scan = int(len(line)/2 - 1)
-        # peak = np.argmax(line[peak_left_scan:peak_left_scan+3]) + peak_left_scan
-        # dist_ax = selhslf.distance_axis.to(slice_length.unit)
-        # slice_length = int(slice_length/2/(dist_ax[1] - dist_ax[0]))
-        # slice_length = min([slice_length,peak, len(line) - peak])
-        # line = line[peak-slice_length+1:peak+slice_length+1]
-        # min_val = line.min()
-        # line += abs(min_val)
-        # line /= line.max()
-        # l_side = line[1:slice_length+1]
-        # right_side = line[slice_length:]
-        # r_flipped = right_side[::-1]
-        # dw = 2.0/len(line)
-        # diff = dw*0.5*abs(l_side[0:-1]+l_side[1:] - r_flipped[0:-1] - l_side[1:]).sum()
-        # return diff
-
-
 
     def __getitem__(self,given):
         if isinstance(given,slice):
@@ -374,9 +354,6 @@ class LightCurveSlice(LightCurve):
         slc = trimmed_to_size_slice(y,slice_length)
         return self[slc[0]:slc[1]]
 
-
-
-
     def __getitem__(self,slc):
         if isinstance(slc,slice):
             start,stop = (slc.start,slc.stop)
@@ -389,361 +366,76 @@ class LightCurveSlice(LightCurve):
     @property
     def parent_curve(self):
         return self._parent_curve
-    
 
 
-class LightCurveClassificationTable(object):
+class Event(object):
 
-    def __init__(self,curves,p_value_threshold=0.2,method='craimer',maximum_length=None,minimum_height=None,*args,**kwargs):
-        # LightCurveBatch.__init__(self,curves,*args,**kwargs)
-        if method == 'Craimer':
-            self._chooser = CraimerChooser()
-        elif method == 'KS':
-            self._chooser = KSChooser()
-        elif method == 'MannWhitney':
-            self._chooser = MannWhitneyChooser()
-        elif method == 'AndersonDarling':
-            self._chooser = AndersonDarlingChooser()
-        elif method == "PeakCounting":
-            self._chooser = ExtremaChooser()
-        elif method == "Prominence":
-            self._chooser = ProminenceChooser()
-        elif method == "User":
-            self._chooser = UserChooser()
-        self._maximum_length = maximum_length
-        self._minimum_height = minimum_height
-        self._p_threshold = p_value_threshold
-        self._table = []
-        for curve in curves:
-            self.insert(curve)
-
-    def _qualifies(self,lc:LightCurve) -> bool:
-        if self._maximum_length != None and lc.length < self._maximum_length:
-            return False
-        if self._minimum_height != None:
-            minimum = lc.curve.min()
-            maximum = lc.curve.max()
-            if maximum - minimum < self._minimum_height:
-                return False
-        return True
-
-
-    def insert(self,lightcurve):
-        assert isinstance(lightcurve,LightCurve)
-        if self._qualifies(lightcurve):
-            if len(self._table) == 0:
-                self._table.append([lightcurve])
-            else:
-                unique, ind = self.get_classification(lightcurve)
-                if unique:
-                    self._table.append([lightcurve])
-                else:
-                    self._table[ind].append(lightcurve)
-        else:
-            pass
-
-
-    def get_classification(self,curve):
-        """Method that gives a "dry-run" classification, saying the index in the table
-        that the value falls into, or if it is unique and warrants a new classification be added.
-        
-        
-        Arguments:
-            curve {:class:`LightCurve`} -- The light curve to classify.
-        Returns:
-            unique {`bool`} -- If true, no curve was found that is similar to `curve`
-                inside the :class:`LightCurveClassificationTable` instance.
-            classification_id {`into`} -- The index in the table where this curve would
-            be inserted.
-        """
-        best_p = self._p_threshold
-        best_I = -1
-        for curve_typeI in range(self.category_count):
-            representative = self.get_representative_curve(curve_typeI)
-            if representative:
-                p_value = self._chooser.choose(curve,representative)
-                if p_value < best_p:
-                        best_p = p_value
-                        best_I = curve_typeI
-        if best_I == -1:
-            return (True, self.category_count)
-        else:
-            return (False, best_I)
+    def __init__(self,light_curves,parent_index):
+        self._data = np.array(data)
+        self._parent_index = parent_index
+        self._asymmetry = light_curves[parent_index].asymmetry
 
     @property
-    def category_count(self):
-        return len(self._table)
+    def asymmetry(self):
+        return self._asymmetry
 
-    def describe(self):
-        for i in range(len(self._table)):
-            print("Group " + str(i) + " with " + str(len(self._table[i])) + " elements.")
+    @property
+    def curve(self):
+        return self._data[self._parent_index]
 
-    def get_representative_curve(self,cat_ind:int) -> LightCurve:
-        try:
-            if cat_ind >= len(self._table):
-                raise IndexError("curve group " + str(cat_ind) + "does not exist out of the " + str(len(self._table)) + " tabulated curve groups")
-            else:
-                rand_elem = 0
-                if len(self._table[cat_ind]) > 1:
-                    rand_elem = random.randint(0,len(self._table[cat_ind])-1)
-                return self._table[cat_ind][rand_elem]
-        except IndexError as e:
-            # print("Catching an indexing error in get_representative_curve.")
-            return None
-
-    def __getitem__(self,ind):
-        if ind < self.category_count:
-            return LightCurveBatch(self._table[ind])
-        else:
-            raise IndexError("curve group " + str(ind) + "does not exist out of the " + str(len(self._table)) + " tabulated curve groups")
-
-    def __len__(self):
-        counter = 0
-        for i in self._table:
-            counter += len(i)
-        return counter
-
-        
-
-class Chooser(ABC):
-
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def choose(self,a:LightCurve,b:LightCurve) -> float:
-        '''Compares the light curves `a` and `b` and returns the p-value of their similarity.
-        
-        Abstract method, that must be overriden by :class:`Chooser` sub-classes.
-        
-        Arguments:
-            a {:class:`LightCurve} -- The light curve to compare to curve `b`
-            b {:class:`LightCurve`} -- The reference curve for comparison.
-        Returns:
-            p_value {`float`} -- The p-value ranking for similarity between the two curves. 
-            A lower p-value represents curves that are more similar to each other.
-        '''
-        pass
-
-class CraimerChooser(Chooser):
-
-    def __init__(self):
-        Chooser.__init__(self)
-
-
-    def choose(self,a:LightCurve,b:LightCurve) -> float:
-        c1 = a.curve
-        c2 = b.curve
-        return energy_distance(c1,c2)
-
-
-class KSChooser(Chooser):
-
-    def __init__(self):
-        Chooser.__init__(self)
-
-
-    def choose(self,a:LightCurve,b:LightCurve) -> float:
-        c1 = a.curve
-        c2 = b.curve
-        d,pv = ks_2samp(c1,c2)
-        return pv
-
-class MannWhitneyChooser(Chooser):
-
-    def __init__(self):
-        Chooser.__init__(self)
-
-    def choose(self,a:LightCurve,b:LightCurve) -> float:
-        c1 = a.curve
-        c2 = b.curve
-        d,pv = mannwhitneyu(c1,c2)
-        return pv
-
-class AndersonDarlingChooser(Chooser):
-
-    def __init__(self):
-        Chooser.__init__(self)
-
-    def choose(self,a:LightCurve,b:LightCurve) -> float:
-        c1 = a.curve
-        c2 = b.curve
-        a,c,p = anderson_ksamp([c1,c2])
-        return p
-
-
-class CountingChooser(Chooser):
-    def __init__(self):
-        Chooser.__init__(self)
-
-    def choose(self,a:LightCurve, b:LightCurve) -> float:
-        p1 = self.find_peak_count(a)
-        p2 = self.find_peak_count(b)
-        if p1 == p2:
-            return 0
-        else:
-            return 1
-
-    def find_peak_count(self,a:LightCurve) -> int:
-        pass
-
-class ExtremaChooser(CountingChooser):
-
-    def __init__(self):
-        CountingChooser.__init__(self)
-        self.min_width = 10
-            
-
-    def find_peak_count(self,a:LightCurve) -> int:
-        peaks, = argrelmax(a.curve,order=self.min_width)
-        return len(peaks)
-
-class FittingChooser(CountingChooser):
-
-    def __init__(self,method='lorentzian'):
-        CountingChooser.__init__(self)
-        if method == 'lorentzian':
-            self._method = _lorentzian
-        elif method == 'caustic_crossing':
-            from mirage.calculator import caustic_crossing
-            self._method = caustic_crossing
-        else:
-            self._method = _gaussian
-
-    def choose(self,a:LightCurve, b:LightCurve) -> float:
-        pass
-
-    def find_peak_count(self,a:LightCurve) -> int:
-        pass
-
-    def get_optimal(self,a:LightCurve,num_funcs:int,num_iters):
-        x,y0 = a.plottable()
-        x = x.value
-        x0 = np.ndarray((num_funcs*5))
-        for i in range(num_funcs):
-            x0[i*5] = x[int(len(a)/num_funcs)]
-            x0[i*5+1] = 1
-            x0[i*5+2] = 1
-            x0[i*5+3] = 1
-            x0[i*5+4] = -1
-
-        def min_func(params):
-            y = np.zeros_like(x)
-            for i in range(num_funcs):
-                y += self._method(x,params[i*5],params[i*5+1],params[i*5+2],params[i*5+3],params[i*5+4])
-            yy = y - y0
-            return (yy*yy).sum()
-        return minimize(min_func,x0,method='Nelder-Mead',options={'maxiter':num_iters,'maxfev':num_iters})
-
-class ProminenceChooser(CountingChooser):
-
-    def __init__(self,threshold=12):
-        CountingChooser.__init__(self)
-        self._threshold = threshold
-
-    def calc_prominence(self,curve,I):
-        flag = True
-        i = 1
-        peak_height = curve[I]
-        ret = 1e10
-        while flag:
-            flag = False
-            if I + i < len(curve):
-                flag = True
-                if curve[I+i] > peak_height:
-                    ret = curve[I] - curve[I:I+i].min()
-                    break
-            if I - i >= 0:
-                flag = True
-                if curve[I-i] > peak_height:
-                    ret = curve[I] - curve[I-i:I].min()
-                    break
-            i += 1
-        return ret
-
-    def prominences(self,line,peaks):
-        ret = []
-        for i in range(len(peaks)):
-            r = self.calc_prominence(line,peaks[i])
-            ret.append(r)
-        return np.array(ret)
-
-    def find_peak_count(self,curve:LightCurve) -> int:
-        line = curve.curve
-        possibles, = argrelmax(line)
-        proms = self.prominences(line,possibles)
-        # print(proms)
-        c = 0
-        thresh = (line.max() - line.min())/self._threshold
-        for i in proms:
-            if i > thresh:
-                c += 1
-        return c
-
-class UserChooser(CountingChooser):
-
-    def __init__(self):
-        CountingChooser.__init__(self)
-        self._ref = {}
-
-
-    def find_peak_count(self,curve:LightCurve) -> int:
+    def plot(self):
         from matplotlib import pyplot as plt
-        if curve in self._ref:
-            return self._ref[curve]
-        else:
-            plt.figure()
-            plt.plot(*curve.plottable())
-            response = 0
-            while True:
-                try:
-                    response = input("How many peaks do you see? --> ")
-                    if response == "cancel" or response == "exit":
-                        return None
-                    response = int(response)
-                    break
-                except:
-                    continue
-            plt.close()
-            self._ref[curve] = response
-            return response
+        for lc in self._data:
+            plt.plot(lc)
 
-def _lorentzian(x,x0,gam,i,*args):
-    dx = x-x0
-    return i*gam*gam/(dx*dx+gam*gam)
+    @property
+    def shift_array(self):
+        maxes = np.argmax(self._data,axis=1)
+        return maxes - maxes[0]
 
-def _gaussian(x,x0,gam,i,*args):
-    dx = x - x0
-    return i*np.exp(-dx*dx/2/gam/gam)
 
-class CausticTypeChooser(object):
-    def __init__(self,width=4):
-        self.window_width = width
+class EventClassificationTable(object):
 
-    def characterize(self,a:LightCurve) -> int:
-        try:
-            y = a.curve
-            peak = np.argmax(y)
-            rise_seg = self.get_rise_to(y,peak)
-            # plt.figure()/2
-            # plt.plot(rise_seg)
-            # wait = input("Done?")
-            # plt.close()
-            interp = np.linspace(rise_seg[0],rise_seg[-1],len(rise_seg))
-            delta = (rise_seg - interp).sum()
-            return delta/abs(delta)
-        except:
-            return 2
+    def __init__(self,events,group_count):
+        self._bins = {}
+        self._numGroups = {}
+        separations = list(map(lambda e: e.asymmetry,events))
+        min_sep = min(separations)
+        max_sep = max(separations)
+        dx = (max_sep - min_sep)/group_count
+        get_ind = lambda asym: round((asym - min_sep)/dx)
+        for event in events:
+            key = get_ind(event.asymmetry)
+            if key in self._bins:
+                self._bins.update({key:[event]})
+            else:
+                self._bins[key].append(event)
 
-    def get_rise_to(self,curve:np.ndarray,peak:int):
-        left_of = curve[:peak+1]
-        right_of = curve[peak:]
-        curve_segment = curve
-        if left_of[0] < right_of[-1]:
-            curve_segment =  left_of[max(0,peak-self.window_width):]
-        else:
-            curve_segment =  right_of[:min(peak+self.window_width,len(right_of))][::-1]
-        return curve_segment
+    @property
+    def keys(self):
+        return list(self._bins.keys())
+
+    def __getitem__(self,idd):
+        return self._bins[idd]
+
+    def plot_samples(self,key,num):
+        import random
+        bucket = self[key]
+        samples = random.sample(bucket,num)
+        for sample in samples:
+            # Need to normalize our curves
+            curve = sample.curve
+            curve -= curve.min()
+            if curve[0] >= curve[-1]: curve = curve[::-1]
+            peak_index = np.argmax(curve)
+            x_ax = np.arange(-peak_index,len(curve)-peak_index)
+            plt.plot(x_ax,curve)
+
+    def merge_buckets(self,key_list):
+        ret = []
+        for key in key_list:
+            ret = ret + key_list[key]
+        return ret
 
 
 

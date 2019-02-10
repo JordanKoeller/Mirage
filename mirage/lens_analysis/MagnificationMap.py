@@ -62,9 +62,5 @@ class MagnificationMap(object):
     def histogram(self,nbins=100,show=False):
         from matplotlib import pyplot as plt
         data = self.data
-        # hist,bin_edges = np.histogram(data,nbins)
-        # prob_hist = hist/hist.sum()
-        # bins = bin_edges[:-1]
         plt.hist(data.flatten(),log=True,bins=nbins,histtype="step")
-        # plt.bar(bins,hist,log=True,color=255)
 

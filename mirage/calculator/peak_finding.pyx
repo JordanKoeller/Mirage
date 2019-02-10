@@ -125,13 +125,18 @@ cpdef sobel_detect(np.ndarray[np.float64_t, ndim=1] curve, double threshold, dou
                 #And make sure that it is a RELATIVE max as well.
                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
                     if ret.size() > 0:
+                        #Make sure it is far enough away from last discovered peak
                         if peak_index - ret.top() > min_separation:
                             ret.push(peak_index)
                         else:
                             if not require_isolation:
                                 if curve[ret.top()] < curve[peak_index]:
+                                    #Prior peak is smaller so replace with larger.
                                     ret.pop()
                                     ret.push(peak_index)
+                            else:
+                                #Requiring isolation. So presence of the current peak invalidates the prior peak.
+                                ret.pop()
                     else:
                         ret.push(peak_index)
                     i = k

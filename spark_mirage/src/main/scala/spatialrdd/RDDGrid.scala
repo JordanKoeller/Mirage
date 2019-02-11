@@ -59,7 +59,6 @@ class RDDGrid[A <: RayBank : ClassTag, SD <: SpatialData : ClassTag](rdd: RDD[SD
 
   def searchBatch(iter:QueryIterator,radius:Double,sc:SparkContext):Array[Array[Int]] = {
     while (iter.hasNext) {
-      println("Next Batch")
       val localIter = iter.nextBatch()
       val broadcasted = sc.broadcast(localIter)
       val queries = rdd.flatMap {

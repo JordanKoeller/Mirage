@@ -110,6 +110,8 @@ cdef stitch_end(np.ndarray[np.float64_t,ndim=1] integral,
 cpdef sobel_detect(np.ndarray[np.float64_t, ndim=1] curve, double threshold, double smoothing_factor, int min_separation, bint require_isolation):
     smoothed = gaussian_filter(curve,smoothing_factor)
     cdef np.ndarray[np.float64_t, ndim=1] sobelled = sobel(smoothed)
+    # from matplotlib import pyplot as plt
+    # plt.plot(sobelled)
     cdef int i,j,length = len(curve), peak_index, k
     cdef stack[int] ret
     cdef double neg_thresh = - threshold
@@ -134,9 +136,9 @@ cpdef sobel_detect(np.ndarray[np.float64_t, ndim=1] curve, double threshold, dou
                                     #Prior peak is smaller so replace with larger.
                                     ret.pop()
                                     ret.push(peak_index)
-                            else:
-                                #Requiring isolation. So presence of the current peak invalidates the prior peak.
-                                ret.pop()
+                            # else:
+                            #     #Requiring isolation. So presence of the current peak invalidates the prior peak.
+                            #     ret.pop()
                     else:
                         ret.push(peak_index)
                     i = k

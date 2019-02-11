@@ -85,7 +85,7 @@ class Result(object):
             lc_matrix[i] = self._fm.get_result(i,lightcurve_data_index)
         return lc_matrix
 
-    def correlate_lc_peaks(self,peaks:'LightCurveBatch',lc_matrix=None) -> 'np.ndarray[object,ndim=2]':
+    def event_generator(self,peaks:'LightCurveBatch',ref_index:int,lc_matrix=None) -> 'np.ndarray[object,ndim=2]':
         """
         Returns a two-dimensional numpy array where each light curve in `peaks` is grouped with the corresponding
         light curve(s) from all other trials.
@@ -100,24 +100,30 @@ class Result(object):
 
         Returns:
 
-        * peak_matrix (`np.ndarray`): The matrix of each light curve grouped with the corresponding light curves from all trials.
+        * peak_matrix (`map[np.ndarray]`): The matrix of each light curve grouped with the corresponding light curves from all trials.
 
         """
         #First, I need to construct the lightcurve matrix
         #First axis: the number of trials
         #Second axis: the number of lightcurves per trial
+        from .LightCurves import Event, LightCurve
         if lc_matrix is None:
             lc_matrix =  self.lightcurve_matrix()
         ret_matrix = np.ndarray((len(peaks),self.num_trials),dtype=object)
+        errors = 0
         for pI in range(len(peaks)):
-            peak = peaks[pI]
-            line_index = peak.line_id
-            to_batch = []
-            peak_slice = peak.slice_object
-            for i in range(self.num_trials):
-                ret_matrix[pI,i] = lc_matrix[i,line_index][peak_slice]
-        return ret_matrix
-
+            try:
+                peak = peaks[pI]
+                line_index = peak.line_id
+                to_batch = []
+                peak_slice = peak.slice_object
+                s,e = peak.ends
+                lid = line_index
+                ret_list = [LightCurve(lc_matrix[i,line_index][peak_slice],s,e,lid) for i in range(self.num_trials)]
+                yield Event(ret_list,ref_index)
+            except IndexError as e:
+                errors += 1
+        print("Caught %d errors" % errors)
 
 
 def requires(dtype):

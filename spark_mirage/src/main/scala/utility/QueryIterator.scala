@@ -17,5 +17,5 @@ trait LocalQueryIterator extends Serializable {
 }
 
 object QueryIterator {
-  private[utility] val chunkSize = 100000
+  private[utility] val chunkSize = 1000000
 }

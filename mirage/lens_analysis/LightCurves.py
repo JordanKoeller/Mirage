@@ -154,7 +154,7 @@ class LightCurveBatch(object):
 
     def __add__(self,other):
         assert isinstance(other,LightCurveBatch)
-        total = self._data.append(other._data)
+        total = self._data + other._data
         return LightCurveBatch(total)
 
     def __getitem__(self,ind):
@@ -258,20 +258,28 @@ class LightCurve(object):
         y = self.curve
         return x,y
 
-    def get_event_slices(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
+    def get_event_slices(self,threshold=0.8/u.uas,smoothing_factor=1.1*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
         x = self.distance_axis.to(min_separation.unit)
         dx = x[1] - x[0]
         min_sep = int((min_separation/dx).value)
+        threshold = (threshold*dx).to('').value
+        smoothing_factor = (smoothing_factor/dx).to('').value
         peaks = self.get_peaks(threshold,smoothing_factor,min_sep,require_isolation)
         obj_list = []
+        errors = 0
         for p in peaks:
             s_min = max([0,p-min_sep])
             s_max = min([p+min_sep,len(x)-1])
-            obj_list.append(slice(s_min,s_max,1))
+            if s_max - s_min > 3:
+                obj_list.append(slice(s_min,s_max,1))
+            else:
+                errors += 1
+        if errors > 0:
+            print("Accumulated %d errors" % errors)
         return obj_list
 
 
-    def get_events(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
+    def get_events(self,threshold=0.8/u.uas,smoothing_factor=1.1*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
         slice_list = self.get_event_slices(threshold, smoothing_factor, min_separation, require_isolation)
         ret = []
         for slicer in slice_list:
@@ -280,23 +288,57 @@ class LightCurve(object):
         # print("Returning batch with %d events" % len(ret))
         return LightCurveBatch(ret)
 
-    def get_peaks(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_sep=1,require_isolation=False):
+    def get_peaks(self,threshold=0.8,smoothing_factor=1.1,min_sep=1,require_isolation=False):
         '''
             Locate peaks of this light curve via a sobel edge detection convolution.
             Recommended settings for my 80k batch, trail 5 R_g:
                 threshold = 0.8
                 smoothing_factor=1.1
-
         '''
-        print(self.sample_density.to('uas')**-1)
-        threshold = threshold.to('1/uas')
-        smoothing_factor = smoothing_factor.to('uas')
-        thresh = threshold*self.sample_density
-        smoothFac = smoothing_factor/self.sample_density
-        print("Passing %.3f,%.3f" % (thresh.value,smoothFac.value))
         from mirage.calculator import sobel_detect
         curve = self._data
-        return sobel_detect(curve,thresh.value,smoothFac.value,min_sep,require_isolation)
+        return sobel_detect(curve,threshold,smoothing_factor,min_sep,require_isolation)
+
+    # def get_event_slices(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
+    #     x = self.distance_axis.to(min_separation.unit)
+    #     dx = x[1] - x[0]
+    #     min_sep = int((min_separation/dx).value)
+    #     peaks = self.get_peaks(threshold,smoothing_factor,min_sep,require_isolation)
+    #     obj_list = []
+    #     for p in peaks:
+    #         s_min = max([0,p-min_sep])
+    #         s_max = min([p+min_sep,len(x)-1])
+    #         obj_list.append(slice(s_min,s_max,1))
+    #     return obj_list
+
+
+    # def get_events(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
+    #     slice_list = self.get_event_slices(threshold, smoothing_factor, min_separation, require_isolation)
+    #     ret = []
+    #     for slicer in slice_list:
+    #         lc = LightCurveSlice(self,slicer.start,slicer.stop,self._line_id)
+    #         ret.append(lc)
+    #     # print("Returning batch with %d events" % len(ret))
+    #     return LightCurveBatch(ret)
+
+    # def get_peaks(self,threshold=80/u.uas,smoothing_factor=0.011*u.uas,min_sep=1,require_isolation=False):
+    #     '''
+    #         Locate peaks of this light curve via a sobel edge detection convolution.
+    #         Recommended settings for my 80k batch, trail 5 R_g:
+    #             threshold = 0.8
+    #             smoothing_factor=1.1
+
+    #     '''
+    #     print(self.sample_density.to('uas')**-1)
+    #     threshold = threshold.to('1/uas')
+    #     smoothing_factor = smoothing_factor.to('uas')
+    #     thresh = threshold*self.sample_density
+    #     smoothFac = smoothing_factor/self.sample_density
+    #     print("Passing %.3f,%.3f,%.3f" % (thresh.value,smoothFac.value,min_sep))
+    #     from mirage.calculator import sobel_detect
+    #     curve = self._data
+    #     return sobel_detect(curve,0.7,1.1,200,False)
+        # return sobel_detect(curve,thresh.value,smoothFac.value,min_sep,require_isolation)
 
     def smooth_with_window(self,window:int):
         data = self._data
@@ -304,7 +346,7 @@ class LightCurve(object):
         return LightCurve(data,self._start,self._end,self._line_id)
 
     @property
-    def symmetry(self):
+    def asymmetry(self):
         line = self.curve
         peak = np.argmax(line)
         slice_length = min(peak,len(line)-peak)-1
@@ -371,7 +413,7 @@ class LightCurveSlice(LightCurve):
 class Event(object):
 
     def __init__(self,light_curves,parent_index):
-        self._data = np.array(data)
+        self._data = np.array(list(map(lambda l: l._data,light_curves)))
         self._parent_index = parent_index
         self._asymmetry = light_curves[parent_index].asymmetry
 
@@ -398,19 +440,24 @@ class EventClassificationTable(object):
 
     def __init__(self,events,group_count):
         self._bins = {}
-        self._numGroups = {}
+        self._numGroups = group_count
+        events = list(events)
         separations = list(map(lambda e: e.asymmetry,events))
         min_sep = min(separations)
         max_sep = max(separations)
         dx = (max_sep - min_sep)/group_count
-        get_ind = lambda asym: round((asym - min_sep)/dx)
+        get_ind = lambda asym: int(round((asym - min_sep)/dx))
+        errors = 0
         for event in events:
-            key = get_ind(event.asymmetry)
-            if key in self._bins:
-                self._bins.update({key:[event]})
-            else:
-                self._bins[key].append(event)
-
+            try:
+                key = get_ind(event.asymmetry)
+                if key not in self._bins:
+                    self._bins.update({key:[event]})
+                else:
+                    self._bins[key].append(event)
+            except IndexError as e:
+                errors += 1
+        # print("Accumuldated %d errors" % errors)
     @property
     def keys(self):
         return list(self._bins.keys())
@@ -419,6 +466,7 @@ class EventClassificationTable(object):
         return self._bins[idd]
 
     def plot_samples(self,key,num):
+        from matplotlib import pyplot as plt
         import random
         bucket = self[key]
         samples = random.sample(bucket,num)
@@ -436,6 +484,15 @@ class EventClassificationTable(object):
         for key in key_list:
             ret = ret + key_list[key]
         return ret
+
+    def __repr__(self):
+        lines = "EventClassificationTable"
+        for k,v in self._bins.items():
+            lines += ("\n\t" + str(k) + " : " + str(len(v)))
+        return lines
+
+
+
 
 
 

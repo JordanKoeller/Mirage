@@ -261,7 +261,7 @@ class LightCurve(object):
     def get_event_slices(self,threshold=0.8/u.uas,smoothing_factor=1.1*u.uas,min_separation=u.Quantity(5.0,'uas'),require_isolation=False):
         x = self.distance_axis.to(min_separation.unit)
         dx = x[1] - x[0]
-        min_sep = int((min_separation/dx).value)
+        min_sep = int((min_separation/dx).to('').value)
         threshold = (threshold*dx).to('').value
         smoothing_factor = (smoothing_factor/dx).to('').value
         peaks = self.get_peaks(threshold,smoothing_factor,min_sep,require_isolation)

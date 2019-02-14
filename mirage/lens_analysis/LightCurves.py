@@ -485,6 +485,15 @@ class EventClassificationTable(object):
             ret = ret + key_list[key]
         return ret
 
+    def to_histograms(self,keys,density=20):
+        alls = self.merge_buckets(keys)
+        nparr = np.array(list(map(lambda event: event.shift_array,alls)))
+        ret = []
+        for i in range(nparr.shape[1]):
+            cts, bins = np.histogram(nparray[:,i],bins=density)
+            ret.append((cts,bins[:-1]))
+        return ret
+
     def __repr__(self):
         lines = "EventClassificationTable"
         for k,v in self._bins.items():

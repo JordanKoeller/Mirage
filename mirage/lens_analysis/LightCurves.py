@@ -433,7 +433,7 @@ class Event(object):
     @property
     def shift_array(self):
         maxes = np.argmax(self._data,axis=1)
-        return maxes - maxes[0]
+        return abs(maxes - maxes[0])
 
 
 class EventClassificationTable(object):
@@ -482,15 +482,24 @@ class EventClassificationTable(object):
     def merge_buckets(self,key_list):
         ret = []
         for key in key_list:
-            ret = ret + key_list[key]
+            ret = ret + self[key]
         return ret
+
+    def append(self,other):
+        for k in other.keys:
+            if k in self._bins:
+                self._bins[k] = self._bins[k] + other[k]
+            else:
+                self._bins.update({k:other[k]})
+        return self
 
     def to_histograms(self,keys,density=20):
         alls = self.merge_buckets(keys)
         nparr = np.array(list(map(lambda event: event.shift_array,alls)))
         ret = []
+        binArr = [i for i in range(density+1)]
         for i in range(nparr.shape[1]):
-            cts, bins = np.histogram(nparray[:,i],bins=density)
+            cts, bins = np.histogram(nparr[:,i],bins=binArr)
             ret.append((cts,bins[:-1]))
         return ret
 

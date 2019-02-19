@@ -232,7 +232,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
 
 object OptTree {
 
-  val binSize = 64
+  val binSize = 32
   val log2 = math.log(2)
 
   def apply[A <: RayBank](values:A):OptTree[A] = {

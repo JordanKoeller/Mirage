@@ -1,6 +1,6 @@
 package lensing
 
-class RayBank(lensPosition:Array[Double],sourcePosition:Array[Double]) extends Serializable {
+class RayBank(val lensPosition:Array[Double],val sourcePosition:Array[Double]) extends Serializable {
   def size:Int = lensPosition.length/2
 
   def x(ind:Int):Double = lensPosition(ind*2)

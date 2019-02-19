@@ -147,7 +147,7 @@ class ResultFileManager(FileManager):
 
     def close_simulation(self,simulation):
         lookup_np = np.array(self._lookup,dtype=np.int)
-        self._pfw.open(self._filename)
+        self._pfw.open(self._filename,force_extension=True)
         self._pfw.write(simulation)
         file = self._pfw.file
         np.save(file,lookup_np)

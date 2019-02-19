@@ -1,6 +1,6 @@
 package lensing
 
-class RayBank(val lensPosition:Array[Double],val sourcePosition:Array[Double]) extends Serializable {
+class RayBank(private var lensPosition:Array[Double],private var sourcePosition:Array[Double]) extends Serializable {
   def size:Int = lensPosition.length/2
 
   def x(ind:Int):Double = lensPosition(ind*2)
@@ -23,6 +23,19 @@ class RayBank(val lensPosition:Array[Double],val sourcePosition:Array[Double]) e
     setSourceX(i,data._3)
     setSourceY(i,data._4)
   }
+
+  def destroy(ind:Int):Unit = {
+    lensPosition(ind*2) = Double.MinValue
+    lensPosition(ind*2+1) = Double.MinValue
+    sourcePosition(ind*2) = Double.MinValue
+    sourcePosition(ind*2+1) = Double.MinValue
+  }
+
+  def trim():Unit = {
+    lensPosition = lensPosition.filterNot(_ == Double.NaN)
+    sourcePosition = sourcePosition.filterNot(_ == Double.NaN)
+  }
+
   def swap(i:Int,j:Int):Unit = {
     val tmp = getTuple(i)
     setX(i,x(j))

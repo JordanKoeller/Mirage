@@ -51,24 +51,22 @@ class RayBankTracer() extends Serializable {
 
           iter += 1
         }
-        val mag = math.random-0.5//psi11*psi22-psi12*psi21
-        if (RayBankTracer.parity == 0 || (RayBankTracer.parity == -1 && mag < 0.0 ) || (RayBankTracer.parity == 1 && mag > 0.0)) {
+        val mag = psi11*psi22-psi12*psi21
+        if (mag > 0.0) {
           bank.setSourceX(ind,retX)
           bank.setSourceY(ind,retY)
         }
         else {
-          bank.setSourceX(ind,Double.NaN)
-          bank.setSourceY(ind,Double.NaN)
-          bank.setX(ind,Double.NaN)
-          bank.setY(ind,Double.NaN)
+          bank.destroy(ind)
         }
       }
-      new RayBank(bank.lensPosition.filterNot(_ == Double.NaN),bank.sourcePosition.filterNot(_ == Double.NaN))
+      bank.trim()
+      bank
     }
   }
 }
 
 object RayBankTracer {
-  val parity = 1
+  val parity = -1
 
 }

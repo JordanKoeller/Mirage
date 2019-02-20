@@ -41,8 +41,9 @@ class RayBank(private var lensPosition:Array[Double],private var sourcePosition:
   def aggregate(ind:Int):Result = {
     val dx = sourceX(ind) - x(ind)
     val dy = sourceY(ind) - y(ind)
+    val lookup = 1
     val arr = Array(1.0,dx,dy,dx*dx,dx*dy,dy*dy)
-    arr(RayBank.lookupInd)
+    arr(lookup)
 //    1.0 // zeroth order
 //    dx    //1st order 1
 //    dy    //1st order 2
@@ -66,7 +67,6 @@ class RayBank(private var lensPosition:Array[Double],private var sourcePosition:
 
 
 object RayBank {
-  var lookupInd = 0
   def apply(input:Array[Long],dx:Double,dy:Double,w:Long,h:Long): RayBank = {
     val number = input.size
     val lensPos = Array.fill(number*2)(0.0)

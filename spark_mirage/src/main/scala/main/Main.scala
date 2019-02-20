@@ -79,7 +79,6 @@ object Main {
     val collector = new GridQueryGenerator(x0, y0, x1, y1, xDim, yDim)
     val retArr = rddGrid.searchBatch(collector, radius, sc)
     FileHandler.saveMagnifications(retFile,retArr)
-    lensing.RayBank.lookupInd += 1
   }
 
   /**
@@ -105,7 +104,6 @@ object Main {
     val lightCurves = FileHandler.getQueryPoints(pointsFile,1).head
     val retArr = rddGrid.query_curve(lightCurves, radius, sc)
     FileHandler.saveMagnifications(retFile,Array(retArr))
-    lensing.RayBank.lookupInd += 1
   }
 
 //  def sampleCaustics(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]):Unit = {

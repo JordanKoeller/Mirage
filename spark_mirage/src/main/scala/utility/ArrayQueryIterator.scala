@@ -2,8 +2,10 @@ package utility
 
 import scala.collection.mutable.ListBuffer
 
+
 class ArrayQueryIterator(qpts:Array[Array[DoublePair]]) extends QueryIterator {
-  override val resultDump = Array.fill(qpts.size)(new Array[Int](0))
+
+  override val resultDump = Array.fill(qpts.size)(new Array[Result](0))
 
   private var dispatchedRows:ListBuffer[Int] = ListBuffer[Int]()
   private var lastSent = 0
@@ -21,7 +23,7 @@ class ArrayQueryIterator(qpts:Array[Array[DoublePair]]) extends QueryIterator {
 
   def hasNext:Boolean = lastSent < qpts.size
 
-  def takeInResult(res:Array[Int]) = {
+  def takeInResult(res:Array[Result]) = {
     var counter = 0
     for (elem <- dispatchedRows) {
       resultDump(elem) = res.slice(counter,qpts(elem).size+counter)

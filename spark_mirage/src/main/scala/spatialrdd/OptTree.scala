@@ -1,7 +1,8 @@
 package spatialrdd
 
 import lensing.RayBank
-
+import utility.Result
+import utility.ResultZero
 
 class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
 
@@ -20,18 +21,18 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
 
     override def toString() = "Node"
 
-    def search(x: Double, y: Double, r2: Double): Int = {
-      var counter = 0
+    def search(x: Double, y: Double, r2: Double): Result = {
+      var aggregator = ResultZero
       var dx = 0.0
       var dy = 0.0
       for (i <- indI until indJ) {
         dx = values.sourceX(i) - x
         dy = values.sourceY(i) - y
         if (dx * dx + dy * dy <= r2) {
-          counter += 1
+          aggregator += values.aggregate(i)
         }
       }
-      counter
+      aggregator
     }
 
     def overlapsRight(x: Double, y: Double, r: Double, level: Int): Boolean = {
@@ -62,7 +63,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
     values.size
   }
 
-  def query_point_count(x: Double, y: Double, r: Double): Int = {
+  def query_point_count(x: Double, y: Double, r: Double): Result = {
     searchNodes(x, y, r)
   }
 
@@ -96,11 +97,11 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
     }).count(e => e)
   }
 
-  def searchNodes(x: Double, y: Double, r: Double): Int = {
+  def searchNodes(x: Double, y: Double, r: Double): Result = {
     val r2 = r * r
     var searching = 0
     var toSearch: List[Int] = 0 :: Nil
-    var counter = 0
+    var counter = 0.0
     var level = 0
     while (!toSearch.isEmpty) {
       searching = toSearch.head

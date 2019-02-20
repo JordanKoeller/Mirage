@@ -3,9 +3,9 @@ package utility
 trait QueryIterator extends Serializable {
   def nextBatch():LocalQueryIterator
   def hasNext:Boolean
-  def takeInResult(res:Array[Int])
-  protected val resultDump:Array[Array[Int]]
-  def collect:Array[Array[Int]] = resultDump
+  def takeInResult(res:Array[Result])
+  protected val resultDump:Array[Array[Result]]
+  def collect:Array[Array[Result]] = resultDump
 
 
 }

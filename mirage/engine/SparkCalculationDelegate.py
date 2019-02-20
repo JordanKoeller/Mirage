@@ -9,6 +9,7 @@ from mirage.util import Vec2D
 from .CalculationDelegate import CalculationDelegate
 
 _sc = None
+ResultType = np.float64
 
 def _get_spark_context():
     global _sc
@@ -83,7 +84,7 @@ class MicroSparkDelegate(CalculationDelegate):
         file = tempfile.NamedTemporaryFile("w+",delete = False)
         self.spark_context._jvm.main.Main.sampleCaustics(query_point_file,file.name,points.shape[0],query_radius,jrdd)
         returned_data = self.get_returned_data(file.name,points)
-        return np.array(returned_data,dtype=np.int32)
+        return np.array(returned_data,dtype=ResultType)
 
     def query_region(self,region,radius:u.Quantity) -> np.ndarray:
         query_radius = radius.value
@@ -101,7 +102,7 @@ class MicroSparkDelegate(CalculationDelegate):
             jrdd)
         self.spark_context._jvm.main.Main.queryPoints(*args)
         returned_data = self.get_returned_data(file.name,region.pixels)
-        return np.array(returned_data,dtype=np.int32)
+        return np.array(returned_data,dtype=ResultType)
 
     def get_star_file(self,data:np.ndarray):
         file = tempfile.NamedTemporaryFile('w+',delete = False)
@@ -125,12 +126,12 @@ class MicroSparkDelegate(CalculationDelegate):
         file = open(filename,'rb')
         if qpts.dtype == object:
             for i in range(qpts.shape[0]):
-                ret[i] = np.fromfile(file,np.int32,qpts[i].shape[0])
+                ret[i] = np.fromfile(file,ResultType,qpts[i].shape[0])
             file.close()
             return ret
         else:
             shape = qpts.shape
-            ret = np.fromfile(file,np.int32,shape[0]*shape[1])
+            ret = np.fromfile(file,ResultType,shape[0]*shape[1])
             return np.reshape(ret,(shape[0],shape[1]))
 
 

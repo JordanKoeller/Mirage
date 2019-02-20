@@ -41,6 +41,7 @@ class EngineHandler(object):
 
     def query_region(self,*args,**kwargs):
         ret = self.calculation_delegate.query_region(*args,**kwargs)
+        print(ret.max())
         rb = self._parameters.raw_brightness
         return ret/rb
 

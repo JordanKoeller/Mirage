@@ -5,7 +5,7 @@ case class QueryInfo(px: Int, py: Int, x: Double, y: Double)
 class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDim: Int, val yDim: Int) extends QueryIterator {
   private val xStep = (x1 - x0) / (xDim.toDouble)
   private val yStep = (y1 - y0) / (yDim.toDouble)
-  override val resultDump = Array.fill(yDim,xDim)(0)
+  override val resultDump = Array.fill(yDim,xDim)(ResultZero)
 
   private val rowPerBatch = QueryIterator.chunkSize / xDim
   private var startRow = 0
@@ -20,7 +20,7 @@ class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDi
 
   override def hasNext: Boolean = endRow < yDim
 
-  override def takeInResult(res: Array[Index]): Unit = {
+  override def takeInResult(res: Array[Result]): Unit = {
     var counter = 0
     for (i <- startRow until endRow) {
       resultDump(i) = res.slice(counter,xDim+counter)

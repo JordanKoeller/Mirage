@@ -4,7 +4,9 @@ package object utility {
     type Index = Int
     
     type DoublePair = (Double,Double)
-    
+
+    type Result = Double
+    val ResultZero:Result = 0.0
     
     
     class IndexPair(val v:Long=0l) extends AnyVal with Serializable {

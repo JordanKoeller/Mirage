@@ -32,12 +32,13 @@ object FileHandler {
     ret
   }
 
-  def saveMagnifications(filename: String, data: Array[Array[Int]]): Unit = {
+  def saveMagnifications(filename: String, data: Array[Array[Result]]): Unit = {
+    println("From scala: Max of " + data.map(arr => arr.max).max)
     val file = new BufferedOutputStream(new FileOutputStream(filename))
     val bytes:Array[Byte] = data.flatMap{arr =>
-      val bb = java.nio.ByteBuffer.allocate(arr.length*4)
+      val bb = java.nio.ByteBuffer.allocate(arr.length*8)
       bb.order(nativeOrder())
-      arr.foreach(e => bb.putInt(e))
+      arr.foreach(e => bb.putDouble(e))
       bb.array()
     }
     file.write(bytes)

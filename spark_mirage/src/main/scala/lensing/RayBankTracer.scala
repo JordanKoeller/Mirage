@@ -4,8 +4,6 @@ package lensing
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 
-import scala.reflect.ClassTag
-
 
 class RayBankTracer() extends Serializable {
 

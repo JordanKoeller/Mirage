@@ -12,10 +12,20 @@ class MagnificationMap(object):
         r = simulation['magmap'].resolution
         self._source_plane = PixelRegion(zero_vector(theta_E),sp.dimensions.to(theta_E),r)
         self._data = np.flip(data,1)
+        self._scaling = 1
 
     @property
     def data(self):
-        return 2.5*np.log10(self._data+0.001)
+        if self._scaling == 1:
+            return 2.5*np.log10(self._data+0.001)
+        else:
+            return self._data
+
+    def setScaling(self,kind):
+        if kind == "linear":
+            self._scaling = 0
+        else:
+            self._scaling = 1
 
     @property    
     def region(self):

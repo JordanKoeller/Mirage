@@ -37,7 +37,6 @@ object Main {
                      numPartitions:Int):Unit = {
     if (rddGrid != null) rddGrid.destroy()
     val sc = jrdd.context
-    setMoment(1)
     sc.setLogLevel("WARN")
     val stars = FileHandler.getStars(starsfile,numStars)
     val pixels = sc.range(0,width*height,1,numPartitions)

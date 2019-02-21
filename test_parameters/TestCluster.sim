@@ -2,7 +2,7 @@
   "name": "TestCluster",
   "description": "Make sure the cluster is happy and running again.",
   "trial_count": 1,
-  "variation": "new_parameters = old_parameters\narr = np.linspace(10,40,20)\nnew_parameters.quasar.update(radius=4*new_parameters.quasar.r_g)",
+  "variation": "new_parameters = old_parameters\narr = np.linspace(10,40,20)\nnew_parameters.quasar.update(radius=40*new_parameters.quasar.r_g)",
   "parameters": {
     "lens": {
       "ellipticity": {
@@ -69,16 +69,16 @@
       "unit": "xi"
     },
     "ray_count": {
-      "x": 1000,
-      "y": 1000,
+      "x": 2000,
+      "y": 2000,
       "unit": ""
     }
   },
   "results": {
     "magmap": {
       "magmap_resolution": {
-        "x": 4096,
-        "y": 4096,
+        "x": 1000,
+        "y": 1000,
         "unit": ""
       }
     }

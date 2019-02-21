@@ -31,6 +31,7 @@ class MicroSparkDelegate(CalculationDelegate):
         return self._spark_context
 
     def reconfigure(self,parameters:MicrolensingParameters):
+        print("Ray Tracing. Please Wait")
         smooth, starry, shear = parameters.mass_descriptors
         dimensions = parameters.ray_region.resolution
         dTheta = parameters.ray_region.dTheta
@@ -61,6 +62,11 @@ class MicroSparkDelegate(CalculationDelegate):
             height,
             jrdd,
             self.core_count)
+
+    def setMoment(self,ind):
+        jrdd = self._spark_context.emptyRDD()._jrdd
+        self.spark_context._jvm.main.Main.setMoment(ind)
+
 
     def get_connecting_rays(self,location:Vec2D, radius:u.Quantity) -> np.ndarray:
         print("GET_CONNECTING_RAYS not implimented for MicroSparkDelegate")

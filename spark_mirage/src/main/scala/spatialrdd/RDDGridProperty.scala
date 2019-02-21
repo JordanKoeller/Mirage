@@ -1,7 +1,7 @@
 package spatialrdd
 
 import org.apache.spark.SparkContext
-import utility.{DoublePair, Index, QueryIterator, Result}
+import utility.{DoublePair, QueryIterator, Result}
 
 trait RDDGridProperty extends Serializable {
   def queryPoints(pts: Array[Array[DoublePair]], radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Result]]
@@ -21,5 +21,6 @@ trait RDDGridProperty extends Serializable {
   def saveToFile(fname:String):Unit
 
   def searchBatch(iter:QueryIterator,radius:Double,sc:SparkContext):Array[Array[Result]]
+
 
   }

@@ -1,6 +1,6 @@
 package spatialrdd
 
-import lensing.RayBank
+import lensing.{CountCollector, RayBank, RayCollector}
 import utility.Result
 import utility.ResultZero
 
@@ -21,7 +21,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
 
     override def toString() = "Node"
 
-    def search(x: Double, y: Double, r2: Double): Result = {
+    def search(x: Double, y: Double, r2: Double, collector:RayCollector): Result = {
       var aggregator = ResultZero
       var dx = 0.0
       var dy = 0.0
@@ -29,7 +29,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
         dx = values.sourceX(i) - x
         dy = values.sourceY(i) - y
         if (dx * dx + dy * dy <= r2) {
-          aggregator += values.aggregate(i)
+          aggregator += collector(values,i)
         }
       }
       aggregator
@@ -64,8 +64,11 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
   }
 
   def query_point_count(x: Double, y: Double, r: Double): Result = {
-    searchNodes(x, y, r)
+    val coll = new CountCollector
+    searchNodes(x, y, r,coll)
   }
+
+
 
   def intersects(x: Double, y: Double, r: Double): Boolean = {
     val width = xExtremes._2 - xExtremes._1
@@ -97,7 +100,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
     }).count(e => e)
   }
 
-  def searchNodes(x: Double, y: Double, r: Double): Result = {
+  def searchNodes(x: Double, y: Double, r: Double, collector:RayCollector): Result = {
     val r2 = r * r
     var searching = 0
     var toSearch: List[Int] = 0 :: Nil
@@ -115,7 +118,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
         //Two cases. It is a leaf or a branch
         if (searching * 2 + 1 >= boxes.size) {
           //Case 1: It's a leaf
-          counter += boxes(searching).search(x, y, r2)
+          counter += boxes(searching).search(x, y, r2, collector)
         } else {
           //Case 2: Need to go into its children. Check each individually, see if needs to be added.
           if (boxes(searching).overlapsLeft(x, y, r, level)) toSearch = (searching * 2 + 1) :: toSearch

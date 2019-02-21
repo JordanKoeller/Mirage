@@ -1,9 +1,11 @@
 package utility
 
+import lensing.{RayBank, RayCollector}
+
 import scala.collection.mutable.ListBuffer
 
 
-class ArrayQueryIterator(qpts:Array[Array[DoublePair]]) extends QueryIterator {
+class ArrayQueryIterator(qpts:Array[Array[DoublePair]])(implicit val rayCollector:RayCollector) extends QueryIterator {
 
   override val resultDump = Array.fill(qpts.size)(new Array[Result](0))
 
@@ -34,7 +36,8 @@ class ArrayQueryIterator(qpts:Array[Array[DoublePair]]) extends QueryIterator {
 
 }
 
-class ArrayLocalQueryIterator(values:Array[DoublePair]) extends LocalQueryIterator {
+class ArrayLocalQueryIterator(values:Array[DoublePair])(implicit val rayCollector: RayCollector) extends LocalQueryIterator {
   def size:Int = values.size
   def apply(i:Int):DoublePair = values(i)
+  def computeRay(rayBank:RayBank, index:Int):Double = rayCollector(rayBank,index)
 }

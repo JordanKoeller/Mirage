@@ -1,8 +1,10 @@
 package utility
 
+import lensing.RayCollector
+
 case class QueryInfo(px: Int, py: Int, x: Double, y: Double)
 
-class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDim: Int, val yDim: Int) extends QueryIterator {
+class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDim: Int, val yDim: Int)(implicit val rayCollector:RayCollector) extends QueryIterator {
   private val xStep = (x1 - x0) / (xDim.toDouble)
   private val yStep = (y1 - y0) / (yDim.toDouble)
   override val resultDump = Array.fill(yDim,xDim)(ResultZero)
@@ -30,7 +32,7 @@ class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDi
 }
 
 
-class GridLocalIterator(xStep:Double ,yStep:Double, x0:Double, y0:Double, w:Int, hs:Int, hf:Int) extends LocalQueryIterator {
+class GridLocalIterator(xStep:Double ,yStep:Double, x0:Double, y0:Double, w:Int, hs:Int, hf:Int)(implicit val rayCollector: RayCollector) extends LocalQueryIterator {
   private val gen = (x: Double, y: Double) => (x0 + xStep * x, y0 + yStep * y)
 
   def size:Int = (hf - hs)*w

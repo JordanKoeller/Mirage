@@ -4,12 +4,11 @@ package main
 import lensing._
 import org.apache.spark.api.java.JavaRDD
 import spatialrdd._
-import utility.{ArrayQueryIterator, FileHandler, GridQueryGenerator, Result}
+import utility.{ArrayQueryIterator, FileHandler, GridQueryGenerator}
 
 object Main {
 
   private var rddGrid: RDDGridProperty = null
-
   /**
     * Entry point for ray-tracing a lensing system and creating the RDDGrid. Note that this method does not actually
     * compute anything. The source plane is lazily evaluated when the RDDGrid is queried.
@@ -38,6 +37,7 @@ object Main {
                      numPartitions:Int):Unit = {
     if (rddGrid != null) rddGrid.destroy()
     val sc = jrdd.context
+    setMoment(1)
     sc.setLogLevel("WARN")
     val stars = FileHandler.getStars(starsfile,numStars)
     val pixels = sc.range(0,width*height,1,numPartitions)
@@ -53,7 +53,6 @@ object Main {
     val broadParams = sc.broadcast(parameters)
     val tracer = new RayBankTracer()
     val srcPlane = tracer(raybanks,broadParams)
-    val causticTracer = new CausticTracer()
     val caustics = srcPlane
     broadParams.unpersist(true)
     rddGrid = RDDGrid[RayBank,OptTree[RayBank]](caustics,nodeStructure = OptTree.apply)
@@ -104,6 +103,11 @@ object Main {
     val lightCurves = FileHandler.getQueryPoints(pointsFile,1).head
     val retArr = rddGrid.query_curve(lightCurves, radius, sc)
     FileHandler.saveMagnifications(retFile,Array(retArr))
+  }
+
+  def setMoment(momentIndex:Int):Unit = {
+    RayCollector.setCollector(momentIndex)
+
   }
 
 //  def sampleCaustics(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]):Unit = {

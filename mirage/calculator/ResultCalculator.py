@@ -52,18 +52,19 @@ class ResultCalculator(object):
         zv = zero_vector('rad')
         results = []
         for k in simulation.keys:
-            # if k == 'magmap':
-            #     resolution = simulation['magmap'].resolution
-            #     pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
-            #     ret = engine.query_region(pr,radius)
-            #     results.append(ret)
             if k == 'magmap':
+                resolution = simulation['magmap'].resolution
+                pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
+                ret = engine.query_region(pr,radius)
+                results.append(ret)
+            if k == 'momentmap':
+                resolution = simulation['moment'].resolution
+                result_dump = np.ndarray((6,reolution.x,resolution.y))
                 for i in range(6):
-                    resolution = simulation['magmap'].resolution
                     pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
                     engine.calculation_delegate.setMoment(i)
-                    ret = engine.query_region(pr,radius)
-                    results.append(ret)
+                    result_dump[i,:] = engine.query_region(pr,radius)
+                results.append(result_dump)
             if k == 'lightcurves':
                 region = Region(zv,dims)
                 lines = simulation['lightcurves'].lines(region)

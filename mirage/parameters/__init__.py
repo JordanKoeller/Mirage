@@ -11,7 +11,8 @@ from .CalculationDependency import CalculationDependency
 from .Quasar import Quasar
 from .MassModel import Lens
 from .Parameters import Parameters, MicrolensingParameters
-from .ResultParameters import ResultParameters, MagnificationMapParameters, LightCurvesParameters
+from .ResultParameters import ResultParameters, MagnificationMapParameters, \
+    LightCurvesParameters, MomentMapParameters
 from .Simulation import Simulation, AnimationSimulation
 
 

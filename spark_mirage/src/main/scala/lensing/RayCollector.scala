@@ -11,29 +11,29 @@ class CountCollector extends RayCollector {
 }
 
 class Moment1XCollector extends RayCollector {
-  override def apply(rayBank: RayBank, index: Int): Double = rayBank.sourceX(index) - rayBank.x(index)
+  override def apply(rayBank: RayBank, index: Int): Double = rayBank.x(index) - rayBank.sourceX(index)
 }
 
 class Moment1YCollector extends RayCollector {
-  override def apply(rayBank: RayBank, index: Int): Double = rayBank.sourceY(index) - rayBank.y(index)
+  override def apply(rayBank: RayBank, index: Int): Double = rayBank.y(index) - rayBank.sourceY(index)
 }
 
 class Moment2XCollector extends RayCollector {
   override def apply(rayBank: RayBank, index: Int): Double = {
-    val dx = rayBank.sourceX(index) - rayBank.x(index)
+    val dx = rayBank.x(index)-rayBank.sourceX(index)
     dx*dx
   }
 }
 
 class Moment2XYCollector extends RayCollector {
   override def apply(rayBank: RayBank, index: Int): Double = {
-    (rayBank.sourceX(index) - rayBank.x(index))*(rayBank.sourceY(index) - rayBank.y(index))
+    (rayBank.x(index)-rayBank.sourceX(index))*(rayBank.y(index)-rayBank.sourceY(index))
   }
 }
 
 class Moment2YCollector extends RayCollector {
   override def apply(rayBank: RayBank, index: Int): Double = {
-    val dy = rayBank.sourceY(index) - rayBank.y(index)
+    val dy = rayBank.y(index)-rayBank.sourceY(index)
     dy*dy
   }
 }

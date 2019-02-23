@@ -21,6 +21,8 @@ class ResultParameters(Jsonable):
             return LightCurvesParameters.from_json(v)
         elif k == 'causticmap':
             return CausticMapParameters.from_json(v)
+        elif k == 'momentmap':
+            return MomentMapParameters.from_json(v)
 
     @abstractproperty
     def keyword(self):
@@ -186,3 +188,23 @@ class LightCurvesParameters(ResultParameters):
         return ret 
 
 
+class MomentMapParameters(ResultParameters):
+
+    def __init__(self,resolution:Vec2D):
+        self._resolution = resolution
+
+    @property
+    def resolution(self):
+        return self._resolution
+
+    @property
+    def json(self):
+        return {'momentmap_resolution' : self.resolution.json}
+
+    @classmethod
+    def from_json(cls,js):
+        return cls(Vec2D.from_json(js['momentmap_resolution']))
+
+    @property
+    def keyword(self):
+        return "momentmap"

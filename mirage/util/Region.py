@@ -126,21 +126,40 @@ class PixelRegion(Region):
 
 
     def loc_to_pixel(self,loc:Vec2D) -> Vec2D:
-        loc = loc.to(self.unit)
-        delta = loc - self.center
-        dx = loc.x - self.center.x
-        dy = self.center.y - loc.y
-        delta = Vec2D(dx.value,dy.value,dx.unit)
-        pixellated = delta.to(self.dTheta.unit)/self.dTheta
-        shift = pixellated + self.resolution/2
-        ret = Vec2D(int(shift.x.value),int(shift.y.value))
-        # print(ret)
-        return ret
+        if isinstance(loc,Vec2D):
+            loc = loc.to(self.unit)
+            delta = loc - self.center
+            dx = loc.x - self.center.x
+            dy = self.center.y - loc.y
+            delta = Vec2D(dx.value,dy.value,dx.unit)
+            pixellated = delta.to(self.dTheta.unit)/self.dTheta
+            shift = pixellated + self.resolution/2
+            ret = Vec2D(int(shift.x.value),int(shift.y.value))
+            return ret
+        else: # Assume its an array of layout [[x,y]]
+            loc = loc.to(self.unit)
+            delta = loc - self.center
+            dx = loc[:,0] - self.center.x
+            dy = self.center.y - loc[:,1]
+            deltas = loc.copy()
+            deltas[:,0] = dx
+            deltas[:,1] = dy
+            deltas = deltas.to(self.dTheta.unit)/self.dTheta.quantity
+            deltas = deltas + self.resolution.quantity/2
+            return deltas.astype(int)
 
     def pixel_to_loc(self,pixel:Vec2D) -> Vec2D:
-        shiftp = pixel - self.resolution/2
-        delta = self.dTheta*shiftp
-        return Vec2D((self.center.x + delta.x).value,(self.center.y - delta.y).value,self.unit)
+        if isinstance(pixel,Vec2D):
+            shiftp = pixel - self.resolution/2
+            delta = self.dTheta*shiftp
+            return Vec2D((self.center.x + delta.x).value,(self.center.y - delta.y).value,self.unit)
+        else:
+            shiftp = pixel - self.resolution.quantity/2
+            delta = self.dTheta.quantity + shiftp
+            ret = np.ndarray(delta.shape)
+            ret[:,0] = self.center.x + delta[:,0]
+            ret[:,1] = self.center.y - delta[:,1]
+            return ret
         # return delta + self.center.to(delta.unit)
         #dy = c - l
         #l = c - dy

@@ -5,8 +5,8 @@ import lensing.RayCollector
 case class QueryInfo(px: Int, py: Int, x: Double, y: Double)
 
 class GridQueryGenerator(x0: Double, y0: Double, x1: Double, y1: Double, val xDim: Int, val yDim: Int)(implicit val rayCollector:RayCollector) extends QueryIterator {
-  private val xStep = (x1 - x0) / (xDim.toDouble)
-  private val yStep = (y1 - y0) / (yDim.toDouble)
+  val xStep = (x1 - x0) / (xDim.toDouble)
+  val yStep = (y1 - y0) / (yDim.toDouble)
   override val resultDump = Array.fill(yDim,xDim)(ResultZero)
 
   private val rowPerBatch = QueryIterator.chunkSize / xDim

@@ -59,7 +59,7 @@ class ResultCalculator(object):
                 results.append(ret)
             if k == 'momentmap':
                 resolution = simulation['moment'].resolution
-                result_dump = np.ndarray((6,reolution.x,resolution.y))
+                result_dump = np.ndarray((6,resolution.x,resolution.y))
                 for i in range(6):
                     pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
                     engine.calculation_delegate.setMoment(i)
@@ -75,7 +75,7 @@ class ResultCalculator(object):
                 resolution = simulation['causticmap'].resolution
                 pr = PixelRegion(zv,dims,resolution)
                 pts = pr.pixels.to(params.eta_0)
-                ret = engine.query_caustics(pts.value,radius)
+                ret = engine.query_caustics(pr,radius)
                 results.append(ret)
         return results
 

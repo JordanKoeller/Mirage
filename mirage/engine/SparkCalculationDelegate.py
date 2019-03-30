@@ -84,12 +84,20 @@ class MicroSparkDelegate(CalculationDelegate):
         return np.array(returned_data)
 
     def query_caustics(self,points:Vec2D,radius:u.Quantity) -> np.ndarray:
-        query_point_file = self.get_data_file(points)
         query_radius = radius.value
         jrdd = self._spark_context.emptyRDD()._jrdd
         file = tempfile.NamedTemporaryFile("w+",delete = False)
-        self.spark_context._jvm.main.Main.sampleCaustics(query_point_file,file.name,points.shape[0],query_radius,jrdd)
-        returned_data = self.get_returned_data(file.name,points)
+        left = region.center - region.dimensions/2.0
+        right = region.center + region.dimensions/2.0
+        args = (left.x.value, left.y.value,
+            right.x.value,
+            right.y.value,
+            region.resolution.x.value,
+            region.resolution.y.value,
+            file.name,
+            jrdd)
+        self.spark_context._jvm.main.Main.queryGrid(*args)
+        returned_data = self.get_returned_data(file.name,region.pixels)
         return np.array(returned_data,dtype=ResultType)
 
     def query_region(self,region,radius:u.Quantity) -> np.ndarray:

@@ -33,6 +33,7 @@ class RDDGrid[A <: RayBank : ClassTag, SD <: SpatialData : ClassTag](rdd: RDD[SD
     ret
   }
 
+
   def queryPoints(pts: Array[Array[DoublePair]], radius: Double, sc: SparkContext, verbose: Boolean = false): Array[Array[Result]] = {
     val r = sc.broadcast(radius)
     val queryBank = QueryPointBank(pts)
@@ -67,6 +68,30 @@ class RDDGrid[A <: RayBank : ClassTag, SD <: SpatialData : ClassTag](rdd: RDD[SD
           for (i <- 0 until broadcasted.value.size) {
             val qloc = broadcasted.value(i)
             val num = grid.searchNodes(qloc._1,qloc._2,radius,broadcasted.value.rayCollector)
+            if (num != 0) rett ::= (i,num)
+          }
+          rett
+      }
+      val reduced = queries.reduceByKey((acc,n) => acc + n).collect
+      val retList = Array.fill(localIter.size)(ResultZero)
+      reduced.foreach{e => retList(e._1) = e._2}
+      iter.takeInResult(retList)
+    }
+    iter.collect
+  }
+
+  def searchGrid(iter:GridQueryGenerator,sc:SparkContext):Array[Array[Result]] = {
+    while (iter.hasNext) {
+      val localIter = iter.nextBatch()
+      val broadcasted = sc.broadcast(localIter)
+      val dx = iter.xStep
+      val dy = iter.yStep
+      val queries = rdd.flatMap {
+        grid =>
+          var rett: List[(Int,Result)] = Nil
+          for (i <- 0 until broadcasted.value.size) {
+            val qloc = broadcasted.value(i)
+            val num = grid.searchNodes(qloc._1,qloc._2,qloc._1+dx, qloc._2+dy,broadcasted.value.rayCollector)
             if (num != 0) rett ::= (i,num)
           }
           rett

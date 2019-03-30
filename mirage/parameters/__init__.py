@@ -12,7 +12,7 @@ from .Quasar import Quasar
 from .MassModel import Lens
 from .Parameters import Parameters, MicrolensingParameters
 from .ResultParameters import ResultParameters, MagnificationMapParameters, \
-    LightCurvesParameters, MomentMapParameters
+    LightCurvesParameters, MomentMapParameters, CausticMapParameters
 from .Simulation import Simulation, AnimationSimulation
 
 

@@ -35,6 +35,32 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
       aggregator
     }
 
+    def search(x1: Double, x2: Double, y1:Double, y2:Double, collector:RayCollector): Result = {
+      var aggregator = ResultZero
+      for (i <- indI until indJ) {
+        if (values.sourceX(i) > x1 && values.sourceX(i) < x2 && values.sourceY(i) < y2 && values.sourceY(i) > y1) {
+          aggregator += collector(values,i)
+        }
+      }
+      aggregator
+    }
+
+    def overlapsRight(x1: Double, x2: Double, y1:Double, y2:Double, level: Int): Boolean = {
+      if (level % 2 == 0) {
+        split < x2
+      } else {
+        split < y2
+      }
+    }
+
+    def overlapsLeft(x1: Double, x2: Double, y1:Double, y2:Double, level: Int): Boolean = {
+      if (level % 2 == 0) {
+        split > x1
+      } else {
+        split > y2
+      }
+    }
+
     def overlapsRight(x: Double, y: Double, r: Double, level: Int): Boolean = {
       if (level % 2 == 0) {
         split < r + x
@@ -128,6 +154,37 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
     }
     counter
   }
+
+  def searchNodes(x1:Double,x2:Double,y1:Double,y2:Double,collector:RayCollector): Result = {
+    val dx = x2 - x1
+    val dy = y2 - y1
+    var searching = 0
+    var toSearch: List[Int] = 0 :: Nil
+    var counter = 0.0
+    var level = 0
+    while (!toSearch.isEmpty) {
+      searching = toSearch.head
+      level = (math.log1p(searching) / OptTree.log2).toInt
+      toSearch = toSearch.tail
+      //Two cases: It overlaps the circle, or is completely enclosed by the circle
+      //Case 1: completely encloses the circle
+      if (false) counter += boxes(searching).size //This is the contained_by statement. ****************************************
+      //Case 2: box overlaps the circle
+      else {
+        //Two cases. It is a leaf or a branch
+        if (searching * 2 + 1 >= boxes.size) {
+          //Case 1: It's a leaf
+          counter += boxes(searching).search(x1, x2, y1, y2, collector)
+        } else {
+          //Case 2: Need to go into its children. Check each individually, see if needs to be added.
+          if (boxes(searching).overlapsLeft(x1, x2, y1, y2, level)) toSearch = (searching * 2 + 1) :: toSearch
+          if (boxes(searching).overlapsRight(x1, x2, y1, y2, level)) toSearch = (searching * 2 + 2) :: toSearch
+        }
+      }
+    }
+    counter
+  }
+
 
 
   private def list_constructNodes(): Array[Node] = {

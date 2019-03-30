@@ -106,9 +106,29 @@ object Main {
 
   def setMoment(momentIndex:Int):Unit = {
     RayCollector.setCollector(momentIndex)
-
   }
 
+
+  /**
+    * This method creates an equally spaced grid to query. Useful for making a magnification map. Note that this method does not receive a radius as an argument.
+    * It bins rays into the grid specified by all the parameters. This type of binning is more akin to that used in Joachim Wambsganss' microlensing code.
+    * @param x0 "left" x value in units of \xi_0
+    * @param y0 "bottom" y value in units of \xi_0
+    * @param x1 "right" x value in units of \xi_0
+    * @param y1 "top" y value in units of \xi_0
+    * @param xDim Number of columns in the grid.
+    * @param yDim Number of rows in the grid.
+    * @param retFile Filename to save the magnifications to.
+    * @param ctx References to a JavaRDD instance.
+    */
+  def queryGrid(x0: Double, y0: Double, x1: Double, y1: Double,
+                  xDim: Int, yDim: Int, radius: Double, retFile:String,
+                  ctx: JavaRDD[Int]):Unit = {
+    val sc = ctx.context
+    val collector = new GridQueryGenerator(x0, y0, x1, y1, xDim, yDim)
+    val retArr = rddGrid.searchGrid(collector, sc)
+    FileHandler.saveMagnifications(retFile,retArr)
+  }
 //  def sampleCaustics(pointsFile:String,retFile:String,numLines:Int,radius:Double,ctx:JavaRDD[Int]):Unit = {
 //    val sc = ctx.context
 //    val lightCurves = FileHandler.getQueryPoints(pointsFile,numLines)

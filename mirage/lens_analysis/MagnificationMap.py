@@ -17,7 +17,7 @@ class MagnificationMap(object):
     @property
     def data(self):
         if self._scaling == 1:
-            return 2.5*np.log10(self._data+0.001)
+            return -2.5*np.log10(self._data+0.001)
         else:
             return self._data
 
@@ -69,8 +69,8 @@ class MagnificationMap(object):
         ret = abs(ret1) + abs(ret2.T) 
         return ret
 
-    def histogram(self,nbins=100,show=False):
+    def histogram(self,nbins=100,**kwargs):
         from matplotlib import pyplot as plt
         data = self.data
-        plt.hist(data.flatten(),log=True,bins=nbins,histtype="step")
+        return plt.hist(data.flatten(),log=True,bins=nbins,histtype="step",**kwargs)
 

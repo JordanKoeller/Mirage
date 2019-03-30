@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 
 class ImageCurveView:
     def __init__(self):
-        self._cmap = plt.get_cmap('RdBu_r')
+        self._cmap = plt.get_cmap('RdBu')
         self._with_colorbar = False
 
     @staticmethod

@@ -12,10 +12,10 @@ class FileManager(ABC):
         self._file = None
 
     def open(self,filename,force_extension=False):
-        if force_extension or filename[-len(self.extension):] == self.extension:
-            self._filename = filename
-        else:
-            self._filename = filename + self.extension
+#        if force_extension or filename[-len(self.extension):] == self.extension:
+        self._filename = filename
+#        else:
+#            self._filename = filename + self.extension
         self._file = "exists"
 
     @abstractmethod

@@ -221,7 +221,7 @@ class LightCurve(object):
 
     @property
     def curve(self):
-        return 2.5*np.log10(self._data)
+        return -2.5*np.log10(self._data)
 
     @property
     def magnification_curve(self):

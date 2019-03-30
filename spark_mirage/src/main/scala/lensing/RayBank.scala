@@ -70,7 +70,7 @@ object RayBank {
   def apply(input:Array[Long],dx:Double,dy:Double,w:Long,h:Long): RayBank = {
     val number = input.size
     val lensPos = Array.fill(number*2)(0.0)
-    val srcPos = lensPos.clone()//Array.fill(number*2)(0.0)
+    val srcPos = Array.fill(number*2)(0.0)
     for (ind <- input.indices) {
       val long = input(ind)
       lensPos(ind*2+1) = ((long / w) - h/2).toDouble*dy

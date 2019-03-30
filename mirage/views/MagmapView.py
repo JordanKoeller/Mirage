@@ -109,7 +109,8 @@ class MagnificationMapView(ImageCurveView):
         extent = magmap.region.dimensions/2
         x = extent.x.value
         y = extent.y.value
-        img = self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y])
+        maxVal = min([magmap.data.max(),-(magmap.data).max()])
+        img = self.axes.imshow(magmap.data.T,cmap=self._cmap,extent=[-x,x,-y,y],vmin=-maxVal,vmax=maxVal)
         if self._with_colorbar:
             cb = self.figure.colorbar(img,ax=self.axes,pad=0.01,fraction=0.05)
             cb.set_label("Magnitudes")

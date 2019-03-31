@@ -83,7 +83,7 @@ class MicroSparkDelegate(CalculationDelegate):
         returned_data = self.get_returned_data(file.name,points)
         return np.array(returned_data)
 
-    def query_caustics(self,points:Vec2D,radius:u.Quantity) -> np.ndarray:
+    def query_caustics(self,region,radius:u.Quantity) -> np.ndarray:
         query_radius = radius.value
         jrdd = self._spark_context.emptyRDD()._jrdd
         file = tempfile.NamedTemporaryFile("w+",delete = False)

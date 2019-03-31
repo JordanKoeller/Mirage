@@ -1,8 +1,33 @@
 package lensing
 
+import java.util
+
 import utility.Result
 
 class RayBank(private var lensPosition:Array[Double],private var sourcePosition:Array[Double]) extends Serializable {
+  private val parities = new util.BitSet(lensPosition.size)
+
+  def setParity(ind:Int,value:Int): Unit = {
+    val lookup = ind*2
+    if (value == 1) {
+      parities.set(lookup,lookup+2,true)
+    }
+    else if (value == -1) {
+      parities.set(lookup,lookup+2,false)
+    }
+    else {
+      parities.set(lookup,true)
+      parities.set(lookup+1,false)
+    }
+  }
+
+  def parity(ind:Int):Int = {
+    val lookup = ind*2
+    if (parities.get(lookup) && parities.get(lookup+1)) 1
+    else if (!parities.get(lookup) && !parities.get(lookup+1)) -1
+    else 0
+  }
+
   def size:Int = lensPosition.length/2
 
   def x(ind:Int):Double = lensPosition(ind*2)

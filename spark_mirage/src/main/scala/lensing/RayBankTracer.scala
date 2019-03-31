@@ -50,15 +50,18 @@ class RayBankTracer() extends Serializable {
           iter += 1
         }
         val mag = psi11*psi22-psi12*psi21
+        bank.setSourceX(ind,retX)
+        bank.setSourceY(ind,retY)
         if (math.abs(mag) < 1e-3) {
-          bank.setSourceX(ind,retX)
-          bank.setSourceY(ind,retY)
+          bank.setParity(ind,0)
+        }
+        else if (mag > 0) {
+          bank.setParity(ind,1)
         }
         else {
-          bank.destroy(ind)
+          bank.setParity(ind,-1)
         }
       }
-      bank.trim()
       bank
     }
   }

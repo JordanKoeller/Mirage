@@ -26,10 +26,12 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
       var dx = 0.0
       var dy = 0.0
       for (i <- indI until indJ) {
-        dx = values.sourceX(i) - x
-        dy = values.sourceY(i) - y
-        if (dx * dx + dy * dy <= r2) {
-          aggregator += collector(values,i)
+        if (collector.properParity(values, i)) {
+          dx = values.sourceX(i) - x
+          dy = values.sourceY(i) - y
+          if (dx * dx + dy * dy <= r2) {
+            aggregator += collector(values, i)
+          }
         }
       }
       aggregator
@@ -38,7 +40,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
     def search(x1: Double, x2: Double, y1:Double, y2:Double, collector:RayCollector): Result = {
       var aggregator = ResultZero
       for (i <- indI until indJ) {
-        if (values.sourceX(i) > x1 && values.sourceX(i) < x2 && values.sourceY(i) < y2 && values.sourceY(i) > y1) {
+        if (collector.properParity(values,i) && values.sourceX(i) > x1 && values.sourceX(i) < x2 && values.sourceY(i) < y2 && values.sourceY(i) > y1) {
           aggregator += collector(values,i)
         }
       }
@@ -90,7 +92,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
   }
 
   def query_point_count(x: Double, y: Double, r: Double): Result = {
-    val coll = new CountCollector
+    val coll = new CountCollector(None)
     searchNodes(x, y, r,coll)
   }
 

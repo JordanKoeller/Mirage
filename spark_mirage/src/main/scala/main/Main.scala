@@ -108,6 +108,12 @@ object Main {
     RayCollector.setCollector(momentIndex)
   }
 
+  def setMoment(momentIndex:Int,parity:String):Unit = {
+    val par = if (parity == "pos") Some(1) else if (parity == "neg") Some(-1) else if (parity == "zero") Some(0) else None
+    RayCollector.setCollector(momentIndex)
+    RayCollector.setParity(par)
+  }
+
 
   /**
     * This method creates an equally spaced grid to query. Useful for making a magnification map. Note that this method does not receive a radius as an argument.
@@ -122,7 +128,7 @@ object Main {
     * @param ctx References to a JavaRDD instance.
     */
   def queryGrid(x0: Double, y0: Double, x1: Double, y1: Double,
-                  xDim: Int, yDim: Int, radius: Double, retFile:String,
+                  xDim: Int, yDim: Int, retFile:String,
                   ctx: JavaRDD[Int]):Unit = {
     val sc = ctx.context
     val collector = new GridQueryGenerator(x0, y0, x1, y1, xDim, yDim)

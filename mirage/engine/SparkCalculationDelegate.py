@@ -96,6 +96,7 @@ class MicroSparkDelegate(CalculationDelegate):
             region.resolution.y.value,
             file.name,
             jrdd)
+        self.spark_context._jvm.main.setMoment(0,'zero')
         self.spark_context._jvm.main.Main.queryGrid(*args)
         returned_data = self.get_returned_data(file.name,region.pixels)
         return np.array(returned_data,dtype=ResultType)

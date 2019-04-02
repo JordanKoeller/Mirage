@@ -91,7 +91,7 @@ class RDDGrid[A <: RayBank : ClassTag, SD <: SpatialData : ClassTag](rdd: RDD[SD
           var rett: List[(Int,Result)] = Nil
           for (i <- 0 until broadcasted.value.size) {
             val qloc = broadcasted.value(i)
-            val num = grid.searchNodes(qloc._1,qloc._2,qloc._1+dx, qloc._2+dy,broadcasted.value.rayCollector)
+            val num = grid.searchNodes(qloc._1,qloc._1+dx,qloc._2, qloc._2+dy,broadcasted.value.rayCollector)
             if (num != 0) rett ::= (i,num)
           }
           rett

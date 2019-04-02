@@ -158,8 +158,6 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
   }
 
   def searchNodes(x1:Double,x2:Double,y1:Double,y2:Double,collector:RayCollector): Result = {
-    val dx = x2 - x1
-    val dy = y2 - y1
     var searching = 0
     var toSearch: List[Int] = 0 :: Nil
     var counter = 0.0

@@ -1756,8 +1756,10 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, cha
 static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_interpolate(PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_axis(PyObject *, PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characteristic_inplace(PyArrayObject *, PyArrayObject *, double &, double &, int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics(PyArrayObject *, PyArrayObject *, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs__slice_line(PyObject *, PyObject *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t = { "float64_t", NULL, sizeof(__pyx_t_5numpy_float64_t), { 0 }, 0, 'R', 0, 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t = { "uint8_t", NULL, sizeof(__pyx_t_5numpy_uint8_t), { 0 }, 0, IS_UNSIGNED(__pyx_t_5numpy_uint8_t) ? 'U' : 'I', IS_UNSIGNED(__pyx_t_5numpy_uint8_t), 0 };
 #define __Pyx_MODULE_NAME "mirage.calculator.optimized_funcs"
 extern int __pyx_module_is_main_mirage__calculator__optimized_funcs;
 int __pyx_module_is_main_mirage__calculator__optimized_funcs = 0;
@@ -1790,10 +1792,12 @@ static const char __pyx_k_units[] = "units";
 static const char __pyx_k_value[] = "value";
 static const char __pyx_k_center[] = "center";
 static const char __pyx_k_import[] = "__import__";
+static const char __pyx_k_magmap[] = "magmap";
 static const char __pyx_k_object[] = "object";
 static const char __pyx_k_region[] = "region";
 static const char __pyx_k_astropy[] = "astropy";
 static const char __pyx_k_Quantity[] = "Quantity";
+static const char __pyx_k_caustics[] = "caustics";
 static const char __pyx_k_locations[] = "locations";
 static const char __pyx_k_magnitude[] = "magnitude";
 static const char __pyx_k_ValueError[] = "ValueError";
@@ -1823,6 +1827,7 @@ static PyObject *__pyx_n_s_Quantity;
 static PyObject *__pyx_n_s_RuntimeError;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_astropy;
+static PyObject *__pyx_n_s_caustics;
 static PyObject *__pyx_n_s_center;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_copy;
@@ -1834,6 +1839,7 @@ static PyObject *__pyx_n_s_loc_to_pixel;
 static PyObject *__pyx_n_s_locations;
 static PyObject *__pyx_n_s_macro_convergence;
 static PyObject *__pyx_n_s_macro_shear;
+static PyObject *__pyx_n_s_magmap;
 static PyObject *__pyx_n_s_magnitude;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_name;
@@ -1865,6 +1871,7 @@ static PyObject *__pyx_n_s_y;
 static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_interpolate(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_region, PyObject *__pyx_v_two_points_list, PyObject *__pyx_v_sample_density); /* proto */
 static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_2arbitrary_slice_axis(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_pt1, PyObject *__pyx_v_pt2, PyObject *__pyx_v_region, PyObject *__pyx_v_data); /* proto */
 static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_4caustic_characteristic_inplace(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_stars, PyArrayObject *__pyx_v_locations, double __pyx_v_macro_convergence, double __pyx_v_macro_shear); /* proto */
+static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_6isolate_caustics(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_magmap, PyArrayObject *__pyx_v_caustics); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_float_2_0;
@@ -3618,7 +3625,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  *         ret[j,0] = kapMin2 - abs(gam*gam.conjugate())
  *         ret[j,1] = abs(dubar*kapMin - du*gam)             # <<<<<<<<<<<<<<
  *     return ret
- * #"""NOTE: In order to flip around a map made of these bois, need to do map.T[::-1,:]"""
+ * 
  */
     __pyx_t_23 = __pyx_v_j;
     __pyx_t_24 = 1;
@@ -3629,7 +3636,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characte
  *         ret[j,0] = kapMin2 - abs(gam*gam.conjugate())
  *         ret[j,1] = abs(dubar*kapMin - du*gam)
  *     return ret             # <<<<<<<<<<<<<<
- * #"""NOTE: In order to flip around a map made of these bois, need to do map.T[::-1,:]"""
+ * 
  * 
  */
   __Pyx_XDECREF(__pyx_r);
@@ -3811,6 +3818,492 @@ static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_4caustic_charac
   __pyx_L0:;
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_locations.rcbuffer->pybuffer);
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_stars.rcbuffer->pybuffer);
+  __pyx_L2:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "mirage/calculator/optimized_funcs.pyx":135
+ * 
+ * 
+ * cpdef isolate_caustics(np.ndarray[np.float64_t,ndim=2] magmap, np.ndarray[np.uint8_t, ndim=2] caustics):             # <<<<<<<<<<<<<<
+ *     """
+ *     Given a partially completed map of caustics and a magnification map, this function "fills in" the missing caustics.
+ */
+
+static PyObject *__pyx_pw_6mirage_10calculator_15optimized_funcs_7isolate_caustics(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics(PyArrayObject *__pyx_v_magmap, PyArrayObject *__pyx_v_caustics, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  int __pyx_v_i;
+  int __pyx_v_j;
+  int __pyx_v_ki;
+  int __pyx_v_kj;
+  int __pyx_v_ii;
+  int __pyx_v_jj;
+  int __pyx_v_x;
+  int __pyx_v_y;
+  int __pyx_v_c;
+  int __pyx_v_rows;
+  int __pyx_v_cols;
+  double __pyx_v_highestFound;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_caustics;
+  __Pyx_Buffer __pyx_pybuffer_caustics;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_magmap;
+  __Pyx_Buffer __pyx_pybuffer_magmap;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_t_2;
+  int __pyx_t_3;
+  int __pyx_t_4;
+  int __pyx_t_5;
+  int __pyx_t_6;
+  Py_ssize_t __pyx_t_7;
+  Py_ssize_t __pyx_t_8;
+  int __pyx_t_9;
+  int __pyx_t_10;
+  int __pyx_t_11;
+  int __pyx_t_12;
+  Py_ssize_t __pyx_t_13;
+  Py_ssize_t __pyx_t_14;
+  Py_ssize_t __pyx_t_15;
+  Py_ssize_t __pyx_t_16;
+  Py_ssize_t __pyx_t_17;
+  Py_ssize_t __pyx_t_18;
+  __Pyx_RefNannySetupContext("isolate_caustics", 0);
+  __pyx_pybuffer_magmap.pybuffer.buf = NULL;
+  __pyx_pybuffer_magmap.refcount = 0;
+  __pyx_pybuffernd_magmap.data = NULL;
+  __pyx_pybuffernd_magmap.rcbuffer = &__pyx_pybuffer_magmap;
+  __pyx_pybuffer_caustics.pybuffer.buf = NULL;
+  __pyx_pybuffer_caustics.refcount = 0;
+  __pyx_pybuffernd_caustics.data = NULL;
+  __pyx_pybuffernd_caustics.rcbuffer = &__pyx_pybuffer_caustics;
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_magmap.rcbuffer->pybuffer, (PyObject*)__pyx_v_magmap, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 135, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_magmap.diminfo[0].strides = __pyx_pybuffernd_magmap.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_magmap.diminfo[0].shape = __pyx_pybuffernd_magmap.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_magmap.diminfo[1].strides = __pyx_pybuffernd_magmap.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_magmap.diminfo[1].shape = __pyx_pybuffernd_magmap.rcbuffer->pybuffer.shape[1];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_caustics.rcbuffer->pybuffer, (PyObject*)__pyx_v_caustics, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 135, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_caustics.diminfo[0].strides = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_caustics.diminfo[0].shape = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_caustics.diminfo[1].strides = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_caustics.diminfo[1].shape = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.shape[1];
+
+  /* "mirage/calculator/optimized_funcs.pyx":141
+ *     cdef int i, j, ki, kj
+ *     cdef int ii, jj, x, y
+ *     cdef int c = 0             # <<<<<<<<<<<<<<
+ *     cdef int rows = magmap.shape[0]
+ *     cdef int cols = magmap.shape[1]
+ */
+  __pyx_v_c = 0;
+
+  /* "mirage/calculator/optimized_funcs.pyx":142
+ *     cdef int ii, jj, x, y
+ *     cdef int c = 0
+ *     cdef int rows = magmap.shape[0]             # <<<<<<<<<<<<<<
+ *     cdef int cols = magmap.shape[1]
+ *     cdef double highestFound = -40.0;
+ */
+  __pyx_v_rows = (__pyx_v_magmap->dimensions[0]);
+
+  /* "mirage/calculator/optimized_funcs.pyx":143
+ *     cdef int c = 0
+ *     cdef int rows = magmap.shape[0]
+ *     cdef int cols = magmap.shape[1]             # <<<<<<<<<<<<<<
+ *     cdef double highestFound = -40.0;
+ *     for i in range(rows):
+ */
+  __pyx_v_cols = (__pyx_v_magmap->dimensions[1]);
+
+  /* "mirage/calculator/optimized_funcs.pyx":144
+ *     cdef int rows = magmap.shape[0]
+ *     cdef int cols = magmap.shape[1]
+ *     cdef double highestFound = -40.0;             # <<<<<<<<<<<<<<
+ *     for i in range(rows):
+ *         for j in range(cols):
+ */
+  __pyx_v_highestFound = -40.0;
+
+  /* "mirage/calculator/optimized_funcs.pyx":145
+ *     cdef int cols = magmap.shape[1]
+ *     cdef double highestFound = -40.0;
+ *     for i in range(rows):             # <<<<<<<<<<<<<<
+ *         for j in range(cols):
+ *             if caustics[i,j] == True:
+ */
+  __pyx_t_1 = __pyx_v_rows;
+  __pyx_t_2 = __pyx_t_1;
+  for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
+    __pyx_v_i = __pyx_t_3;
+
+    /* "mirage/calculator/optimized_funcs.pyx":146
+ *     cdef double highestFound = -40.0;
+ *     for i in range(rows):
+ *         for j in range(cols):             # <<<<<<<<<<<<<<
+ *             if caustics[i,j] == True:
+ *                 for ki in range(-1,2):
+ */
+    __pyx_t_4 = __pyx_v_cols;
+    __pyx_t_5 = __pyx_t_4;
+    for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
+      __pyx_v_j = __pyx_t_6;
+
+      /* "mirage/calculator/optimized_funcs.pyx":147
+ *     for i in range(rows):
+ *         for j in range(cols):
+ *             if caustics[i,j] == True:             # <<<<<<<<<<<<<<
+ *                 for ki in range(-1,2):
+ *                     for kj in range(-1,2):
+ */
+      __pyx_t_7 = __pyx_v_i;
+      __pyx_t_8 = __pyx_v_j;
+      __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_7, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_caustics.diminfo[1].strides)) == 1) != 0);
+      if (__pyx_t_9) {
+
+        /* "mirage/calculator/optimized_funcs.pyx":148
+ *         for j in range(cols):
+ *             if caustics[i,j] == True:
+ *                 for ki in range(-1,2):             # <<<<<<<<<<<<<<
+ *                     for kj in range(-1,2):
+ *                         ii = i + ki
+ */
+        for (__pyx_t_10 = -1; __pyx_t_10 < 2; __pyx_t_10+=1) {
+          __pyx_v_ki = __pyx_t_10;
+
+          /* "mirage/calculator/optimized_funcs.pyx":149
+ *             if caustics[i,j] == True:
+ *                 for ki in range(-1,2):
+ *                     for kj in range(-1,2):             # <<<<<<<<<<<<<<
+ *                         ii = i + ki
+ *                         jj = j + kj
+ */
+          for (__pyx_t_11 = -1; __pyx_t_11 < 2; __pyx_t_11+=1) {
+            __pyx_v_kj = __pyx_t_11;
+
+            /* "mirage/calculator/optimized_funcs.pyx":150
+ *                 for ki in range(-1,2):
+ *                     for kj in range(-1,2):
+ *                         ii = i + ki             # <<<<<<<<<<<<<<
+ *                         jj = j + kj
+ *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
+ */
+            __pyx_v_ii = (__pyx_v_i + __pyx_v_ki);
+
+            /* "mirage/calculator/optimized_funcs.pyx":151
+ *                     for kj in range(-1,2):
+ *                         ii = i + ki
+ *                         jj = j + kj             # <<<<<<<<<<<<<<
+ *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
+ *                             if caustics[ii,jj] == 1:
+ */
+            __pyx_v_jj = (__pyx_v_j + __pyx_v_kj);
+
+            /* "mirage/calculator/optimized_funcs.pyx":152
+ *                         ii = i + ki
+ *                         jj = j + kj
+ *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:             # <<<<<<<<<<<<<<
+ *                             if caustics[ii,jj] == 1:
+ *                                 c += 1
+ */
+            __pyx_t_12 = ((__pyx_v_ii >= 0) != 0);
+            if (__pyx_t_12) {
+            } else {
+              __pyx_t_9 = __pyx_t_12;
+              goto __pyx_L13_bool_binop_done;
+            }
+            __pyx_t_12 = ((__pyx_v_jj >= 0) != 0);
+            if (__pyx_t_12) {
+            } else {
+              __pyx_t_9 = __pyx_t_12;
+              goto __pyx_L13_bool_binop_done;
+            }
+            __pyx_t_12 = ((__pyx_v_ii < __pyx_v_rows) != 0);
+            if (__pyx_t_12) {
+            } else {
+              __pyx_t_9 = __pyx_t_12;
+              goto __pyx_L13_bool_binop_done;
+            }
+            __pyx_t_12 = ((__pyx_v_jj < __pyx_v_cols) != 0);
+            __pyx_t_9 = __pyx_t_12;
+            __pyx_L13_bool_binop_done:;
+            if (__pyx_t_9) {
+
+              /* "mirage/calculator/optimized_funcs.pyx":153
+ *                         jj = j + kj
+ *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
+ *                             if caustics[ii,jj] == 1:             # <<<<<<<<<<<<<<
+ *                                 c += 1
+ *                             else:
+ */
+              __pyx_t_13 = __pyx_v_ii;
+              __pyx_t_14 = __pyx_v_jj;
+              __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_caustics.diminfo[1].strides)) == 1) != 0);
+              if (__pyx_t_9) {
+
+                /* "mirage/calculator/optimized_funcs.pyx":154
+ *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
+ *                             if caustics[ii,jj] == 1:
+ *                                 c += 1             # <<<<<<<<<<<<<<
+ *                             else:
+ *                                 if magmap[ii,jj] > highestFound:
+ */
+                __pyx_v_c = (__pyx_v_c + 1);
+
+                /* "mirage/calculator/optimized_funcs.pyx":153
+ *                         jj = j + kj
+ *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
+ *                             if caustics[ii,jj] == 1:             # <<<<<<<<<<<<<<
+ *                                 c += 1
+ *                             else:
+ */
+                goto __pyx_L17;
+              }
+
+              /* "mirage/calculator/optimized_funcs.pyx":156
+ *                                 c += 1
+ *                             else:
+ *                                 if magmap[ii,jj] > highestFound:             # <<<<<<<<<<<<<<
+ *                                     x = ii
+ *                                     y = jj
+ */
+              /*else*/ {
+                __pyx_t_15 = __pyx_v_ii;
+                __pyx_t_16 = __pyx_v_jj;
+                __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_magmap.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_magmap.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_magmap.diminfo[1].strides)) > __pyx_v_highestFound) != 0);
+                if (__pyx_t_9) {
+
+                  /* "mirage/calculator/optimized_funcs.pyx":157
+ *                             else:
+ *                                 if magmap[ii,jj] > highestFound:
+ *                                     x = ii             # <<<<<<<<<<<<<<
+ *                                     y = jj
+ *                 if c < 3:
+ */
+                  __pyx_v_x = __pyx_v_ii;
+
+                  /* "mirage/calculator/optimized_funcs.pyx":158
+ *                                 if magmap[ii,jj] > highestFound:
+ *                                     x = ii
+ *                                     y = jj             # <<<<<<<<<<<<<<
+ *                 if c < 3:
+ *                     caustics[x,y] = True
+ */
+                  __pyx_v_y = __pyx_v_jj;
+
+                  /* "mirage/calculator/optimized_funcs.pyx":156
+ *                                 c += 1
+ *                             else:
+ *                                 if magmap[ii,jj] > highestFound:             # <<<<<<<<<<<<<<
+ *                                     x = ii
+ *                                     y = jj
+ */
+                }
+              }
+              __pyx_L17:;
+
+              /* "mirage/calculator/optimized_funcs.pyx":152
+ *                         ii = i + ki
+ *                         jj = j + kj
+ *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:             # <<<<<<<<<<<<<<
+ *                             if caustics[ii,jj] == 1:
+ *                                 c += 1
+ */
+            }
+          }
+        }
+
+        /* "mirage/calculator/optimized_funcs.pyx":159
+ *                                     x = ii
+ *                                     y = jj
+ *                 if c < 3:             # <<<<<<<<<<<<<<
+ *                     caustics[x,y] = True
+ * 
+ */
+        __pyx_t_9 = ((__pyx_v_c < 3) != 0);
+        if (__pyx_t_9) {
+
+          /* "mirage/calculator/optimized_funcs.pyx":160
+ *                                     y = jj
+ *                 if c < 3:
+ *                     caustics[x,y] = True             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+          __pyx_t_17 = __pyx_v_x;
+          __pyx_t_18 = __pyx_v_y;
+          *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_caustics.diminfo[1].strides) = 1;
+
+          /* "mirage/calculator/optimized_funcs.pyx":159
+ *                                     x = ii
+ *                                     y = jj
+ *                 if c < 3:             # <<<<<<<<<<<<<<
+ *                     caustics[x,y] = True
+ * 
+ */
+        }
+
+        /* "mirage/calculator/optimized_funcs.pyx":147
+ *     for i in range(rows):
+ *         for j in range(cols):
+ *             if caustics[i,j] == True:             # <<<<<<<<<<<<<<
+ *                 for ki in range(-1,2):
+ *                     for kj in range(-1,2):
+ */
+      }
+    }
+  }
+
+  /* "mirage/calculator/optimized_funcs.pyx":135
+ * 
+ * 
+ * cpdef isolate_caustics(np.ndarray[np.float64_t,ndim=2] magmap, np.ndarray[np.uint8_t, ndim=2] caustics):             # <<<<<<<<<<<<<<
+ *     """
+ *     Given a partially completed map of caustics and a magnification map, this function "fills in" the missing caustics.
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_caustics.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_magmap.rcbuffer->pybuffer);
+  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
+  __Pyx_AddTraceback("mirage.calculator.optimized_funcs.isolate_caustics", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  goto __pyx_L2;
+  __pyx_L0:;
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_caustics.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_magmap.rcbuffer->pybuffer);
+  __pyx_L2:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6mirage_10calculator_15optimized_funcs_7isolate_caustics(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_6mirage_10calculator_15optimized_funcs_6isolate_caustics[] = "\n    Given a partially completed map of caustics and a magnification map, this function \"fills in\" the missing caustics.\n    ";
+static PyObject *__pyx_pw_6mirage_10calculator_15optimized_funcs_7isolate_caustics(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyArrayObject *__pyx_v_magmap = 0;
+  PyArrayObject *__pyx_v_caustics = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("isolate_caustics (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_magmap,&__pyx_n_s_caustics,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_magmap)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_caustics)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("isolate_caustics", 1, 2, 2, 1); __PYX_ERR(0, 135, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "isolate_caustics") < 0)) __PYX_ERR(0, 135, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_magmap = ((PyArrayObject *)values[0]);
+    __pyx_v_caustics = ((PyArrayObject *)values[1]);
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("isolate_caustics", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 135, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("mirage.calculator.optimized_funcs.isolate_caustics", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_magmap), __pyx_ptype_5numpy_ndarray, 1, "magmap", 0))) __PYX_ERR(0, 135, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_caustics), __pyx_ptype_5numpy_ndarray, 1, "caustics", 0))) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_r = __pyx_pf_6mirage_10calculator_15optimized_funcs_6isolate_caustics(__pyx_self, __pyx_v_magmap, __pyx_v_caustics);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6mirage_10calculator_15optimized_funcs_6isolate_caustics(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_magmap, PyArrayObject *__pyx_v_caustics) {
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_caustics;
+  __Pyx_Buffer __pyx_pybuffer_caustics;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_magmap;
+  __Pyx_Buffer __pyx_pybuffer_magmap;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("isolate_caustics", 0);
+  __pyx_pybuffer_magmap.pybuffer.buf = NULL;
+  __pyx_pybuffer_magmap.refcount = 0;
+  __pyx_pybuffernd_magmap.data = NULL;
+  __pyx_pybuffernd_magmap.rcbuffer = &__pyx_pybuffer_magmap;
+  __pyx_pybuffer_caustics.pybuffer.buf = NULL;
+  __pyx_pybuffer_caustics.refcount = 0;
+  __pyx_pybuffernd_caustics.data = NULL;
+  __pyx_pybuffernd_caustics.rcbuffer = &__pyx_pybuffer_caustics;
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_magmap.rcbuffer->pybuffer, (PyObject*)__pyx_v_magmap, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 135, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_magmap.diminfo[0].strides = __pyx_pybuffernd_magmap.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_magmap.diminfo[0].shape = __pyx_pybuffernd_magmap.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_magmap.diminfo[1].strides = __pyx_pybuffernd_magmap.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_magmap.diminfo[1].shape = __pyx_pybuffernd_magmap.rcbuffer->pybuffer.shape[1];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_caustics.rcbuffer->pybuffer, (PyObject*)__pyx_v_caustics, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 135, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_caustics.diminfo[0].strides = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_caustics.diminfo[0].shape = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_caustics.diminfo[1].strides = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_caustics.diminfo[1].shape = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.shape[1];
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics(((PyArrayObject *)__pyx_v_magmap), ((PyArrayObject *)__pyx_v_caustics), 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_caustics.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_magmap.rcbuffer->pybuffer);
+  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
+  __Pyx_AddTraceback("mirage.calculator.optimized_funcs.isolate_caustics", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  goto __pyx_L2;
+  __pyx_L0:;
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_caustics.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_magmap.rcbuffer->pybuffer);
   __pyx_L2:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -6239,6 +6732,7 @@ static PyMethodDef __pyx_methods[] = {
   {"interpolate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_15optimized_funcs_1interpolate, METH_VARARGS|METH_KEYWORDS, 0},
   {"arbitrary_slice_axis", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_15optimized_funcs_3arbitrary_slice_axis, METH_VARARGS|METH_KEYWORDS, 0},
   {"caustic_characteristic_inplace", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_15optimized_funcs_5caustic_characteristic_inplace, METH_VARARGS|METH_KEYWORDS, 0},
+  {"isolate_caustics", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_15optimized_funcs_7isolate_caustics, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6mirage_10calculator_15optimized_funcs_6isolate_caustics},
   {0, 0, 0, 0}
 };
 
@@ -6292,6 +6786,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_astropy, __pyx_k_astropy, sizeof(__pyx_k_astropy), 0, 0, 1, 1},
+  {&__pyx_n_s_caustics, __pyx_k_caustics, sizeof(__pyx_k_caustics), 0, 0, 1, 1},
   {&__pyx_n_s_center, __pyx_k_center, sizeof(__pyx_k_center), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_copy, __pyx_k_copy, sizeof(__pyx_k_copy), 0, 0, 1, 1},
@@ -6303,6 +6798,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_locations, __pyx_k_locations, sizeof(__pyx_k_locations), 0, 0, 1, 1},
   {&__pyx_n_s_macro_convergence, __pyx_k_macro_convergence, sizeof(__pyx_k_macro_convergence), 0, 0, 1, 1},
   {&__pyx_n_s_macro_shear, __pyx_k_macro_shear, sizeof(__pyx_k_macro_shear), 0, 0, 1, 1},
+  {&__pyx_n_s_magmap, __pyx_k_magmap, sizeof(__pyx_k_magmap), 0, 0, 1, 1},
   {&__pyx_n_s_magnitude, __pyx_k_magnitude, sizeof(__pyx_k_magnitude), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
@@ -6503,6 +6999,7 @@ static int __Pyx_modinit_function_export_code(void) {
   if (__Pyx_ExportFunction("interpolate", (void (*)(void))__pyx_f_6mirage_10calculator_15optimized_funcs_interpolate, "PyObject *(PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   if (__Pyx_ExportFunction("arbitrary_slice_axis", (void (*)(void))__pyx_f_6mirage_10calculator_15optimized_funcs_arbitrary_slice_axis, "PyObject *(PyObject *, PyObject *, PyObject *, PyObject *, int __pyx_skip_dispatch)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   if (__Pyx_ExportFunction("caustic_characteristic_inplace", (void (*)(void))__pyx_f_6mirage_10calculator_15optimized_funcs_caustic_characteristic_inplace, "PyObject *(PyArrayObject *, PyArrayObject *, double &, double &, int __pyx_skip_dispatch)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_ExportFunction("isolate_caustics", (void (*)(void))__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics, "PyObject *(PyArrayObject *, PyArrayObject *, int __pyx_skip_dispatch)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;

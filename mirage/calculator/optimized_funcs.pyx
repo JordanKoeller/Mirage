@@ -130,10 +130,35 @@ cpdef caustic_characteristic_inplace(np.ndarray[np.float64_t,ndim=2] stars, np.n
         ret[j,0] = kapMin2 - abs(gam*gam.conjugate())
         ret[j,1] = abs(dubar*kapMin - du*gam)
     return ret
-#"""NOTE: In order to flip around a map made of these bois, need to do map.T[::-1,:]"""
-
-
-
-
 
     
+cpdef isolate_caustics(np.ndarray[np.float64_t,ndim=2] magmap, np.ndarray[np.uint8_t, ndim=2] caustics):
+    """
+    Given a partially completed map of caustics and a magnification map, this function "fills in" the missing caustics.
+    """
+    cdef int i, j, ki, kj
+    cdef int ii, jj, x, y
+    cdef int c = 0
+    cdef int rows = magmap.shape[0]
+    cdef int cols = magmap.shape[1]
+    cdef double highestFound = -40.0;
+    for i in range(rows):
+        for j in range(cols):
+            if caustics[i,j] == True:
+                for ki in range(-1,2):
+                    for kj in range(-1,2):
+                        ii = i + ki
+                        jj = j + kj
+                        if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
+                            if caustics[ii,jj] == 1:
+                                c += 1
+                            else:
+                                if magmap[ii,jj] > highestFound:
+                                    x = ii
+                                    y = jj
+                if c < 3:
+                    caustics[x,y] = True
+
+
+
+

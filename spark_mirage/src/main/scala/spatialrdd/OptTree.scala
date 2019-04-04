@@ -49,17 +49,17 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
 
     def overlapsRight(x1: Double, x2: Double, y1:Double, y2:Double, level: Int): Boolean = {
       if (level % 2 == 0) {
-        split < x2
+        x2 > split
       } else {
-        split < y2
+        y2 > split
       }
     }
 
     def overlapsLeft(x1: Double, x2: Double, y1:Double, y2:Double, level: Int): Boolean = {
       if (level % 2 == 0) {
-        split > x1
+        x1 < split
       } else {
-        split > y2
+        y1 < split
       }
     }
 

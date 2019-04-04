@@ -2,7 +2,7 @@
   "name": "TestMagMapResolutionLimits",
   "description": "Just want to learn the limits of the dimensions of a magnification map that I can make.",
   "trial_count": 1,
-  "variation": "new_parameters = old_parameters\narr = np.linspace(2,30,16)\nnew_parameters.quasar.update(radius=5*new_parameters.quasar.r_g)",
+  "variation": "new_parameters = old_parameters\narr = np.linspace(2,30,16)\nnew_parameters.quasar.update(radius=12*new_parameters.quasar.r_g)",
   "parameters": {
     "lens": {
       "ellipticity": {
@@ -50,7 +50,7 @@
         -2.3
       ]
     },
-    "percent_stars": 100.0,
+    "percent_stars": 40.0,
     "source_plane": {
       "center": {
         "x": 0.0,
@@ -58,8 +58,8 @@
         "unit": "theta_E"
       },
       "dims": {
-        "x": 30.0,
-        "y": 30.0,
+        "x": 20.0,
+        "y": 20.0,
         "unit": "theta_E"
       }
     },
@@ -69,16 +69,16 @@
       "unit": "theta_E"
     },
     "ray_count": {
-      "x": 80000,
-      "y": 80000,
+      "x": 60000,
+      "y": 60000,
       "unit": ""
     }
   },
   "results": {
     "magmap": {
       "magmap_resolution": {
-        "x": 4096,
-        "y": 4096,
+        "x": 1024,
+        "y": 1024,
         "unit": ""
       }
     },
@@ -92,8 +92,8 @@
     },
     "causticmap": {
       "caustic_resolution": {
-        "x": 4096,
-        "y": 4096,
+        "x": 1024,
+        "y": 1024,
         "unit": ""
       }
     }

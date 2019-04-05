@@ -41,14 +41,15 @@ class RayBank(private var lensPosition:Array[Double],private var sourcePosition:
   def setSourceY(ind:Int,value:Double):Unit = sourcePosition(ind*2+1) = value
 
   def indices:Array[Int] = Array.range(0,size)
-  def getTuple(i:Int):(Double,Double,Double,Double) = {
-    (x(i),y(i),sourceX(i),sourceY(i))
+  def getTuple(i:Int):(Double,Double,Double,Double,Int) = {
+    (x(i),y(i),sourceX(i),sourceY(i),parity(i))
   }
-  def setTuple(i:Int,data:(Double,Double,Double,Double)) = {
+  def setTuple(i:Int,data:(Double,Double,Double,Double,Int)) = {
     setX(i,data._1)
     setY(i,data._2)
     setSourceX(i,data._3)
     setSourceY(i,data._4)
+    setParity(i,data._5)
   }
 
   def destroy(ind:Int):Unit = {
@@ -83,6 +84,7 @@ class RayBank(private var lensPosition:Array[Double],private var sourcePosition:
     setY(i,y(j))
     setSourceX(i,sourceX(j))
     setSourceY(i,sourceY(j))
+    setParity(i,parity(j))
     setTuple(j,tmp)
   }
   override def toString():String = {

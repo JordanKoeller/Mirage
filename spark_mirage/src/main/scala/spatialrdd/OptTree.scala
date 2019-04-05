@@ -218,7 +218,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
 
   private def selectX(k: Int, n: Int, start: Int): Double = {
     if (n < 2) return 0
-    var a = (0.0,0.0,0.0,0.0)
+    var a = (0.0,0.0,0.0,0.0,0)
     var l = 0
     var ir = n - 1
     var j = 0
@@ -255,7 +255,7 @@ class OptTree[A <: RayBank](values:A, branchSize: Int) extends SpatialData {
 
   private def selectY(k: Int, n: Int, start: Int): Double = {
     if (n < 2) return 0
-    var a = (0.0,0.0,0.0,0.0)
+    var a = (0.0,0.0,0.0,0.0,0)
     var l = 0
     var ir = n - 1
     var j = 0

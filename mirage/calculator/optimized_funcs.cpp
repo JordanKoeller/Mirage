@@ -3913,7 +3913,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  *     cdef int rows = magmap.shape[0]
  *     cdef int cols = magmap.shape[1]             # <<<<<<<<<<<<<<
  *     cdef double highestFound = -40.0;
- *     for i in range(rows):
+ *     for i in range(0,rows,3):
  */
   __pyx_v_cols = (__pyx_v_magmap->dimensions[1]);
 
@@ -3921,50 +3921,68 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  *     cdef int rows = magmap.shape[0]
  *     cdef int cols = magmap.shape[1]
  *     cdef double highestFound = -40.0;             # <<<<<<<<<<<<<<
- *     for i in range(rows):
- *         for j in range(cols):
+ *     for i in range(0,rows,3):
+ *         for j in range(0,cols,3):
  */
   __pyx_v_highestFound = -40.0;
 
   /* "mirage/calculator/optimized_funcs.pyx":145
  *     cdef int cols = magmap.shape[1]
  *     cdef double highestFound = -40.0;
- *     for i in range(rows):             # <<<<<<<<<<<<<<
- *         for j in range(cols):
- *             if caustics[i,j] == True:
+ *     for i in range(0,rows,3):             # <<<<<<<<<<<<<<
+ *         for j in range(0,cols,3):
+ *             c = 0
  */
   __pyx_t_1 = __pyx_v_rows;
   __pyx_t_2 = __pyx_t_1;
-  for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
+  for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=3) {
     __pyx_v_i = __pyx_t_3;
 
     /* "mirage/calculator/optimized_funcs.pyx":146
  *     cdef double highestFound = -40.0;
- *     for i in range(rows):
- *         for j in range(cols):             # <<<<<<<<<<<<<<
- *             if caustics[i,j] == True:
- *                 for ki in range(-1,2):
+ *     for i in range(0,rows,3):
+ *         for j in range(0,cols,3):             # <<<<<<<<<<<<<<
+ *             c = 0
+ *             highestFound = -40
  */
     __pyx_t_4 = __pyx_v_cols;
     __pyx_t_5 = __pyx_t_4;
-    for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
+    for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=3) {
       __pyx_v_j = __pyx_t_6;
 
       /* "mirage/calculator/optimized_funcs.pyx":147
- *     for i in range(rows):
- *         for j in range(cols):
- *             if caustics[i,j] == True:             # <<<<<<<<<<<<<<
+ *     for i in range(0,rows,3):
+ *         for j in range(0,cols,3):
+ *             c = 0             # <<<<<<<<<<<<<<
+ *             highestFound = -40
+ *             if caustics[i,j] != 0:
+ */
+      __pyx_v_c = 0;
+
+      /* "mirage/calculator/optimized_funcs.pyx":148
+ *         for j in range(0,cols,3):
+ *             c = 0
+ *             highestFound = -40             # <<<<<<<<<<<<<<
+ *             if caustics[i,j] != 0:
+ *                 for ki in range(-1,2):
+ */
+      __pyx_v_highestFound = -40.0;
+
+      /* "mirage/calculator/optimized_funcs.pyx":149
+ *             c = 0
+ *             highestFound = -40
+ *             if caustics[i,j] != 0:             # <<<<<<<<<<<<<<
  *                 for ki in range(-1,2):
  *                     for kj in range(-1,2):
  */
       __pyx_t_7 = __pyx_v_i;
       __pyx_t_8 = __pyx_v_j;
-      __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_7, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_caustics.diminfo[1].strides)) == 1) != 0);
+      __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_7, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_caustics.diminfo[1].strides)) != 0) != 0);
       if (__pyx_t_9) {
 
-        /* "mirage/calculator/optimized_funcs.pyx":148
- *         for j in range(cols):
- *             if caustics[i,j] == True:
+        /* "mirage/calculator/optimized_funcs.pyx":150
+ *             highestFound = -40
+ *             if caustics[i,j] != 0:
  *                 for ki in range(-1,2):             # <<<<<<<<<<<<<<
  *                     for kj in range(-1,2):
  *                         ii = i + ki
@@ -3972,8 +3990,8 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
         for (__pyx_t_10 = -1; __pyx_t_10 < 2; __pyx_t_10+=1) {
           __pyx_v_ki = __pyx_t_10;
 
-          /* "mirage/calculator/optimized_funcs.pyx":149
- *             if caustics[i,j] == True:
+          /* "mirage/calculator/optimized_funcs.pyx":151
+ *             if caustics[i,j] != 0:
  *                 for ki in range(-1,2):
  *                     for kj in range(-1,2):             # <<<<<<<<<<<<<<
  *                         ii = i + ki
@@ -3982,7 +4000,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
           for (__pyx_t_11 = -1; __pyx_t_11 < 2; __pyx_t_11+=1) {
             __pyx_v_kj = __pyx_t_11;
 
-            /* "mirage/calculator/optimized_funcs.pyx":150
+            /* "mirage/calculator/optimized_funcs.pyx":152
  *                 for ki in range(-1,2):
  *                     for kj in range(-1,2):
  *                         ii = i + ki             # <<<<<<<<<<<<<<
@@ -3991,20 +4009,20 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
             __pyx_v_ii = (__pyx_v_i + __pyx_v_ki);
 
-            /* "mirage/calculator/optimized_funcs.pyx":151
+            /* "mirage/calculator/optimized_funcs.pyx":153
  *                     for kj in range(-1,2):
  *                         ii = i + ki
  *                         jj = j + kj             # <<<<<<<<<<<<<<
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
- *                             if caustics[ii,jj] == 1:
+ *                             if caustics[ii,jj] != 0:
  */
             __pyx_v_jj = (__pyx_v_j + __pyx_v_kj);
 
-            /* "mirage/calculator/optimized_funcs.pyx":152
+            /* "mirage/calculator/optimized_funcs.pyx":154
  *                         ii = i + ki
  *                         jj = j + kj
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:             # <<<<<<<<<<<<<<
- *                             if caustics[ii,jj] == 1:
+ *                             if caustics[ii,jj] != 0:
  *                                 c += 1
  */
             __pyx_t_12 = ((__pyx_v_ii >= 0) != 0);
@@ -4030,38 +4048,38 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
             __pyx_L13_bool_binop_done:;
             if (__pyx_t_9) {
 
-              /* "mirage/calculator/optimized_funcs.pyx":153
+              /* "mirage/calculator/optimized_funcs.pyx":155
  *                         jj = j + kj
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
- *                             if caustics[ii,jj] == 1:             # <<<<<<<<<<<<<<
+ *                             if caustics[ii,jj] != 0:             # <<<<<<<<<<<<<<
  *                                 c += 1
  *                             else:
  */
               __pyx_t_13 = __pyx_v_ii;
               __pyx_t_14 = __pyx_v_jj;
-              __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_caustics.diminfo[1].strides)) == 1) != 0);
+              __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_caustics.diminfo[1].strides)) != 0) != 0);
               if (__pyx_t_9) {
 
-                /* "mirage/calculator/optimized_funcs.pyx":154
+                /* "mirage/calculator/optimized_funcs.pyx":156
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
- *                             if caustics[ii,jj] == 1:
+ *                             if caustics[ii,jj] != 0:
  *                                 c += 1             # <<<<<<<<<<<<<<
  *                             else:
  *                                 if magmap[ii,jj] > highestFound:
  */
                 __pyx_v_c = (__pyx_v_c + 1);
 
-                /* "mirage/calculator/optimized_funcs.pyx":153
+                /* "mirage/calculator/optimized_funcs.pyx":155
  *                         jj = j + kj
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
- *                             if caustics[ii,jj] == 1:             # <<<<<<<<<<<<<<
+ *                             if caustics[ii,jj] != 0:             # <<<<<<<<<<<<<<
  *                                 c += 1
  *                             else:
  */
                 goto __pyx_L17;
               }
 
-              /* "mirage/calculator/optimized_funcs.pyx":156
+              /* "mirage/calculator/optimized_funcs.pyx":158
  *                                 c += 1
  *                             else:
  *                                 if magmap[ii,jj] > highestFound:             # <<<<<<<<<<<<<<
@@ -4074,7 +4092,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
                 __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_magmap.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_magmap.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_magmap.diminfo[1].strides)) > __pyx_v_highestFound) != 0);
                 if (__pyx_t_9) {
 
-                  /* "mirage/calculator/optimized_funcs.pyx":157
+                  /* "mirage/calculator/optimized_funcs.pyx":159
  *                             else:
  *                                 if magmap[ii,jj] > highestFound:
  *                                     x = ii             # <<<<<<<<<<<<<<
@@ -4083,16 +4101,16 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
                   __pyx_v_x = __pyx_v_ii;
 
-                  /* "mirage/calculator/optimized_funcs.pyx":158
+                  /* "mirage/calculator/optimized_funcs.pyx":160
  *                                 if magmap[ii,jj] > highestFound:
  *                                     x = ii
  *                                     y = jj             # <<<<<<<<<<<<<<
  *                 if c < 3:
- *                     caustics[x,y] = True
+ *                     caustics[x,y] = 1
  */
                   __pyx_v_y = __pyx_v_jj;
 
-                  /* "mirage/calculator/optimized_funcs.pyx":156
+                  /* "mirage/calculator/optimized_funcs.pyx":158
  *                                 c += 1
  *                             else:
  *                                 if magmap[ii,jj] > highestFound:             # <<<<<<<<<<<<<<
@@ -4103,31 +4121,31 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
               }
               __pyx_L17:;
 
-              /* "mirage/calculator/optimized_funcs.pyx":152
+              /* "mirage/calculator/optimized_funcs.pyx":154
  *                         ii = i + ki
  *                         jj = j + kj
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:             # <<<<<<<<<<<<<<
- *                             if caustics[ii,jj] == 1:
+ *                             if caustics[ii,jj] != 0:
  *                                 c += 1
  */
             }
           }
         }
 
-        /* "mirage/calculator/optimized_funcs.pyx":159
+        /* "mirage/calculator/optimized_funcs.pyx":161
  *                                     x = ii
  *                                     y = jj
  *                 if c < 3:             # <<<<<<<<<<<<<<
- *                     caustics[x,y] = True
+ *                     caustics[x,y] = 1
  * 
  */
         __pyx_t_9 = ((__pyx_v_c < 3) != 0);
         if (__pyx_t_9) {
 
-          /* "mirage/calculator/optimized_funcs.pyx":160
+          /* "mirage/calculator/optimized_funcs.pyx":162
  *                                     y = jj
  *                 if c < 3:
- *                     caustics[x,y] = True             # <<<<<<<<<<<<<<
+ *                     caustics[x,y] = 1             # <<<<<<<<<<<<<<
  * 
  * 
  */
@@ -4135,19 +4153,19 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
           __pyx_t_18 = __pyx_v_y;
           *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_caustics.diminfo[1].strides) = 1;
 
-          /* "mirage/calculator/optimized_funcs.pyx":159
+          /* "mirage/calculator/optimized_funcs.pyx":161
  *                                     x = ii
  *                                     y = jj
  *                 if c < 3:             # <<<<<<<<<<<<<<
- *                     caustics[x,y] = True
+ *                     caustics[x,y] = 1
  * 
  */
         }
 
-        /* "mirage/calculator/optimized_funcs.pyx":147
- *     for i in range(rows):
- *         for j in range(cols):
- *             if caustics[i,j] == True:             # <<<<<<<<<<<<<<
+        /* "mirage/calculator/optimized_funcs.pyx":149
+ *             c = 0
+ *             highestFound = -40
+ *             if caustics[i,j] != 0:             # <<<<<<<<<<<<<<
  *                 for ki in range(-1,2):
  *                     for kj in range(-1,2):
  */

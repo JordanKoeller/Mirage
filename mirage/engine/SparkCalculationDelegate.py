@@ -94,11 +94,11 @@ class MicroSparkDelegate(CalculationDelegate):
             right.y.value,
             region.resolution.x.value,
             region.resolution.y.value,
-            query_radius,
+            # query_radius,
             file.name,
             jrdd)
         self.spark_context._jvm.main.Main.setMoment(0,'zero')
-        self.spark_context._jvm.main.Main.queryPoints(*args)
+        self.spark_context._jvm.main.Main.queryGrid(*args)
         returned_data = self.get_returned_data(file.name,region.pixels)
         return np.array(returned_data,dtype=ResultType)
 

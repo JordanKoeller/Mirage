@@ -186,7 +186,7 @@ object RDDGrid {
   val numBatches = 100
 
   def apply[A <: RayBank: ClassTag, SD <: SpatialData : ClassTag](data: RDD[A], partitioner: SpatialPartitioning = new BalancedColumnPartitioner, nodeStructure: A => SD): RDDGrid[A,SD] = {
-    val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_ONLY).setName("RDDGrid")
+    val ret = data.map(arr => nodeStructure(arr)).persist(StorageLevel.MEMORY_AND_DISK).setName("RDDGrid")
     new RDDGrid(ret)
   }
 

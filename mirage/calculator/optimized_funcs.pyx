@@ -136,28 +136,32 @@ cpdef isolate_caustics(np.ndarray[np.float64_t,ndim=2] magmap, np.ndarray[np.uin
     """
     Given a partially completed map of caustics and a magnification map, this function "fills in" the missing caustics.
     """
+    print("BROKEN FUNCTION. WILL GO INTO INFINITE LOOP")
     cdef int i, j, ki, kj
     cdef int ii, jj, x, y
     cdef int c = 0
     cdef int rows = magmap.shape[0]
     cdef int cols = magmap.shape[1]
     cdef double highestFound = -40.0;
-    for i in range(rows):
-        for j in range(cols):
-            if caustics[i,j] == True:
+    while i < rows:
+        while j < cols:
+            c = 0
+            highestFound = -40
+            if caustics[i,j] != 0:
                 for ki in range(-1,2):
                     for kj in range(-1,2):
                         ii = i + ki
                         jj = j + kj
                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
-                            if caustics[ii,jj] == 1:
+                            if caustics[ii,jj] != 0:
                                 c += 1
                             else:
                                 if magmap[ii,jj] > highestFound:
                                     x = ii
                                     y = jj
                 if c < 3:
-                    caustics[x,y] = True
+                    caustics[x,y] = 1
+
 
 
 

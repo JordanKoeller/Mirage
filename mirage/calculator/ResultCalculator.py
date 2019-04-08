@@ -74,7 +74,7 @@ class ResultCalculator(object):
             if k == 'causticmap':
                 resolution = simulation['causticmap'].resolution
                 pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
-                ret = engine.query_caustics(pr,radius)
+                ret = engine.query_region(pr,radius)
                 results.append(ret)
         return results
 

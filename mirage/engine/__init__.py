@@ -11,7 +11,7 @@ def getCalculationEngine():
 #        if SparkContext._active_spark_context is not None:
         # return EngineHandler(_sparkdel())
 #        else:
-        return EngineHandler(_sparkdel())#MicroCPUDelegate())
+        return EngineHandler(MicroCPUDelegate())
     except ImportError:
         return EngineHandler(MacroCPUDelegate())
 

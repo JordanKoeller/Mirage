@@ -78,11 +78,10 @@ class MicroCPUDelegate(CalculationDelegate):
         self._inputUnit = parameters.theta_E
         rays = parameters.ray_region.pixels
         # print(rays)
-        # print("Cnter of " + str(parameters.ray_region.center))
-        rays -= u.Quantity(1.4,'arcsec')
-        # rays[:,0] -= parameters.ray_region.center.x
-        # rays[:,1] -= parameters.ray_region.center.y
-        # print(rays.mean())
+        print("Cnter of " + str(parameters.ray_region.center))
+        # rays -= u.Quantity(1.4,'arcsec')
+        rays[:,0] -= parameters.ray_region.center.x.to(self._inputUnit)
+        rays[:,1] -= parameters.ray_region.center.y.to(self._inputUnit)
         rays = rays.to(parameters.theta_E).value
         stars = parameters.stars
         kap,starry,gam = parameters.mass_descriptors
@@ -96,7 +95,7 @@ class MicroCPUDelegate(CalculationDelegate):
         # print("Ray-tracing done")
         self._canvas_dimensions = parameters.ray_region.resolution
         flat_array = np.reshape(src_plane,(src_plane.shape[0]*src_plane.shape[1],2))
-        self._tree = cKDTree(flat_array,256,False,False,False)
+        self._tree = cKDTree(flat_array,128,False,False,False)
 
     def get_connecting_rays(self,location:Vec2D,radius:u.Quantity) -> np.ndarray:
         x = location.x.to(self._inputUnit).value
@@ -114,6 +113,7 @@ class MicroCPUDelegate(CalculationDelegate):
 
     def query_region(self,region,radius:u.Quantity) -> np.ndarray:
         pts = region.pixels.to(self._inputUnit)
+        # print(pts.mean())
         ret = np.ndarray((pts.shape[0],pts.shape[1]),dtype=np.int32)
         rad = radius.to(self._inputUnit).value
         for i in range(pts.shape[0]):
@@ -123,3 +123,14 @@ class MicroCPUDelegate(CalculationDelegate):
                 inds = self._tree.query_ball_point((x,y),rad)
                 ret[i,j] = len(inds)
         return ret
+
+    # def query_points(self,points:np.ndarray, radius:u.Quantity) -> np.ndarray:
+    #     ret = np.ndarray(points.shape[0])
+    #     pts = points
+    #     print(pts.shape)
+    #     rad = radius.to(self._inputUnit).value
+    #     for i in range(points.shape[0]):
+    #         x = pts[i,0].value
+    #         y = pts[i,1].value
+    #         ret[i] = len(self._tree.query_ball_point((x,y),rad))
+    #     return ret

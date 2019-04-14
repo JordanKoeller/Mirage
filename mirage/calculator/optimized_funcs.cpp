@@ -1767,6 +1767,7 @@ int __pyx_module_is_main_mirage__calculator__optimized_funcs = 0;
 /* Implementation of 'mirage.calculator.optimized_funcs' */
 static PyObject *__pyx_builtin_object;
 static PyObject *__pyx_builtin_range;
+static PyObject *__pyx_builtin_print;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
 static PyObject *__pyx_builtin_ImportError;
@@ -1785,6 +1786,7 @@ static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_numpy[] = "numpy";
+static const char __pyx_k_print[] = "print";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
 static const char __pyx_k_stars[] = "stars";
@@ -1814,11 +1816,13 @@ static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
+static const char __pyx_k_BROKEN_FUNCTION_WILL_GO_INTO_INF[] = "BROKEN FUNCTION. WILL GO INTO INFINITE LOOP";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
 static const char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte order not supported";
 static const char __pyx_k_ndarray_is_not_Fortran_contiguou[] = "ndarray is not Fortran contiguous";
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
+static PyObject *__pyx_kp_u_BROKEN_FUNCTION_WILL_GO_INTO_INF;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor_2;
 static PyObject *__pyx_n_s_ImportError;
@@ -1850,6 +1854,7 @@ static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_kp_s_numpy_core_multiarray_failed_to;
 static PyObject *__pyx_kp_s_numpy_core_umath_failed_to_impor;
 static PyObject *__pyx_n_s_object;
+static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pt1;
 static PyObject *__pyx_n_s_pt2;
 static PyObject *__pyx_n_u_rad;
@@ -1885,6 +1890,7 @@ static PyObject *__pyx_tuple__5;
 static PyObject *__pyx_tuple__6;
 static PyObject *__pyx_tuple__7;
 static PyObject *__pyx_tuple__8;
+static PyObject *__pyx_tuple__9;
 /* Late includes */
 
 /* "mirage/calculator/optimized_funcs.pyx":14
@@ -3852,24 +3858,19 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
   __Pyx_Buffer __pyx_pybuffer_magmap;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  int __pyx_t_1;
+  PyObject *__pyx_t_1 = NULL;
   int __pyx_t_2;
-  int __pyx_t_3;
-  int __pyx_t_4;
+  Py_ssize_t __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
   int __pyx_t_5;
   int __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
+  int __pyx_t_7;
   Py_ssize_t __pyx_t_8;
-  int __pyx_t_9;
-  int __pyx_t_10;
-  int __pyx_t_11;
-  int __pyx_t_12;
+  Py_ssize_t __pyx_t_9;
+  Py_ssize_t __pyx_t_10;
+  Py_ssize_t __pyx_t_11;
+  Py_ssize_t __pyx_t_12;
   Py_ssize_t __pyx_t_13;
-  Py_ssize_t __pyx_t_14;
-  Py_ssize_t __pyx_t_15;
-  Py_ssize_t __pyx_t_16;
-  Py_ssize_t __pyx_t_17;
-  Py_ssize_t __pyx_t_18;
   __Pyx_RefNannySetupContext("isolate_caustics", 0);
   __pyx_pybuffer_magmap.pybuffer.buf = NULL;
   __pyx_pybuffer_magmap.refcount = 0;
@@ -3890,7 +3891,18 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
   }
   __pyx_pybuffernd_caustics.diminfo[0].strides = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_caustics.diminfo[0].shape = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_caustics.diminfo[1].strides = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_caustics.diminfo[1].shape = __pyx_pybuffernd_caustics.rcbuffer->pybuffer.shape[1];
 
-  /* "mirage/calculator/optimized_funcs.pyx":141
+  /* "mirage/calculator/optimized_funcs.pyx":139
+ *     Given a partially completed map of caustics and a magnification map, this function "fills in" the missing caustics.
+ *     """
+ *     print("BROKEN FUNCTION. WILL GO INTO INFINITE LOOP")             # <<<<<<<<<<<<<<
+ *     cdef int i, j, ki, kj
+ *     cdef int ii, jj, x, y
+ */
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "mirage/calculator/optimized_funcs.pyx":142
  *     cdef int i, j, ki, kj
  *     cdef int ii, jj, x, y
  *     cdef int c = 0             # <<<<<<<<<<<<<<
@@ -3899,7 +3911,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
   __pyx_v_c = 0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":142
+  /* "mirage/calculator/optimized_funcs.pyx":143
  *     cdef int ii, jj, x, y
  *     cdef int c = 0
  *     cdef int rows = magmap.shape[0]             # <<<<<<<<<<<<<<
@@ -3908,59 +3920,57 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
   __pyx_v_rows = (__pyx_v_magmap->dimensions[0]);
 
-  /* "mirage/calculator/optimized_funcs.pyx":143
+  /* "mirage/calculator/optimized_funcs.pyx":144
  *     cdef int c = 0
  *     cdef int rows = magmap.shape[0]
  *     cdef int cols = magmap.shape[1]             # <<<<<<<<<<<<<<
  *     cdef double highestFound = -40.0;
- *     for i in range(0,rows,3):
+ *     while i < rows:
  */
   __pyx_v_cols = (__pyx_v_magmap->dimensions[1]);
 
-  /* "mirage/calculator/optimized_funcs.pyx":144
+  /* "mirage/calculator/optimized_funcs.pyx":145
  *     cdef int rows = magmap.shape[0]
  *     cdef int cols = magmap.shape[1]
  *     cdef double highestFound = -40.0;             # <<<<<<<<<<<<<<
- *     for i in range(0,rows,3):
- *         for j in range(0,cols,3):
+ *     while i < rows:
+ *         while j < cols:
  */
   __pyx_v_highestFound = -40.0;
 
-  /* "mirage/calculator/optimized_funcs.pyx":145
+  /* "mirage/calculator/optimized_funcs.pyx":146
  *     cdef int cols = magmap.shape[1]
  *     cdef double highestFound = -40.0;
- *     for i in range(0,rows,3):             # <<<<<<<<<<<<<<
- *         for j in range(0,cols,3):
+ *     while i < rows:             # <<<<<<<<<<<<<<
+ *         while j < cols:
  *             c = 0
  */
-  __pyx_t_1 = __pyx_v_rows;
-  __pyx_t_2 = __pyx_t_1;
-  for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=3) {
-    __pyx_v_i = __pyx_t_3;
+  while (1) {
+    __pyx_t_2 = ((__pyx_v_i < __pyx_v_rows) != 0);
+    if (!__pyx_t_2) break;
 
-    /* "mirage/calculator/optimized_funcs.pyx":146
+    /* "mirage/calculator/optimized_funcs.pyx":147
  *     cdef double highestFound = -40.0;
- *     for i in range(0,rows,3):
- *         for j in range(0,cols,3):             # <<<<<<<<<<<<<<
+ *     while i < rows:
+ *         while j < cols:             # <<<<<<<<<<<<<<
  *             c = 0
  *             highestFound = -40
  */
-    __pyx_t_4 = __pyx_v_cols;
-    __pyx_t_5 = __pyx_t_4;
-    for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=3) {
-      __pyx_v_j = __pyx_t_6;
+    while (1) {
+      __pyx_t_2 = ((__pyx_v_j < __pyx_v_cols) != 0);
+      if (!__pyx_t_2) break;
 
-      /* "mirage/calculator/optimized_funcs.pyx":147
- *     for i in range(0,rows,3):
- *         for j in range(0,cols,3):
+      /* "mirage/calculator/optimized_funcs.pyx":148
+ *     while i < rows:
+ *         while j < cols:
  *             c = 0             # <<<<<<<<<<<<<<
  *             highestFound = -40
  *             if caustics[i,j] != 0:
  */
       __pyx_v_c = 0;
 
-      /* "mirage/calculator/optimized_funcs.pyx":148
- *         for j in range(0,cols,3):
+      /* "mirage/calculator/optimized_funcs.pyx":149
+ *         while j < cols:
  *             c = 0
  *             highestFound = -40             # <<<<<<<<<<<<<<
  *             if caustics[i,j] != 0:
@@ -3968,39 +3978,39 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
       __pyx_v_highestFound = -40.0;
 
-      /* "mirage/calculator/optimized_funcs.pyx":149
+      /* "mirage/calculator/optimized_funcs.pyx":150
  *             c = 0
  *             highestFound = -40
  *             if caustics[i,j] != 0:             # <<<<<<<<<<<<<<
  *                 for ki in range(-1,2):
  *                     for kj in range(-1,2):
  */
-      __pyx_t_7 = __pyx_v_i;
-      __pyx_t_8 = __pyx_v_j;
-      __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_7, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_caustics.diminfo[1].strides)) != 0) != 0);
-      if (__pyx_t_9) {
+      __pyx_t_3 = __pyx_v_i;
+      __pyx_t_4 = __pyx_v_j;
+      __pyx_t_2 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_3, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_4, __pyx_pybuffernd_caustics.diminfo[1].strides)) != 0) != 0);
+      if (__pyx_t_2) {
 
-        /* "mirage/calculator/optimized_funcs.pyx":150
+        /* "mirage/calculator/optimized_funcs.pyx":151
  *             highestFound = -40
  *             if caustics[i,j] != 0:
  *                 for ki in range(-1,2):             # <<<<<<<<<<<<<<
  *                     for kj in range(-1,2):
  *                         ii = i + ki
  */
-        for (__pyx_t_10 = -1; __pyx_t_10 < 2; __pyx_t_10+=1) {
-          __pyx_v_ki = __pyx_t_10;
+        for (__pyx_t_5 = -1; __pyx_t_5 < 2; __pyx_t_5+=1) {
+          __pyx_v_ki = __pyx_t_5;
 
-          /* "mirage/calculator/optimized_funcs.pyx":151
+          /* "mirage/calculator/optimized_funcs.pyx":152
  *             if caustics[i,j] != 0:
  *                 for ki in range(-1,2):
  *                     for kj in range(-1,2):             # <<<<<<<<<<<<<<
  *                         ii = i + ki
  *                         jj = j + kj
  */
-          for (__pyx_t_11 = -1; __pyx_t_11 < 2; __pyx_t_11+=1) {
-            __pyx_v_kj = __pyx_t_11;
+          for (__pyx_t_6 = -1; __pyx_t_6 < 2; __pyx_t_6+=1) {
+            __pyx_v_kj = __pyx_t_6;
 
-            /* "mirage/calculator/optimized_funcs.pyx":152
+            /* "mirage/calculator/optimized_funcs.pyx":153
  *                 for ki in range(-1,2):
  *                     for kj in range(-1,2):
  *                         ii = i + ki             # <<<<<<<<<<<<<<
@@ -4009,7 +4019,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
             __pyx_v_ii = (__pyx_v_i + __pyx_v_ki);
 
-            /* "mirage/calculator/optimized_funcs.pyx":153
+            /* "mirage/calculator/optimized_funcs.pyx":154
  *                     for kj in range(-1,2):
  *                         ii = i + ki
  *                         jj = j + kj             # <<<<<<<<<<<<<<
@@ -4018,49 +4028,49 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
             __pyx_v_jj = (__pyx_v_j + __pyx_v_kj);
 
-            /* "mirage/calculator/optimized_funcs.pyx":154
+            /* "mirage/calculator/optimized_funcs.pyx":155
  *                         ii = i + ki
  *                         jj = j + kj
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:             # <<<<<<<<<<<<<<
  *                             if caustics[ii,jj] != 0:
  *                                 c += 1
  */
-            __pyx_t_12 = ((__pyx_v_ii >= 0) != 0);
-            if (__pyx_t_12) {
+            __pyx_t_7 = ((__pyx_v_ii >= 0) != 0);
+            if (__pyx_t_7) {
             } else {
-              __pyx_t_9 = __pyx_t_12;
+              __pyx_t_2 = __pyx_t_7;
               goto __pyx_L13_bool_binop_done;
             }
-            __pyx_t_12 = ((__pyx_v_jj >= 0) != 0);
-            if (__pyx_t_12) {
+            __pyx_t_7 = ((__pyx_v_jj >= 0) != 0);
+            if (__pyx_t_7) {
             } else {
-              __pyx_t_9 = __pyx_t_12;
+              __pyx_t_2 = __pyx_t_7;
               goto __pyx_L13_bool_binop_done;
             }
-            __pyx_t_12 = ((__pyx_v_ii < __pyx_v_rows) != 0);
-            if (__pyx_t_12) {
+            __pyx_t_7 = ((__pyx_v_ii < __pyx_v_rows) != 0);
+            if (__pyx_t_7) {
             } else {
-              __pyx_t_9 = __pyx_t_12;
+              __pyx_t_2 = __pyx_t_7;
               goto __pyx_L13_bool_binop_done;
             }
-            __pyx_t_12 = ((__pyx_v_jj < __pyx_v_cols) != 0);
-            __pyx_t_9 = __pyx_t_12;
+            __pyx_t_7 = ((__pyx_v_jj < __pyx_v_cols) != 0);
+            __pyx_t_2 = __pyx_t_7;
             __pyx_L13_bool_binop_done:;
-            if (__pyx_t_9) {
+            if (__pyx_t_2) {
 
-              /* "mirage/calculator/optimized_funcs.pyx":155
+              /* "mirage/calculator/optimized_funcs.pyx":156
  *                         jj = j + kj
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
  *                             if caustics[ii,jj] != 0:             # <<<<<<<<<<<<<<
  *                                 c += 1
  *                             else:
  */
-              __pyx_t_13 = __pyx_v_ii;
-              __pyx_t_14 = __pyx_v_jj;
-              __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_caustics.diminfo[1].strides)) != 0) != 0);
-              if (__pyx_t_9) {
+              __pyx_t_8 = __pyx_v_ii;
+              __pyx_t_9 = __pyx_v_jj;
+              __pyx_t_2 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_9, __pyx_pybuffernd_caustics.diminfo[1].strides)) != 0) != 0);
+              if (__pyx_t_2) {
 
-                /* "mirage/calculator/optimized_funcs.pyx":156
+                /* "mirage/calculator/optimized_funcs.pyx":157
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
  *                             if caustics[ii,jj] != 0:
  *                                 c += 1             # <<<<<<<<<<<<<<
@@ -4069,7 +4079,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
                 __pyx_v_c = (__pyx_v_c + 1);
 
-                /* "mirage/calculator/optimized_funcs.pyx":155
+                /* "mirage/calculator/optimized_funcs.pyx":156
  *                         jj = j + kj
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:
  *                             if caustics[ii,jj] != 0:             # <<<<<<<<<<<<<<
@@ -4079,7 +4089,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
                 goto __pyx_L17;
               }
 
-              /* "mirage/calculator/optimized_funcs.pyx":158
+              /* "mirage/calculator/optimized_funcs.pyx":159
  *                                 c += 1
  *                             else:
  *                                 if magmap[ii,jj] > highestFound:             # <<<<<<<<<<<<<<
@@ -4087,12 +4097,12 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  *                                     y = jj
  */
               /*else*/ {
-                __pyx_t_15 = __pyx_v_ii;
-                __pyx_t_16 = __pyx_v_jj;
-                __pyx_t_9 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_magmap.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_magmap.diminfo[0].strides, __pyx_t_16, __pyx_pybuffernd_magmap.diminfo[1].strides)) > __pyx_v_highestFound) != 0);
-                if (__pyx_t_9) {
+                __pyx_t_10 = __pyx_v_ii;
+                __pyx_t_11 = __pyx_v_jj;
+                __pyx_t_2 = (((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_magmap.rcbuffer->pybuffer.buf, __pyx_t_10, __pyx_pybuffernd_magmap.diminfo[0].strides, __pyx_t_11, __pyx_pybuffernd_magmap.diminfo[1].strides)) > __pyx_v_highestFound) != 0);
+                if (__pyx_t_2) {
 
-                  /* "mirage/calculator/optimized_funcs.pyx":159
+                  /* "mirage/calculator/optimized_funcs.pyx":160
  *                             else:
  *                                 if magmap[ii,jj] > highestFound:
  *                                     x = ii             # <<<<<<<<<<<<<<
@@ -4101,7 +4111,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
                   __pyx_v_x = __pyx_v_ii;
 
-                  /* "mirage/calculator/optimized_funcs.pyx":160
+                  /* "mirage/calculator/optimized_funcs.pyx":161
  *                                 if magmap[ii,jj] > highestFound:
  *                                     x = ii
  *                                     y = jj             # <<<<<<<<<<<<<<
@@ -4110,7 +4120,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
                   __pyx_v_y = __pyx_v_jj;
 
-                  /* "mirage/calculator/optimized_funcs.pyx":158
+                  /* "mirage/calculator/optimized_funcs.pyx":159
  *                                 c += 1
  *                             else:
  *                                 if magmap[ii,jj] > highestFound:             # <<<<<<<<<<<<<<
@@ -4121,7 +4131,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
               }
               __pyx_L17:;
 
-              /* "mirage/calculator/optimized_funcs.pyx":154
+              /* "mirage/calculator/optimized_funcs.pyx":155
  *                         ii = i + ki
  *                         jj = j + kj
  *                         if ii >= 0 and jj >= 0 and ii < rows and jj < cols:             # <<<<<<<<<<<<<<
@@ -4132,28 +4142,28 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
           }
         }
 
-        /* "mirage/calculator/optimized_funcs.pyx":161
+        /* "mirage/calculator/optimized_funcs.pyx":162
  *                                     x = ii
  *                                     y = jj
  *                 if c < 3:             # <<<<<<<<<<<<<<
  *                     caustics[x,y] = 1
  * 
  */
-        __pyx_t_9 = ((__pyx_v_c < 3) != 0);
-        if (__pyx_t_9) {
+        __pyx_t_2 = ((__pyx_v_c < 3) != 0);
+        if (__pyx_t_2) {
 
-          /* "mirage/calculator/optimized_funcs.pyx":162
+          /* "mirage/calculator/optimized_funcs.pyx":163
  *                                     y = jj
  *                 if c < 3:
  *                     caustics[x,y] = 1             # <<<<<<<<<<<<<<
  * 
  * 
  */
-          __pyx_t_17 = __pyx_v_x;
-          __pyx_t_18 = __pyx_v_y;
-          *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_caustics.diminfo[1].strides) = 1;
+          __pyx_t_12 = __pyx_v_x;
+          __pyx_t_13 = __pyx_v_y;
+          *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_caustics.rcbuffer->pybuffer.buf, __pyx_t_12, __pyx_pybuffernd_caustics.diminfo[0].strides, __pyx_t_13, __pyx_pybuffernd_caustics.diminfo[1].strides) = 1;
 
-          /* "mirage/calculator/optimized_funcs.pyx":161
+          /* "mirage/calculator/optimized_funcs.pyx":162
  *                                     x = ii
  *                                     y = jj
  *                 if c < 3:             # <<<<<<<<<<<<<<
@@ -4162,7 +4172,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
  */
         }
 
-        /* "mirage/calculator/optimized_funcs.pyx":149
+        /* "mirage/calculator/optimized_funcs.pyx":150
  *             c = 0
  *             highestFound = -40
  *             if caustics[i,j] != 0:             # <<<<<<<<<<<<<<
@@ -4185,6 +4195,7 @@ static PyObject *__pyx_f_6mirage_10calculator_15optimized_funcs_isolate_caustics
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
   { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
@@ -4445,7 +4456,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 272, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 272, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4501,7 +4512,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  * 
  *             info.buf = PyArray_DATA(self)
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 276, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 276, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4759,7 +4770,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 306, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 306, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5639,7 +5650,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 856, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 856, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5707,7 +5718,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  *             # One could encode it in the format string and have Cython
  *             # complain instead, BUT: < and > in format strings also imply
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 860, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 860, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5816,7 +5827,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  */
-        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 880, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 880, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_Raise(__pyx_t_4, 0, 0, 0);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -6444,7 +6455,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
  * 
  * cdef inline int import_umath() except -1:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1038, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1038, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -6573,7 +6584,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
  * 
  * cdef inline int import_ufunc() except -1:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1044, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1044, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -6699,7 +6710,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1050, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1050, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -6796,6 +6807,7 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
+  {&__pyx_kp_u_BROKEN_FUNCTION_WILL_GO_INTO_INF, __pyx_k_BROKEN_FUNCTION_WILL_GO_INTO_INF, sizeof(__pyx_k_BROKEN_FUNCTION_WILL_GO_INTO_INF), 0, 1, 0, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor, __pyx_k_Format_string_allocated_too_shor, sizeof(__pyx_k_Format_string_allocated_too_shor), 0, 1, 0, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor_2, __pyx_k_Format_string_allocated_too_shor_2, sizeof(__pyx_k_Format_string_allocated_too_shor_2), 0, 1, 0, 0},
   {&__pyx_n_s_ImportError, __pyx_k_ImportError, sizeof(__pyx_k_ImportError), 0, 0, 1, 1},
@@ -6827,6 +6839,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_numpy_core_multiarray_failed_to, __pyx_k_numpy_core_multiarray_failed_to, sizeof(__pyx_k_numpy_core_multiarray_failed_to), 0, 0, 1, 0},
   {&__pyx_kp_s_numpy_core_umath_failed_to_impor, __pyx_k_numpy_core_umath_failed_to_impor, sizeof(__pyx_k_numpy_core_umath_failed_to_impor), 0, 0, 1, 0},
   {&__pyx_n_s_object, __pyx_k_object, sizeof(__pyx_k_object), 0, 0, 1, 1},
+  {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_pt1, __pyx_k_pt1, sizeof(__pyx_k_pt1), 0, 0, 1, 1},
   {&__pyx_n_s_pt2, __pyx_k_pt2, sizeof(__pyx_k_pt2), 0, 0, 1, 1},
   {&__pyx_n_u_rad, __pyx_k_rad, sizeof(__pyx_k_rad), 0, 1, 0, 1},
@@ -6850,6 +6863,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_object = __Pyx_GetBuiltinName(__pyx_n_s_object); if (!__pyx_builtin_object) __PYX_ERR(0, 17, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 18, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 139, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(1, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 1038, __pyx_L1_error)
@@ -6873,6 +6887,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_slice_);
   __Pyx_GIVEREF(__pyx_slice_);
 
+  /* "mirage/calculator/optimized_funcs.pyx":139
+ *     Given a partially completed map of caustics and a magnification map, this function "fills in" the missing caustics.
+ *     """
+ *     print("BROKEN FUNCTION. WILL GO INTO INFINITE LOOP")             # <<<<<<<<<<<<<<
+ *     cdef int i, j, ki, kj
+ *     cdef int ii, jj, x, y
+ */
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_BROKEN_FUNCTION_WILL_GO_INTO_INF); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__2);
+  __Pyx_GIVEREF(__pyx_tuple__2);
+
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":272
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_C_CONTIGUOUS)):
@@ -6880,9 +6905,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_C_contiguous); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(1, 272, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__2);
-  __Pyx_GIVEREF(__pyx_tuple__2);
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_C_contiguous); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(1, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__3);
+  __Pyx_GIVEREF(__pyx_tuple__3);
 
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":276
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
@@ -6891,9 +6916,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *             info.buf = PyArray_DATA(self)
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_Fortran_contiguou); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(1, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__3);
-  __Pyx_GIVEREF(__pyx_tuple__3);
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_Fortran_contiguou); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(1, 276, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__4);
+  __Pyx_GIVEREF(__pyx_tuple__4);
 
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":306
  *                 if ((descr.byteorder == c'>' and little_endian) or
@@ -6902,9 +6927,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(1, 306, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__4);
-  __Pyx_GIVEREF(__pyx_tuple__4);
+  __pyx_tuple__5 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(1, 306, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__5);
+  __Pyx_GIVEREF(__pyx_tuple__5);
 
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":856
  * 
@@ -6913,9 +6938,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  */
-  __pyx_tuple__5 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(1, 856, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__5);
-  __Pyx_GIVEREF(__pyx_tuple__5);
+  __pyx_tuple__6 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(1, 856, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__6);
+  __Pyx_GIVEREF(__pyx_tuple__6);
 
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":860
  *         if ((child.byteorder == c'>' and little_endian) or
@@ -6924,9 +6949,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *             # One could encode it in the format string and have Cython
  *             # complain instead, BUT: < and > in format strings also imply
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(1, 860, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__4);
-  __Pyx_GIVEREF(__pyx_tuple__4);
+  __pyx_tuple__5 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(1, 860, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__5);
+  __Pyx_GIVEREF(__pyx_tuple__5);
 
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":880
  *             t = child.type_num
@@ -6935,9 +6960,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  */
-  __pyx_tuple__6 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor_2); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(1, 880, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__6);
-  __Pyx_GIVEREF(__pyx_tuple__6);
+  __pyx_tuple__7 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor_2); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(1, 880, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__7);
+  __Pyx_GIVEREF(__pyx_tuple__7);
 
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1038
  *         _import_array()
@@ -6946,9 +6971,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * cdef inline int import_umath() except -1:
  */
-  __pyx_tuple__7 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(1, 1038, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__7);
-  __Pyx_GIVEREF(__pyx_tuple__7);
+  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(1, 1038, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__8);
+  __Pyx_GIVEREF(__pyx_tuple__8);
 
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1044
  *         _import_umath()
@@ -6957,18 +6982,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * cdef inline int import_ufunc() except -1:
  */
-  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(1, 1044, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__8);
-  __Pyx_GIVEREF(__pyx_tuple__8);
+  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(1, 1044, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__9);
+  __Pyx_GIVEREF(__pyx_tuple__9);
 
   /* "../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1050
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(1, 1050, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__8);
-  __Pyx_GIVEREF(__pyx_tuple__8);
+  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(1, 1050, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__9);
+  __Pyx_GIVEREF(__pyx_tuple__9);
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;

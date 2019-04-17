@@ -139,7 +139,7 @@ class LightCurveBatch(object):
         # if isinstance(data,list):
         #     self._data = np.array(data)
         # else:
-        self._data = data
+        self._data = list(data)
 
     def plottables(self,unit='uas'):
         for curve in self:

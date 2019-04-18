@@ -410,6 +410,29 @@ cpdef prominences(np.float64_t[:] &curve,np.int64_t[:] &peaks):
             i += 1
     return ret
 
+cpdef prominence(np.float64_t[:] &curve, int peak):
+    cdef:
+        # double local_min = curve[peak]
+        double left_min = curve[peak]
+        double right_min = curve[peak]
+        int i = 1
+        int n = curve.shape[0]
+        int flag = 0
+    while flag == 0:
+        if peak + i < n:
+            if curve[peak+i] < right_min:
+                right_min = curve[peak+i]
+            elif curve[peak+i] > curve[peak]:
+                return curve[peak] - right_min
+        if peak - i >= 0:
+            if curve[peak-i] < left_min:
+                left_min = curve[peak-i]
+            elif curve[peak-i] > curve[peak]:
+                return curve[peak] - left_min
+        if peak + i >= n and peak - i < 0:
+            return curve[peak] - min(left_min,right_min)
+        i += 1
+
 cpdef trimmed_to_size_slice(np.float64_t[:] &curve,int slice_length):
     cdef int center, index, i, j
     cdef double tmp, max_found

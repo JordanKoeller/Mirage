@@ -1290,7 +1290,7 @@ struct __pyx_opt_args_6mirage_10calculator_12peak_finding_isolate_events {
   double min_height;
 };
 
-/* "mirage/calculator/peak_finding.pxd":25
+/* "mirage/calculator/peak_finding.pxd":27
  * cpdef trimmed_to_size_slice(np.float64_t[:] &curve,int slice_length)
  * 
  * cpdef find_events(np.ndarray[np.float64_t, ndim=1] line,             # <<<<<<<<<<<<<<
@@ -2313,6 +2313,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_find_peaks(PyArrayO
 static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_caustic_crossing(__Pyx_memviewslice &, double, double, double, double, double, int __pyx_skip_dispatch); /*proto*/
 static double __pyx_f_6mirage_10calculator_12peak_finding_min_array(__Pyx_memviewslice &, int, int); /*proto*/
 static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_prominences(__Pyx_memviewslice &, __Pyx_memviewslice &, int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_prominence(__Pyx_memviewslice &, int, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_slice(__Pyx_memviewslice &, int, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_find_events(PyArrayObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6mirage_10calculator_12peak_finding_find_events *__pyx_optional_args); /*proto*/
 static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_stitch_end(PyArrayObject *, PyArrayObject *, int, int, int, int, double, double); /*proto*/
@@ -2404,6 +2405,7 @@ static const char __pyx_k_mode[] = "mode";
 static const char __pyx_k_name[] = "name";
 static const char __pyx_k_ndim[] = "ndim";
 static const char __pyx_k_pack[] = "pack";
+static const char __pyx_k_peak[] = "peak";
 static const char __pyx_k_plot[] = "plot";
 static const char __pyx_k_size[] = "size";
 static const char __pyx_k_step[] = "step";
@@ -2640,6 +2642,7 @@ static PyObject *__pyx_kp_u_numpy_core_umath_failed_to_impor;
 static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_old_trimmer;
 static PyObject *__pyx_n_s_pack;
+static PyObject *__pyx_n_s_peak;
 static PyObject *__pyx_kp_u_peak_thresh;
 static PyObject *__pyx_n_s_peak_threshold;
 static PyObject *__pyx_n_s_peaks;
@@ -2706,8 +2709,9 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_4isolate_events(CY
 static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_6find_peaks(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_y, int __pyx_v_min_width, double __pyx_v_min_height); /* proto */
 static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_8caustic_crossing(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_x, double __pyx_v_x0, double __pyx_v_s, double __pyx_v_d, double __pyx_v_x_factor, double __pyx_v_vert_shift); /* proto */
 static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_10prominences(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_curve, __Pyx_memviewslice __pyx_v_peaks); /* proto */
-static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_12trimmed_to_size_slice(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_curve, int __pyx_v_slice_length); /* proto */
-static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_y, PyObject *__pyx_v_slice_length); /* proto */
+static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_12prominence(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_curve, int __pyx_v_peak); /* proto */
+static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14trimmed_to_size_slice(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_curve, int __pyx_v_slice_length); /* proto */
+static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_16old_trimmer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_y, PyObject *__pyx_v_slice_length); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -4646,7 +4650,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  * cpdef sobel_detect(np.ndarray[np.float64_t, ndim=1] curve, double threshold, double smoothing_factor, int min_separation, bint require_isolation):
  *     smoothed = gaussian_filter(curve,smoothing_factor)             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.float64_t, ndim=1] sobelled = sobel(smoothed)
- *     # from matplotlib import pyplot as plt
+ *     cdef int i,j,length = len(curve), peak_index, k
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_gaussian_filter); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -4706,8 +4710,8 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  * cpdef sobel_detect(np.ndarray[np.float64_t, ndim=1] curve, double threshold, double smoothing_factor, int min_separation, bint require_isolation):
  *     smoothed = gaussian_filter(curve,smoothing_factor)
  *     cdef np.ndarray[np.float64_t, ndim=1] sobelled = sobel(smoothed)             # <<<<<<<<<<<<<<
- *     # from matplotlib import pyplot as plt
- *     # plt.plot(sobelled)
+ *     cdef int i,j,length = len(curve), peak_index, k
+ *     cdef stack[int] ret
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_sobel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -4740,17 +4744,17 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
   __pyx_v_sobelled = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "mirage/calculator/peak_finding.pyx":115
- *     # from matplotlib import pyplot as plt
- *     # plt.plot(sobelled)
+  /* "mirage/calculator/peak_finding.pyx":113
+ *     smoothed = gaussian_filter(curve,smoothing_factor)
+ *     cdef np.ndarray[np.float64_t, ndim=1] sobelled = sobel(smoothed)
  *     cdef int i,j,length = len(curve), peak_index, k             # <<<<<<<<<<<<<<
  *     cdef stack[int] ret
  *     cdef double neg_thresh = - threshold
  */
-  __pyx_t_8 = PyObject_Length(((PyObject *)__pyx_v_curve)); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_8 = PyObject_Length(((PyObject *)__pyx_v_curve)); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 113, __pyx_L1_error)
   __pyx_v_length = __pyx_t_8;
 
-  /* "mirage/calculator/peak_finding.pyx":117
+  /* "mirage/calculator/peak_finding.pyx":115
  *     cdef int i,j,length = len(curve), peak_index, k
  *     cdef stack[int] ret
  *     cdef double neg_thresh = - threshold             # <<<<<<<<<<<<<<
@@ -4759,7 +4763,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
   __pyx_v_neg_thresh = (-__pyx_v_threshold);
 
-  /* "mirage/calculator/peak_finding.pyx":118
+  /* "mirage/calculator/peak_finding.pyx":116
  *     cdef stack[int] ret
  *     cdef double neg_thresh = - threshold
  *     while i < length:             # <<<<<<<<<<<<<<
@@ -4770,7 +4774,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
     __pyx_t_9 = ((__pyx_v_i < __pyx_v_length) != 0);
     if (!__pyx_t_9) break;
 
-    /* "mirage/calculator/peak_finding.pyx":120
+    /* "mirage/calculator/peak_finding.pyx":118
  *     while i < length:
  *         #Option 1: We have a positive edge
  *         if sobelled[i] > threshold:             # <<<<<<<<<<<<<<
@@ -4781,23 +4785,23 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
     __pyx_t_9 = (((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_sobelled.rcbuffer->pybuffer.buf, __pyx_t_10, __pyx_pybuffernd_sobelled.diminfo[0].strides)) > __pyx_v_threshold) != 0);
     if (__pyx_t_9) {
 
-      /* "mirage/calculator/peak_finding.pyx":121
+      /* "mirage/calculator/peak_finding.pyx":119
  *         #Option 1: We have a positive edge
  *         if sobelled[i] > threshold:
  *             j = scan_ahead(sobelled, i, length, threshold) + 1             # <<<<<<<<<<<<<<
  *             #Found the end of the edge. First make sure it didn't hit the end of the curve
  *             if j != 0:
  */
-      __pyx_t_1 = __pyx_f_6mirage_10calculator_12peak_finding_scan_ahead(((PyArrayObject *)__pyx_v_sobelled), __pyx_v_i, __pyx_v_length, __pyx_v_threshold); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 121, __pyx_L1_error)
+      __pyx_t_1 = __pyx_f_6mirage_10calculator_12peak_finding_scan_ahead(((PyArrayObject *)__pyx_v_sobelled), __pyx_v_i, __pyx_v_length, __pyx_v_threshold); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 119, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_2 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 119, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 121, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 119, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_v_j = __pyx_t_5;
 
-      /* "mirage/calculator/peak_finding.pyx":123
+      /* "mirage/calculator/peak_finding.pyx":121
  *             j = scan_ahead(sobelled, i, length, threshold) + 1
  *             #Found the end of the edge. First make sure it didn't hit the end of the curve
  *             if j != 0:             # <<<<<<<<<<<<<<
@@ -4807,7 +4811,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
       __pyx_t_9 = ((__pyx_v_j != 0) != 0);
       if (__pyx_t_9) {
 
-        /* "mirage/calculator/peak_finding.pyx":125
+        /* "mirage/calculator/peak_finding.pyx":123
  *             if j != 0:
  *                 #Great. Can now add it to the list
  *                 k = j + min_separation             # <<<<<<<<<<<<<<
@@ -4816,20 +4820,20 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
         __pyx_v_k = (__pyx_v_j + __pyx_v_min_separation);
 
-        /* "mirage/calculator/peak_finding.pyx":126
+        /* "mirage/calculator/peak_finding.pyx":124
  *                 #Great. Can now add it to the list
  *                 k = j + min_separation
  *                 peak_index = argmaxI(curve,i,minci(k,length),length)             # <<<<<<<<<<<<<<
  *                 #And make sure that it is a RELATIVE max as well.
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
  */
-        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_curve), PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 126, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_curve), PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 124, __pyx_L1_error)
         __pyx_v_peak_index = __pyx_f_6mirage_10calculator_12peak_finding_argmaxI(__pyx_t_11, __pyx_v_i, __pyx_f_6mirage_10calculator_12peak_finding_minci(__pyx_v_k, __pyx_v_length), __pyx_v_length);
         __PYX_XDEC_MEMVIEW(&__pyx_t_11, 1);
         __pyx_t_11.memview = NULL;
         __pyx_t_11.data = NULL;
 
-        /* "mirage/calculator/peak_finding.pyx":128
+        /* "mirage/calculator/peak_finding.pyx":126
  *                 peak_index = argmaxI(curve,i,minci(k,length),length)
  *                 #And make sure that it is a RELATIVE max as well.
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:             # <<<<<<<<<<<<<<
@@ -4851,7 +4855,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
         __pyx_L8_bool_binop_done:;
         if (__pyx_t_9) {
 
-          /* "mirage/calculator/peak_finding.pyx":129
+          /* "mirage/calculator/peak_finding.pyx":127
  *                 #And make sure that it is a RELATIVE max as well.
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
  *                     if ret.size() > 0:             # <<<<<<<<<<<<<<
@@ -4861,7 +4865,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
           __pyx_t_9 = ((__pyx_v_ret.size() > 0) != 0);
           if (__pyx_t_9) {
 
-            /* "mirage/calculator/peak_finding.pyx":131
+            /* "mirage/calculator/peak_finding.pyx":129
  *                     if ret.size() > 0:
  *                         #Make sure it is far enough away from last discovered peak
  *                         if peak_index - ret.top() > min_separation:             # <<<<<<<<<<<<<<
@@ -4871,7 +4875,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
             __pyx_t_9 = (((__pyx_v_peak_index - __pyx_v_ret.top()) > __pyx_v_min_separation) != 0);
             if (__pyx_t_9) {
 
-              /* "mirage/calculator/peak_finding.pyx":132
+              /* "mirage/calculator/peak_finding.pyx":130
  *                         #Make sure it is far enough away from last discovered peak
  *                         if peak_index - ret.top() > min_separation:
  *                             ret.push(peak_index)             # <<<<<<<<<<<<<<
@@ -4880,7 +4884,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
               __pyx_v_ret.push(__pyx_v_peak_index);
 
-              /* "mirage/calculator/peak_finding.pyx":131
+              /* "mirage/calculator/peak_finding.pyx":129
  *                     if ret.size() > 0:
  *                         #Make sure it is far enough away from last discovered peak
  *                         if peak_index - ret.top() > min_separation:             # <<<<<<<<<<<<<<
@@ -4890,7 +4894,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
               goto __pyx_L11;
             }
 
-            /* "mirage/calculator/peak_finding.pyx":134
+            /* "mirage/calculator/peak_finding.pyx":132
  *                             ret.push(peak_index)
  *                         else:
  *                             if not require_isolation:             # <<<<<<<<<<<<<<
@@ -4901,7 +4905,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
               __pyx_t_9 = ((!(__pyx_v_require_isolation != 0)) != 0);
               if (__pyx_t_9) {
 
-                /* "mirage/calculator/peak_finding.pyx":135
+                /* "mirage/calculator/peak_finding.pyx":133
  *                         else:
  *                             if not require_isolation:
  *                                 if curve[ret.top()] < curve[peak_index]:             # <<<<<<<<<<<<<<
@@ -4913,25 +4917,25 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
                 __pyx_t_9 = (((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_curve.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_curve.diminfo[0].strides)) < (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_curve.rcbuffer->pybuffer.buf, __pyx_t_18, __pyx_pybuffernd_curve.diminfo[0].strides))) != 0);
                 if (__pyx_t_9) {
 
-                  /* "mirage/calculator/peak_finding.pyx":137
+                  /* "mirage/calculator/peak_finding.pyx":135
  *                                 if curve[ret.top()] < curve[peak_index]:
  *                                     #Prior peak is smaller so replace with larger.
  *                                     ret.pop()             # <<<<<<<<<<<<<<
  *                                     ret.push(peak_index)
- *                             # else:
+ *                             else:
  */
                   __pyx_v_ret.pop();
 
-                  /* "mirage/calculator/peak_finding.pyx":138
+                  /* "mirage/calculator/peak_finding.pyx":136
  *                                     #Prior peak is smaller so replace with larger.
  *                                     ret.pop()
  *                                     ret.push(peak_index)             # <<<<<<<<<<<<<<
- *                             # else:
+ *                             else:
  *                             #     #Requiring isolation. So presence of the current peak invalidates the prior peak.
  */
                   __pyx_v_ret.push(__pyx_v_peak_index);
 
-                  /* "mirage/calculator/peak_finding.pyx":135
+                  /* "mirage/calculator/peak_finding.pyx":133
  *                         else:
  *                             if not require_isolation:
  *                                 if curve[ret.top()] < curve[peak_index]:             # <<<<<<<<<<<<<<
@@ -4940,18 +4944,31 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
                 }
 
-                /* "mirage/calculator/peak_finding.pyx":134
+                /* "mirage/calculator/peak_finding.pyx":132
  *                             ret.push(peak_index)
  *                         else:
  *                             if not require_isolation:             # <<<<<<<<<<<<<<
  *                                 if curve[ret.top()] < curve[peak_index]:
  *                                     #Prior peak is smaller so replace with larger.
  */
+                goto __pyx_L12;
               }
+
+              /* "mirage/calculator/peak_finding.pyx":139
+ *                             else:
+ *                             #     #Requiring isolation. So presence of the current peak invalidates the prior peak.
+ *                                 ret.pop()             # <<<<<<<<<<<<<<
+ *                     else:
+ *                         ret.push(peak_index)
+ */
+              /*else*/ {
+                __pyx_v_ret.pop();
+              }
+              __pyx_L12:;
             }
             __pyx_L11:;
 
-            /* "mirage/calculator/peak_finding.pyx":129
+            /* "mirage/calculator/peak_finding.pyx":127
  *                 #And make sure that it is a RELATIVE max as well.
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
  *                     if ret.size() > 0:             # <<<<<<<<<<<<<<
@@ -4961,8 +4978,8 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
             goto __pyx_L10;
           }
 
-          /* "mirage/calculator/peak_finding.pyx":143
- *                             #     ret.pop()
+          /* "mirage/calculator/peak_finding.pyx":141
+ *                                 ret.pop()
  *                     else:
  *                         ret.push(peak_index)             # <<<<<<<<<<<<<<
  *                     i = k
@@ -4973,7 +4990,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
           }
           __pyx_L10:;
 
-          /* "mirage/calculator/peak_finding.pyx":144
+          /* "mirage/calculator/peak_finding.pyx":142
  *                     else:
  *                         ret.push(peak_index)
  *                     i = k             # <<<<<<<<<<<<<<
@@ -4982,7 +4999,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
           __pyx_v_i = __pyx_v_k;
 
-          /* "mirage/calculator/peak_finding.pyx":128
+          /* "mirage/calculator/peak_finding.pyx":126
  *                 peak_index = argmaxI(curve,i,minci(k,length),length)
  *                 #And make sure that it is a RELATIVE max as well.
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:             # <<<<<<<<<<<<<<
@@ -4992,7 +5009,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
           goto __pyx_L7;
         }
 
-        /* "mirage/calculator/peak_finding.pyx":146
+        /* "mirage/calculator/peak_finding.pyx":144
  *                     i = k
  *                 else:
  *                     i = j+1             # <<<<<<<<<<<<<<
@@ -5004,7 +5021,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
         }
         __pyx_L7:;
 
-        /* "mirage/calculator/peak_finding.pyx":123
+        /* "mirage/calculator/peak_finding.pyx":121
  *             j = scan_ahead(sobelled, i, length, threshold) + 1
  *             #Found the end of the edge. First make sure it didn't hit the end of the curve
  *             if j != 0:             # <<<<<<<<<<<<<<
@@ -5014,7 +5031,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
         goto __pyx_L6;
       }
 
-      /* "mirage/calculator/peak_finding.pyx":149
+      /* "mirage/calculator/peak_finding.pyx":147
  *                 # print("Skipping to index %d of %d" % ())
  *             else:
  *                 i = length * 2             # <<<<<<<<<<<<<<
@@ -5026,7 +5043,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
       }
       __pyx_L6:;
 
-      /* "mirage/calculator/peak_finding.pyx":120
+      /* "mirage/calculator/peak_finding.pyx":118
  *     while i < length:
  *         #Option 1: We have a positive edge
  *         if sobelled[i] > threshold:             # <<<<<<<<<<<<<<
@@ -5035,7 +5052,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
     }
 
-    /* "mirage/calculator/peak_finding.pyx":151
+    /* "mirage/calculator/peak_finding.pyx":149
  *                 i = length * 2
  *         #Option 2: We have a negative edge
  *         if sobelled[i] < neg_thresh:             # <<<<<<<<<<<<<<
@@ -5046,23 +5063,23 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
     __pyx_t_9 = (((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_sobelled.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_sobelled.diminfo[0].strides)) < __pyx_v_neg_thresh) != 0);
     if (__pyx_t_9) {
 
-      /* "mirage/calculator/peak_finding.pyx":152
+      /* "mirage/calculator/peak_finding.pyx":150
  *         #Option 2: We have a negative edge
  *         if sobelled[i] < neg_thresh:
  *             j = scan_ahead_negative(sobelled, i, length, neg_thresh) + 1             # <<<<<<<<<<<<<<
  *             #Found the end of the edge. First make sure it didn't hit the end of the curve
  *             if j != 0:
  */
-      __pyx_t_2 = __pyx_f_6mirage_10calculator_12peak_finding_scan_ahead_negative(((PyArrayObject *)__pyx_v_sobelled), __pyx_v_i, __pyx_v_length, __pyx_v_neg_thresh); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
+      __pyx_t_2 = __pyx_f_6mirage_10calculator_12peak_finding_scan_ahead_negative(((PyArrayObject *)__pyx_v_sobelled), __pyx_v_i, __pyx_v_length, __pyx_v_neg_thresh); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 150, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_1 = __Pyx_PyInt_AddObjC(__pyx_t_2, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyInt_AddObjC(__pyx_t_2, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 152, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 150, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_v_j = __pyx_t_5;
 
-      /* "mirage/calculator/peak_finding.pyx":154
+      /* "mirage/calculator/peak_finding.pyx":152
  *             j = scan_ahead_negative(sobelled, i, length, neg_thresh) + 1
  *             #Found the end of the edge. First make sure it didn't hit the end of the curve
  *             if j != 0:             # <<<<<<<<<<<<<<
@@ -5072,7 +5089,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
       __pyx_t_9 = ((__pyx_v_j != 0) != 0);
       if (__pyx_t_9) {
 
-        /* "mirage/calculator/peak_finding.pyx":156
+        /* "mirage/calculator/peak_finding.pyx":154
  *             if j != 0:
  *                 #Great. Can now add it to the list
  *                 k = i - min_separation             # <<<<<<<<<<<<<<
@@ -5081,20 +5098,20 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
         __pyx_v_k = (__pyx_v_i - __pyx_v_min_separation);
 
-        /* "mirage/calculator/peak_finding.pyx":157
+        /* "mirage/calculator/peak_finding.pyx":155
  *                 #Great. Can now add it to the list
  *                 k = i - min_separation
  *                 peak_index = argmaxI(curve,maxci(0,k),j,length)             # <<<<<<<<<<<<<<
  *                 # print("Scanning from %d to %d for max." % (maxci(0,2*i-j),j))
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
  */
-        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_curve), PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 157, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_curve), PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 155, __pyx_L1_error)
         __pyx_v_peak_index = __pyx_f_6mirage_10calculator_12peak_finding_argmaxI(__pyx_t_11, __pyx_f_6mirage_10calculator_12peak_finding_maxci(0, __pyx_v_k), __pyx_v_j, __pyx_v_length);
         __PYX_XDEC_MEMVIEW(&__pyx_t_11, 1);
         __pyx_t_11.memview = NULL;
         __pyx_t_11.data = NULL;
 
-        /* "mirage/calculator/peak_finding.pyx":159
+        /* "mirage/calculator/peak_finding.pyx":157
  *                 peak_index = argmaxI(curve,maxci(0,k),j,length)
  *                 # print("Scanning from %d to %d for max." % (maxci(0,2*i-j),j))
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:             # <<<<<<<<<<<<<<
@@ -5116,7 +5133,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
         __pyx_L17_bool_binop_done:;
         if (__pyx_t_9) {
 
-          /* "mirage/calculator/peak_finding.pyx":160
+          /* "mirage/calculator/peak_finding.pyx":158
  *                 # print("Scanning from %d to %d for max." % (maxci(0,2*i-j),j))
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
  *                     if ret.size() > 0:             # <<<<<<<<<<<<<<
@@ -5126,7 +5143,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
           __pyx_t_9 = ((__pyx_v_ret.size() > 0) != 0);
           if (__pyx_t_9) {
 
-            /* "mirage/calculator/peak_finding.pyx":161
+            /* "mirage/calculator/peak_finding.pyx":159
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
  *                     if ret.size() > 0:
  *                         if peak_index - ret.top() > min_separation:             # <<<<<<<<<<<<<<
@@ -5136,7 +5153,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
             __pyx_t_9 = (((__pyx_v_peak_index - __pyx_v_ret.top()) > __pyx_v_min_separation) != 0);
             if (__pyx_t_9) {
 
-              /* "mirage/calculator/peak_finding.pyx":162
+              /* "mirage/calculator/peak_finding.pyx":160
  *                     if ret.size() > 0:
  *                         if peak_index - ret.top() > min_separation:
  *                             ret.push(peak_index)             # <<<<<<<<<<<<<<
@@ -5145,7 +5162,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
               __pyx_v_ret.push(__pyx_v_peak_index);
 
-              /* "mirage/calculator/peak_finding.pyx":161
+              /* "mirage/calculator/peak_finding.pyx":159
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
  *                     if ret.size() > 0:
  *                         if peak_index - ret.top() > min_separation:             # <<<<<<<<<<<<<<
@@ -5155,7 +5172,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
               goto __pyx_L20;
             }
 
-            /* "mirage/calculator/peak_finding.pyx":164
+            /* "mirage/calculator/peak_finding.pyx":162
  *                             ret.push(peak_index)
  *                         else:
  *                             if not require_isolation:             # <<<<<<<<<<<<<<
@@ -5166,7 +5183,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
               __pyx_t_9 = ((!(__pyx_v_require_isolation != 0)) != 0);
               if (__pyx_t_9) {
 
-                /* "mirage/calculator/peak_finding.pyx":165
+                /* "mirage/calculator/peak_finding.pyx":163
  *                         else:
  *                             if not require_isolation:
  *                                 if curve[ret.top()] < curve[peak_index]:             # <<<<<<<<<<<<<<
@@ -5178,25 +5195,25 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
                 __pyx_t_9 = (((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_curve.rcbuffer->pybuffer.buf, __pyx_t_24, __pyx_pybuffernd_curve.diminfo[0].strides)) < (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_curve.rcbuffer->pybuffer.buf, __pyx_t_25, __pyx_pybuffernd_curve.diminfo[0].strides))) != 0);
                 if (__pyx_t_9) {
 
-                  /* "mirage/calculator/peak_finding.pyx":166
+                  /* "mirage/calculator/peak_finding.pyx":164
  *                             if not require_isolation:
  *                                 if curve[ret.top()] < curve[peak_index]:
  *                                     ret.pop()             # <<<<<<<<<<<<<<
  *                                     ret.push(peak_index)
- *                     else:
+ *                             else:
  */
                   __pyx_v_ret.pop();
 
-                  /* "mirage/calculator/peak_finding.pyx":167
+                  /* "mirage/calculator/peak_finding.pyx":165
  *                                 if curve[ret.top()] < curve[peak_index]:
  *                                     ret.pop()
  *                                     ret.push(peak_index)             # <<<<<<<<<<<<<<
- *                     else:
- *                         ret.push(peak_index)
+ *                             else:
+ *                                 ret.pop()
  */
                   __pyx_v_ret.push(__pyx_v_peak_index);
 
-                  /* "mirage/calculator/peak_finding.pyx":165
+                  /* "mirage/calculator/peak_finding.pyx":163
  *                         else:
  *                             if not require_isolation:
  *                                 if curve[ret.top()] < curve[peak_index]:             # <<<<<<<<<<<<<<
@@ -5205,18 +5222,31 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
                 }
 
-                /* "mirage/calculator/peak_finding.pyx":164
+                /* "mirage/calculator/peak_finding.pyx":162
  *                             ret.push(peak_index)
  *                         else:
  *                             if not require_isolation:             # <<<<<<<<<<<<<<
  *                                 if curve[ret.top()] < curve[peak_index]:
  *                                     ret.pop()
  */
+                goto __pyx_L21;
               }
+
+              /* "mirage/calculator/peak_finding.pyx":167
+ *                                     ret.push(peak_index)
+ *                             else:
+ *                                 ret.pop()             # <<<<<<<<<<<<<<
+ *                     else:
+ *                         ret.push(peak_index)
+ */
+              /*else*/ {
+                __pyx_v_ret.pop();
+              }
+              __pyx_L21:;
             }
             __pyx_L20:;
 
-            /* "mirage/calculator/peak_finding.pyx":160
+            /* "mirage/calculator/peak_finding.pyx":158
  *                 # print("Scanning from %d to %d for max." % (maxci(0,2*i-j),j))
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:
  *                     if ret.size() > 0:             # <<<<<<<<<<<<<<
@@ -5227,7 +5257,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
           }
 
           /* "mirage/calculator/peak_finding.pyx":169
- *                                     ret.push(peak_index)
+ *                                 ret.pop()
  *                     else:
  *                         ret.push(peak_index)             # <<<<<<<<<<<<<<
  *                     i = j + 1
@@ -5247,7 +5277,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
  */
           __pyx_v_i = (__pyx_v_j + 1);
 
-          /* "mirage/calculator/peak_finding.pyx":159
+          /* "mirage/calculator/peak_finding.pyx":157
  *                 peak_index = argmaxI(curve,maxci(0,k),j,length)
  *                 # print("Scanning from %d to %d for max." % (maxci(0,2*i-j),j))
  *                 if curve[peak_index-1] < curve[peak_index] and curve[peak_index+1] < curve[peak_index]:             # <<<<<<<<<<<<<<
@@ -5269,7 +5299,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
         }
         __pyx_L16:;
 
-        /* "mirage/calculator/peak_finding.pyx":154
+        /* "mirage/calculator/peak_finding.pyx":152
  *             j = scan_ahead_negative(sobelled, i, length, neg_thresh) + 1
  *             #Found the end of the edge. First make sure it didn't hit the end of the curve
  *             if j != 0:             # <<<<<<<<<<<<<<
@@ -5291,7 +5321,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_sobel_detect(PyArra
       }
       __pyx_L15:;
 
-      /* "mirage/calculator/peak_finding.pyx":151
+      /* "mirage/calculator/peak_finding.pyx":149
  *                 i = length * 2
  *         #Option 2: We have a negative edge
  *         if sobelled[i] < neg_thresh:             # <<<<<<<<<<<<<<
@@ -9080,7 +9110,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_prominences(__Pyx_m
  *             i += 1
  *     return ret             # <<<<<<<<<<<<<<
  * 
- * cpdef trimmed_to_size_slice(np.float64_t[:] &curve,int slice_length):
+ * cpdef prominence(np.float64_t[:] &curve, int peak):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_ret));
@@ -9211,12 +9241,448 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_10prominences(CYTH
 /* "mirage/calculator/peak_finding.pyx":413
  *     return ret
  * 
+ * cpdef prominence(np.float64_t[:] &curve, int peak):             # <<<<<<<<<<<<<<
+ *     cdef:
+ *         # double local_min = curve[peak]
+ */
+
+static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_13prominence(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_prominence(__Pyx_memviewslice &__pyx_v_curve, int __pyx_v_peak, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  double __pyx_v_left_min;
+  double __pyx_v_right_min;
+  int __pyx_v_i;
+  int __pyx_v_n;
+  int __pyx_v_flag;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  Py_ssize_t __pyx_t_1;
+  Py_ssize_t __pyx_t_2;
+  int __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+  Py_ssize_t __pyx_t_5;
+  Py_ssize_t __pyx_t_6;
+  Py_ssize_t __pyx_t_7;
+  Py_ssize_t __pyx_t_8;
+  PyObject *__pyx_t_9 = NULL;
+  Py_ssize_t __pyx_t_10;
+  Py_ssize_t __pyx_t_11;
+  Py_ssize_t __pyx_t_12;
+  Py_ssize_t __pyx_t_13;
+  Py_ssize_t __pyx_t_14;
+  int __pyx_t_15;
+  Py_ssize_t __pyx_t_16;
+  double __pyx_t_17;
+  double __pyx_t_18;
+  double __pyx_t_19;
+  __Pyx_RefNannySetupContext("prominence", 0);
+
+  /* "mirage/calculator/peak_finding.pyx":416
+ *     cdef:
+ *         # double local_min = curve[peak]
+ *         double left_min = curve[peak]             # <<<<<<<<<<<<<<
+ *         double right_min = curve[peak]
+ *         int i = 1
+ */
+  __pyx_t_1 = __pyx_v_peak;
+  __pyx_v_left_min = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_1 * __pyx_v_curve.strides[0]) )));
+
+  /* "mirage/calculator/peak_finding.pyx":417
+ *         # double local_min = curve[peak]
+ *         double left_min = curve[peak]
+ *         double right_min = curve[peak]             # <<<<<<<<<<<<<<
+ *         int i = 1
+ *         int n = curve.shape[0]
+ */
+  __pyx_t_2 = __pyx_v_peak;
+  __pyx_v_right_min = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_2 * __pyx_v_curve.strides[0]) )));
+
+  /* "mirage/calculator/peak_finding.pyx":418
+ *         double left_min = curve[peak]
+ *         double right_min = curve[peak]
+ *         int i = 1             # <<<<<<<<<<<<<<
+ *         int n = curve.shape[0]
+ *         int flag = 0
+ */
+  __pyx_v_i = 1;
+
+  /* "mirage/calculator/peak_finding.pyx":419
+ *         double right_min = curve[peak]
+ *         int i = 1
+ *         int n = curve.shape[0]             # <<<<<<<<<<<<<<
+ *         int flag = 0
+ *     while flag == 0:
+ */
+  __pyx_v_n = (__pyx_v_curve.shape[0]);
+
+  /* "mirage/calculator/peak_finding.pyx":420
+ *         int i = 1
+ *         int n = curve.shape[0]
+ *         int flag = 0             # <<<<<<<<<<<<<<
+ *     while flag == 0:
+ *         if peak + i < n:
+ */
+  __pyx_v_flag = 0;
+
+  /* "mirage/calculator/peak_finding.pyx":421
+ *         int n = curve.shape[0]
+ *         int flag = 0
+ *     while flag == 0:             # <<<<<<<<<<<<<<
+ *         if peak + i < n:
+ *             if curve[peak+i] < right_min:
+ */
+  while (1) {
+    __pyx_t_3 = ((__pyx_v_flag == 0) != 0);
+    if (!__pyx_t_3) break;
+
+    /* "mirage/calculator/peak_finding.pyx":422
+ *         int flag = 0
+ *     while flag == 0:
+ *         if peak + i < n:             # <<<<<<<<<<<<<<
+ *             if curve[peak+i] < right_min:
+ *                 right_min = curve[peak+i]
+ */
+    __pyx_t_3 = (((__pyx_v_peak + __pyx_v_i) < __pyx_v_n) != 0);
+    if (__pyx_t_3) {
+
+      /* "mirage/calculator/peak_finding.pyx":423
+ *     while flag == 0:
+ *         if peak + i < n:
+ *             if curve[peak+i] < right_min:             # <<<<<<<<<<<<<<
+ *                 right_min = curve[peak+i]
+ *             elif curve[peak+i] > curve[peak]:
+ */
+      __pyx_t_4 = (__pyx_v_peak + __pyx_v_i);
+      __pyx_t_3 = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_4 * __pyx_v_curve.strides[0]) ))) < __pyx_v_right_min) != 0);
+      if (__pyx_t_3) {
+
+        /* "mirage/calculator/peak_finding.pyx":424
+ *         if peak + i < n:
+ *             if curve[peak+i] < right_min:
+ *                 right_min = curve[peak+i]             # <<<<<<<<<<<<<<
+ *             elif curve[peak+i] > curve[peak]:
+ *                 return curve[peak] - right_min
+ */
+        __pyx_t_5 = (__pyx_v_peak + __pyx_v_i);
+        __pyx_v_right_min = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_5 * __pyx_v_curve.strides[0]) )));
+
+        /* "mirage/calculator/peak_finding.pyx":423
+ *     while flag == 0:
+ *         if peak + i < n:
+ *             if curve[peak+i] < right_min:             # <<<<<<<<<<<<<<
+ *                 right_min = curve[peak+i]
+ *             elif curve[peak+i] > curve[peak]:
+ */
+        goto __pyx_L6;
+      }
+
+      /* "mirage/calculator/peak_finding.pyx":425
+ *             if curve[peak+i] < right_min:
+ *                 right_min = curve[peak+i]
+ *             elif curve[peak+i] > curve[peak]:             # <<<<<<<<<<<<<<
+ *                 return curve[peak] - right_min
+ *         if peak - i >= 0:
+ */
+      __pyx_t_6 = (__pyx_v_peak + __pyx_v_i);
+      __pyx_t_7 = __pyx_v_peak;
+      __pyx_t_3 = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_6 * __pyx_v_curve.strides[0]) ))) > (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_7 * __pyx_v_curve.strides[0]) )))) != 0);
+      if (__pyx_t_3) {
+
+        /* "mirage/calculator/peak_finding.pyx":426
+ *                 right_min = curve[peak+i]
+ *             elif curve[peak+i] > curve[peak]:
+ *                 return curve[peak] - right_min             # <<<<<<<<<<<<<<
+ *         if peak - i >= 0:
+ *             if curve[peak-i] < left_min:
+ */
+        __Pyx_XDECREF(__pyx_r);
+        __pyx_t_8 = __pyx_v_peak;
+        __pyx_t_9 = PyFloat_FromDouble(((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_8 * __pyx_v_curve.strides[0]) ))) - __pyx_v_right_min)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 426, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_9);
+        __pyx_r = __pyx_t_9;
+        __pyx_t_9 = 0;
+        goto __pyx_L0;
+
+        /* "mirage/calculator/peak_finding.pyx":425
+ *             if curve[peak+i] < right_min:
+ *                 right_min = curve[peak+i]
+ *             elif curve[peak+i] > curve[peak]:             # <<<<<<<<<<<<<<
+ *                 return curve[peak] - right_min
+ *         if peak - i >= 0:
+ */
+      }
+      __pyx_L6:;
+
+      /* "mirage/calculator/peak_finding.pyx":422
+ *         int flag = 0
+ *     while flag == 0:
+ *         if peak + i < n:             # <<<<<<<<<<<<<<
+ *             if curve[peak+i] < right_min:
+ *                 right_min = curve[peak+i]
+ */
+    }
+
+    /* "mirage/calculator/peak_finding.pyx":427
+ *             elif curve[peak+i] > curve[peak]:
+ *                 return curve[peak] - right_min
+ *         if peak - i >= 0:             # <<<<<<<<<<<<<<
+ *             if curve[peak-i] < left_min:
+ *                 left_min = curve[peak-i]
+ */
+    __pyx_t_3 = (((__pyx_v_peak - __pyx_v_i) >= 0) != 0);
+    if (__pyx_t_3) {
+
+      /* "mirage/calculator/peak_finding.pyx":428
+ *                 return curve[peak] - right_min
+ *         if peak - i >= 0:
+ *             if curve[peak-i] < left_min:             # <<<<<<<<<<<<<<
+ *                 left_min = curve[peak-i]
+ *             elif curve[peak-i] > curve[peak]:
+ */
+      __pyx_t_10 = (__pyx_v_peak - __pyx_v_i);
+      __pyx_t_3 = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_10 * __pyx_v_curve.strides[0]) ))) < __pyx_v_left_min) != 0);
+      if (__pyx_t_3) {
+
+        /* "mirage/calculator/peak_finding.pyx":429
+ *         if peak - i >= 0:
+ *             if curve[peak-i] < left_min:
+ *                 left_min = curve[peak-i]             # <<<<<<<<<<<<<<
+ *             elif curve[peak-i] > curve[peak]:
+ *                 return curve[peak] - left_min
+ */
+        __pyx_t_11 = (__pyx_v_peak - __pyx_v_i);
+        __pyx_v_left_min = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_11 * __pyx_v_curve.strides[0]) )));
+
+        /* "mirage/calculator/peak_finding.pyx":428
+ *                 return curve[peak] - right_min
+ *         if peak - i >= 0:
+ *             if curve[peak-i] < left_min:             # <<<<<<<<<<<<<<
+ *                 left_min = curve[peak-i]
+ *             elif curve[peak-i] > curve[peak]:
+ */
+        goto __pyx_L8;
+      }
+
+      /* "mirage/calculator/peak_finding.pyx":430
+ *             if curve[peak-i] < left_min:
+ *                 left_min = curve[peak-i]
+ *             elif curve[peak-i] > curve[peak]:             # <<<<<<<<<<<<<<
+ *                 return curve[peak] - left_min
+ *         if peak + i >= n and peak - i < 0:
+ */
+      __pyx_t_12 = (__pyx_v_peak - __pyx_v_i);
+      __pyx_t_13 = __pyx_v_peak;
+      __pyx_t_3 = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_12 * __pyx_v_curve.strides[0]) ))) > (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_13 * __pyx_v_curve.strides[0]) )))) != 0);
+      if (__pyx_t_3) {
+
+        /* "mirage/calculator/peak_finding.pyx":431
+ *                 left_min = curve[peak-i]
+ *             elif curve[peak-i] > curve[peak]:
+ *                 return curve[peak] - left_min             # <<<<<<<<<<<<<<
+ *         if peak + i >= n and peak - i < 0:
+ *             return curve[peak] - min(left_min,right_min)
+ */
+        __Pyx_XDECREF(__pyx_r);
+        __pyx_t_14 = __pyx_v_peak;
+        __pyx_t_9 = PyFloat_FromDouble(((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_14 * __pyx_v_curve.strides[0]) ))) - __pyx_v_left_min)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 431, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_9);
+        __pyx_r = __pyx_t_9;
+        __pyx_t_9 = 0;
+        goto __pyx_L0;
+
+        /* "mirage/calculator/peak_finding.pyx":430
+ *             if curve[peak-i] < left_min:
+ *                 left_min = curve[peak-i]
+ *             elif curve[peak-i] > curve[peak]:             # <<<<<<<<<<<<<<
+ *                 return curve[peak] - left_min
+ *         if peak + i >= n and peak - i < 0:
+ */
+      }
+      __pyx_L8:;
+
+      /* "mirage/calculator/peak_finding.pyx":427
+ *             elif curve[peak+i] > curve[peak]:
+ *                 return curve[peak] - right_min
+ *         if peak - i >= 0:             # <<<<<<<<<<<<<<
+ *             if curve[peak-i] < left_min:
+ *                 left_min = curve[peak-i]
+ */
+    }
+
+    /* "mirage/calculator/peak_finding.pyx":432
+ *             elif curve[peak-i] > curve[peak]:
+ *                 return curve[peak] - left_min
+ *         if peak + i >= n and peak - i < 0:             # <<<<<<<<<<<<<<
+ *             return curve[peak] - min(left_min,right_min)
+ *         i += 1
+ */
+    __pyx_t_15 = (((__pyx_v_peak + __pyx_v_i) >= __pyx_v_n) != 0);
+    if (__pyx_t_15) {
+    } else {
+      __pyx_t_3 = __pyx_t_15;
+      goto __pyx_L10_bool_binop_done;
+    }
+    __pyx_t_15 = (((__pyx_v_peak - __pyx_v_i) < 0) != 0);
+    __pyx_t_3 = __pyx_t_15;
+    __pyx_L10_bool_binop_done:;
+    if (__pyx_t_3) {
+
+      /* "mirage/calculator/peak_finding.pyx":433
+ *                 return curve[peak] - left_min
+ *         if peak + i >= n and peak - i < 0:
+ *             return curve[peak] - min(left_min,right_min)             # <<<<<<<<<<<<<<
+ *         i += 1
+ * 
+ */
+      __Pyx_XDECREF(__pyx_r);
+      __pyx_t_16 = __pyx_v_peak;
+      __pyx_t_17 = __pyx_v_right_min;
+      __pyx_t_18 = __pyx_v_left_min;
+      if (((__pyx_t_17 < __pyx_t_18) != 0)) {
+        __pyx_t_19 = __pyx_t_17;
+      } else {
+        __pyx_t_19 = __pyx_t_18;
+      }
+      __pyx_t_9 = PyFloat_FromDouble(((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_16 * __pyx_v_curve.strides[0]) ))) - __pyx_t_19)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 433, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_r = __pyx_t_9;
+      __pyx_t_9 = 0;
+      goto __pyx_L0;
+
+      /* "mirage/calculator/peak_finding.pyx":432
+ *             elif curve[peak-i] > curve[peak]:
+ *                 return curve[peak] - left_min
+ *         if peak + i >= n and peak - i < 0:             # <<<<<<<<<<<<<<
+ *             return curve[peak] - min(left_min,right_min)
+ *         i += 1
+ */
+    }
+
+    /* "mirage/calculator/peak_finding.pyx":434
+ *         if peak + i >= n and peak - i < 0:
+ *             return curve[peak] - min(left_min,right_min)
+ *         i += 1             # <<<<<<<<<<<<<<
+ * 
+ * cpdef trimmed_to_size_slice(np.float64_t[:] &curve,int slice_length):
+ */
+    __pyx_v_i = (__pyx_v_i + 1);
+  }
+
+  /* "mirage/calculator/peak_finding.pyx":413
+ *     return ret
+ * 
+ * cpdef prominence(np.float64_t[:] &curve, int peak):             # <<<<<<<<<<<<<<
+ *     cdef:
+ *         # double local_min = curve[peak]
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_AddTraceback("mirage.calculator.peak_finding.prominence", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_13prominence(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_13prominence(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  __Pyx_memviewslice __pyx_v_curve = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_v_peak;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("prominence (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_curve,&__pyx_n_s_peak,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_curve)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_peak)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("prominence", 1, 2, 2, 1); __PYX_ERR(0, 413, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "prominence") < 0)) __PYX_ERR(0, 413, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_curve = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_curve.memview)) __PYX_ERR(0, 413, __pyx_L3_error)
+    __pyx_v_peak = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_peak == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 413, __pyx_L3_error)
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("prominence", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 413, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("mirage.calculator.peak_finding.prominence", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_6mirage_10calculator_12peak_finding_12prominence(__pyx_self, __pyx_v_curve, __pyx_v_peak);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_12prominence(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_curve, int __pyx_v_peak) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("prominence", 0);
+  __Pyx_XDECREF(__pyx_r);
+  if (unlikely(!__pyx_v_curve.memview)) { __Pyx_RaiseUnboundLocalError("curve"); __PYX_ERR(0, 413, __pyx_L1_error) }
+  __pyx_t_1 = __pyx_f_6mirage_10calculator_12peak_finding_prominence(__pyx_v_curve, __pyx_v_peak, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 413, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("mirage.calculator.peak_finding.prominence", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __PYX_XDEC_MEMVIEW(&__pyx_v_curve, 1);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "mirage/calculator/peak_finding.pyx":436
+ *         i += 1
+ * 
  * cpdef trimmed_to_size_slice(np.float64_t[:] &curve,int slice_length):             # <<<<<<<<<<<<<<
  *     cdef int center, index, i, j
  *     cdef double tmp, max_found
  */
 
-static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_13trimmed_to_size_slice(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_15trimmed_to_size_slice(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_slice(__Pyx_memviewslice &__pyx_v_curve, int __pyx_v_slice_length, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_center;
   int __pyx_v_index;
@@ -9245,7 +9711,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
   PyObject *__pyx_t_16 = NULL;
   __Pyx_RefNannySetupContext("trimmed_to_size_slice", 0);
 
-  /* "mirage/calculator/peak_finding.pyx":416
+  /* "mirage/calculator/peak_finding.pyx":439
  *     cdef int center, index, i, j
  *     cdef double tmp, max_found
  *     cdef int curve_length = len(curve)             # <<<<<<<<<<<<<<
@@ -9255,7 +9721,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
   __pyx_t_1 = __Pyx_MemoryView_Len(__pyx_v_curve); 
   __pyx_v_curve_length = __pyx_t_1;
 
-  /* "mirage/calculator/peak_finding.pyx":417
+  /* "mirage/calculator/peak_finding.pyx":440
  *     cdef double tmp, max_found
  *     cdef int curve_length = len(curve)
  *     center = 0             # <<<<<<<<<<<<<<
@@ -9264,7 +9730,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  */
   __pyx_v_center = 0;
 
-  /* "mirage/calculator/peak_finding.pyx":418
+  /* "mirage/calculator/peak_finding.pyx":441
  *     cdef int curve_length = len(curve)
  *     center = 0
  *     max_found = -1.0             # <<<<<<<<<<<<<<
@@ -9273,7 +9739,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  */
   __pyx_v_max_found = -1.0;
 
-  /* "mirage/calculator/peak_finding.pyx":419
+  /* "mirage/calculator/peak_finding.pyx":442
  *     center = 0
  *     max_found = -1.0
  *     for i in range(curve_length):             # <<<<<<<<<<<<<<
@@ -9285,7 +9751,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
   for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
     __pyx_v_i = __pyx_t_4;
 
-    /* "mirage/calculator/peak_finding.pyx":420
+    /* "mirage/calculator/peak_finding.pyx":443
  *     max_found = -1.0
  *     for i in range(curve_length):
  *         if curve[i] > max_found:             # <<<<<<<<<<<<<<
@@ -9296,7 +9762,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
     __pyx_t_6 = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_5 * __pyx_v_curve.strides[0]) ))) > __pyx_v_max_found) != 0);
     if (__pyx_t_6) {
 
-      /* "mirage/calculator/peak_finding.pyx":421
+      /* "mirage/calculator/peak_finding.pyx":444
  *     for i in range(curve_length):
  *         if curve[i] > max_found:
  *             max_found = curve[i]             # <<<<<<<<<<<<<<
@@ -9306,7 +9772,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
       __pyx_t_7 = __pyx_v_i;
       __pyx_v_max_found = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_7 * __pyx_v_curve.strides[0]) )));
 
-      /* "mirage/calculator/peak_finding.pyx":422
+      /* "mirage/calculator/peak_finding.pyx":445
  *         if curve[i] > max_found:
  *             max_found = curve[i]
  *             center = i             # <<<<<<<<<<<<<<
@@ -9315,7 +9781,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  */
       __pyx_v_center = __pyx_v_i;
 
-      /* "mirage/calculator/peak_finding.pyx":420
+      /* "mirage/calculator/peak_finding.pyx":443
  *     max_found = -1.0
  *     for i in range(curve_length):
  *         if curve[i] > max_found:             # <<<<<<<<<<<<<<
@@ -9325,7 +9791,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
     }
   }
 
-  /* "mirage/calculator/peak_finding.pyx":423
+  /* "mirage/calculator/peak_finding.pyx":446
  *             max_found = curve[i]
  *             center = i
  *     index = center - slice_length             # <<<<<<<<<<<<<<
@@ -9334,7 +9800,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  */
   __pyx_v_index = (__pyx_v_center - __pyx_v_slice_length);
 
-  /* "mirage/calculator/peak_finding.pyx":424
+  /* "mirage/calculator/peak_finding.pyx":447
  *             center = i
  *     index = center - slice_length
  *     for i in range(max(center - slice_length,0),center):             # <<<<<<<<<<<<<<
@@ -9353,7 +9819,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
   for (__pyx_t_4 = __pyx_t_9; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
     __pyx_v_i = __pyx_t_4;
 
-    /* "mirage/calculator/peak_finding.pyx":425
+    /* "mirage/calculator/peak_finding.pyx":448
  *     index = center - slice_length
  *     for i in range(max(center - slice_length,0),center):
  *         tmp = 0.0             # <<<<<<<<<<<<<<
@@ -9362,7 +9828,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  */
     __pyx_v_tmp = 0.0;
 
-    /* "mirage/calculator/peak_finding.pyx":426
+    /* "mirage/calculator/peak_finding.pyx":449
  *     for i in range(max(center - slice_length,0),center):
  *         tmp = 0.0
  *         max_found = -1.0             # <<<<<<<<<<<<<<
@@ -9371,7 +9837,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  */
     __pyx_v_max_found = -1.0;
 
-    /* "mirage/calculator/peak_finding.pyx":427
+    /* "mirage/calculator/peak_finding.pyx":450
  *         tmp = 0.0
  *         max_found = -1.0
  *         for j in range(i,min(i+slice_length,curve_length)):             # <<<<<<<<<<<<<<
@@ -9390,7 +9856,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
     for (__pyx_t_11 = __pyx_v_i; __pyx_t_11 < __pyx_t_12; __pyx_t_11+=1) {
       __pyx_v_j = __pyx_t_11;
 
-      /* "mirage/calculator/peak_finding.pyx":428
+      /* "mirage/calculator/peak_finding.pyx":451
  *         max_found = -1.0
  *         for j in range(i,min(i+slice_length,curve_length)):
  *             tmp += curve[j]             # <<<<<<<<<<<<<<
@@ -9401,7 +9867,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
       __pyx_v_tmp = (__pyx_v_tmp + (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_curve.data + __pyx_t_13 * __pyx_v_curve.strides[0]) ))));
     }
 
-    /* "mirage/calculator/peak_finding.pyx":429
+    /* "mirage/calculator/peak_finding.pyx":452
  *         for j in range(i,min(i+slice_length,curve_length)):
  *             tmp += curve[j]
  *         if tmp > max_found:             # <<<<<<<<<<<<<<
@@ -9411,7 +9877,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
     __pyx_t_6 = ((__pyx_v_tmp > __pyx_v_max_found) != 0);
     if (__pyx_t_6) {
 
-      /* "mirage/calculator/peak_finding.pyx":430
+      /* "mirage/calculator/peak_finding.pyx":453
  *             tmp += curve[j]
  *         if tmp > max_found:
  *             max_found = tmp             # <<<<<<<<<<<<<<
@@ -9420,7 +9886,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  */
       __pyx_v_max_found = __pyx_v_tmp;
 
-      /* "mirage/calculator/peak_finding.pyx":431
+      /* "mirage/calculator/peak_finding.pyx":454
  *         if tmp > max_found:
  *             max_found = tmp
  *             index = i             # <<<<<<<<<<<<<<
@@ -9429,7 +9895,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  */
       __pyx_v_index = __pyx_v_i;
 
-      /* "mirage/calculator/peak_finding.pyx":429
+      /* "mirage/calculator/peak_finding.pyx":452
  *         for j in range(i,min(i+slice_length,curve_length)):
  *             tmp += curve[j]
  *         if tmp > max_found:             # <<<<<<<<<<<<<<
@@ -9439,7 +9905,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
     }
   }
 
-  /* "mirage/calculator/peak_finding.pyx":432
+  /* "mirage/calculator/peak_finding.pyx":455
  *             max_found = tmp
  *             index = i
  *     return [index,min(index+slice_length,curve_length)]             # <<<<<<<<<<<<<<
@@ -9447,7 +9913,7 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
  * def old_trimmer(y,slice_length):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_index); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 432, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_index); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 455, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __pyx_t_2 = __pyx_v_curve_length;
   __pyx_t_3 = (__pyx_v_index + __pyx_v_slice_length);
@@ -9456,9 +9922,9 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
   } else {
     __pyx_t_4 = __pyx_t_3;
   }
-  __pyx_t_15 = __Pyx_PyInt_From_int(__pyx_t_4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 432, __pyx_L1_error)
+  __pyx_t_15 = __Pyx_PyInt_From_int(__pyx_t_4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 455, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_15);
-  __pyx_t_16 = PyList_New(2); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 432, __pyx_L1_error)
+  __pyx_t_16 = PyList_New(2); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 455, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_16);
   __Pyx_GIVEREF(__pyx_t_14);
   PyList_SET_ITEM(__pyx_t_16, 0, __pyx_t_14);
@@ -9470,8 +9936,8 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
   __pyx_t_16 = 0;
   goto __pyx_L0;
 
-  /* "mirage/calculator/peak_finding.pyx":413
- *     return ret
+  /* "mirage/calculator/peak_finding.pyx":436
+ *         i += 1
  * 
  * cpdef trimmed_to_size_slice(np.float64_t[:] &curve,int slice_length):             # <<<<<<<<<<<<<<
  *     cdef int center, index, i, j
@@ -9492,8 +9958,8 @@ static PyObject *__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_sli
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_13trimmed_to_size_slice(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_13trimmed_to_size_slice(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_15trimmed_to_size_slice(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_15trimmed_to_size_slice(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_curve = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_slice_length;
   PyObject *__pyx_r = 0;
@@ -9522,11 +9988,11 @@ static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_13trimmed_to_size_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_slice_length)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("trimmed_to_size_slice", 1, 2, 2, 1); __PYX_ERR(0, 413, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("trimmed_to_size_slice", 1, 2, 2, 1); __PYX_ERR(0, 436, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "trimmed_to_size_slice") < 0)) __PYX_ERR(0, 413, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "trimmed_to_size_slice") < 0)) __PYX_ERR(0, 436, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -9534,32 +10000,32 @@ static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_13trimmed_to_size_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_curve = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_curve.memview)) __PYX_ERR(0, 413, __pyx_L3_error)
-    __pyx_v_slice_length = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_slice_length == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 413, __pyx_L3_error)
+    __pyx_v_curve = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_curve.memview)) __PYX_ERR(0, 436, __pyx_L3_error)
+    __pyx_v_slice_length = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_slice_length == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 436, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("trimmed_to_size_slice", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 413, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("trimmed_to_size_slice", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 436, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("mirage.calculator.peak_finding.trimmed_to_size_slice", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6mirage_10calculator_12peak_finding_12trimmed_to_size_slice(__pyx_self, __pyx_v_curve, __pyx_v_slice_length);
+  __pyx_r = __pyx_pf_6mirage_10calculator_12peak_finding_14trimmed_to_size_slice(__pyx_self, __pyx_v_curve, __pyx_v_slice_length);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_12trimmed_to_size_slice(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_curve, int __pyx_v_slice_length) {
+static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14trimmed_to_size_slice(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_curve, int __pyx_v_slice_length) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("trimmed_to_size_slice", 0);
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_curve.memview)) { __Pyx_RaiseUnboundLocalError("curve"); __PYX_ERR(0, 413, __pyx_L1_error) }
-  __pyx_t_1 = __pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_slice(__pyx_v_curve, __pyx_v_slice_length, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 413, __pyx_L1_error)
+  if (unlikely(!__pyx_v_curve.memview)) { __Pyx_RaiseUnboundLocalError("curve"); __PYX_ERR(0, 436, __pyx_L1_error) }
+  __pyx_t_1 = __pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_slice(__pyx_v_curve, __pyx_v_slice_length, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 436, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9577,7 +10043,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_12trimmed_to_size_
   return __pyx_r;
 }
 
-/* "mirage/calculator/peak_finding.pyx":434
+/* "mirage/calculator/peak_finding.pyx":457
  *     return [index,min(index+slice_length,curve_length)]
  * 
  * def old_trimmer(y,slice_length):             # <<<<<<<<<<<<<<
@@ -9586,9 +10052,9 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_12trimmed_to_size_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_15old_trimmer(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6mirage_10calculator_12peak_finding_15old_trimmer = {"old_trimmer", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_12peak_finding_15old_trimmer, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_15old_trimmer(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_17old_trimmer(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_6mirage_10calculator_12peak_finding_17old_trimmer = {"old_trimmer", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_12peak_finding_17old_trimmer, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_17old_trimmer(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_y = 0;
   PyObject *__pyx_v_slice_length = 0;
   PyObject *__pyx_r = 0;
@@ -9617,11 +10083,11 @@ static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_15old_trimmer(PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_slice_length)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("old_trimmer", 1, 2, 2, 1); __PYX_ERR(0, 434, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("old_trimmer", 1, 2, 2, 1); __PYX_ERR(0, 457, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "old_trimmer") < 0)) __PYX_ERR(0, 434, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "old_trimmer") < 0)) __PYX_ERR(0, 457, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -9634,20 +10100,20 @@ static PyObject *__pyx_pw_6mirage_10calculator_12peak_finding_15old_trimmer(PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("old_trimmer", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 434, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("old_trimmer", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 457, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("mirage.calculator.peak_finding.old_trimmer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(__pyx_self, __pyx_v_y, __pyx_v_slice_length);
+  __pyx_r = __pyx_pf_6mirage_10calculator_12peak_finding_16old_trimmer(__pyx_self, __pyx_v_y, __pyx_v_slice_length);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_y, PyObject *__pyx_v_slice_length) {
+static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_16old_trimmer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_y, PyObject *__pyx_v_slice_length) {
   PyObject *__pyx_v_center = NULL;
   PyObject *__pyx_v_max_found = NULL;
   PyObject *__pyx_v_index = NULL;
@@ -9668,16 +10134,16 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
   PyObject *__pyx_t_11 = NULL;
   __Pyx_RefNannySetupContext("old_trimmer", 0);
 
-  /* "mirage/calculator/peak_finding.pyx":435
+  /* "mirage/calculator/peak_finding.pyx":458
  * 
  * def old_trimmer(y,slice_length):
  *         center = np.argmax(y)             # <<<<<<<<<<<<<<
  *         max_found = -1.0
  *         index = center - slice_length
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 435, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 458, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_argmax); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 435, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_argmax); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 458, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -9692,13 +10158,13 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_v_y) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_y);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 435, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 458, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_center = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "mirage/calculator/peak_finding.pyx":436
+  /* "mirage/calculator/peak_finding.pyx":459
  * def old_trimmer(y,slice_length):
  *         center = np.argmax(y)
  *         max_found = -1.0             # <<<<<<<<<<<<<<
@@ -9708,19 +10174,19 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
   __Pyx_INCREF(__pyx_float_neg_1_0);
   __pyx_v_max_found = __pyx_float_neg_1_0;
 
-  /* "mirage/calculator/peak_finding.pyx":437
+  /* "mirage/calculator/peak_finding.pyx":460
  *         center = np.argmax(y)
  *         max_found = -1.0
  *         index = center - slice_length             # <<<<<<<<<<<<<<
  *         for i in range(max(index,0),center):
  *             tmp = y[i:min(i+slice_length,len(y))].sum()
  */
-  __pyx_t_1 = PyNumber_Subtract(__pyx_v_center, __pyx_v_slice_length); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 437, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Subtract(__pyx_v_center, __pyx_v_slice_length); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_index = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "mirage/calculator/peak_finding.pyx":438
+  /* "mirage/calculator/peak_finding.pyx":461
  *         max_found = -1.0
  *         index = center - slice_length
  *         for i in range(max(index,0),center):             # <<<<<<<<<<<<<<
@@ -9730,14 +10196,14 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
   __pyx_t_4 = 0;
   __Pyx_INCREF(__pyx_v_index);
   __pyx_t_1 = __pyx_v_index;
-  __pyx_t_2 = __Pyx_PyInt_From_long(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 438, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_long(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = PyObject_RichCompare(__pyx_t_2, __pyx_t_1, Py_GT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 438, __pyx_L1_error)
+  __pyx_t_5 = PyObject_RichCompare(__pyx_t_2, __pyx_t_1, Py_GT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 438, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (__pyx_t_6) {
-    __pyx_t_5 = __Pyx_PyInt_From_long(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 438, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_long(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 461, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_3 = __pyx_t_5;
     __pyx_t_5 = 0;
@@ -9746,7 +10212,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
     __pyx_t_3 = __pyx_t_1;
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 438, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_3);
@@ -9755,16 +10221,16 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
   __Pyx_GIVEREF(__pyx_v_center);
   PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_v_center);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_t_1, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 438, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_t_1, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
     __pyx_t_1 = __pyx_t_3; __Pyx_INCREF(__pyx_t_1); __pyx_t_7 = 0;
     __pyx_t_8 = NULL;
   } else {
-    __pyx_t_7 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 438, __pyx_L1_error)
+    __pyx_t_7 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_8 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 438, __pyx_L1_error)
+    __pyx_t_8 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 461, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   for (;;) {
@@ -9772,17 +10238,17 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 438, __pyx_L1_error)
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 461, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 438, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 461, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       } else {
         if (__pyx_t_7 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 438, __pyx_L1_error)
+        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 461, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 438, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 461, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       }
@@ -9792,7 +10258,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 438, __pyx_L1_error)
+          else __PYX_ERR(0, 461, __pyx_L1_error)
         }
         break;
       }
@@ -9801,24 +10267,24 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "mirage/calculator/peak_finding.pyx":439
+    /* "mirage/calculator/peak_finding.pyx":462
  *         index = center - slice_length
  *         for i in range(max(index,0),center):
  *             tmp = y[i:min(i+slice_length,len(y))].sum()             # <<<<<<<<<<<<<<
  *             if tmp > max_found:
  *                 index = i
  */
-    __pyx_t_9 = PyObject_Length(__pyx_v_y); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 439, __pyx_L1_error)
-    __pyx_t_5 = PyNumber_Add(__pyx_v_i, __pyx_v_slice_length); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 439, __pyx_L1_error)
+    __pyx_t_9 = PyObject_Length(__pyx_v_y); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 462, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_Add(__pyx_v_i, __pyx_v_slice_length); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_10 = PyInt_FromSsize_t(__pyx_t_9); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 439, __pyx_L1_error)
+    __pyx_t_10 = PyInt_FromSsize_t(__pyx_t_9); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
-    __pyx_t_11 = PyObject_RichCompare(__pyx_t_10, __pyx_t_5, Py_LT); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 439, __pyx_L1_error)
+    __pyx_t_11 = PyObject_RichCompare(__pyx_t_10, __pyx_t_5, Py_LT); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 439, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     if (__pyx_t_6) {
-      __pyx_t_11 = PyInt_FromSsize_t(__pyx_t_9); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 439, __pyx_L1_error)
+      __pyx_t_11 = PyInt_FromSsize_t(__pyx_t_9); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 462, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
       __pyx_t_2 = __pyx_t_11;
       __pyx_t_11 = 0;
@@ -9827,10 +10293,10 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
       __pyx_t_2 = __pyx_t_5;
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetSlice(__pyx_v_y, 0, 0, &__pyx_v_i, &__pyx_t_2, NULL, 0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 439, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetSlice(__pyx_v_y, 0, 0, &__pyx_v_i, &__pyx_t_2, NULL, 0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_sum); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 439, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_sum); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -9845,25 +10311,25 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
     }
     __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 439, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF_SET(__pyx_v_tmp, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "mirage/calculator/peak_finding.pyx":440
+    /* "mirage/calculator/peak_finding.pyx":463
  *         for i in range(max(index,0),center):
  *             tmp = y[i:min(i+slice_length,len(y))].sum()
  *             if tmp > max_found:             # <<<<<<<<<<<<<<
  *                 index = i
  *                 max_found = tmp
  */
-    __pyx_t_3 = PyObject_RichCompare(__pyx_v_tmp, __pyx_v_max_found, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 440, __pyx_L1_error)
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 440, __pyx_L1_error)
+    __pyx_t_3 = PyObject_RichCompare(__pyx_v_tmp, __pyx_v_max_found, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 463, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 463, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (__pyx_t_6) {
 
-      /* "mirage/calculator/peak_finding.pyx":441
+      /* "mirage/calculator/peak_finding.pyx":464
  *             tmp = y[i:min(i+slice_length,len(y))].sum()
  *             if tmp > max_found:
  *                 index = i             # <<<<<<<<<<<<<<
@@ -9873,7 +10339,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
       __Pyx_INCREF(__pyx_v_i);
       __Pyx_DECREF_SET(__pyx_v_index, __pyx_v_i);
 
-      /* "mirage/calculator/peak_finding.pyx":442
+      /* "mirage/calculator/peak_finding.pyx":465
  *             if tmp > max_found:
  *                 index = i
  *                 max_found = tmp             # <<<<<<<<<<<<<<
@@ -9882,7 +10348,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
       __Pyx_INCREF(__pyx_v_tmp);
       __Pyx_DECREF_SET(__pyx_v_max_found, __pyx_v_tmp);
 
-      /* "mirage/calculator/peak_finding.pyx":440
+      /* "mirage/calculator/peak_finding.pyx":463
  *         for i in range(max(index,0),center):
  *             tmp = y[i:min(i+slice_length,len(y))].sum()
  *             if tmp > max_found:             # <<<<<<<<<<<<<<
@@ -9891,7 +10357,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
  */
     }
 
-    /* "mirage/calculator/peak_finding.pyx":438
+    /* "mirage/calculator/peak_finding.pyx":461
  *         max_found = -1.0
  *         index = center - slice_length
  *         for i in range(max(index,0),center):             # <<<<<<<<<<<<<<
@@ -9901,23 +10367,23 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "mirage/calculator/peak_finding.pyx":443
+  /* "mirage/calculator/peak_finding.pyx":466
  *                 index = i
  *                 max_found = tmp
  *         return [index,min(index+slice_length,len(y))]             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_7 = PyObject_Length(__pyx_v_y); if (unlikely(__pyx_t_7 == ((Py_ssize_t)-1))) __PYX_ERR(0, 443, __pyx_L1_error)
-  __pyx_t_1 = PyNumber_Add(__pyx_v_index, __pyx_v_slice_length); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 443, __pyx_L1_error)
+  __pyx_t_7 = PyObject_Length(__pyx_v_y); if (unlikely(__pyx_t_7 == ((Py_ssize_t)-1))) __PYX_ERR(0, 466, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Add(__pyx_v_index, __pyx_v_slice_length); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyInt_FromSsize_t(__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 443, __pyx_L1_error)
+  __pyx_t_2 = PyInt_FromSsize_t(__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = PyObject_RichCompare(__pyx_t_2, __pyx_t_1, Py_LT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 443, __pyx_L1_error)
+  __pyx_t_5 = PyObject_RichCompare(__pyx_t_2, __pyx_t_1, Py_LT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 443, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (__pyx_t_6) {
-    __pyx_t_5 = PyInt_FromSsize_t(__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 443, __pyx_L1_error)
+    __pyx_t_5 = PyInt_FromSsize_t(__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 466, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_3 = __pyx_t_5;
     __pyx_t_5 = 0;
@@ -9926,7 +10392,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
     __pyx_t_3 = __pyx_t_1;
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyList_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 443, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_index);
   __Pyx_GIVEREF(__pyx_v_index);
@@ -9939,7 +10405,7 @@ static PyObject *__pyx_pf_6mirage_10calculator_12peak_finding_14old_trimmer(CYTH
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "mirage/calculator/peak_finding.pyx":434
+  /* "mirage/calculator/peak_finding.pyx":457
  *     return [index,min(index+slice_length,curve_length)]
  * 
  * def old_trimmer(y,slice_length):             # <<<<<<<<<<<<<<
@@ -25900,7 +26366,8 @@ static PyMethodDef __pyx_methods[] = {
   {"find_peaks", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_12peak_finding_7find_peaks, METH_VARARGS|METH_KEYWORDS, 0},
   {"caustic_crossing", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_12peak_finding_9caustic_crossing, METH_VARARGS|METH_KEYWORDS, 0},
   {"prominences", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_12peak_finding_11prominences, METH_VARARGS|METH_KEYWORDS, 0},
-  {"trimmed_to_size_slice", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_12peak_finding_13trimmed_to_size_slice, METH_VARARGS|METH_KEYWORDS, 0},
+  {"prominence", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_12peak_finding_13prominence, METH_VARARGS|METH_KEYWORDS, 0},
+  {"trimmed_to_size_slice", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6mirage_10calculator_12peak_finding_15trimmed_to_size_slice, METH_VARARGS|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
 
@@ -26049,6 +26516,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
   {&__pyx_n_s_old_trimmer, __pyx_k_old_trimmer, sizeof(__pyx_k_old_trimmer), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
+  {&__pyx_n_s_peak, __pyx_k_peak, sizeof(__pyx_k_peak), 0, 0, 1, 1},
   {&__pyx_kp_u_peak_thresh, __pyx_k_peak_thresh, sizeof(__pyx_k_peak_thresh), 0, 1, 0, 0},
   {&__pyx_n_s_peak_threshold, __pyx_k_peak_threshold, sizeof(__pyx_k_peak_threshold), 0, 0, 1, 1},
   {&__pyx_n_s_peaks, __pyx_k_peaks, sizeof(__pyx_k_peaks), 0, 0, 1, 1},
@@ -26482,17 +26950,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
 
-  /* "mirage/calculator/peak_finding.pyx":434
+  /* "mirage/calculator/peak_finding.pyx":457
  *     return [index,min(index+slice_length,curve_length)]
  * 
  * def old_trimmer(y,slice_length):             # <<<<<<<<<<<<<<
  *         center = np.argmax(y)
  *         max_found = -1.0
  */
-  __pyx_tuple__28 = PyTuple_Pack(7, __pyx_n_s_y, __pyx_n_s_slice_length, __pyx_n_s_center, __pyx_n_s_max_found, __pyx_n_s_index, __pyx_n_s_i, __pyx_n_s_tmp); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 434, __pyx_L1_error)
+  __pyx_tuple__28 = PyTuple_Pack(7, __pyx_n_s_y, __pyx_n_s_slice_length, __pyx_n_s_center, __pyx_n_s_max_found, __pyx_n_s_index, __pyx_n_s_i, __pyx_n_s_tmp); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 457, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
-  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mirage_calculator_peak_finding_p, __pyx_n_s_old_trimmer, 434, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 434, __pyx_L1_error)
+  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_mirage_calculator_peak_finding_p, __pyx_n_s_old_trimmer, 457, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 457, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -26619,6 +27087,7 @@ static int __Pyx_modinit_function_export_code(void) {
   if (__Pyx_ExportFunction("caustic_crossing", (void (*)(void))__pyx_f_6mirage_10calculator_12peak_finding_caustic_crossing, "PyObject *(__Pyx_memviewslice &, double, double, double, double, double, int __pyx_skip_dispatch)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   if (__Pyx_ExportFunction("min_array", (void (*)(void))__pyx_f_6mirage_10calculator_12peak_finding_min_array, "double (__Pyx_memviewslice &, int, int)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   if (__Pyx_ExportFunction("prominences", (void (*)(void))__pyx_f_6mirage_10calculator_12peak_finding_prominences, "PyObject *(__Pyx_memviewslice &, __Pyx_memviewslice &, int __pyx_skip_dispatch)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_ExportFunction("prominence", (void (*)(void))__pyx_f_6mirage_10calculator_12peak_finding_prominence, "PyObject *(__Pyx_memviewslice &, int, int __pyx_skip_dispatch)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   if (__Pyx_ExportFunction("trimmed_to_size_slice", (void (*)(void))__pyx_f_6mirage_10calculator_12peak_finding_trimmed_to_size_slice, "PyObject *(__Pyx_memviewslice &, int, int __pyx_skip_dispatch)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   if (__Pyx_ExportFunction("find_events", (void (*)(void))__pyx_f_6mirage_10calculator_12peak_finding_find_events, "PyObject *(PyArrayObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6mirage_10calculator_12peak_finding_find_events *__pyx_optional_args)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   if (__Pyx_ExportFunction("stitch_end", (void (*)(void))__pyx_f_6mirage_10calculator_12peak_finding_stitch_end, "PyObject *(PyArrayObject *, PyArrayObject *, int, int, int, int, double, double)") < 0) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -26998,16 +27467,16 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "mirage/calculator/peak_finding.pyx":434
+  /* "mirage/calculator/peak_finding.pyx":457
  *     return [index,min(index+slice_length,curve_length)]
  * 
  * def old_trimmer(y,slice_length):             # <<<<<<<<<<<<<<
  *         center = np.argmax(y)
  *         max_found = -1.0
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6mirage_10calculator_12peak_finding_15old_trimmer, NULL, __pyx_n_s_mirage_calculator_peak_finding); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 434, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6mirage_10calculator_12peak_finding_17old_trimmer, NULL, __pyx_n_s_mirage_calculator_peak_finding); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 457, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_old_trimmer, __pyx_t_1) < 0) __PYX_ERR(0, 434, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_old_trimmer, __pyx_t_1) < 0) __PYX_ERR(0, 457, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "mirage/calculator/peak_finding.pyx":1

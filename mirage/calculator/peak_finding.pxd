@@ -20,6 +20,8 @@ cdef double min_array(np.float64_t[:] &a,int s, int e) nogil
 
 cpdef prominences(np.float64_t[:] &curve, np.int64_t[:] &peaks)
 
+cpdef prominence(np.float64_t[:] &curve, int peak)
+
 cpdef trimmed_to_size_slice(np.float64_t[:] &curve,int slice_length)
 
 cpdef find_events(np.ndarray[np.float64_t, ndim=1] line,

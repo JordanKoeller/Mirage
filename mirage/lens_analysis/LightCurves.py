@@ -430,6 +430,13 @@ class Event(object):
         for lc in self._data:
             plt.plot(lc)
 
+    def prominences_above(self,cutoff:float) -> int:
+        """Computes the number of peaks with prominence `cutoff` or higher in the parent light curve."""
+        from mirage.calculator.peak_finding import prominence
+        candidates = np.array([i for i in range(0,len(self._data[self._parent_index]))])#argrelmax(self._data[self._parent_index],order=4))[0]
+        proms = len(list(filter(lambda x: prominence(self._data[self._parent_index],x) > cutoff,candidates)))
+        return proms
+
     @property
     def shift_array(self):
         maxes = np.argmax(self._data,axis=1)
@@ -495,7 +502,12 @@ class EventClassificationTable(object):
 
     def to_histograms(self,keys,density=20):
         alls = self.merge_buckets(keys)
-        nparr = np.array(list(map(lambda event: event.shift_array,alls)))
+        return EventClassificationTable.mk_histograms(alls,density)
+
+
+    @staticmethod
+    def mk_histograms(eventlist,density=20):
+        nparr = np.array(list(map(lambda event: event.shift_array,eventlist)))
         ret = []
         binArr = [i for i in range(density+1)]
         for i in range(nparr.shape[1]):

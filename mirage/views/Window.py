@@ -7,10 +7,10 @@ class Window(QMainWindow):
 
     def __init__(self):
         QMainWindow.__init__(self)
-        from os import environ
+        from os import environ, sep
         prefix = None
         if "MIRAGE_HOME" in environ:
-            prefix = environ['MIRAGE_HOME']+"/mirage/views/qml/"
+            prefix = environ['MIRAGE_HOME']+sep+"mirage"+sep+"views"+sep+"qml"+sep
         else:
             prefix = ""
         uic.loadUi(prefix+self.windowQML,self)

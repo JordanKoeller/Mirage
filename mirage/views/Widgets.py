@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QWidget, QMessageBox, QFileDialog
 from PyQt5 import uic
 
 from astropy import units as u
+from os import sep
 
 
 
@@ -15,7 +16,7 @@ class UserInputWidget(QWidget):
         from os import environ
         prefix = None
         if "MIRAGE_HOME" in environ:
-            prefix = environ['MIRAGE_HOME']+"/mirage/views/qml/"
+            prefix = environ['MIRAGE_HOME']+sep+"mirage"+sep+"views"+sep+"qml"+sep
         else:
             prefix = ""
         QWidget.__init__(self)

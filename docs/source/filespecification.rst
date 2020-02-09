@@ -1,13 +1,35 @@
+.. include:: includes.rst
 
 Reading and Writing Simulation Files
 ====================================
 
-This tutorial is broken into two parts:
+This tutorial is broken into three parts:
 
+* The various file types used by |Mirage|
 * High-level file i/o interface
 * Low-level file i/o interface (the :class:`mirage.io` module)
 
 For most purposes, the high-level interface should have all the functionality needed to use |Mirage|. Developers, however, should be familiar with the low-level interface.
+
+Files used by |Mirage|
+----------------------
+
+|Mirage| uses a variety of file types to store serialized representations of specifications of lensed systems. |Mirage| serializes all its specifications in a JSON format, for easy readability of the plain text. This also provides the added benefit that you may edit the plain text files to easily adjust parameters of a system you want to model.
+
++----------------+---------------+--------------------------------------------------------------------------------------+
+|           File Types used in |Mirage|                                                                                 |
++----------------+---------------+--------------------------------------------------------------------------------------+
+| File Extension | Object Type           | Description                                                                  |
++================+===============+======================================================================================+
+|  .param        | |Parameters|          | Used to specify the "essentials" of a lensed system, such as the mass model. |
++----------------+---------------+--------------------------------------------------------------------------------------+
+| .sim           | |Simulation|          | The file type supplied to |Mirage| to actually compute a simulation          |
++----------------+---------------+--------------------------------------------------------------------------------------+
+| .anim          | |AnimationSimulation| | Specifies a simulation for visualizing a lensed system.                      |
++----------------+---------------+--------------------------------------------------------------------------------------+
+| .res           | |Result|              | The data file produced by a completed simulation.                            |
++----------------+---------------+--------------------------------------------------------------------------------------+
+
 
 High-level File I/O Interface
 -----------------------------
@@ -46,4 +68,16 @@ Writing objects to file is most easily accomplished with the :func:`la.write <mi
 	parametersFile.param saved.
 
 .. warning:: :func:`la.write <mirage.lens_analysis.write>` will always append the appropriate extension to the filename, regardless of any extensions already present in the filename. It is recommended you do not supply any extension.
+
+
+Low-level File I/O Interface
+----------------------------
+
+Below the high-level interface sits the low-level interface. The low-level interface consists of classes implementing the abstract |FileManager| base class found in the :class:`mirage.io` module.
+
+Most files used by |Mirage| are JSON files to allow them to be human-readable and easily parsable. As such, editing any `.sim, .anim, .param,` or `.mparam` file in a text editor is possible and |Mirage| can reflect the change. This is especially useful for running simulations that are essentially similar but with a few changed things, such as the seed used to generate the star field.
+
+.. note:: To serialize your own classes in a JSON format, see the |JSONFileManager| class documentation.
+
+The last primary type of file used by |Mirage| is the `.res` file to store results of simulations. This file consists of the JSON-serialized |Simulation| object used to run the simulation, followed by all the results of the simulation in a binary format. To learn more about its parsing, see the |ResultFileManager| class documentation.
 

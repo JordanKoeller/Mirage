@@ -1,3 +1,4 @@
+.. include:: includes.rst
 
 mirage.lens\_analysis package
 =============================

@@ -1,10 +1,11 @@
-from .Vectors import Vec2D
-from .Jsonable import Jsonable
-
-from astropy import units as u
-import numpy as np
-
 import math
+
+import numpy as np
+from astropy import units as u
+
+from .Jsonable import Jsonable
+from .Vectors import Vec2D
+
 
 class Region(Jsonable):
 

@@ -6,14 +6,15 @@ class ParametersError(Exception):
     def __repr__(self):
         return repr(self.value)
 
-from .Cosmic import Cosmic
 from .CalculationDependency import CalculationDependency
-from .Quasar import Quasar
+from .Cosmic import Cosmic
 from .MassModel import Lens
-from .Parameters import Parameters, MicrolensingParameters
-from .ResultParameters import ResultParameters, MagnificationMapParameters, \
-    LightCurvesParameters, MomentMapParameters, CausticMapParameters
-from .Simulation import Simulation, AnimationSimulation
+from .Parameters import MicrolensingParameters, Parameters
+from .Quasar import Quasar
+from .ResultParameters import (
+    CausticMapParameters, LightCurvesParameters, MagnificationMapParameters,
+    MomentMapParameters, ResultParameters)
+from .Simulation import AnimationSimulation, Simulation
 
 
 def QSO2237():
@@ -37,4 +38,3 @@ def QSO2237_ImageC(root_rays,percent_stars):
     img_center = Vec2D(1.4,1.4,'arcsec')
     ray_count = Vec2D(int(root_rays),int(root_rays))
     return MicrolensingParameters(qso.quasar,qso.lens,percent_stars,img_center,ray_count,src_plane)
-

@@ -201,3 +201,10 @@ project/plugins/project/
 #OTher files:
 /data/*
 /venv/*
+
+
+# Vscode
+.vscode/
+.metals/
+.idea/
+docs/source/_build

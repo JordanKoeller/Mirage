@@ -1,3 +1,4 @@
+.. include:: includes.rst
 
 Getting Started with Mirage
 ===========================

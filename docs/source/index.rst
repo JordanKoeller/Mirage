@@ -3,21 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. |Mirage| replace:: :class:`mirage <mirage>`
-.. |lens_analysis| replace:: :class:`lens_analysis <mirage.lens_analysis>`
-.. |Simulation| replace:: :class:`la.Simulation <mirage.parameters.Simulation.Simulation>`
-.. |Trial| replace:: :class:`la.Trial <mirage.lens_analysis.Result.Trial>`
-.. |Result| replace:: :class:`la.Result <mirage.lens_analysis.Result.Result>`
-.. |MagnificationMapView| replace:: :class:`views.MagnificationMapView <mirage.views.MagmapView.MagnificationMapView>`
-.. |AnimationSimulation| replace:: :class:`parameters.AnimationSimulation <mirage.parameters.Simulation.AnimationSimulation>`
-.. |LensView| replace:: :class:`views.LensView <mirage.views.LensView.LensView>`
-.. |LightCurveBatch| replace:: :class:`la.LightCurveBatch <mirage.lens_analysis.LightCurves.LightCurveBatch>`
-.. |ResultFileManager| replace:: :class:`io.ResultFileManager <mirage.io.ResultFileManager>`
-.. |ResultError| replace:: :class:`la.ResultError <mirage.lens_analysis.Result.ResultError>`
-.. |MagnificationMap| replace:: :class:`la.MagnificationMap <mirage.lens_analysis.MagnificationMap.MagnificationMap>`
-.. |Parameters| replace:: :class:`Parameters <mirage.parameters.Parameters>`
-.. |CausticMap| replace:: :class:`la.CausticMap <mirage.lens_analysis.CausticMap.CausticMap>`
-.. .. |ParametersView| replace:: :class:`views.ParametersView <mirage.views.ParametersView.ParametersView>`
+.. include:: includes.rst
 
 Welcome to Mirage's documentation!
 ===============================================
@@ -46,7 +32,7 @@ calculation engine, however, gives you options to specify where the heavy liftin
    filespecification
    dependencies
    API Documentation <mirage>
-   publications 
+   publications
    licensing
    citing
 

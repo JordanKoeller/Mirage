@@ -1,6 +1,6 @@
 from mirage.util import PixelRegion, Vec2D, zero_vector
 
-from . import MagnificationMap
+from .MagnificationMap import MagnificationMap
 
 
 class CausticMap(MagnificationMap):

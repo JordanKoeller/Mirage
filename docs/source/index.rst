@@ -8,18 +8,18 @@
 Welcome to Mirage's documentation!
 ===============================================
 
-Mirage is a program for simulating gravitationally lensed 
+Mirage is a program for simulating gravitationally lensed
 quasars, on both the macrolensing scale as well as the
 microlensing scale. With Mirage, you can specify the parameters
 of a quasar being gravitationally lensed by a galaxy between the observer
 and quasar, and then generate animations of the lensed system,
 light curves, and magnification maps for comparison to physical data.
 
-Mirage simulates gravitationally lensed systems through a ray-tracing 
+Mirage simulates gravitationally lensed systems through a ray-tracing
 approach. Simply put, it traces a specified set of paths of light through
 the lensing galaxy and discovers which paths successfully connect the observer to the quasar.
 
-Mirage is primarily written in Python, to allow for easy manipulation of 
+Mirage is primarily written in Python, to allow for easy manipulation of
 the program as well as data analysis through Python's interpreter. The
 calculation engine, however, gives you options to specify where the heavy lifting occurs. Mirage may be ran locally using a C/C++ implimentation that can take advantage of graphics processors for the ray-tracing, or may be ran on a computational cluster through the Apache Spark (TM) data analytics framework.
 

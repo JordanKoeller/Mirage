@@ -8,7 +8,16 @@ from astropy.io import fits
 
 class FileManager(ABC):
   """
+  Abstract base class for classes tasked with managing file I/O.
 
+  This base class has 3 abstract methods: `write`, `read`, and `extension`
+
+  `extension` is a property that should return a string of the extension to be appended to file names.
+  It is also used by the high-level interface to decide which file manager it should use to open an arbitrary file.
+
+  `write` takes in the data to be written to the file specified when calling the `open` method.
+
+  `read` should read the contents of a file and return the appropriate object.
   """
 
   def __init__(self):
@@ -16,6 +25,12 @@ class FileManager(ABC):
     self._file = None
 
   def open(self, filename, force_extension=False):
+    """
+    specify which file this Filemanager instance wraps.
+
+    Note that this method (at least in the base implementation) does not actually *open* the file.
+    Rather, it locally caches the filename with the `self._filename` variable.
+    """
     #        if force_extension or filename[-len(self.extension):] == self.extension:
     self._filename = filename
 #        else:
@@ -34,6 +49,10 @@ class FileManager(ABC):
   def file(self):
     return self._file
 
+  @property
+  def filename(self):
+    return self._filename
+
   def close(self):
     if self._file:
       self._file.close()
@@ -45,6 +64,13 @@ class FileManager(ABC):
     pass
 
 class JsonFileManager(FileManager):
+  """
+  File manager specifically for managing JSON-serialized data.
+
+  Note that this file manager can also read binary files that have JSON data prepended to them.
+  Binary data is separated from the json data by a delimiter (typically \\x93) that is found with the
+  `find_end` method.
+  """
 
   def __init__(self, class_object, extension):
     self._class_object = class_object
@@ -73,7 +99,7 @@ class JsonFileManager(FileManager):
     return self.class_object.from_json(js)
 
   def write(self, obj: 'Jsonable'):
-    self._file = open(self._filename, 'wb+')
+    self._file = open(self._filename if self._filename.endswith(self.extension) else self._filename + self.extension, 'wb+')
     js = obj.json
     formatted = self.format_json(js)
     self._file.write(bytes(formatted, 'utf-8'))

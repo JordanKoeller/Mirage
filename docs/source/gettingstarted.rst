@@ -35,8 +35,8 @@ Specifying a Lensed System
 	>>> import mirage
 	>>> param_view = mirage.getParametersView()
 	# After you have configured the parameters in the GUI window that opens up,
-	# param_view.get_parameters() returns the constructed Parameters object.
-	>>> parameters = param_view.get_parameters()
+	# param_view.get_object() returns the constructed Parameters object.
+	>>> parameters = param_view.get_object()
 
 From the created |ParametersView|, once you have specified the system, you can save it to a file or return it by calling :func:`get_parameters <mirage.views.ParametersView.ParametersView.get_parameters>` on the ``param_view`` object.
 
@@ -65,8 +65,7 @@ Running Large-scale simulations
 To set up large-scale simulations, |Mirage| needs some more information than what a |Parameters| object contains. This extra information can be added on to a |Parameters| object by wrapping up an instance in a |Simulation| object. Similarly to constructing the |Parameters| object, this can be done programatically, by loading in from a file, or by wrapping the |ParametersView| instance in a |SimulationView| decorator. This will add some extra text boxes and options onto the GUI window associated with the |ParametersView|. ::
 	
 	# Assuming the ParametersView object was defined as above.
-	>>> from mirage.views import SimulationView
-	>>> simulation_view = SimulationView(param_view)
+	>>> simulation_view = mirage.getSimulationView(param_view)
 
 From the |SimulationView| you can specify if you want to compute light curves, magnification maps, and locate caustic lines, as well as provide a name and description for the simulation. Lastly, you can specify how many trials to compute and what parameters to vary between trials.
 
@@ -74,7 +73,8 @@ From the |SimulationView| you can specify if you want to compute light curves, m
 
 Once you have the simulation configured as desired, you will need to save the |Simulation| object to a `.sim` file either programatically (see :doc:`filespecification`) or from the |SimulationView| menu. ::
 	
-	>>> simulation = simulation_view.get_simulation()
+  >>> from mirage import lens_analysis as la
+	>>> simulation = simulation_view.get_object()
 	>>> la.write(simulation,"filename")
 
 Finally, to calculate the simulation, use the :func:`run_simulation <mirage.run_simulation>` function. ::

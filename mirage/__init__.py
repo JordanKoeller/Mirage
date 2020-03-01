@@ -153,3 +153,5 @@ def runSimulation(simfile, savefile):
     return la.load(saver.filename)
   except:
     return
+
+run_simulation = runSimulation

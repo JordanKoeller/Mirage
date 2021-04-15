@@ -2,6 +2,7 @@ from math import atan, atan2, cos, pi, sin, sqrt
 
 from astropy import constants as const
 from astropy import units as u
+import numpy as np
 
 from mirage import GlobalPreferences
 from mirage.calculator import (MassFunction, StationaryMassFunction,

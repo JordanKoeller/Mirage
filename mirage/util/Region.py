@@ -52,7 +52,10 @@ class Region(Jsonable):
         left  = self.center - self.dimensions/2
         right = self.center + self.dimensions/2
         return(left.x,left.y,right.x,right.y)
-        
+    
+    @property
+    def top_left_corner(self) -> Vec2D:
+        return self.center - self.dimensions / 2
 
     @property
     def json(self) -> dict:
@@ -164,6 +167,7 @@ class PixelRegion(Region):
         # return delta + self.center.to(delta.unit)
         #dy = c - l
         #l = c - dy
+
 
 
     @property

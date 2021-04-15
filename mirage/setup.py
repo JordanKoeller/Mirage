@@ -17,6 +17,8 @@ if __name__ == "__main__":
     EXT = ".pyx"
   ray_tracer = Extension("mirage.engine.ray_tracer", sources=["mirage" + os.sep + "engine" + os.sep + "ray_tracer" + EXT],
                          language="c++", extra_compile_args=compile_args, extra_link_args=link_args)
+  dask_tracer = Extension("mirage.engine.dask_tracer", sources=["mirage" + os.sep + "engine" + os.sep + "dask_tracer" + EXT],
+                         language="c++", extra_compile_args=compile_args, extra_link_args=link_args)
   micro_ray_tracer = Extension("mirage.engine.micro_ray_tracer", sources=[
                                "mirage" + os.sep + "engine" + os.sep + "micro_ray_tracer" + EXT], language="c++", extra_compile_args=compile_args, extra_link_args=link_args)
   peak_finding = Extension("mirage.calculator.peak_finding", sources=[
@@ -26,7 +28,7 @@ if __name__ == "__main__":
   renderer = Extension("mirage.views.Renderer", sources=["mirage" + os.sep + "views" + os.sep + "Renderer" + EXT],
                        language="c++", extra_compile_args=compile_args, extra_link_args=link_args)
 
-  modules = [ray_tracer, peak_finding, rand_functs, renderer, micro_ray_tracer]
+  modules = [dask_tracer, micro_ray_tracer]
 
   if EXT == ".pyx":
     from Cython.Build import cythonize

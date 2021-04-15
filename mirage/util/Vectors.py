@@ -1,6 +1,6 @@
 
 from astropy import units as u
-
+import numpy as np
 from .Jsonable import Jsonable
 
 
@@ -38,15 +38,20 @@ class Vec2D(Jsonable):
   def magnitude(self) -> u.Quantity:
     return (self.x * self.x + self.y * self.y)**(0.5)
 
+  @property
+  def area(self):
+    return self.x * self.y
+
   def copy(self):
     tmp = self._quant.value.copy()
     return Vec2D(tmp[0], tmp[1], str(self.unit))
 
   @property
   def json(self):
+    astype = lambda x: float(x) if isinstance(x, (np.float64, np.float32)) else int(x)
     ret = {}
-    ret['x'] = self.x.value
-    ret['y'] = self.y.value
+    ret['x'] = astype(self.x.value)
+    ret['y'] = astype(self.y.value)
     ret['unit'] = str(self.unit)
     return ret
 

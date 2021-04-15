@@ -77,7 +77,6 @@ class MicroCPUDelegate(CalculationDelegate):
     self._inputUnit = parameters.theta_E
     rays = parameters.ray_region.pixels
     # print(rays)
-    print("Center of " + str(parameters.ray_region.center))
     # rays -= u.Quantity(1.4,'arcsec')
     rays[:, 0] -= parameters.ray_region.center.x.to(self._inputUnit)
     rays[:, 1] -= parameters.ray_region.center.y.to(self._inputUnit)
@@ -89,8 +88,9 @@ class MicroCPUDelegate(CalculationDelegate):
         rays,
         kap,
         gam,
-        4,  # self.core_count,
+        8,  # self.core_count,
         stars)
+    print(src_plane)
     # print("Ray-tracing done")
     self._canvas_dimensions = parameters.ray_region.resolution
     flat_array = np.reshape(src_plane, (src_plane.shape[0] * src_plane.shape[1], 2))
@@ -133,3 +133,42 @@ class MicroCPUDelegate(CalculationDelegate):
   #         y = pts[i,1].value
   #         ret[i] = len(self._tree.query_ball_point((x,y),rad))
   #     return ret
+
+class MicroCalculationDelegate(ABC):
+  """
+  Delegate for simulating a microlensing situation.
+
+  Some example usage to define my API below:
+
+  enum RayBundleDestination:
+    kDTree
+    RTree
+    Buckets
+
+  parameters = Parameters(...)
+  engine = Engine()
+  engine.configure(parameters)
+  rays = engine.ray_trace(destination=RayBundle.kDTree)
+
+  # Maybe you want to save the rays to file
+  rays.serialize(filename="data.rays")
+
+  # Then we can query it or whatever else
+  lightcurves = LightCurves(seed=24, n=1000)
+  for i in range(100):
+    lightcurveSet = rays.query(lightcurves)
+    lightcurveSet.save("yeah whatever")
+  
+
+  """
+
+  @abstractmethod
+  def reconfigure(self, parameters: MicrolensingParameters):
+    pass
+
+  # @abstractmethod
+  # def ray_trace(self, destination: RayDestination):
+  #   pass
+
+  # @abstractmethod
+  # def query(self, ray)

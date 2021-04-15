@@ -55,6 +55,7 @@ class ResultCalculator(object):
         resolution = simulation['magmap'].resolution
         pr = PixelRegion(zv, dims, resolution).to(params.eta_0)
         ret = engine.query_region(pr, radius)
+        print("Average", np.average(ret.astype(np.float64)))
         results.append(ret)
       if k == 'momentmap':
         resolution = simulation['moment'].resolution

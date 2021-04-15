@@ -2,6 +2,7 @@ import os
 
 from .CalculationDelegate import MacroCPUDelegate, MicroCPUDelegate
 from .SparkCalculationDelegate import MicroSparkDelegate
+from .DaskCalculationDelegate import DaskCalculationDelegate
 from .AbstractEngine import EngineHandler
 from .ray_tracer import raw_brightness
 
@@ -17,6 +18,10 @@ def getCalculationEngine():
     raise EnvironmentError("No active Spark environment.")
   elif os.environ['EXECUTION_ENVIRONMENT'] == 'CPU':
     return EngineHandler(MicroCPUDelegate())
+  elif os.environ['EXECUTION_ENVIRONMENT'] == 'DASK':
+    from dask.distributed import Client
+    client = Client(threads_per_worker=2, n_workers=8) 
+    return EngineHandler(DaskCalculationDelegate(client))
 
 def getVisualEngine(sim):
   from mirage.parameters import Parameters, MicrolensingParameters

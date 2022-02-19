@@ -78,7 +78,6 @@ class MicroCPUDelegate(CalculationDelegate):
         self._inputUnit = parameters.theta_E
         rays = parameters.ray_region.pixels
         # print(rays)
-        print("Cnter of " + str(parameters.ray_region.center))
         # rays -= u.Quantity(1.4,'arcsec')
         rays[:,0] -= parameters.ray_region.center.x.to(self._inputUnit)
         rays[:,1] -= parameters.ray_region.center.y.to(self._inputUnit)
@@ -90,7 +89,7 @@ class MicroCPUDelegate(CalculationDelegate):
             rays,
             kap,
             gam,
-            4, #self.core_count,
+            self.core_count,
             stars)
         # print("Ray-tracing done")
         self._canvas_dimensions = parameters.ray_region.resolution

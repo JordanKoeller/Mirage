@@ -3,6 +3,8 @@ from astropy import units as u
 
 from .Jsonable import Jsonable
 
+from . import as_primative
+
 class Vec2D(Jsonable):
     """Class for storing and manipulating 2-dimensional vectors. Internally, this class is based on astropy.units.Quantity. As such, these vectors have dimensions."""
     def __init__(self, x,y, unit:str=None) -> None:
@@ -43,8 +45,8 @@ class Vec2D(Jsonable):
     @property 
     def json(self):
         ret = {}
-        ret['x'] = self.x.value
-        ret['y'] = self.y.value
+        ret['x'] = as_primative(self.x.value)
+        ret['y'] = as_primative(self.y.value)
         ret['unit'] = str(self.unit)
         return ret
 

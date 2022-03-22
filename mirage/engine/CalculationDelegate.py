@@ -74,23 +74,7 @@ class MicroCPUDelegate(CalculationDelegate):
         self._inputUnit = None
 
     def reconfigure(self,parameters:MicrolensingParameters):
-        from mirage.engine.micro_ray_tracer import ray_trace
-        self._inputUnit = parameters.theta_E
-        rays = parameters.ray_region.pixels
-        # print(rays)
-        # rays -= u.Quantity(1.4,'arcsec')
-        rays[:,0] -= parameters.ray_region.center.x.to(self._inputUnit)
-        rays[:,1] -= parameters.ray_region.center.y.to(self._inputUnit)
-        rays = rays.to(parameters.theta_E).value
-        stars = parameters.stars
-        kap,starry,gam = parameters.mass_descriptors
-        # print("Ray-tracing started")
-        src_plane = ray_trace(
-            rays,
-            kap,
-            gam,
-            self.core_count,
-            stars)
+        src_plane = self._ray_trace(parameters)
         # print("Ray-tracing done")
         self._canvas_dimensions = parameters.ray_region.resolution
         flat_array = np.reshape(src_plane,(src_plane.shape[0]*src_plane.shape[1],2))
@@ -123,13 +107,22 @@ class MicroCPUDelegate(CalculationDelegate):
                 ret[i,j] = len(inds)
         return ret
 
-    # def query_points(self,points:np.ndarray, radius:u.Quantity) -> np.ndarray:
-    #     ret = np.ndarray(points.shape[0])
-    #     pts = points
-    #     print(pts.shape)
-    #     rad = radius.to(self._inputUnit).value
-    #     for i in range(points.shape[0]):
-    #         x = pts[i,0].value
-    #         y = pts[i,1].value
-    #         ret[i] = len(self._tree.query_ball_point((x,y),rad))
-    #     return ret
+    def _ray_trace(self, parameters: MicrolensingParameters):
+        from mirage.engine.micro_ray_tracer import ray_trace
+        self._inputUnit = parameters.theta_E
+        rays = parameters.ray_region.pixels
+
+        # print(rays)
+        # rays -= u.Quantity(1.4,'arcsec')
+        rays[:,:,0] -= parameters.ray_region.center.x.to(self._inputUnit)
+        rays[:,:,1] -= parameters.ray_region.center.y.to(self._inputUnit)
+        rays = rays.to(parameters.theta_E).value
+        stars = parameters.stars
+        kap,starry,gam = parameters.mass_descriptors
+        return ray_trace(
+            rays,
+            np.empty_like(rays),
+            kap,
+            gam,
+            self.core_count,
+            stars)

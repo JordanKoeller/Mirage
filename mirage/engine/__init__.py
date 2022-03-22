@@ -1,5 +1,6 @@
 from .CalculationDelegate import MacroCPUDelegate, MicroCPUDelegate
 from .SparkCalculationDelegate import MicroSparkDelegate
+from .DaskCalculationDelegate import DaskCalculationDelegate
 from .AbstractEngine import EngineHandler
 from .ray_tracer import raw_brightness
 

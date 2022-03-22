@@ -13,3 +13,4 @@ def as_primative(value):
 from .Jsonable import Jsonable
 from .Vectors import Vec2D, PolarVec
 from .Region import Region, PixelRegion, CircularRegion
+from .Timing import StopWatch

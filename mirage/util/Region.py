@@ -117,8 +117,14 @@ class PixelRegion(Region):
     @property
     def pixels(self) -> u.Quantity:
         self.to(self.center.unit)
-        x_ax = np.linspace((self.center.x - self.dimensions.x/2).value,(self.center.x + self.dimensions.x/2).value,self.resolution.x.value)
-        y_ax = np.linspace((self.center.y - self.dimensions.y/2).value,(self.center.y + self.dimensions.y/2).value,self.resolution.y.value)
+        x_ax = np.linspace(
+            (self.center.x - self.dimensions.x/2).value,
+            (self.center.x + self.dimensions.x/2).value,
+            self.resolution.x.value)
+        y_ax = np.linspace(
+            (self.center.y - self.dimensions.y/2).value,
+            (self.center.y + self.dimensions.y/2).value,
+            self.resolution.y.value)
         x,y = np.meshgrid(x_ax,y_ax)
         grid = np.stack([x,y],2)
         return u.Quantity(grid,self.center.unit)

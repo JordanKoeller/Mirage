@@ -7,6 +7,8 @@ import numpy as np
 from mirage.parameters import Parameters, MicrolensingParameters
 from mirage.util import Vec2D
 
+from .reducers import QueryReducer, MagmapReducer
+
 class CalculationDelegate(ABC):
 
     def __init__(self):
@@ -19,6 +21,20 @@ class CalculationDelegate(ABC):
 
     @abstractmethod
     def reconfigure(self,parameters:Parameters):
+        """
+        Inject a new system's parameters into the calculation engine.
+
+        This method should lazily reconfigure the delegate, but not do any number-crunching yet.
+        """
+        pass
+
+    @abstractmethod
+    def query(self, reducer: QueryReducer) -> np.ndarray:
+        """
+        Submit a QueryReducer for the system to aggregate all the results of this simulation.
+
+        Returns a SimulationResult object.
+        """
         pass
 
     @abstractmethod
@@ -94,18 +110,16 @@ class MicroCPUDelegate(CalculationDelegate):
         inds = self._tree.query_ball_point((x,y),rad)
         return len(inds)
 
+    def query(self, reducer: QueryReducer) -> np.ndarray:
+        for query in reducer.query_points():
+            ray_indicies = self._tree.query_ball_point((query.x, query.y), query.radius)
+            for index in ray_indicies:
+                query.reduce_ray(self._tree.data[index])
+            reducer.save_value(query.identifier, query.get_result())
+        return reducer.value
+
     def query_region(self,region,radius:u.Quantity) -> np.ndarray:
-        pts = region.pixels.to(self._inputUnit)
-        # print(pts.mean())
-        ret = np.ndarray((pts.shape[0],pts.shape[1]),dtype=np.int32)
-        rad = radius.to(self._inputUnit).value
-        for i in range(pts.shape[0]):
-            for j in range(pts.shape[1]):
-                x = pts[i,j,0].value
-                y = pts[i,j,1].value
-                inds = self._tree.query_ball_point((x,y),rad)
-                ret[i,j] = len(inds)
-        return ret
+        return self.query(MagmapReducer(region, radius))
 
     def _ray_trace(self, parameters: MicrolensingParameters):
         from mirage.engine.micro_ray_tracer import ray_trace

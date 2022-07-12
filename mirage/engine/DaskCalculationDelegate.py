@@ -12,7 +12,7 @@ from mirage.parameters import Parameters, MicrolensingParameters
 from mirage.engine.micro_ray_tracer import ray_trace_singlethreaded as trace_chunk
 from mirage.util import PixelRegion
 
-from .MagmapReducer import MagmapReducer
+from .reducers import MagmapReducer, QueryReducer
 
 PRIMARY_DIMENSION_CHUNK_SIZE = 1000
 
@@ -47,21 +47,24 @@ class DaskCalculationDelegate(CalculationDelegate):
     def get_connecting_rays(self, location, radius):
         pass
 
-    def query_region(self, region: PixelRegion, radius: u.Quantity) -> np.ndarray:
-        aggregators = deque()
+    def query(self, reducer: QueryReducer) -> np.ndarray:
+        reducers = deque()
         for chunk in self._dask_kd_tree:
-            aggregators.append(
-                delayed(DaskCalculationDelegate._query_locations, pure=True)(
-                    chunk, MagmapReducer(region, radius)))
-        while aggregators:
-            if len(aggregators) == 1:
-                final_agg = aggregators.popleft()
+            reducers.append(
+                delayed(DaskCalculationDelegate._query_helper, pure=True)(
+                    chunk, reducer.clone()))
+        while reducers:
+            if len(reducers) == 1:
+                final_agg = reducers.popleft()
                 result_reducer = final_agg.compute()
                 return result_reducer.value
-            chunk_a = aggregators.popleft()
-            chunk_b = aggregators.popleft()
+            chunk_a = reducers.popleft()
+            chunk_b = reducers.popleft()
             merged = delayed(DaskCalculationDelegate._merge_reducers)(chunk_a, chunk_b)
-            aggregators.append(merged)
+            reducers.append(merged)
+
+    def query_region(self, region: PixelRegion, radius: u.Quantity) -> np.ndarray:
+        return self.query(MagmapReducer(region, radius))
 
     @staticmethod
     def _generate_dask_grid(parameters: MicrolensingParameters):
@@ -102,11 +105,12 @@ class DaskCalculationDelegate(CalculationDelegate):
         return cKDTree(flattened, 128, False, False, False)
 
     @staticmethod
-    def _query_locations(subtree, reducer):
-        for index, query_description in reducer.query_points():
-            location, radius = query_description
-            count = len(subtree.query_ball_point(location, radius))
-            reducer.set_query_magnitude(index, count)
+    def _query_helper(subtree, reducer):
+        for query in reducer.query_points():
+            ray_indices = subtree.query_ball_point((query.x, query.y), query.radius)
+            for index in ray_indices:
+                query.reduce_ray(subtree.data[index])
+            reducer.save_value(query.identifier, query.get_result())
         return reducer
 
     @staticmethod

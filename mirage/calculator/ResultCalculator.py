@@ -3,6 +3,8 @@ from datetime import datetime as DT
 import numpy as np
 
 from mirage.util import zero_vector,PixelRegion, Region
+from mirage.parameters import Simulation
+from mirage.engine import EngineHandler
 
 class ResultCalculator(object):
 
@@ -42,7 +44,6 @@ class ResultCalculator(object):
         filemanager.close_simulation(simulation)
         filemanager.close()
         return filemanager
-
 
     def calculate_trial(self,simulation,engine):
         params = simulation.parameters

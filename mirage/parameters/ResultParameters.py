@@ -1,10 +1,10 @@
-from abc import abstractproperty
+from abc import abstractproperty, abstractmethod
 import math
 
 from astropy import units as u
 import numpy as np
 
-from mirage.util import Jsonable, Vec2D, Region
+from mirage.util import Jsonable, Vec2D, Region, zero_vector
 
 
 class ResultParameters(Jsonable):
@@ -28,6 +28,10 @@ class ResultParameters(Jsonable):
     def keyword(self):
         pass
 
+    @abstractmethod
+    def reducer(self):
+        pass
+
 
 class MagnificationMapParameters(ResultParameters):
 
@@ -49,6 +53,15 @@ class MagnificationMapParameters(ResultParameters):
     @property
     def keyword(self):
         return "magmap"
+
+    def reducer(self, parameters):
+        zv = zero_vector('rad')
+        dims = parameters.source_plane.dimensions
+        region = PixelRegion(zv, dims, self.resolution).to(parameters.eta_0)
+        radius = parameters.quasar.radius.to(parameters.eta_0)
+        return MagmapReducer(region, radius)
+
+
 
 class CausticMapParameters(MagnificationMapParameters):
 

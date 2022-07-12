@@ -118,6 +118,8 @@ class Simulation(Jsonable):
     def keys(self):
         return sorted(self._results.keys(),reverse=True)
 
+    # def reducer(self):
+
     def __repr__(self):
         l1 = self._name
         l2 = self._description

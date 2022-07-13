@@ -38,7 +38,7 @@ class TestMagmapReducer(MirageTestCase):
 
     def testMagmapReducerIsCloneable(self):
         reducer = self.getReducer()
-        reducer2 = reducer.clone()
+        reducer2 = reducer.clone_empty()
         for query in reducer.query_points():
             query.reduce_ray([0.1, 0.2])
             query.reduce_ray([0.1, 0.22])
@@ -53,7 +53,7 @@ class TestMagmapReducer(MirageTestCase):
 
     def testMagmapReducerIsMergable(self):
         reducer = self.getReducer()
-        reducer2 = reducer.clone()
+        reducer2 = reducer.clone_empty()
         for q1, q2 in zip(reducer.query_points(), reducer2.query_points()):
             q1.reduce_ray([0.1, 0.2])
             q1.reduce_ray([0.1, 0.22])

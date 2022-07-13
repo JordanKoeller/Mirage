@@ -5,6 +5,7 @@ from astropy import units as u
 import numpy as np
 
 from typing import TypeVar, Generic, Iterator, Tuple
+from abc import ABC
 
 
 from .ReducerInterfaces import QueryReducer

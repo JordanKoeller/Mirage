@@ -26,7 +26,7 @@ class TestDaskPerformance(MirageTestCase):
         return self.scale_simulation.parameters.stars.shape[0] * 1e10
 
     def testDaskRayTracerPerformance(self):
-        self.setScaleParameters(8000, 100)
+        self.setScaleParameters(5000, 100)
         self.stopwatch.start()
         self.calculator.reconfigure(self.scale_simulation._parameters)
         print("Num partitions", self.calculator.array.npartitions)

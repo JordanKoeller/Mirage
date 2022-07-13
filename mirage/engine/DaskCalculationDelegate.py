@@ -52,7 +52,7 @@ class DaskCalculationDelegate(CalculationDelegate):
         for chunk in self._dask_kd_tree:
             reducers.append(
                 delayed(DaskCalculationDelegate._query_helper, pure=True)(
-                    chunk, reducer.clone()))
+                    chunk, reducer.clone_empty()))
         while reducers:
             if len(reducers) == 1:
                 final_agg = reducers.popleft()

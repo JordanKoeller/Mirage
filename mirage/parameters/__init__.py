@@ -1,11 +1,4 @@
-
-class ParametersError(Exception):
-    def __init__(self,value):
-        self.value = value
-
-    def __repr__(self):
-        return repr(self.value)
-
+from .parameters_error import ParametersError
 from .Cosmic import Cosmic
 from .CalculationDependency import CalculationDependency
 from .Quasar import Quasar

@@ -3,7 +3,7 @@ from datetime import datetime as DT
 import numpy as np
 
 from mirage.util import zero_vector,PixelRegion, Region
-from mirage.parameters import Simulation
+# from mirage.parameters import Simulation
 from mirage.engine import EngineHandler
 
 class ResultCalculator(object):
@@ -11,9 +11,9 @@ class ResultCalculator(object):
     def __init__(self):
         pass
 
-    def calculate(self,simulation: Simulation, name=None):
+    def calculate(self,simulation, name=None):
         from mirage.engine import getCalculationEngine
-        from mirage.io import ResultFileManager
+        from mirage.util.io import ResultFileManager
         print("Started Computation at %s" % str(DT.now()))
         #initialize the filemanager
         filemanager = ResultFileManager()
@@ -47,7 +47,7 @@ class ResultCalculator(object):
         filemanager.close()
         return filemanager
 
-    def calculate_trial(self,trial: Simulation, engine):
+    def calculate_trial(self,trial, engine):
         results = []
         for k, result_builder in trial.reducers:
             print("On result type", k)

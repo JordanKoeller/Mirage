@@ -4,9 +4,11 @@ import math
 import numpy as np
 from astropy import units as u
 
-from .Parameters import Parameters, MicrolensingParameters, ParametersError
-from .ResultParameters import ResultParameters
 from mirage.util import Vec2D, Jsonable, Region
+
+from .parameters_error import ParametersError
+from .ResultParameters import ResultParameters
+from .Parameters import Parameters, MicrolensingParameters
 
 
 class Simulation(Jsonable):

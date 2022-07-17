@@ -32,7 +32,7 @@
           "unit": "solMass"
         },
         "radius": {
-          "values": 5.0,
+          "values": 50.0,
           "unit": "r_g"
         }
       },
@@ -69,21 +69,14 @@
         "unit": "theta_E"
       },
       "ray_count": {
-        "x": 4000,
-        "y": 4000,
+        "x": 5000,
+        "y": 5000,
         "unit": ""
       }
     },
     "results": {
       "magmap": {
         "magmap_resolution": {
-          "x": 1024,
-          "y": 1024,
-          "unit": ""
-        }
-      },
-      "causticmap": {
-        "caustic_resolution": {
           "x": 1024,
           "y": 1024,
           "unit": ""

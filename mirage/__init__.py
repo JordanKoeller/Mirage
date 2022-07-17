@@ -135,7 +135,7 @@ def runSimulation(simfile,savefile):
     .. warning:: If `savefile` already exists in the file system, this method will overwrite `savefile`!
     """
     from mirage.calculator import ResultCalculator
-    from mirage.io import SimulationFileManager
+    from mirage.util.io import SimulationFileManager
     loader = SimulationFileManager()
     loader.open(simfile)
     sim = loader.read()

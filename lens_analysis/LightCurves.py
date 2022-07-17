@@ -17,7 +17,7 @@ import numpy as np
 # 5) Best fit line for the peak shift
 
 def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event_finding_args):
-    from mirage import lens_analysis as la
+    import lens_analysis as la
     data = la.load(filename)
     matrix = data.lightcurve_matrix
     ret_asyms = []
@@ -47,7 +47,7 @@ def get_analyzed_events(filename:str,base,min_sep_coeff,with_peaks=False,**event
         return {'shifts':ret_shifts, 'asymmetry':ret_asyms}
 
 def get_all_lightcurves(filename:str,base,min_sep_coeff,**event_finding_args):
-    from mirage import lens_analysis as la
+    import lens_analysis as la
     data = la.load(filename)
     matrix = data.lightcurve_matrix
     ret_asyms = []

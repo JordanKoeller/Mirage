@@ -177,6 +177,10 @@ class ResultFileManager(FileManager):
     def extension(self):
         return '.res'
 
+    @property
+    def filename(self):
+        return self._filename
+
     @staticmethod
     def copy_to_from(dest,src):
         src.seek(0)

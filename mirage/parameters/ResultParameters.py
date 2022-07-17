@@ -5,7 +5,6 @@ from astropy import units as u
 import numpy as np
 
 from mirage.util import Jsonable, Vec2D, Region, zero_vector, PixelRegion
-from mirage.engine.reducers import MagmapReducer
 
 class ResultParameters(Jsonable):
 
@@ -55,6 +54,7 @@ class MagnificationMapParameters(ResultParameters):
         return "magmap"
 
     def reducer(self, parameters):
+        from mirage.reducers import MagmapReducer
         zv = zero_vector('rad')
         dims = parameters.source_plane.dimensions
         region = PixelRegion(zv, dims, self.resolution).to(parameters.eta_0)

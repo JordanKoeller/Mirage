@@ -16,7 +16,6 @@ if __name__ == "__main__":
     parser.add_argument("--log",nargs='+', type=str, help='File to dump logging info to. Defaults to a file named after the date and time the program was initialized.')
     parser.add_argument("-v","--visualize",action='store_true',help='Launch program in visualization perspective.')
     args = parser.parse_args()
-    print("With args", args)
     if args.log:
         logging.basicConfig(filename=args.log[0],level=logging.INFO)
     if args.run:

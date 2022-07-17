@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+
 Q = TypeVar('Q') # QueryId
 R = TypeVar('R') # Result type. Usually a long or a double.
 

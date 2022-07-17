@@ -1,8 +1,0 @@
-{
-    "esbonio.server.enabled": true,
-    "restructuredtext.languageServer.disabled": true,
-    "restructuredtext.syntaxHighlighting.disabled": true,
-    "files.watcherExclude": {
-        "**/target": true
-    }
-}

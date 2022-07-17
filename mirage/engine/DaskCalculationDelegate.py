@@ -2,30 +2,31 @@
 import dask
 from dask import array as da
 from dask.delayed import delayed
-from dask.distributed import Client
+from dask.distributed import Client, LocalCluster
 import numpy as np
 from scipy.spatial import cKDTree
 from collections import deque
 from astropy import units as u
 
-from .CalculationDelegate import CalculationDelegate
+from mirage.util import PixelRegion
 from mirage.parameters import Parameters, MicrolensingParameters
 from mirage.engine.micro_ray_tracer import ray_trace_singlethreaded as trace_chunk
-from mirage.util import PixelRegion
+from mirage.reducers import MagmapReducer, QueryReducer
 
-from .reducers import MagmapReducer, QueryReducer
+from .CalculationDelegate import CalculationDelegate
 
 PRIMARY_DIMENSION_CHUNK_SIZE = 1000
 
 class DaskCalculationDelegate(CalculationDelegate):
 
-    _dask_array = None
-    _dask_kd_tree = None
 
     def __init__(self, *args, **kwargs):
-        self.client = Client()
+        self._dask_array = None
+        self._dask_kd_tree = None
+        self.cluster = LocalCluster(n_workers=12)
+        self.client = Client(self.cluster)
         print("Dask client UI at ", self.client.dashboard_link)
-        dask.config.set(scheduler="threads")
+        # dask.config.set(scheduler="threads")
 
     @property
     def array(self):
@@ -52,7 +53,6 @@ class DaskCalculationDelegate(CalculationDelegate):
 
     def query(self, reducer: QueryReducer) -> QueryReducer:
         reducers = deque()
-        print("Querying", len(self._dask_kd_tree))
         for chunk in self._dask_kd_tree:
             reducers.append(
                 delayed(DaskCalculationDelegate._query_helper, pure=True)(
@@ -60,9 +60,7 @@ class DaskCalculationDelegate(CalculationDelegate):
         while reducers:
             if len(reducers) == 1:
                 final_agg = reducers.popleft()
-                print("Computing")
                 result_reducer = final_agg.compute()
-                print("Done computingS")
                 return result_reducer
             chunk_a = reducers.popleft()
             chunk_b = reducers.popleft()

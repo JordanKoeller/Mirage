@@ -6,8 +6,7 @@ import numpy as np
 
 from mirage.parameters import Parameters, MicrolensingParameters
 from mirage.util import Vec2D
-
-from .reducers import QueryReducer, MagmapReducer
+from mirage.reducers import QueryReducer, MagmapReducer
 
 class CalculationDelegate(ABC):
 

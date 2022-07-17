@@ -4,22 +4,20 @@ from astropy import units as u
 from astropy import constants as const
 
 from mirage.util import Jsonable, Vec2D, PixelRegion, Region, zero_vector, CircularRegion
-from mirage.calculator import StationaryMassFunction, getMassFunction, MassFunction
+from .parameters_error import ParametersError
 
 from .Cosmic import Cosmic
 from .CalculationDependency import CalculationDependency
 from .Quasar import Quasar
 from .MassModel import Lens
-from . import ParametersError
-from mirage import GlobalPreferences
 
 
 class Parameters(Jsonable, CalculationDependency):
 
     def __init__(self, quasar:Quasar, lens:Lens, ray_region:PixelRegion=None) -> None:
         try:
-            assert isinstance(quasar,Quasar)
-            assert isinstance(lens,Lens)
+            assert isinstance(quasar, Quasar)
+            assert isinstance(lens, Lens)
         # assert isinstance(ray_region,PixelRegion)
         except AssertionError:
             from mirage.parameters import ParametersError
@@ -68,7 +66,6 @@ class Parameters(Jsonable, CalculationDependency):
         distanced = tmp.to('solMass/m2')
         per_rad = (distanced*self.dL*self.dL).to('solMass').value
         ret = u.Quantity(per_rad,'solMass/rad2').to('solMass/uas2')
-        print("Critical Density of %.3f solMass/uas2" % (ret.value))
         return ret
 
     @property
@@ -183,7 +180,7 @@ class Parameters(Jsonable, CalculationDependency):
     def to_microParams(self, pcnt_stars:float,
                        image_center:Vec2D,
                        minor_axis:u.Quantity,
-                       star_generator:MassFunction) -> 'MicrolensingParameters':
+                       star_generator) -> 'MicrolensingParameters':
         bounding_box = Region(zero_vector('uas'),Vec2D(minor_axis.value,minor_axis.value,minor_axis.unit))
         return MicrolensingParameters(self.quasar, self.lens,
             pcnt_stars,
@@ -202,8 +199,10 @@ class MicrolensingParameters(Parameters):
                  image_center:Vec2D,
                  ray_count:Vec2D,
                  quasar_position_bounding_box:Region,
-                 star_generator:MassFunction = getMassFunction()):
+                 star_generator = None):
         try:
+            from mirage.calculator import getMassFunction
+            from mirage import GlobalPreferences
             factor = GlobalPreferences['microlensing_window_buffer']
             tmp_p = Parameters(quasar,lens)
             conv = tmp_p.convergence(image_center)
@@ -309,6 +308,7 @@ class MicrolensingParameters(Parameters):
 
     @classmethod
     def from_json(cls,js):
+        from mirage.calculator import MassFunction
         try:
             z_s = js['source']['redshift']
             z_l = js['lens']['redshift']

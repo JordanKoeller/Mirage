@@ -1,5 +1,5 @@
 
-from mirage.io import ResultFileManager
+from mirage.util.io import ResultFileManager
 from mirage.parameters import Simulation
 
 import numpy as np
@@ -130,7 +130,15 @@ def requires(dtype):
     def decorator(fn):
         def decorated(self,*args,**kwargs):
             if dtype in self.simulation:
-                index = self.simulation.keys.index(dtype)
+                print(self.simulation.reducers)
+                index = None
+                for i, elem in enumerate(self.simulation.reducers):
+                    if elem[0] == dtype:
+                        index = i
+                        break
+                if index is None:
+                    raise ResultError("Trial does not contain " + dtype + " data.")
+                # index, _ = self.simulation.reducers.index(dtype)
                 dataset = self._fm.get_result(self.trial_number,index)
                 return fn(self,dataset,*args,**kwargs)
             else:
@@ -188,7 +196,7 @@ class Trial(object):
         """
         Assuming a magnification map was computed with this trial's simulation, returns a |MagnificationMap| instance. If a magnification map was not calculated, raises a |ResultError|.
         """
-        from mirage.lens_analysis import MagnificationMap
+        from lens_analysis import MagnificationMap
         return MagnificationMap(self.simulation,dataset)
 
     @property
@@ -197,7 +205,7 @@ class Trial(object):
         """
         Assuming a caustic map was computed with this trial's simulation, returns a |CausticMap| instance. If a caustic map was not calculated, raises a |ResultError|.
         """
-        from mirage.lens_analysis import CausticMap
+        from lens_analysis import CausticMap
         return CausticMap(self.simulation,dataset)
 
     @property
@@ -206,7 +214,7 @@ class Trial(object):
         """
         Assuming a lightcurve batch was computed with this trial's simulation, returns a |LightCurveBatch| instance. If a lightcurve batch was not calculated, raises a |ResultError|.
         """
-        from mirage.lens_analysis import LightCurveBatch
+        from lens_analysis import LightCurveBatch
         qpts = self.simulation['lightcurves'].line_ends(self.simulation.parameters.source_plane)
         return LightCurveBatch.from_arrays(dataset, qpts,with_id=True)
     

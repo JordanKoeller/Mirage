@@ -7,9 +7,9 @@ import numpy as np
 from typing import TypeVar, Generic, Iterator, Tuple
 from abc import ABC
 
+from mirage.util import PixelRegion
 
 from .ReducerInterfaces import QueryReducer
-from ...util.Region import PixelRegion
 from .MagnificationQuery import MagnificationQuery
 from .Registry import ReducerRegistry
 

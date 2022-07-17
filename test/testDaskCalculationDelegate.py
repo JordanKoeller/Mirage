@@ -46,4 +46,4 @@ class TestDaskCalculationDelegate(MirageTestCase):
         dask_result = dask_delegate.query_region(region, radius)
         cpu_delegate.reconfigure(parameters)
         cpu_result = cpu_delegate.query_region(region, radius)
-        self.assertAlmostEqual(cpu_result, dask_result, 1e-4)
+        self.assertAlmostEqual(cpu_result.value, dask_result.value, 1e-4)

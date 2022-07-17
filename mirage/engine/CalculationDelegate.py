@@ -110,15 +110,15 @@ class MicroCPUDelegate(CalculationDelegate):
         inds = self._tree.query_ball_point((x,y),rad)
         return len(inds)
 
-    def query(self, reducer: QueryReducer) -> np.ndarray:
+    def query(self, reducer: QueryReducer) -> QueryReducer:
         for query in reducer.query_points():
             ray_indicies = self._tree.query_ball_point((query.x, query.y), query.radius)
             for index in ray_indicies:
                 query.reduce_ray(self._tree.data[index])
             reducer.save_value(query.identifier, query.get_result())
-        return reducer.value
+        return reducer
 
-    def query_region(self,region,radius:u.Quantity) -> np.ndarray:
+    def query_region(self,region,radius:u.Quantity) -> QueryReducer:
         return self.query(MagmapReducer(region, radius))
 
     def _ray_trace(self, parameters: MicrolensingParameters):

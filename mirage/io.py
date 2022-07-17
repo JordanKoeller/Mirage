@@ -140,7 +140,7 @@ class ResultFileManager(FileManager):
 
     def write(self,result):
         self._lookup[-1].append(self._tmpfile.tell())
-        np.save(self._tmpfile,result)
+        np.save(self._tmpfile,result.value)
 
     def next_trial(self):
         self._lookup.append([])

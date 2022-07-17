@@ -11,7 +11,7 @@ class ResultCalculator(object):
     def __init__(self):
         pass
 
-    def calculate(self,simulation,name=None):
+    def calculate(self,simulation: Simulation, name=None):
         from mirage.engine import getCalculationEngine
         from mirage.io import ResultFileManager
         print("Started Computation at %s" % str(DT.now()))
@@ -24,10 +24,12 @@ class ResultCalculator(object):
         filemanager.open(fname)
         #Start calculating
         engine = getCalculationEngine()
+        print("Using engine", type(engine))
         simulation.set_trial(0)
         # print("ERROR: NEEDS TO DETERMINE IF RECONFIGURING NECESSARY")
         num_trials = simulation.num_trials
         for trial_number in range(num_trials):
+            print("On trial", trial_number)
             start_time = DT.now()
             filemanager.next_trial()
             simulation.set_trial(trial_number)
@@ -45,38 +47,39 @@ class ResultCalculator(object):
         filemanager.close()
         return filemanager
 
-    def calculate_trial(self,simulation,engine):
-        params = simulation.parameters
-        src_plane = params.source_plane
-        radius = params.quasar.radius.to(params.eta_0)
-        dims = src_plane.dimensions
-        zv = zero_vector('rad')
+    def calculate_trial(self,trial: Simulation, engine):
         results = []
-        for k in simulation.keys:
-            if k == 'magmap':
-                resolution = simulation['magmap'].resolution
-                pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
-                ret = engine.query_region(pr,radius)
-                results.append(ret)
-            if k == 'momentmap':
-                resolution = simulation['moment'].resolution
-                result_dump = np.ndarray((6,resolution.x,resolution.y))
-                for i in range(6):
-                    pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
-                    engine.calculation_delegate.setMoment(i)
-                    result_dump[i,:] = engine.query_region(pr,radius)
-                results.append(result_dump)
-            if k == 'lightcurves':
-                region = Region(zv,dims)
-                lines = simulation['lightcurves'].lines(region)
-                scaled = np.array(list(map(lambda line: line.to(params.eta_0).value,lines)))
-                ret = engine.query_points(scaled,radius)
-                results.append(ret)
-            if k == 'causticmap':
-                resolution = simulation['causticmap'].resolution
-                pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
-                ret = engine.query_region(pr,radius)
-                results.append(ret)
+        for k, result_builder in trial.reducers:
+            print("On result type", k)
+            reducer = result_builder.reducer(trial.parameters)
+            populated_reducer = engine.query(reducer)
+            results.append(populated_reducer)
+
+        # for k in simulation.keys:
+            # if k == 'magmap':
+            #     resolution = simulation['magmap'].resolution
+            #     pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
+            #     ret = engine.query_region(pr,radius)
+            #     results.append(ret)
+            # if k == 'momentmap':
+            #     resolution = simulation['moment'].resolution
+            #     result_dump = np.ndarray((6,resolution.x,resolution.y))
+            #     for i in range(6):
+            #         pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
+            #         engine.calculation_delegate.setMoment(i)
+            #         result_dump[i,:] = engine.query_region(pr,radius)
+            #     results.append(result_dump)
+            # if k == 'lightcurves':
+            #     region = Region(zv,dims)
+            #     lines = simulation['lightcurves'].lines(region)
+            #     scaled = np.array(list(map(lambda line: line.to(params.eta_0).value,lines)))
+            #     ret = engine.query_points(scaled,radius)
+            #     results.append(ret)
+            # if k == 'causticmap':
+            #     resolution = simulation['causticmap'].resolution
+            #     pr = PixelRegion(zv,dims,resolution).to(params.eta_0)
+            #     ret = engine.query_region(pr,radius)
+            #     results.append(ret)
         return results
 
 

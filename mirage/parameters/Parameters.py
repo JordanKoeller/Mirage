@@ -68,7 +68,7 @@ class Parameters(Jsonable, CalculationDependency):
         distanced = tmp.to('solMass/m2')
         per_rad = (distanced*self.dL*self.dL).to('solMass').value
         ret = u.Quantity(per_rad,'solMass/rad2').to('solMass/uas2')
-        # print("Critical Density of %.3f solMass/uas2" % (ret.value))
+        print("Critical Density of %.3f solMass/uas2" % (ret.value))
         return ret
 
     @property

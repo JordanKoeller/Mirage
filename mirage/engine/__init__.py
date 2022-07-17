@@ -7,16 +7,11 @@ from .ray_tracer import raw_brightness
 _sparkdel = MicroSparkDelegate
 
 def getCalculationEngine():
+    return EngineHandler(DaskCalculationDelegate())
     try:
-#        from pyspark import SparkContext
-#        if SparkContext._active_spark_context is not None:
-        # return EngineHandler(_sparkdel())
-#        else:
         ret = EngineHandler(MicroCPUDelegate())
-        print("Returning MicroCPUDelegate")
         return ret
     except ImportError:
-        pritn("Returning MacroCPUDelegate")
         return EngineHandler(MacroCPUDelegate())
 
 def getVisualEngine(sim):

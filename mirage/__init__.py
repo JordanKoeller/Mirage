@@ -143,7 +143,7 @@ def runSimulation(simfile,savefile):
     calculator = ResultCalculator()
     print("Input accepted. Starting computation.")
     print("_____________________________________\n\n")
-    saver = calculator.calculate(sim,name = savefile)
+    saver = calculator.calculate(sim, name=savefile)
     print("Done. All results saved to " + saver.filename)
     try:
         from mirage import lens_analysis as la

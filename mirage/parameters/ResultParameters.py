@@ -4,8 +4,8 @@ import math
 from astropy import units as u
 import numpy as np
 
-from mirage.util import Jsonable, Vec2D, Region, zero_vector
-
+from mirage.util import Jsonable, Vec2D, Region, zero_vector, PixelRegion
+from mirage.engine.reducers import MagmapReducer
 
 class ResultParameters(Jsonable):
 

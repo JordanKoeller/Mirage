@@ -2,6 +2,7 @@
 import dask
 from dask import array as da
 from dask.delayed import delayed
+from dask.distributed import Client
 import numpy as np
 from scipy.spatial import cKDTree
 from collections import deque
@@ -22,6 +23,8 @@ class DaskCalculationDelegate(CalculationDelegate):
     _dask_kd_tree = None
 
     def __init__(self, *args, **kwargs):
+        self.client = Client()
+        print("Dask client UI at ", self.client.dashboard_link)
         dask.config.set(scheduler="threads")
 
     @property
@@ -47,8 +50,9 @@ class DaskCalculationDelegate(CalculationDelegate):
     def get_connecting_rays(self, location, radius):
         pass
 
-    def query(self, reducer: QueryReducer) -> np.ndarray:
+    def query(self, reducer: QueryReducer) -> QueryReducer:
         reducers = deque()
+        print("Querying", len(self._dask_kd_tree))
         for chunk in self._dask_kd_tree:
             reducers.append(
                 delayed(DaskCalculationDelegate._query_helper, pure=True)(
@@ -56,14 +60,16 @@ class DaskCalculationDelegate(CalculationDelegate):
         while reducers:
             if len(reducers) == 1:
                 final_agg = reducers.popleft()
+                print("Computing")
                 result_reducer = final_agg.compute()
-                return result_reducer.value
+                print("Done computingS")
+                return result_reducer
             chunk_a = reducers.popleft()
             chunk_b = reducers.popleft()
             merged = delayed(DaskCalculationDelegate._merge_reducers)(chunk_a, chunk_b)
             reducers.append(merged)
 
-    def query_region(self, region: PixelRegion, radius: u.Quantity) -> np.ndarray:
+    def query_region(self, region: PixelRegion, radius: u.Quantity) -> QueryReducer:
         return self.query(MagmapReducer(region, radius))
 
     @staticmethod

@@ -50,3 +50,6 @@ class EngineHandler(object):
 
     def get_pixels(self,location:Vec2D,radius:u.Quantity) -> np.ndarray:
         return self.calculation_delegate.get_connecting_rays(location,radius)
+
+    def query(self, reducer):
+        return self.calculation_delegate.query(reducer)

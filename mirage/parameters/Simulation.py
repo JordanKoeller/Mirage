@@ -115,8 +115,11 @@ class Simulation(Jsonable):
         return len(self._results)
 
     @property
-    def keys(self):
-        return sorted(self._results.keys(),reverse=True)
+    def reducers(self):
+        keys = sorted(self._results.keys(), reverse=True)
+        return [
+            (k, self._results[k]) for k in self._results
+        ]
 
     # def reducer(self):
 

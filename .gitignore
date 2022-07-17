@@ -1,6 +1,7 @@
 
 # Created by https://www.gitignore.io/api/python,sublimetext
 
+dask-worker-space/
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

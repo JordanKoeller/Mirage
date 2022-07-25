@@ -8,14 +8,15 @@ from scipy.spatial import cKDTree
 from collections import deque
 from astropy import units as u
 
+from mirage import GlobalPreferences
 from mirage.util import PixelRegion
 from mirage.parameters import Parameters, MicrolensingParameters
 from mirage.engine.micro_ray_tracer import ray_trace_singlethreaded as trace_chunk
-from mirage.reducers import MagmapReducer, QueryReducer
+from mirage.reducers import MagmapReducer, QueryAccumulator, ReducerTransporter
 
 from .CalculationDelegate import CalculationDelegate
 
-PRIMARY_DIMENSION_CHUNK_SIZE = 1000
+PRIMARY_DIMENSION_CHUNK_SIZE = 2000
 
 class DaskCalculationDelegate(CalculationDelegate):
 
@@ -23,7 +24,7 @@ class DaskCalculationDelegate(CalculationDelegate):
     def __init__(self, *args, **kwargs):
         self._dask_array = None
         self._dask_kd_tree = None
-        self.cluster = LocalCluster(n_workers=12)
+        self.cluster = LocalCluster(n_workers=GlobalPreferences['core_count'])
         self.client = Client(self.cluster)
         print("Dask client UI at ", self.client.dashboard_link)
         # dask.config.set(scheduler="threads")
@@ -51,23 +52,23 @@ class DaskCalculationDelegate(CalculationDelegate):
     def get_connecting_rays(self, location, radius):
         pass
 
-    def query(self, reducer: QueryReducer) -> QueryReducer:
+    def query(self, reducer: QueryAccumulator) -> QueryAccumulator:
         reducers = deque()
         for chunk in self._dask_kd_tree:
             reducers.append(
                 delayed(DaskCalculationDelegate._query_helper, pure=True)(
-                    chunk, reducer.clone_empty()))
+                    chunk, ReducerTransporter.from_reducer(reducer)))
         while reducers:
             if len(reducers) == 1:
                 final_agg = reducers.popleft()
                 result_reducer = final_agg.compute()
-                return result_reducer
+                return result_reducer.get_reducer()
             chunk_a = reducers.popleft()
             chunk_b = reducers.popleft()
             merged = delayed(DaskCalculationDelegate._merge_reducers)(chunk_a, chunk_b)
             reducers.append(merged)
 
-    def query_region(self, region: PixelRegion, radius: u.Quantity) -> QueryReducer:
+    def query_region(self, region: PixelRegion, radius: u.Quantity) -> QueryAccumulator:
         return self.query(MagmapReducer(region, radius))
 
     @staticmethod
@@ -109,14 +110,17 @@ class DaskCalculationDelegate(CalculationDelegate):
         return cKDTree(flattened, 128, False, False, False)
 
     @staticmethod
-    def _query_helper(subtree, reducer):
-        for query in reducer.query_points():
-            ray_indices = subtree.query_ball_point((query.x, query.y), query.radius)
-            for index in ray_indices:
+    def _query_helper(subtree, reducer_transporter):
+        reducer = reducer_transporter.get_reducer()
+        reducer.start_iteration()
+        while reducer.has_next_accumulator():
+            query = reducer.next_accumulator()
+            for index in subtree.query_ball_point((query.x, query.y), query.radius):
                 query.reduce_ray(subtree.data[index])
-            reducer.save_value(query.identifier, query.get_result())
-        return reducer
+            reducer.save_value(query.get_result())
+        return ReducerTransporter.from_reducer(reducer)
 
     @staticmethod
     def _merge_reducers(a, b):
-        return a.merge(b)
+        reducer_a, reducer_b = a.get_reducer(), b.get_reducer()
+        return ReducerTransporter.from_reducer(reducer_a.merge(reducer_b))

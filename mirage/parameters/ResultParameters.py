@@ -59,7 +59,7 @@ class MagnificationMapParameters(ResultParameters):
         dims = parameters.source_plane.dimensions
         region = PixelRegion(zv, dims, self.resolution).to(parameters.eta_0)
         radius = parameters.quasar.radius.to(parameters.eta_0)
-        return MagmapReducer(region, radius)
+        return MagmapReducer(region, radius.value)
 
 
 

@@ -6,7 +6,7 @@ import numpy as np
 
 from mirage.parameters import Parameters, MicrolensingParameters
 from mirage.util import Vec2D
-from mirage.reducers import QueryReducer, MagmapReducer
+from mirage.reducers import QueryAccumulator, MagmapReducer
 
 class CalculationDelegate(ABC):
 
@@ -28,7 +28,7 @@ class CalculationDelegate(ABC):
         pass
 
     @abstractmethod
-    def query(self, reducer: QueryReducer) -> np.ndarray:
+    def query(self, reducer: QueryAccumulator) -> np.ndarray:
         """
         Submit a QueryReducer for the system to aggregate all the results of this simulation.
 
@@ -109,7 +109,7 @@ class MicroCPUDelegate(CalculationDelegate):
         inds = self._tree.query_ball_point((x,y),rad)
         return len(inds)
 
-    def query(self, reducer: QueryReducer) -> QueryReducer:
+    def query(self, reducer: QueryAccumulator) -> QueryAccumulator:
         for query in reducer.query_points():
             ray_indicies = self._tree.query_ball_point((query.x, query.y), query.radius)
             for index in ray_indicies:
@@ -117,7 +117,7 @@ class MicroCPUDelegate(CalculationDelegate):
             reducer.save_value(query.identifier, query.get_result())
         return reducer
 
-    def query_region(self,region,radius:u.Quantity) -> QueryReducer:
+    def query_region(self,region,radius:u.Quantity) -> QueryAccumulator:
         return self.query(MagmapReducer(region, radius))
 
     def _ray_trace(self, parameters: MicrolensingParameters):

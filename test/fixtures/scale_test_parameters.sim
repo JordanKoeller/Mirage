@@ -69,16 +69,16 @@
         "unit": "theta_E"
       },
       "ray_count": {
-        "x": 5000,
-        "y": 5000,
+        "x": 10000,
+        "y": 10000,
         "unit": ""
       }
     },
     "results": {
       "magmap": {
         "magmap_resolution": {
-          "x": 1024,
-          "y": 1024,
+          "x": 512,
+          "y": 512,
           "unit": ""
         }
       }

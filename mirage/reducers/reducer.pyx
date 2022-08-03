@@ -3,6 +3,7 @@
 # cython: cdivision=True
 # cython: language_level=3
 
+
 cdef class QueryAccumulator:
 
     """
@@ -16,6 +17,9 @@ cdef class QueryAccumulator:
     """
     cpdef double get_result(self):
         return 0.0
+
+    cpdef Query query_point(self):
+        return Query(0.0, 0.0, 0.0)
 
 cdef class LensReducer:
 

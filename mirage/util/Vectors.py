@@ -124,7 +124,7 @@ class Vec2D(Jsonable):
         if isinstance(x,int) and isinstance(y,int):
             return "< %d, %d > %s" % (x,y,unit)
         else:
-            return "< %.3f, %.3f > %s" % (x,y,unit)
+            return "< %.6f, %.6f > %s" % (x,y,unit)
 
 
 class PolarVec(Jsonable):

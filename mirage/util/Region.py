@@ -1,3 +1,5 @@
+from typing import Iterator
+
 from .Vectors import Vec2D
 from .Jsonable import Jsonable
 
@@ -107,7 +109,7 @@ class PixelRegion(Region):
 
     @property
     def dTheta(self) -> Vec2D:
-        ret = self.dimensions/self.resolution
+        ret = self.dimensions/(self.resolution - Vec2D(1, 1))
         return ret
 
     @property
@@ -166,9 +168,33 @@ class PixelRegion(Region):
             ret[:,0] = self.center.x + delta[:,0]
             ret[:,1] = self.center.y - delta[:,1]
             return ret
-        # return delta + self.center.to(delta.unit)
-        #dy = c - l
-        #l = c - dy
+
+
+    def subdivide(self, max_dimension: int):
+        dTheta = self.dTheta
+        low = self.center - self.dimensions / 2
+        for i in range(0, self.resolution.x.value, max_dimension):
+            for j in range(0, self.resolution.y.value, max_dimension):
+                lowIndex = Vec2D(i,j)
+                highIndex = Vec2D( # Inclusive
+                    min(i+max_dimension-1, self.resolution.x.value-1),
+                    min(j+max_dimension-1, self.resolution.y.value-1),
+                )
+                lowTile = lowIndex*dTheta
+                highTile = highIndex*dTheta
+                center = (lowTile+highTile) / 2
+                dimensions = highTile - lowTile
+                resolution = highIndex-lowIndex + 1
+                yield PixelRegion(low+center, dimensions, resolution)
+
+
+    def centered_on(self, new_center: Vec2D) -> 'PixelRegion':
+        return PixelRegion(
+            new_center,
+            self.dimensions,
+            self.resolution
+        )
+            
 
 
     @property

@@ -3,6 +3,11 @@
 # cython: cdivision=True
 # cython: language_level=3
 
+cdef struct Query:
+    double x
+    double y
+    double r
+
 cdef class QueryAccumulator:
 
     """
@@ -14,6 +19,9 @@ cdef class QueryAccumulator:
     Return the final accumulator value
     """
     cpdef double get_result(self)
+
+    cpdef Query query_point(self)
+
 
 cdef class LensReducer:
 

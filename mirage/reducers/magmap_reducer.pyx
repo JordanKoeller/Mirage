@@ -6,14 +6,12 @@
 import numpy
 cimport numpy as np
 
-from mirage.reducers.reducer cimport LensReducer, QueryAccumulator
+from mirage.reducers.reducer cimport LensReducer, QueryAccumulator, Query
 
 cdef class MagnificationQuery(QueryAccumulator):
 
     def __init__(self, double x, double y, double radius):
-        self.x = x
-        self.y = y
-        self.radius = radius
+        self.query = Query(x, y, radius)
         self.count = 0.0
 
     cpdef void reduce_ray(self, const double[:] ray):
@@ -21,6 +19,9 @@ cdef class MagnificationQuery(QueryAccumulator):
 
     cpdef double get_result(self):
         return self.count
+
+    cpdef Query query_point(self):
+        return self.query
 
 cdef class MagmapReducer(LensReducer):
 

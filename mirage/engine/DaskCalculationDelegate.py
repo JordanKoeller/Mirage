@@ -9,7 +9,7 @@ from collections import deque
 from astropy import units as u
 
 from mirage import GlobalPreferences
-from mirage.util import PixelRegion
+from mirage.util import PixelRegion, zero_vector
 from mirage.parameters import Parameters, MicrolensingParameters
 from mirage.engine.micro_ray_tracer import ray_trace_singlethreaded as trace_chunk
 from mirage.reducers import MagmapReducer, QueryAccumulator, ReducerTransporter
@@ -22,31 +22,19 @@ class DaskCalculationDelegate(CalculationDelegate):
 
 
     def __init__(self, *args, **kwargs):
-        self._dask_array = None
         self._dask_kd_tree = None
         self.cluster = LocalCluster(n_workers=GlobalPreferences['core_count'])
         self.client = Client(self.cluster)
         print("Dask client UI at ", self.client.dashboard_link)
         # dask.config.set(scheduler="threads")
 
-    @property
-    def array(self):
-        return self._dask_array
-
     def reconfigure(self, parameters: MicrolensingParameters):
         inputUnit = parameters.theta_E
-        rays = DaskCalculationDelegate._generate_dask_grid(parameters)
-        self._dask_array = da.map_blocks(
-            DaskCalculationDelegate._ray_tracer_mapper,
-            rays,
-            dtype=np.float64,
-            name="traced",
-            meta=np.array((), dtype=np.float64),
-            parameters=parameters
-        )
+        rayRegion = parameters.ray_region.centered_on(zero_vector(parameters.ray_region.center.unit))
+        rayRegion.to(parameters.theta_E)
         self._dask_kd_tree = [
-            delayed(DaskCalculationDelegate._construct_kd_trees, pure=True)(chunk)
-            for chunk in self._dask_array.to_delayed().flatten().tolist()
+            delayed(DaskCalculationDelegate._ray_trace, pure=True)(chunk, parameters)
+            for chunk in rayRegion.subdivide(PRIMARY_DIMENSION_CHUNK_SIZE)
         ]
 
     def get_connecting_rays(self, location, radius):
@@ -72,32 +60,6 @@ class DaskCalculationDelegate(CalculationDelegate):
         return self.query(MagmapReducer(region, radius))
 
     @staticmethod
-    def _generate_dask_grid(parameters: MicrolensingParameters):
-        """
-        Given a Parameters instance, generates a uniform grid of all the rays that will be traced
-        in the form of a dask array.
-        """
-        region = parameters.ray_region
-        region.to(parameters.theta_E)
-        # return da.from_array(region.pixels.value, chunks=(4000, 4000, -1))
-        x = da.linspace(
-            (-region.dimensions.x / 2).value,
-            (+region.dimensions.x / 2).value,
-            region.resolution.x.value,
-            chunks=(PRIMARY_DIMENSION_CHUNK_SIZE,)
-        )
-        y = da.linspace(
-            (-region.dimensions.y / 2).value,
-            (+region.dimensions.y / 2).value,
-            region.resolution.y.value,
-            chunks=(PRIMARY_DIMENSION_CHUNK_SIZE,)
-        )
-        xx, yy = np.meshgrid(x,y)
-        grid = np.stack([xx,yy], 2)
-        grid = grid.rechunk((PRIMARY_DIMENSION_CHUNK_SIZE, PRIMARY_DIMENSION_CHUNK_SIZE, -1))
-        return grid
-
-    @staticmethod
     def _ray_tracer_mapper(chunk, parameters):
         stars = parameters.stars
         kap, _starry, gam = parameters.mass_descriptors
@@ -105,19 +67,27 @@ class DaskCalculationDelegate(CalculationDelegate):
         return trace_chunk(chunk, traced, kap, gam, stars)
 
     @staticmethod
-    def _construct_kd_trees(delayed_chunk):
-        flattened = np.reshape(delayed_chunk, (delayed_chunk.shape[0]*delayed_chunk.shape[1], 2))
-        return cKDTree(flattened, 128, False, False, False)
+    def _ray_trace(subregion, parameters):
+        pixels = subregion.pixels.value
+        stars = parameters.stars
+        kap, _starry, gam = parameters.mass_descriptors
+        traced = np.empty_like(pixels)
+        traced = trace_chunk(pixels, traced, kap, gam, stars)
+        flattened_rays = np.reshape(traced, (traced.shape[0]*traced.shape[1], 2))
+        return cKDTree(flattened_rays, 128, False, False, False)
+
+
 
     @staticmethod
     def _query_helper(subtree, reducer_transporter):
         reducer = reducer_transporter.get_reducer()
         reducer.start_iteration()
         while reducer.has_next_accumulator():
-            query = reducer.next_accumulator()
-            for index in subtree.query_ball_point((query.x, query.y), query.radius):
-                query.reduce_ray(subtree.data[index])
-            reducer.save_value(query.get_result())
+            accumulator = reducer.next_accumulator()
+            query = accumulator.query_point()
+            for index in subtree.query_ball_point((query['x'], query['y']), query['r']):
+                accumulator.reduce_ray(subtree.data[index])
+            reducer.save_value(accumulator.get_result())
         return ReducerTransporter.from_reducer(reducer)
 
     @staticmethod

@@ -67,6 +67,7 @@ if __name__ =="__main__":
     builder.with_extension("mirage.reducers.reducer", pathify("mirage", "reducers", "reducer" + EXT))
     builder.with_extension("mirage.reducers.magmap_reducer", pathify("mirage", "reducers", "magmap_reducer" + EXT))
     builder.with_extension("mirage.engine.micro_ray_tracer", pathify("mirage","engine","micro_ray_tracer" + EXT))
+    # builder.with_extension("mirage.engine.dask_helpers", pathify("mirage","engine","dask_helpers" + EXT))
     builder.with_extension("mirage.calculator.peak_finding", pathify("mirage","calculator","peak_finding" + EXT))
     builder.with_extension("mirage.calculator.optimized_funcs", pathify("mirage","calculator","optimized_funcs" + EXT))
     # renderer = fastExt("mirage.views.Renderer", ["mirage"+os.sep+"views"+os.sep+"Renderer" + EXT])

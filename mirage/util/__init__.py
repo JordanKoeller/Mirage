@@ -9,6 +9,15 @@ def as_primative(value):
     else:
         return float(value)
 
+# A handful of useful functions are defined below
+
+def lerp(a1, b1, value, a2, b2):
+    """
+    Given `value` in range `[a1, b1]`, linearly interpolate it to be in the range `[a2, b2]`.
+    """
+    fraction = (value - a1) / (b1 - a1)
+    return fraction * (b2 - a1) + a2
+
 
 from .Jsonable import Jsonable
 from .Vectors import Vec2D, PolarVec

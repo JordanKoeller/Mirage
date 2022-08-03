@@ -33,7 +33,6 @@ class TestDaskCalculationDelegate(MirageTestCase):
         dask_delegate = DaskCalculationDelegate()
         parameters = self.microlensing_simulation.parameters
         dask_delegate.reconfigure(parameters)
-        self.assertEqual(dask_delegate._dask_array.npartitions, len(dask_delegate._dask_kd_tree))
         tree = dask_delegate._dask_kd_tree[0].compute()
 
     def testDaskDelegateProducesAcurateMagmap(self):
@@ -43,7 +42,7 @@ class TestDaskCalculationDelegate(MirageTestCase):
         region = PixelRegion(zero_vector('rad'), parameters.source_plane.dimensions, self.microlensing_simulation['magmap'].resolution).to(parameters.eta_0)
         radius = parameters.quasar.radius.to(parameters.eta_0)
         dask_delegate.reconfigure(parameters)
-        dask_result = dask_delegate.query_region(region, radius)
+        dask_result = dask_delegate.query_region(region, radius.value)
         cpu_delegate.reconfigure(parameters)
-        cpu_result = cpu_delegate.query_region(region, radius)
-        self.assertAlmostEqual(cpu_result.value, dask_result.value, 1e-4)
+        cpu_result = cpu_delegate.query_region(region, radius.value)
+        self.assertAlmostEqual(cpu_result.value(), dask_result.value(), 1e-4)

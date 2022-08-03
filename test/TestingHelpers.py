@@ -43,9 +43,22 @@ B={second}""")
             return
         raise AssertionError()
 
+    def assertAlmostSetEqual(self, first, second, tol=1e-10):
+        first = np.array(first)
+        second = np.array(second)
+        first = first.flatten()
+        second = second.flatten()
+        self.assertEqual(first.shape, second.shape)
+        first = np.sort(first)
+        second = np.sort(second)
+        for a, b in zip(first, second):
+            if abs(a - b) >= tol:
+                raise AssertionError("Arrays were not approximately set-equal")
+
     @property
     def microlensing_simulation(self):
-        from mirage.io import SimulationFileManager
+        from mirage.util.io import SimulationFileManager
+        # from mirage.io import SimulationFileManager
         manager = SimulationFileManager()
         manager.open(MICROLENSING_SIMULATION_FIXTURE_FILE)
         ret = manager.read()
@@ -56,7 +69,7 @@ B={second}""")
     def scale_simulation(self):
         if self._scale_sim:
             return self._scale_sim
-        from mirage.io import SimulationFileManager
+        from mirage.util.io import SimulationFileManager
         manager = SimulationFileManager()
         manager.open(SCALE_SIMULATION_FIXTURE_FILE)
         self._scale_sim = manager.read()

@@ -5,7 +5,7 @@ from astropy import units as u
 import numpy as np
 
 from mirage.parameters import Parameters, MicrolensingParameters
-from mirage.util import Vec2D
+from mirage.util import Vec2D, zero_vector
 from mirage.reducers import QueryAccumulator, MagmapReducer
 
 class CalculationDelegate(ABC):
@@ -110,11 +110,13 @@ class MicroCPUDelegate(CalculationDelegate):
         return len(inds)
 
     def query(self, reducer: QueryAccumulator) -> QueryAccumulator:
-        for query in reducer.query_points():
-            ray_indicies = self._tree.query_ball_point((query.x, query.y), query.radius)
-            for index in ray_indicies:
-                query.reduce_ray(self._tree.data[index])
-            reducer.save_value(query.identifier, query.get_result())
+        reducer.start_iteration()
+        while reducer.has_next_accumulator():
+            accumulator = reducer.next_accumulator()
+            query = accumulator.query_point()
+            for index in self._tree.query_ball_point((query['x'], query['y']), query['r']):
+                accumulator.reduce_ray(self._tree.data[index])
+            reducer.save_value(accumulator.get_result())
         return reducer
 
     def query_region(self,region,radius:u.Quantity) -> QueryAccumulator:

@@ -201,3 +201,5 @@ project/plugins/project/
 #OTher files:
 /data/*
 /venv/*
+
+.vscode

@@ -12,192 +12,192 @@ from mirage.util import Dictify, DelegateRegistry, Vec2D, PolarVec
 
 class TestJsonableMixin(TestCase):
 
-    def testToPascalCase(self):
-        def assertPascal(string: str, expected: str):
-            self.assertEqual(Dictify._to_pascal_case(string), expected)
+  def testToPascalCase(self):
+    def assertPascal(string: str, expected: str):
+      self.assertEqual(Dictify._to_pascal_case(string), expected)
 
-        assertPascal("lowercase", "Lowercase")
-        assertPascal("some_field", "SomeField")
-        assertPascal("some__field", "SomeField")
-        assertPascal("_some_field", "SomeField")
-        assertPascal("__some_field", "SomeField")
-        assertPascal("some_field_", "SomeField")
-        assertPascal("some_field___", "SomeField")
-        assertPascal("some_numeric_0_field", "SomeNumeric0Field")
-        assertPascal("some_numeric_0_field", "SomeNumeric0Field")
+    assertPascal("lowercase", "Lowercase")
+    assertPascal("some_field", "SomeField")
+    assertPascal("some__field", "SomeField")
+    assertPascal("_some_field", "SomeField")
+    assertPascal("__some_field", "SomeField")
+    assertPascal("some_field_", "SomeField")
+    assertPascal("some_field___", "SomeField")
+    assertPascal("some_numeric_0_field", "SomeNumeric0Field")
+    assertPascal("some_numeric_0_field", "SomeNumeric0Field")
 
-    def testDictifyValue_primitives_success(self):
-        self.assertEqual(Dictify.to_dict(45), 45)
-        self.assertEqual(Dictify.to_dict("some string"), "some string")
-        self.assertEqual(Dictify.to_dict(None), None)
-        self.assertEqual(Dictify.to_dict(True), True)
-        self.assertEqual(Dictify.to_dict(3.14), 3.14)
-        timestamp = datetime.now()
-        self.assertEqual(Dictify.to_dict(timestamp), str(timestamp))
+  def testDictifyValue_primitives_success(self):
+    self.assertEqual(Dictify.to_dict(45), 45)
+    self.assertEqual(Dictify.to_dict("some string"), "some string")
+    self.assertEqual(Dictify.to_dict(None), None)
+    self.assertEqual(Dictify.to_dict(True), True)
+    self.assertEqual(Dictify.to_dict(3.14), 3.14)
+    timestamp = datetime.now()
+    self.assertEqual(Dictify.to_dict(timestamp), str(timestamp))
 
-    def testToDict_allPrimitives_success(self):
-        sdc = SimpleTestDataclass(23, "abcdefg", [1, 2, 3])
-        expected = {"SomeInt": 23, "SomeStr": "abcdefg", "SomeList": [1, 2, 3]}
-        self.assertDictEqual(Dictify.to_dict(sdc), expected)
+  def testToDict_allPrimitives_success(self):
+    sdc = SimpleTestDataclass(23, "abcdefg", [1, 2, 3])
+    expected = {"SomeInt": 23, "SomeStr": "abcdefg", "SomeList": [1, 2, 3]}
+    self.assertDictEqual(Dictify.to_dict(sdc), expected)
 
-    def testToDict_recursiveDataclass_success(self):
-        sdc = SimpleTestDataclass(23, "abcdefg", [1, 2, 3])
-        cdc = ComplexTestDataclass("some-field", sdc, {"some_field": 123, "k2": 234})
-        expected = {
-            "SomeField": "some-field",
-            "SubInstance": {"SomeInt": 23, "SomeStr": "abcdefg", "SomeList": [1, 2, 3]},
-            "SubDict": {"some_field": 123, "k2": 234},
-        }
-        self.assertDictEqual(Dictify.to_dict(cdc), expected)
+  def testToDict_recursiveDataclass_success(self):
+    sdc = SimpleTestDataclass(23, "abcdefg", [1, 2, 3])
+    cdc = ComplexTestDataclass("some-field", sdc, {"some_field": 123, "k2": 234})
+    expected = {
+        "SomeField": "some-field",
+        "SubInstance": {"SomeInt": 23, "SomeStr": "abcdefg", "SomeList": [1, 2, 3]},
+        "SubDict": {"some_field": 123, "k2": 234},
+    }
+    self.assertDictEqual(Dictify.to_dict(cdc), expected)
 
-    def testToDict_abstractMember_attachesDelegateNameToKey(self):
-        dc = DataclassWithAbstractMember(
-            some_abstract_type=SomeSubclass("salutations"),
-            some_other_value="some other value",
-        )
+  def testToDict_abstractMember_attachesDelegateNameToKey(self):
+    dc = DataclassWithAbstractMember(
+        some_abstract_type=SomeSubclass("salutations"),
+        some_other_value="some other value",
+    )
 
-        expected = {
-            "SomeAbstractType_SomeSubclass": {
-                "PreferredGreeting": "salutations",
-            },
-            "SomeOtherValue": "some other value",
-        }
-        self.assertDictEqual(Dictify.to_dict(dc), expected)
+    expected = {
+        "SomeAbstractType_SomeSubclass": {
+            "PreferredGreeting": "salutations",
+        },
+        "SomeOtherValue": "some other value",
+    }
+    self.assertDictEqual(Dictify.to_dict(dc), expected)
 
-    def testFromDict_noRecursiveStructure_success(self):
-        dc = SimpleTestDataclass(12, "some str", [1, 2, 3])
-        serialized = Dictify.to_dict(dc)
+  def testFromDict_noRecursiveStructure_success(self):
+    dc = SimpleTestDataclass(12, "some str", [1, 2, 3])
+    serialized = Dictify.to_dict(dc)
 
-        deserialized = Dictify.from_dict(SimpleTestDataclass, serialized)
-        self.assertEqual(dc, deserialized)
+    deserialized = Dictify.from_dict(SimpleTestDataclass, serialized)
+    self.assertEqual(dc, deserialized)
 
-    def testFromDict_withDataclassField_success(self):
-        sdc = SimpleTestDataclass(23, "abcdefg", [1, 2, 3])
-        cdc = ComplexTestDataclass("some-field", sdc, {"some_field": 123, "k2": 234})
-        serialized = Dictify.to_dict(cdc)
+  def testFromDict_withDataclassField_success(self):
+    sdc = SimpleTestDataclass(23, "abcdefg", [1, 2, 3])
+    cdc = ComplexTestDataclass("some-field", sdc, {"some_field": 123, "k2": 234})
+    serialized = Dictify.to_dict(cdc)
 
-        deserialized = Dictify.from_dict(ComplexTestDataclass, serialized)
-        self.assertEqual(cdc, deserialized)
+    deserialized = Dictify.from_dict(ComplexTestDataclass, serialized)
+    self.assertEqual(cdc, deserialized)
 
-    def testFromDict_withAbstractField_success(self):
-        dc = DataclassWithAbstractMember(
-            some_abstract_type=SomeSubclass("salutations"),
-            some_other_value="some other value",
-        )
+  def testFromDict_withAbstractField_success(self):
+    dc = DataclassWithAbstractMember(
+        some_abstract_type=SomeSubclass("salutations"),
+        some_other_value="some other value",
+    )
 
-        serialized = Dictify.to_dict(dc)
+    serialized = Dictify.to_dict(dc)
 
-        deserialized = Dictify.from_dict(DataclassWithAbstractMember, serialized)
-        self.assertEqual(deserialized, dc)
+    deserialized = Dictify.from_dict(DataclassWithAbstractMember, serialized)
+    self.assertEqual(deserialized, dc)
 
-    def testToDict_withQuantity_success(self):
-        dc = DataclassWithSpecials(
-            3.2 * u.m, WMAP7, Vec2D(3.2, 3.4, u.km), PolarVec(3 * u.m, 0.4 * u.arcsec)
-        )
+  def testToDict_withQuantity_success(self):
+    dc = DataclassWithSpecials(
+        3.2 * u.m, WMAP7, Vec2D(3.2, 3.4, u.km), PolarVec(3 * u.m, 0.4 * u.arcsec)
+    )
 
-        serialized = Dictify.to_dict(dc)
+    serialized = Dictify.to_dict(dc)
 
-        expected = {
-            "Q": [3.2, "m"],
-            "C": "WMAP7",
-            "V": [3.2, 3.4, "km"],
-            "P": {"R": [3, "m"], "Theta": [0.4, "arcsec"]},
-        }
+    expected = {
+        "Q": [3.2, "m"],
+        "C": "WMAP7",
+        "V": [3.2, 3.4, "km"],
+        "P": {"R": [3, "m"], "Theta": [0.4, "arcsec"]},
+    }
 
-        self.assertDictEqual(serialized, expected)
+    self.assertDictEqual(serialized, expected)
 
-    def testToDict_typeWithList_success(self):
-        elem = TestType(1, [SimpleType(2, "ASDF"), SimpleType(3, "QWERTY")])
+  def testToDict_typeWithList_success(self):
+    elem = TestType(1, [SimpleType(2, "ASDF"), SimpleType(3, "QWERTY")])
 
-        serialized = Dictify.to_dict(elem)
+    serialized = Dictify.to_dict(elem)
 
-        expected = {
-            "SomeValue": 1,
-            "SomeList": [
-                {"SomeInt": 2, "SomeStr": "ASDF"},
-                {"SomeInt": 3, "SomeStr": "QWERTY"},
-            ],
-        }
+    expected = {
+        "SomeValue": 1,
+        "SomeList": [
+            {"SomeInt": 2, "SomeStr": "ASDF"},
+            {"SomeInt": 3, "SomeStr": "QWERTY"},
+        ],
+    }
 
-        self.assertDictEqual(serialized, expected)
+    self.assertDictEqual(serialized, expected)
 
-    def testFromDict_typeWithList_success(self):
-        serialized = {
-            "SomeValue": 1,
-            "SomeList": [
-                {"SomeInt": 2, "SomeStr": "ASDF"},
-                {"SomeInt": 3, "SomeStr": "QWERTY"},
-            ],
-        }
+  def testFromDict_typeWithList_success(self):
+    serialized = {
+        "SomeValue": 1,
+        "SomeList": [
+            {"SomeInt": 2, "SomeStr": "ASDF"},
+            {"SomeInt": 3, "SomeStr": "QWERTY"},
+        ],
+    }
 
-        expected = TestType(1, [SimpleType(2, "ASDF"), SimpleType(3, "QWERTY")])
+    expected = TestType(1, [SimpleType(2, "ASDF"), SimpleType(3, "QWERTY")])
 
-        actual = Dictify.from_dict(TestType, serialized)
+    actual = Dictify.from_dict(TestType, serialized)
 
-        self.assertEqual(actual, expected)
+    self.assertEqual(actual, expected)
 
 
 @dataclass
 class SimpleType:
-    some_int: int
-    some_str: str
+  some_int: int
+  some_str: str
 
 
 @dataclass
 class TestType:
-    some_value: int
-    some_list: List[SimpleType]
+  some_value: int
+  some_list: List[SimpleType]
 
 
 @dataclass
 class SimpleTestDataclass:
-    some_int: int
-    some_str: str
-    some_list: list
+  some_int: int
+  some_str: str
+  some_list: list
 
 
 @dataclass
 class ComplexTestDataclass:
-    some_field: str
-    sub_instance: SimpleTestDataclass
-    sub_dict: Dict[str, int]
+  some_field: str
+  sub_instance: SimpleTestDataclass
+  sub_dict: Dict[str, int]
 
 
 @dataclass
 class DataclassWithSpecials:
-    q: u.Quantity
-    c: Cosmology
-    v: Vec2D
-    p: PolarVec
+  q: u.Quantity
+  c: Cosmology
+  v: Vec2D
+  p: PolarVec
 
 
 class SomeSuperclass(ABC):
 
-    @abstractmethod
-    def say_hello(self):
-        pass
+  @abstractmethod
+  def say_hello(self):
+    pass
 
 
 @dataclass
 @DelegateRegistry.register
 class SomeSubclass(SomeSuperclass):
-    preferred_greeting: str
+  preferred_greeting: str
 
-    def say_hello(self):
-        return self.preferred_greeting
+  def say_hello(self):
+    return self.preferred_greeting
 
 
 @dataclass
 @DelegateRegistry.register
 class SomeSubclass2(SomeSuperclass):
-    preferred_greeting: str
-    extra: str
+  preferred_greeting: str
+  extra: str
 
-    def say_hello(self):
-        return self.preferred_greeting
+  def say_hello(self):
+    return self.preferred_greeting
 
 
 @dataclass
 class DataclassWithAbstractMember:
-    some_abstract_type: SomeSuperclass
-    some_other_value: str
+  some_abstract_type: SomeSuperclass
+  some_other_value: str

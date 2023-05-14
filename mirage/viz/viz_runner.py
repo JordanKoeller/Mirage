@@ -18,40 +18,40 @@ MAX_RAYS = (5000, 5000)
 
 class VizRunner:
 
-    def __init__(self, simulation: Simulation):
-        self.simulation: Simulation = simulation.copy()
-        self.normalize_simulation()
+  def __init__(self, simulation: Simulation):
+    self.simulation: Simulation = simulation.copy()
+    self.normalize_simulation()
 
-    def normalize_simulation(self):
-        """
-        Prepares the simulation for visualization.
+  def normalize_simulation(self):
+    """
+    Prepares the simulation for visualization.
 
-        This means:
+    This means:
 
-        + Ssetting a ray_bundle to a default size for visualization if it does not exist
-        or exceed an upper limit.
+    + Ssetting a ray_bundle to a default size for visualization if it does not exist
+    or exceed an upper limit.
 
-        + Setting the `reducers` to be only one LensedImageReducer. If a `LensedImageReducer`
-        is already present then the existing one is used and any other reducers are removed.
+    + Setting the `reducers` to be only one LensedImageReducer. If a `LensedImageReducer`
+    is already present then the existing one is used and any other reducers are removed.
 
-        """
+    """
 
-    @staticmethod
-    def _engine_main(simulation: Simulation, channel: DuplexChannel):
-        engine = Engine(event_channel=channel)
-        engine.blocking_run_simulation(simulation)
-        logger.info("Terminating Engine")
+  @staticmethod
+  def _engine_main(simulation: Simulation, channel: DuplexChannel):
+    engine = Engine(event_channel=channel)
+    engine.blocking_run_simulation(simulation)
+    logger.info("Terminating Engine")
 
-    def start(self):
-        send, recv = DuplexChannel.create(3)
+  def start(self):
+    send, recv = DuplexChannel.create(3)
 
-        engine_process = Process(
-            name="EngineProcess",
-            target=VizRunner._engine_main,
-            args=(self.simulation, send),
-        )
-        vizualizer = LensedImageView(recv)
+    engine_process = Process(
+        name="EngineProcess",
+        target=VizRunner._engine_main,
+        args=(self.simulation, send),
+    )
+    vizualizer = LensedImageView(recv)
 
-        engine_process.start()  # This starts the engine in a separate process
-        vizualizer.blocking_start()  # Starts the UI (blocking call) in the main thread
-        engine_process.join()  # After UI is closed, gracefully terminate engine process
+    engine_process.start()  # This starts the engine in a separate process
+    vizualizer.blocking_start()  # Starts the UI (blocking call) in the main thread
+    engine_process.join()  # After UI is closed, gracefully terminate engine process

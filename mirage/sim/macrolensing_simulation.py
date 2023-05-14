@@ -13,18 +13,18 @@ _MACROLENSING_RESOLUTION = Vec2D.unitless(1_200, 1_200)
 @dataclass(kw_only=True)
 class MacrolensingSimulation(Simulation):
 
-    def get_ray_tracer(self) -> RayTracer:
-        return self.lensing_system.get_ray_tracer()
+  def get_ray_tracer(self) -> RayTracer:
+    return self.lensing_system.get_ray_tracer()
 
-    def get_ray_bundle(self) -> PixelRegion:
-        er = self.lensing_system.einstein_radius
-        ret = PixelRegion(
-            dims=Vec2D(2 * er, 2 * er),
-            center=Vec2D.zero_vector(er.unit),
-            resolution=copy(_MACROLENSING_RESOLUTION),
-        )
+  def get_ray_bundle(self) -> PixelRegion:
+    er = self.lensing_system.einstein_radius
+    ret = PixelRegion(
+        dims=Vec2D(2 * er, 2 * er),
+        center=Vec2D.zero_vector(er.unit),
+        resolution=copy(_MACROLENSING_RESOLUTION),
+    )
 
-        return ret.to("theta_0")
+    return ret.to("theta_0")
 
-    def get_reducers(self) -> List[Reducer]:
-        return deepcopy(self.reducers)
+  def get_reducers(self) -> List[Reducer]:
+    return deepcopy(self.reducers)

@@ -5,18 +5,12 @@
 
 .. autoclass:: Lens
 
-   
+
    .. automethod:: __init__
 
-   
+
    .. rubric:: Methods
 
    .. autosummary::
-   
-      ~Lens.__init__
-   
-   
 
-   
-   
-   
+      ~Lens.__init__

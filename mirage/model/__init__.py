@@ -10,8 +10,7 @@ python module named "model" that encapsulates the code used to define a Model. W
 to the concept of a Model (a mathematical model of gravitationl lensing), we use capital-M "Model".
 
 At the high level, a Model is defined as a :py:class:`mirage.model.Lens` (referring to the lensing galaxy)
-and a :py:class:`mirage.model.Quasar` (referring to the QSO being lensed.) 
-"""
+and a :py:class:`mirage.model.Quasar` (referring to the QSO being lensed.)"""
 
 from .quasar import Quasar
 from .source_plane import SourcePlane

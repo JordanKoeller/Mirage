@@ -12,7 +12,7 @@ Contents
 .. toctree::
 
    mirage
-  
+
 Indices and tables
 ==================
 

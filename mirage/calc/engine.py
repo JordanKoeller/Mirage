@@ -39,9 +39,7 @@ class Engine:
 
       for reducer in self.get_reducers(simulation):
         reducer.reduce(rays_tree, simulation.source_plane)
-        output = reducer.output
-        if output is not None:
-          self.export_outcome(output)
+        self.export_outcome(reducer)
 
   def get_reducers(self, simulation: Simulation) -> Iterator[Reducer]:
     """

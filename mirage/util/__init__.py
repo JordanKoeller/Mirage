@@ -5,3 +5,4 @@ from .region import Region, PixelRegion
 from .event_channel import DuplexChannel
 
 from .custom_serializers import register_serializers
+from .io import ResultFileManager

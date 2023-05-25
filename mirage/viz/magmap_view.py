@@ -19,5 +19,5 @@ class MagmapView:
     self.fig.set_tight_layout(True)
 
   def show_magmap(self, magmap_reducer: MagnificationMapReducer):
-    magnitudes = -np.log10(magmap_reducer.output)
+    magnitudes = -np.log10(magmap_reducer.output)  # type: ignore
     self.img_ax.imshow(magnitudes, cmap=self.colormap)

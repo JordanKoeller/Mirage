@@ -14,7 +14,7 @@ from mirage.calc.tracers import MicrolensingRayTracer
 # Multiplied by the largest dimension of the ray bundle to get
 # the radius of the starry region that should be populated.
 STAR_REGION_FACTOR = 2
-RAY_REGION_FACTOR = 2.6
+RAY_REGION_FACTOR = 1.1
 
 logger = logging.getLogger(__name__)
 
@@ -72,12 +72,13 @@ class MicrolensingSimulation(Simulation):
     )
     ax_ratio = abs((1 - shear - conv) / (1 + shear - conv))  # In (0, 1]
     ray_dims: Vec2D = (
-        Vec2D(
+        Vec2D(  # type: ignore
             self.source_region_dimensions.x / ax_ratio,
             self.source_region_dimensions.y,
         )
         * RAY_REGION_FACTOR
-    )  # type: ignore
+        / (1 - conv)
+    )
 
     # See below for why this works
     resolution = self._get_pixels_resolution(ax_ratio)
@@ -93,7 +94,7 @@ class MicrolensingSimulation(Simulation):
     and a total number of pixels that approximates self.ray_count.
 
     The closeness of the approximation gets better as axis_ratio nears 1
-    and self.ray_count gets larger. See the image in resources/pixels_generator.png,
+    and self.ray_count gets larger. See the image in images/pixels_generator.png,
     which shows %error as axis ratio and ray count changes. The image is generated
     by the testcase
     `test.test_mirage.test_sim.test_microlensing_simulation.TestMicrolensingSimulation.testGetRayBundle_table`

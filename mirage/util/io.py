@@ -3,7 +3,7 @@ import yaml
 import zipfile
 import io
 import pickle
-from typing import Union, Dict, List, Any
+from typing import Union, Dict, List, Any, Self, Literal
 
 from mirage.calc import Reducer
 from mirage.sim import Simulation
@@ -41,9 +41,9 @@ class ResultFileManager:
   `manifest.yaml` file. At a high level, the `manifest.yaml` is a mapping from a
   particular Reducer to the filename containing that reducer's output.
 
-  When constructing a Result file, every time `save_result` is called a unique ID for
-  the reducer is computed using the `Reducer.key()` method. If a reducer is saved
-  multiple times (meaning `Reducer.key()` produces an ID that is already present in
+  When constructing a Result file, every time `dump_result` is called a unique ID for
+  the reducer is computed using the `Reducer.key()` method. If a reducer is dumpd
+  multiple times (meaning `Reducer.key()` produces an ID that is alloady present in
   the map), the value for that key is converted to a list and the new filename appended
   to that list.
 
@@ -52,23 +52,51 @@ class ResultFileManager:
 
   """
 
-  def __init__(self, filename: str):
+  def __init__(self, filename: str, mode: Literal["x", "r"]):
     self.filename = filename
-    if os.path.exists(self.filename):
-      os.remove(self.filename)
-    self.zip_archive = zipfile.ZipFile(self.filename, mode="x")
+    if mode == "x":
+      if os.path.exists(self.filename):
+        os.remove(self.filename)
+    else:
+      if not os.path.exists(self.filename):
+        raise FileNotFoundError(self.filename)
+    self.zip_archive = zipfile.ZipFile(self.filename, mode=mode)
     self.manifest: Dict = {}
+    if mode == "r":
+      self.manifest = self._load("manifest.yaml")  # type: ignore
 
-  def save_simulation(self, simulation: Simulation):
+  @classmethod
+  def new_loader(cls, filename: str) -> Self:
+    return cls(filename, "r")
+
+  @classmethod
+  def new_writer(cls, filename: str) -> Self:
+    return cls(filename, "x")
+
+  def dump_simulation(self, simulation: Simulation):
     self._write("simulation.yaml", Dictify.to_dict(simulation))
+
+  def load_simulation(self) -> Simulation:
+    sim_dict: dict = self._load("simulation.yaml")  # type: ignore
+    return Simulation.from_dict(sim_dict)
 
   def close(self):
     self._write("manifest.yaml", self.manifest)
     self.zip_archive.close()
 
-  def save_result(self, reducer: Reducer):
+  def dump_result(self, reducer: Reducer):
     filename = self._insert_manifest_entry(reducer)
-    self._write(filename, reducer.output)
+    self._write(filename, reducer)
+
+  def load_result(self, reducer_id: str) -> Reducer:
+    filename = self.manifest.get(reducer_id, None)
+    if filename is None:
+      raise ValueError(
+          f"'reducer_id' {reducer_id} not present in result manifest."
+          f"\n:Available ids: {list(self.manifest.keys())}"
+      )
+
+    return self._load(filename)  # type: ignore
 
   def _write(self, filename: str, data: Any):
     with self.zip_archive.open(filename, mode="w") as f:
@@ -79,10 +107,17 @@ class ResultFileManager:
       else:
         pickle.dump(data, f)
 
+  def _load(self, filename: str) -> Union[dict, object]:
+    with self.zip_archive.open(filename, mode="r") as f:
+      if filename.endswith("yaml"):
+        return yaml.load(f.read(), yaml.CLoader)
+      else:
+        return pickle.load(f)
+
   def _insert_manifest_entry(self, reducer: Reducer) -> str:
     """
     Inserts a record into the manifest and returns the filename that should
-    be used to save the output
+    be used to dump the output
     """
     reducer_path = reducer._get_parent_key()
     reducer_key = reducer.type_key()

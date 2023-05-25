@@ -10,3 +10,4 @@ from mirage.model import *
 from mirage.sim import *
 from mirage.calc import *
 from mirage.viz import *
+from mirage.result import Result

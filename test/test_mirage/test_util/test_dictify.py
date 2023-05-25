@@ -136,6 +136,40 @@ class TestJsonableMixin(TestCase):
 
     self.assertEqual(actual, expected)
 
+  def testToDict_abstractList_attachesConcreteTypeToDictKeys(self):
+    elem = DataclassWithAbstractList(
+        abstract_elems=[
+            SomeSubclass("hello"),
+            SomeSubclass2("hola", "partner"),
+        ],
+        some_other_value="abc123",
+    )
+    expected = {
+        "SomeOtherValue": "abc123",
+        "AbstractElems": [
+            {"SomeSubclass": {"PreferredGreeting": "hello"}},
+            {"SomeSubclass2": {"PreferredGreeting": "hola", "Extra": "partner"}},
+        ],
+    }
+    actual = Dictify.to_dict(elem)
+    self.assertDictEqual(expected, actual)
+
+  def testToDict_abstractListOnlyOneElem_attachesConcreteTypeToDictKeys(self):
+    elem = DataclassWithAbstractList(
+        abstract_elems=[
+            SomeSubclass("hello"),
+        ],
+        some_other_value="abc123",
+    )
+    expected = {
+        "SomeOtherValue": "abc123",
+        "AbstractElems": [
+            {"SomeSubclass": {"PreferredGreeting": "hello"}},
+        ],
+    }
+    actual = Dictify.to_dict(elem)
+    self.assertDictEqual(expected, actual)
+
 
 @dataclass
 class SimpleType:
@@ -200,4 +234,10 @@ class SomeSubclass2(SomeSuperclass):
 @dataclass
 class DataclassWithAbstractMember:
   some_abstract_type: SomeSuperclass
+  some_other_value: str
+
+
+@dataclass
+class DataclassWithAbstractList:
+  abstract_elems: List[SomeSuperclass]
   some_other_value: str

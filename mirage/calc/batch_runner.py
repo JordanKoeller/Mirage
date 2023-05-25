@@ -52,8 +52,8 @@ class BatchRunner:
       )
     else:
       reducer = evt.value
-      serializer = ResultFileManager(self.output_filename)
-      serializer.save_simulation(self.simulation)
-      serializer.save_result(reducer)
+      serializer = ResultFileManager(self.output_filename, "x")
+      serializer.dump_simulation(self.simulation)
+      serializer.dump_result(reducer)
       serializer.close()
     engine_process.join()  # After UI is closed, gracefully terminate engine process

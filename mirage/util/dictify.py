@@ -81,13 +81,19 @@ class Dictify:
     Dictify.__custom_serializers.append(serializer)
 
   @staticmethod
-  def to_dict(value: Any) -> Any:
+  def to_dict(value: Any, type_as_key: bool = False) -> Any:
     """
     Converts an object into a representation that is JSON-compatible.
 
     Supports any object that is a python primitive, @dataclass objects,
       objects that inherit :class:`DictifyMixin`, and any object that has been
       registered with a :class:`CustomSerializer`.
+
+    Args:
+
+    + value (Any): The object to convert to a primitive representation.
+    + type_as_key (bool): If true, sets the dict-representation of objects inside a wrapper dict,
+                          with its key equal to its type's name.
     """
     if value is None:
       return None
@@ -100,7 +106,11 @@ class Dictify:
     if isinstance(value, (int, float, str, bool)):
       return value
     if isinstance(value, (list, tuple)):
-      return [Dictify.to_dict(elem) for elem in value]
+      type_names = [elem.__class__.__name__ for elem in value]
+      values_list = [Dictify.to_dict(elem) for elem in value]
+      if len(set(type_names)) > 1 or type_as_key:
+        values_list = [{k: v} for k, v in zip(type_names, values_list)]
+      return values_list
     if isinstance(value, dict):
       return Dictify._sanitize({k: Dictify.to_dict(v) for k, v in value.items()})
     if is_dataclass(value):
@@ -177,11 +187,9 @@ class Dictify:
         k.split("_")[0]: k.split("_")[1] for k in dict_obj if len(k.split("_")) == 2
     }
     constructor_args: Dict[str, Any] = {}
-
     expected_fields = {
-        Dictify._to_pascal_case(f.name): f for f in fields(klass)
-    }  # type: ignore
-
+        Dictify._to_pascal_case(f.name): f for f in fields(klass)  # type: ignore
+    }
     for dict_name, field in expected_fields.items():
       custom_serializer = Dictify._get_custom_serializer(field.type)
       dict_value = field_map.get(dict_name, None)
@@ -241,12 +249,12 @@ class Dictify:
         return values
       return [Dictify._value_from_dict(inner_type, elem) for elem in dictable_value]
     if isinstance(klass, Dict):
-      k_type, v_type = inner_type = get_args(klass)
+      k_type, v_type = get_args(klass)
       return {
           Dictify._value_from_dict(k_type, k): Dictify._value_from_dict(v_type, v)
           for k, v in dictable_value.items()
       }
-    print("Warning, could not parse out python collection")
+    logger.warn(f"could not parse out python collection type {klass}")
     return dictable_value
 
   @staticmethod
@@ -262,10 +270,16 @@ class Dictify:
       field_name = field.name
       field_value = getattr(obj, field_name, None)
       dict_key = Dictify._to_pascal_case(field_name)
+      dict_value = None
       if isabstract(field.type) and DelegateRegistry.has_supertype(field.type):
         # Fields with a abstract-defined type have format "<FieldName>_<Type>"
         dict_key = f"{dict_key}_{field_value.__class__.__name__}"
-      dict_value = Dictify.to_dict(field_value)
+      if get_origin(field.type) == list:
+        inner_type = get_args(field.type)[0]
+        if isabstract(inner_type) and DelegateRegistry.has_supertype(inner_type):
+          dict_value = Dictify.to_dict(field_value, type_as_key=True)
+      if dict_value is None:
+        dict_value = Dictify.to_dict(field_value)
       if dict_value is not None:
         ret[dict_key] = dict_value
     return ret

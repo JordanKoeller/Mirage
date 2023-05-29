@@ -8,10 +8,10 @@ from mirage.calc import KdTree
 from mirage.model import SourcePlane
 
 
+@dataclass(kw_only=True)
 class Reducer(ABC):
-
-  def __init__(self):
-    self._parent_key: List[str] = []
+  _parent_key: Optional[List[str]] = None
+  _name: Optional[str] = None
 
   @abstractmethod
   def reduce(self, traced_rays: KdTree, source_plane: Optional[SourcePlane]):
@@ -49,5 +49,11 @@ class Reducer(ABC):
   def _set_parent_key(self, parent_key: List[str]):
     self._parent_key = parent_key
 
-  def _get_parent_key(self) -> List[str]:
-    return self._parent_key
+  @property
+  def key(self):
+    if self._name:
+      return self._name
+    type_key = self.type_key()
+    if self._parent_key:
+      return os.path.join(*self._parent_key, type_key)
+    return type_key

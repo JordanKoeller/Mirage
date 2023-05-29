@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, List, Self, Union
+from typing import Optional, List, Self, Union, Tuple
 from functools import cached_property
 
 from astropy import units as u
@@ -51,6 +51,15 @@ class Region:
         [tl.x.value, tl.y.value],
     ]
     return u.Quantity(np.array(data), self.unit)
+
+  @property
+  def span(self) -> Tuple[Vec2D, Vec2D]:
+    center: Vec2D = (
+        self.center.to(self.unit) if self.center else Vec2D.zero_vector(self.unit)
+    )
+    tl = (center - self.dims / 2.0).to(self.unit)  # type: ignore
+    br = (center + self.dims / 2.0).to(self.unit)  # type: ignore
+    return tl, br
 
 
 @dataclass(kw_only=True, frozen=True)

@@ -158,12 +158,14 @@ class Dictify:
 
   @staticmethod
   def _value_from_dict(klass: Type[T], dictable_value: Any) -> Optional[T]:
-    logger.debug(f"_value_from_dict: {klass}")
     if isabstract(klass):
       raise ValueError(f"Cannot convert a dict to an abstract type {klass.__name__}")
     custom_serializer = Dictify._get_custom_serializer(klass)  # type: ignore
     if dictable_value is None:
       return None
+    if get_origin(klass) is Union and type(None) in get_args(klass):
+      klass = get_args(klass)[0]
+    logger.debug(f"_value_from_dict: {klass} {dictable_value}")
     if custom_serializer:
       return custom_serializer.from_dict(dictable_value)
     if klass in (int, float, str, bool):

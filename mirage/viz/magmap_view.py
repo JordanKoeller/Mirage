@@ -4,9 +4,11 @@ import numpy as np
 
 from mirage.util import DuplexChannel
 from mirage.calc.reducers import MagnificationMapReducer
+from mirage.viz import Viz
 
 
-class MagmapView:
+@Viz.register
+class MagmapView(Viz):
 
   def __init__(self):
     self.fig = plt.figure()
@@ -18,6 +20,11 @@ class MagmapView:
     self.img_ax.set_frame_on(True)
     self.fig.set_tight_layout(True)
 
-  def show_magmap(self, magmap_reducer: MagnificationMapReducer):
+  def show(self, magmap_reducer: MagnificationMapReducer):  # type: ignore
     magnitudes = -np.log10(magmap_reducer.output)  # type: ignore
     self.img_ax.imshow(magnitudes, cmap=self.colormap)
+    self.fig.show()
+
+  @classmethod
+  def compatible_reducers(cls):
+    return [MagnificationMapReducer]

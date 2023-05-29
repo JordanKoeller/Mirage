@@ -8,6 +8,7 @@ from astropy import units as u
 from astropy.cosmology import Cosmology, WMAP7
 
 from mirage.util import Dictify, DelegateRegistry, Vec2D, PolarVec
+from mirage.calc.reducers import LightCurvesReducer
 
 
 class TestJsonableMixin(TestCase):
@@ -169,6 +170,22 @@ class TestJsonableMixin(TestCase):
     }
     actual = Dictify.to_dict(elem)
     self.assertDictEqual(expected, actual)
+
+  def testFromDict_lightCurvesReducer_success(self):
+    dict_repr = {
+        "Radius": [1, "uas"],
+        "Resolution": [10, "1/uas"],
+        "NumCurves": 10,
+        "Seed": 12,
+    }
+    expected = LightCurvesReducer(
+        radius=1 * u.uas,
+        resolution=10 / u.uas,
+        num_curves=10,
+        seed=12,
+    )
+    actual = Dictify.from_dict(LightCurvesReducer, dict_repr)
+    self.assertEqual(expected, actual)
 
 
 @dataclass

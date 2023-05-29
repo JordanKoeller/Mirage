@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional, Any, List
 from dataclasses import dataclass
 
 from mirage.util.io import ResultFileManager
@@ -18,3 +18,7 @@ class Result:
   @property
   def simulation(self):
     return self._sim
+
+  @property
+  def reducer_names(self) -> List[str]:
+    return [fname for fname in self._io.manifest]

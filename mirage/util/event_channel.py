@@ -101,14 +101,11 @@ class DuplexChannel:
     # TODO: Implement a close method that blocks and waits for the queue to terminate
     try:
       self.sender.put(StructuredEvent.close_event(), True)
-      self.sender.close()
-      self.sender.cancel_join_thread()
     except Exception as e:
-      logger.info("Encountered an error in close-send:\n", e)
+      logger.info("Encountered an error in close-send:\n%s", e)
 
     try:
-      while not self.receiver.empty():
-        self.recv_blocking()
+      logger.info("Trying to close")
     except Exception as e:
       logger.info("Encountered an error in close-recv:\n", e)
 
@@ -116,4 +113,4 @@ class DuplexChannel:
 
   @property
   def closed(self):
-    return self._closed
+    return self._closed or self.sender.empty()

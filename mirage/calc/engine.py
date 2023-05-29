@@ -39,7 +39,10 @@ class Engine:
 
       for reducer in self.get_reducers(simulation):
         reducer.reduce(rays_tree, simulation.source_plane)
+        logger.info(f"Enqueue {reducer}")
         self.export_outcome(reducer)
+      logger.info(f"Enqueue Close")
+      self.event_channel.close()
 
   def get_reducers(self, simulation: Simulation) -> Iterator[Reducer]:
     """

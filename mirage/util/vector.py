@@ -96,6 +96,13 @@ class Vec2D(BaseRepresentation, DictifyMixin):
   def magnitude(self) -> u.Quantity:
     return np.sqrt(self.x * self.x + self.y * self.y)
 
+  @property
+  def direction(self) -> Self:
+    """
+    Get a unit vector pointing in the same direction as self
+    """
+    return self / self.magnitude
+
   def mul(self, other: Self) -> Self:
     return Vec2D(self.x * other.x, self.y * other.y)
 

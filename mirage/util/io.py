@@ -119,15 +119,16 @@ class ResultFileManager:
     Inserts a record into the manifest and returns the filename that should
     be used to dump the output
     """
-    reducer_path = reducer._get_parent_key()
-    reducer_key = reducer.type_key()
+    key = reducer.key
+    key_path_parts = key.split(os.sep)
+    key_end = f"{key_path_parts[-1]}"
     manifest_dict = self.manifest
-    for reducer_name in reducer_path:
-      if reducer_name not in manifest_dict:
-        manifest_dict[reducer_name] = {}
-      manifest_dict = manifest_dict[reducer_name]
-    if reducer_key in manifest_dict:
-      reducer_key = f"{reducer_key}_{len(manifest_dict)}"
-    fname = os.path.join(*reducer_path, f"{reducer_key}.pickle")
-    manifest_dict[reducer_key] = fname
+    for key_part in key_path_parts[:-1]:
+      if key_part not in manifest_dict:
+        manifest_dict[key_part] = {}
+      manifest_dict = manifest_dict[key_part]
+    if key_end in manifest_dict:
+      key_end = f"{key_end}_{len(manifest_dict)}"
+    fname = os.path.join(*key_path_parts[:-1], f"{key_end}.pickle")
+    manifest_dict[key_end] = fname
     return fname

@@ -77,7 +77,7 @@ class MicrolensingSimulation(Simulation):
             self.source_region_dimensions.y,
         )
         * RAY_REGION_FACTOR
-        / (1 - conv)
+        / (1 - conv) ** 2
     )
 
     # See below for why this works

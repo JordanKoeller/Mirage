@@ -7,7 +7,7 @@ cpdef np.ndarray[np.float64_t, ndim=2] populate_magmap(
     np.ndarray[np.float64_t, ndim=3] query_locations,
     double query_radius,
     object tree):
-  cdef int i, j, xx, yy
+  cdef int i, j, xx, yy, pos_count
   xx = query_locations.shape[0]
   yy = query_locations.shape[1]
   cdef np.ndarray[np.int64_t, ndim=2] buffer = np.zeros((xx, yy), dtype=np.int64)
@@ -16,4 +16,17 @@ cpdef np.ndarray[np.float64_t, ndim=2] populate_magmap(
       pos_count = tree.query_count(
         query_locations[i, j, 0], query_locations[i, j, 1], query_radius)
       buffer[i, j] += pos_count
+  return buffer
+
+cpdef np.ndarray[np.float64_t, ndim=1] populate_lightcurve(
+    np.ndarray[np.float64_t, ndim=2] query_locations,
+    double query_radius,
+    object tree):
+  cdef int i, num_queries, pos_count
+  num_queries = query_locations.shape[0]
+  cdef np.ndarray[np.int64_t, ndim=1] buffer = np.zeros(num_queries, dtype=np.int64)
+  for i in range(num_queries):
+    pos_count = tree.query_count(
+      query_locations[i, 0], query_locations[i, 1], query_radius)
+    buffer[i] = pos_count
   return buffer

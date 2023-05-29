@@ -36,7 +36,7 @@ class BatchRunner:
       raise e
 
   def start(self):
-    send, recv = DuplexChannel.create(3)
+    send, recv = DuplexChannel.create(10)
 
     engine_process = Process(
         name="EngineProcess",
@@ -45,15 +45,18 @@ class BatchRunner:
     )
 
     engine_process.start()  # This starts the engine in a separate process
-    evt = recv.recv_blocking()
-    if evt.closed or evt.empty:
-      logger.info(
-          "EngineProcess returned code indicating the thread closed. No result is saved."
-      )
-    else:
-      reducer = evt.value
-      serializer = ResultFileManager(self.output_filename, "x")
-      serializer.dump_simulation(self.simulation)
-      serializer.dump_result(reducer)
-      serializer.close()
+    serializer = ResultFileManager(self.output_filename, "x")
+    serializer.dump_simulation(self.simulation)
+    flag = True
+    while flag:
+      evt = recv.recv_blocking()
+      logger.info(f"Dequeue {evt.value}")
+      if evt.closed or evt.empty:
+        logger.info("EngineProcess Closed. Saving and quiting")
+        flag = False
+      else:
+        reducer = evt.value
+        serializer.dump_result(reducer)
+    serializer.close()
+    logger.info("Result saved to %s", self.output_filename)
     engine_process.join()  # After UI is closed, gracefully terminate engine process

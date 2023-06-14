@@ -40,6 +40,10 @@ class StructuredEvent:
   def empty(self) -> bool:
     return self.value is None or self.event_type == StructuredEventType.EMPTY
 
+  @property
+  def has_payload(self) -> bool:
+    return self.value is not None and self.event_type == StructuredEventType.PAYLOAD
+
 
 @dataclass
 class DuplexChannel:
@@ -98,6 +102,7 @@ class DuplexChannel:
     return structured_event
 
   def close(self):
+    return
     # TODO: Implement a close method that blocks and waits for the queue to terminate
     try:
       self.sender.put(StructuredEvent.close_event(), True)
@@ -113,4 +118,4 @@ class DuplexChannel:
 
   @property
   def closed(self):
-    return self._closed or self.sender.empty()
+    return self._closed

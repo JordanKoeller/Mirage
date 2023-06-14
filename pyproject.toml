@@ -7,8 +7,11 @@ authors = [
   { name = "DavidPooley", email = "dpooley@trinity.edu" }
 ]
 readme = "README.md"
-
 requires-python = ">=3.11"
+
+[build-system]
+requires = ["maturin>=1,<2"]
+build-backend = "maturin"
 
 [project.urls]
 Repo = "https://github.com/jordankoeller/mirage"

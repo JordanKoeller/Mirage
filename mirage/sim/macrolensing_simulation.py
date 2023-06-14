@@ -27,4 +27,6 @@ class MacrolensingSimulation(Simulation):
     return ret.to("theta_0")
 
   def get_reducers(self) -> List[Reducer]:
-    return deepcopy(self.reducers)
+    while True:
+      for reducer in self.reducers:
+        yield reducer

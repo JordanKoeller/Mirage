@@ -5,11 +5,12 @@ from mirage.calc import Reducer, KdTree
 from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region
 from mirage.model import SourcePlane
+from mirage_ext import reduce_lensed_image
 
 import numpy as np
 from astropy import units as u
 
-HIT_COLOR = np.array([120, 120, 255])
+HIT_COLOR = np.array([120, 120, 255], dtype=np.uint8)
 
 
 @DelegateRegistry.register
@@ -22,16 +23,18 @@ class LensedImageReducer(Reducer):
     self.canvas: Optional[np.ndarray] = None
 
   def reduce(self, traced_rays: KdTree, _source_plane: Optional[SourcePlane]):
-    inds = traced_rays.query(self.query.to("theta_0"), self.radius.to("theta_0"))
-    canvas_shape = (traced_rays.data_shape[0], traced_rays.data_shape[1], 3)
-    self.canvas = np.zeros(canvas_shape, dtype=np.uint8)
-    for i, j in inds:
-      self.canvas[i, j] = HIT_COLOR
+    inds = traced_rays.query_indices(
+        self.query.to("theta_0"), self.radius.to("theta_0")
+    )
+    canvas_shape = np.array(
+        [traced_rays.data_shape[0], traced_rays.data_shape[1], 3], dtype=np.uint64
+    )
+    self.canvas = reduce_lensed_image(inds, canvas_shape, HIT_COLOR)
 
   def merge(self, other: Self):
-    other_canvas = other.output
+    other_canvas = other.canvas
     if self.canvas is not None and other_canvas is not None:
-      self.canvas[other_canvas[:, :, 0] == HIT_COLOR[0]] = HIT_COLOR
+      self.canvas = np.bitwise_or(self.canvas, other_canvas)
     elif other_canvas is not None:
       self.canvas = other_canvas
 

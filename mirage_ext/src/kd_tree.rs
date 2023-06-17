@@ -1,8 +1,7 @@
-use std::cmp::{Ord, Ordering, Reverse};
-use std::collections::{BinaryHeap, VecDeque};
+use std::collections::{VecDeque};
 
-use ndarray::{self, arr1, Axis};
-use numpy::{IntoPyArray, PyArray1, PyReadonlyArray2, PyReadonlyArrayDyn};
+use ndarray::arr1;
+use numpy::{IntoPyArray, PyArray1, PyReadonlyArray2};
 use pyo3::prelude::*;
 
 #[pyclass]
@@ -16,14 +15,21 @@ pub struct KdTree {
 #[pymethods]
 impl KdTree {
   #[new]
-  pub fn new_py<'py>(data: PyReadonlyArray2<'py, f64>, node_size: usize) -> Self {
-    Self {
-      data: data.to_owned_array(),
-      indices: ndarray::Array1::from_iter(0..data.shape()[0]),
-      node_size,
-      partition_tree: Vec::new(),
-    }
-    .init_tree()
+  pub fn new_py<'py>(
+    python: Python<'py>,
+    data: PyReadonlyArray2<'py, f64>,
+    node_size: usize,
+  ) -> Self {
+    let owned_array = data.to_owned_array();
+    python.allow_threads(move || {
+      Self {
+        indices: ndarray::Array1::from_iter(0..owned_array.shape()[0]),
+        data: owned_array,
+        node_size,
+        partition_tree: Vec::new(),
+      }
+      .init_tree()
+    })
   }
 
   fn query_near<'py>(
@@ -33,16 +39,12 @@ impl KdTree {
     y: f64,
     radius: f64,
   ) -> &'py PyArray1<usize> {
-    println!("Query_near_rs");
     let ret = python.allow_threads(|| self.query_near_rs(x, y, radius));
-    println!("Done Query_near_rs");
     ret.into_pyarray(python)
   }
 
   fn query_near_count<'py>(&self, x: f64, y: f64, radius: f64) -> usize {
-    println!("Query_near_count_rs");
     let ret = self.query_near_count_rs(x, y, radius);
-    println!("Done Query_near_count_rs");
     ret
   }
 }
@@ -109,7 +111,6 @@ impl KdTree {
   }
 
   fn init_tree(mut self) -> Self {
-    println!("Start init tree");
     let mut splits_queue = VecDeque::new();
     splits_queue.push_back(KdTreeNode::new(0, self.data.shape()[0], 0));
     while splits_queue.len() > 0 {
@@ -124,26 +125,22 @@ impl KdTree {
       }
       self.partition_tree.push(node);
     }
-    println!("End init tree");
     self
   }
 
   fn partition(&mut self, start_i: usize, end_i: usize, d: usize) -> f64 {
     // Todo: Optimize this another time. I'm just going to heapsort
-    let mut heap = BinaryHeap::new();
-    let k = (start_i + end_i) / 2;
+    let k = (start_i + end_i) / 2 - start_i;
+    let mut sort_vec = Vec::from_iter(start_i..end_i);
+    sort_vec.sort_unstable_by(|&i, &j| {
+      let i_v: f64 = self.data[[i, d]];
+      let j_v: f64 = self.data[[j, d]];
+      i_v.total_cmp(&j_v)
+    });
     for i in start_i..end_i {
-      heap.push(Reverse(SortIndexArrayElem::new(self.data.view(), i, d)));
+      self.indices[i] = sort_vec[i - start_i];
     }
-    let mut ret = self.data[[self.indices[start_i], d]];
-    for i in start_i..end_i {
-      let elem = heap.pop().unwrap().0;
-      self.indices[i] = elem.index;
-      if elem.index == k {
-        ret = elem.value();
-      }
-    }
-    ret
+    self.data[[sort_vec[k], d]]
   }
 }
 
@@ -165,51 +162,3 @@ impl KdTreeNode {
     }
   }
 }
-
-struct SortIndexArrayElem<'a> {
-  pub index: usize,
-  data: ndarray::ArrayView2<'a, f64>,
-  dimension: usize,
-}
-
-impl<'a> SortIndexArrayElem<'a> {
-  fn new(data: ndarray::ArrayView2<'a, f64>, index: usize, dimension: usize) -> Self {
-    Self {
-      data,
-      index,
-      dimension,
-    }
-  }
-
-  fn value(&self) -> f64 {
-    self.data[[self.index, self.dimension]]
-  }
-}
-
-impl<'a> PartialEq for SortIndexArrayElem<'a> {
-  fn eq(&self, other: &Self) -> bool {
-    self.value() == other.value()
-  }
-}
-
-impl<'a> PartialOrd for SortIndexArrayElem<'a> {
-  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-    self.value().partial_cmp(&other.value())
-  }
-}
-
-impl<'a> Ord for SortIndexArrayElem<'a> {
-  fn cmp(&self, other: &Self) -> Ordering {
-    let lhs = self.value();
-    let rhs = other.value();
-    if lhs < rhs {
-      Ordering::Less
-    } else if lhs == rhs {
-      Ordering::Equal
-    } else {
-      Ordering::Greater
-    }
-  }
-}
-
-impl<'a> Eq for SortIndexArrayElem<'a> {}

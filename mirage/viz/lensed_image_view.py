@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
 
-from mirage.util import DuplexChannel
+from mirage.util import DuplexChannel, Stopwatch, RepeatLogger
 from mirage.calc.reducer import Reducer
 
 logger = logging.getLogger(__name__)
@@ -33,9 +33,9 @@ class LensedImageView:
     plt.show()
 
   def draw_frame(self, frame_id: int):
+    frame_evt = self.event_channel.recv()
     if self.event_channel.closed:
       return []
-    frame_evt = self.event_channel.recv()
     if frame_evt.has_payload:
       frame: Reducer = frame_evt.value  # type: ignore
       # logger.info(f"####### Frame {type(frame)}")
@@ -45,5 +45,5 @@ class LensedImageView:
 
   def _terminate(self):
     logger.info("Closing Visualizer")
-    self.event_channel.close()
     plt.close()
+    self.event_channel.close()

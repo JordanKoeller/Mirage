@@ -6,5 +6,5 @@ LensingSystem_PointLens:
   Mass: [1e12, solMass]
 Reducers:
 - LensedImageReducer:
-    Query: [0, 0, 'arcsec']
+    Query: [0.3, 0.7, 'arcsec']
     Radius: [0.1, 'arcsec']

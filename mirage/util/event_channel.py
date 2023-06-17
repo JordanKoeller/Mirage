@@ -3,6 +3,8 @@ from typing import Any, Optional, TypeVar, Tuple, Self, Literal
 from multiprocessing import Queue
 from enum import IntEnum
 import logging
+from queue import Empty
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +27,8 @@ class StructuredEvent:
     return cls(StructuredEventType.EMPTY)
 
   @classmethod
-  def close_event(cls) -> Self:
-    return cls(StructuredEventType.CLOSE)
+  def close_event(cls, needs_response: bool) -> Self:
+    return cls(StructuredEventType.CLOSE, needs_response)
 
   @classmethod
   def payload_event(cls, payload: Any) -> Self:
@@ -49,7 +51,8 @@ class StructuredEvent:
 class DuplexChannel:
   sender: Queue
   receiver: Queue
-  _closed: bool = False
+  _sender_closed: bool = False
+  _receiver_closed: bool = False
 
   @classmethod
   def create(cls, max_size: int = 0) -> Tuple[Self, Self]:
@@ -62,6 +65,8 @@ class DuplexChannel:
     Nonblocking attempt to send a message. If the message was sent,
     returns True. Else False.
     """
+    if self.sender_closed:
+      return False
     msg = StructuredEvent.payload_event(msg)
     try:
       self.sender.put_nowait(msg)
@@ -75,6 +80,8 @@ class DuplexChannel:
     minutes to send the message. If the message could not be sent
     in 5 minutes an exception is thrown.
     """
+    if self.sender_closed:
+      return
     msg = StructuredEvent.payload_event(msg)
     self.sender.put(msg, True)
 
@@ -85,9 +92,7 @@ class DuplexChannel:
     """
     try:
       structured_event: StructuredEvent = self.receiver.get_nowait()
-      if structured_event.closed:
-        self.close()
-      return structured_event
+      return self._recv_helper(structured_event)
     except:
       return StructuredEvent.empty_event()
 
@@ -97,25 +102,47 @@ class DuplexChannel:
     before timing out and throwing an exception.
     """
     structured_event: StructuredEvent = self.receiver.get(True, MAX_TIMEOUT)
-    if structured_event.closed:
-      self.close()
-    return structured_event
+    return self._recv_helper(structured_event)
 
   def close(self):
-    return
-    # TODO: Implement a close method that blocks and waits for the queue to terminate
     try:
-      self.sender.put(StructuredEvent.close_event(), True)
+      logger.info("Called EventChanne.close()")
+      self.sender.put(StructuredEvent.close_event(needs_response=True), True)
+      self._sender_closed = True
     except Exception as e:
       logger.info("Encountered an error in close-send:\n%s", e)
 
     try:
-      logger.info("Trying to close")
+      while not self.receiver_closed:
+        logger.debug("Waiting for close() caller to receiv close response")
+        logger.debug(f"With queue {self.receiver.qsize()}")
+        self.recv_blocking()
+        time.sleep(0.1)
     except Exception as e:
       logger.info("Encountered an error in close-recv:\n", e)
 
-    self._closed = True
+  @property
+  def sender_closed(self) -> bool:
+    return self._sender_closed
+
+  @property
+  def receiver_closed(self) -> bool:
+    return self._receiver_closed
 
   @property
   def closed(self):
-    return self._closed
+    return self.sender_closed and self.receiver_closed
+
+  def _recv_helper(self, structured_event: StructuredEvent) -> StructuredEvent:
+    if structured_event.closed:
+      logger.debug("Recv_blocking got closed response")
+      if structured_event.value:  # Needs response
+        logger.debug("Recv sending needs_response=True close event")
+        self.sender.put(StructuredEvent.close_event(needs_response=False), True)
+        self._sender_closed = True
+        logger.debug("Response sent")
+      self.receiver.close()
+      self.receiver.cancel_join_thread()
+      logger.debug("Receiver closed")
+      self._receiver_closed = True
+    return structured_event

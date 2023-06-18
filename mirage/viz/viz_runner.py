@@ -43,7 +43,7 @@ class VizRunner:
     logger.info("Terminating Engine")
 
   def start(self):
-    send, recv = DuplexChannel.create(1)
+    send, recv = DuplexChannel.create(10)
 
     engine_process = Process(
         name="EngineProcess",

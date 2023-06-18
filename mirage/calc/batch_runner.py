@@ -11,7 +11,7 @@ import sys
 from matplotlib import pyplot as plt
 import numpy as np
 
-from mirage.calc.engine import Engine
+from mirage.calc.dask_engine import DaskEngine
 from mirage.sim import Simulation
 from mirage.util import ResultFileManager, DuplexChannel
 
@@ -27,7 +27,7 @@ class BatchRunner:
   @staticmethod
   def _engine_main(simulation: Simulation, channel: DuplexChannel):
     try:
-      engine = Engine(event_channel=channel)
+      engine = DaskEngine(event_channel=channel)
       engine.blocking_run_simulation(simulation)
       logger.info("Terminating Engine")
     except Exception as e:

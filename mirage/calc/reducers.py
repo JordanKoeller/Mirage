@@ -31,12 +31,13 @@ class LensedImageReducer(Reducer):
     )
     self.canvas = reduce_lensed_image(inds, canvas_shape, HIT_COLOR)
 
-  def merge(self, other: Self):
+  def merge(self, other: Self) -> Self:
     other_canvas = other.canvas
     if self.canvas is not None and other_canvas is not None:
       self.canvas = np.bitwise_or(self.canvas, other_canvas)
     elif other_canvas is not None:
       self.canvas = other_canvas
+    return self
 
   @property
   def output(self) -> Optional[np.ndarray]:
@@ -66,12 +67,13 @@ class MagnificationMapReducer(Reducer):
 
     self.canvas = populate_magmap(pixels, radius, traced_rays)
 
-  def merge(self, other: Self):
+  def merge(self, other: Self) -> Self:
     other_canvas = other.canvas
     if self.canvas is not None and other_canvas is not None:
       self.canvas += other_canvas
     elif other_canvas is not None:
       self.canvas = other_canvas
+    return self
 
   @property
   def output(self) -> Optional[np.ndarray]:
@@ -100,12 +102,13 @@ class LightCurvesReducer(Reducer):
       queries = query_points[i].to("theta_0").value
       self._curves[i] = populate_lightcurve(queries, radius, traced_rays)
 
-  def merge(self, other: Self):
+  def merge(self, other: Self) -> Self:
     for i in range(self.num_curves):
       if self._curves[i] is not None and other._curves[i] is not None:
         self._curves[i] = self._curves[i] + other._curves[i]
       elif other._curves[i] is not None:
         self._curves[i] = other._curves[i]
+    return self
 
   @property
   def output(self):

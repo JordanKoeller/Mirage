@@ -83,6 +83,9 @@ class PixelRegion(Region):
         resolution=self.resolution,
     )
 
+  def subdivide(self, parallelism_factor: int) -> List[Self]:
+    return [self]
+
   @property
   def delta(self) -> Vec2D:
     return self.dims.div(self.resolution)

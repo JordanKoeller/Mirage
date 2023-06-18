@@ -23,7 +23,7 @@ class Reducer(ABC):
     """
 
   @abstractmethod
-  def merge(self, other: Self):
+  def merge(self, other: Self) -> Self:
     """
     Accumulate the result of another reducer with the result
     inside this reducer.

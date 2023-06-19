@@ -8,12 +8,11 @@ import pickle
 import os
 import sys
 
-from matplotlib import pyplot as plt
 import numpy as np
 
 from mirage.calc.dask_engine import DaskEngine
 from mirage.sim import Simulation
-from mirage.util import ResultFileManager, DuplexChannel
+from mirage.util import ResultFileManager, DuplexChannel, LocalClusterProvider
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,8 @@ class BatchRunner:
   @staticmethod
   def _engine_main(simulation: Simulation, channel: DuplexChannel):
     try:
-      engine = DaskEngine(event_channel=channel)
+      local_cluster = LocalClusterProvider(num_workers=10, worker_mem="2GiB")
+      engine = DaskEngine(event_channel=channel, cluster_provider=local_cluster)
       engine.blocking_run_simulation(simulation)
       logger.info("Terminating Engine")
     except Exception as e:
@@ -48,15 +48,16 @@ class BatchRunner:
     serializer = ResultFileManager(self.output_filename, "x")
     serializer.dump_simulation(self.simulation)
     flag = True
-    while flag:
-      evt = recv.recv_blocking()
-      logger.info(f"Dequeue {evt.value}")
-      if evt.closed or evt.empty:
-        logger.info("EngineProcess Closed. Saving and quiting")
-        flag = False
-      else:
-        reducer = evt.value
-        serializer.dump_result(reducer)
-    serializer.close()
-    logger.info("Result saved to %s", self.output_filename)
-    engine_process.join()  # After UI is closed, gracefully terminate engine process
+    try:
+      while flag:
+        evt = recv.recv_blocking()
+        if evt.closed or evt.empty:
+          logger.info("EngineProcess Closed. Saving and quiting")
+          flag = False
+        else:
+          reducer = evt.value
+          serializer.dump_result(reducer)
+    finally:
+      serializer.close()
+      logger.info("Result saved to %s", self.output_filename)
+      engine_process.join()  # After UI is closed, gracefully terminate engine process

@@ -47,7 +47,7 @@ class MicrolensingRayTracer(RayTracer):
         self.shear,
         stars_mass.to("solMass").value,
         stars_positions.to("theta_0").value,
-        core_count,
+        1,
     )
 
     return u.Quantity(traced_values, rays.unit)

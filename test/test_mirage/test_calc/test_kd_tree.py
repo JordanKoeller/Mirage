@@ -4,7 +4,7 @@ from datetime import datetime
 import numpy as np
 from astropy import units as u
 
-from mirage.calc.kd_tree import PyKdTree, KdTree
+from mirage.calc.kd_tree import KdTree
 from mirage.util import Vec2D
 
 
@@ -20,17 +20,17 @@ class TestKdTreePerformance(TestCase):
     print("Time trial complete\n")
 
   def testKdTreeConstruction(self):
-    self.timeit(lambda: PyKdTree(self.dataset), "Py.__init__")
+    self.timeit(lambda: KdTree(self.dataset), "Py.__init__")
     self.timeit(lambda: KdTree(self.dataset), "Rust.__init__")
 
   def testKdTreeQuery(self):
-    pytree = PyKdTree(self.dataset)
+    pytree = KdTree(self.dataset)
     self.timeit(lambda: pytree.query(self.pos, self.radius), "Py.query")
     rstree = KdTree(self.dataset)
     self.timeit(lambda: rstree.query(self.pos, self.radius), "Rs.query")
 
   def testKdTreeQueryCount(self):
-    pytree = PyKdTree(self.dataset)
+    pytree = KdTree(self.dataset)
     self.timeit(
         lambda: pytree.query_count(
             self.pos.x.value, self.pos.y.value, self.radius.value
@@ -50,7 +50,7 @@ class TestKdTreePerformance(TestCase):
     py_times = []
     rs_times = []
     for s in scales:
-      py_times.append(self.getConstructionTime(s, PyKdTree))
+      py_times.append(self.getConstructionTime(s, KdTree))
       rs_times.append(self.getConstructionTime(s, KdTree))
     from matplotlib import pyplot as plt
 
@@ -63,7 +63,7 @@ class TestKdTreePerformance(TestCase):
     py_times = []
     rs_times = []
     for s in scales:
-      py_times.append(self.getQueryTime(s, PyKdTree))
+      py_times.append(self.getQueryTime(s, KdTree))
       # rs_times.append(self.getQueryTime(s, KdTree))
     from matplotlib import pyplot as plt
 

@@ -25,8 +25,8 @@ class KdTree:
     flat_indices = np.array(self.tree.query_ball_point([x, y], radius), dtype=np.uint64)
     return u.Quantity(self.data[flat_indices], self.unit)
 
-  def query_count(self, query_pos: Vec2D, radius: float) -> int:
-    x, y, radius = self._query_primatives(query_pos, radius)
+  def query_count(self, x, y, radius: float) -> int:
+    # x, y, radius = self._query_primatives(query_pos, radius)
     return self.tree.query_ball_point([x, y], radius, return_length=True)
 
   def query_indices(self, query_pos: Vec2D, radius: u.Quantity) -> np.ndarray:

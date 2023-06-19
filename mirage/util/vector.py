@@ -1,4 +1,5 @@
 from typing import Union, Optional, Self, Dict, Any, List
+from dataclasses import dataclass
 
 from astropy import units as u
 from astropy.coordinates import BaseRepresentation, CartesianRepresentation
@@ -189,3 +190,18 @@ class PolarVec(BaseRepresentation, DictifyMixin):
   @property
   def unit(self):
     return self.r.unit
+
+
+@dataclass
+class Index2D:
+  x: int
+  y: int
+
+  def __pre_init__(self):
+    if self.x < 0:
+      raise ValueError(f"Negative x index of {self.x} is invalid")
+    if self.y < 0:
+      raise ValueError(f"Negative index of {self.y} is invalid")
+
+  def array(self) -> List[int]:
+    return [self.x, self.y]

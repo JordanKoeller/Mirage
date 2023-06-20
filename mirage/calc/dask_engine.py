@@ -20,6 +20,8 @@ from mirage.model import SourcePlane
 
 logger = logging.getLogger(__name__)
 
+RAYS_PER_PARTITION = 8000000  # Equates to 128 MB / Partition
+
 
 @dataclass
 class DaskEngine:
@@ -38,10 +40,14 @@ class DaskEngine:
       ray_tracer = simulation.get_ray_tracer()
       rays_region = simulation.get_ray_bundle().to(simulation.lensing_system.theta_0)
 
+      num_rays = rays_region.num_pixels
+
+      num_partitions = 10 * int(math.ceil(num_rays / RAYS_PER_PARTITION))
+
+      logger.info(f"Subdividing into {num_partitions} partitions")
+
       trees = (
-          dask_bag.from_sequence(
-              rays_region.subdivide(self.cluster_provider.num_partitions)
-          )
+          dask_bag.from_sequence(rays_region.subdivide(num_partitions))
           .map(DaskEngine._trace_map(simulation, ray_tracer))
           .map(DaskEngine._kd_tree_map(simulation))
       )

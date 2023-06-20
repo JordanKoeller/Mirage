@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Optional
+import logging
 
 from dask.distributed import Client, LocalCluster
+
+logger = logging.getLogger(__name__)
 
 
 class ClusterProvider(ABC):
@@ -75,3 +78,33 @@ class LocalClusterProvider(ClusterProvider):
     if self._cluster is None:
       raise ValueError("Cluster has not been initialized!")
     return self._cluster.dashboard_link
+
+
+class RemoteClusterProvider(ClusterProvider):
+
+  def __init__(self, uri: str):
+    self._scheduler_uri = uri
+    self._client: Optional[Client] = None
+
+  def initialize(self):
+    self._client = Client(self._scheduler_uri)
+    logger.info(f"Connected to Dask Cluster {self._scheduler_uri}")
+
+  def close(self):
+    pass
+
+  @property
+  def client(self) -> Client:
+    if self._client:
+      return self._client
+    raise ValueError("Client was not intiailized. Please call `.intiailize()` first")
+
+  @property
+  def num_partitions(self) -> int:
+    return 12
+
+  @property
+  def dashboard(self) -> str:
+    if self._client is None:
+      raise ValueError("Client has not been initialized!")
+    return self._client.dashboard_link

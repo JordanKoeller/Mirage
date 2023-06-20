@@ -12,7 +12,7 @@ import numpy as np
 
 from mirage.calc.dask_engine import DaskEngine
 from mirage.sim import Simulation
-from mirage.util import ResultFileManager, DuplexChannel, LocalClusterProvider
+from mirage.util import ResultFileManager, DuplexChannel, LocalClusterProvider, RemoteClusterProvider
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,8 @@ class BatchRunner:
   @staticmethod
   def _engine_main(simulation: Simulation, channel: DuplexChannel):
     try:
-      local_cluster = LocalClusterProvider(num_workers=10, worker_mem="2GiB")
+      # local_cluster = LocalClusterProvider(num_workers=10, worker_mem="2GiB")
+      local_cluster = RemoteClusterProvider("localhost:8786")
       engine = DaskEngine(event_channel=channel, cluster_provider=local_cluster)
       engine.blocking_run_simulation(simulation)
       logger.info("Terminating Engine")

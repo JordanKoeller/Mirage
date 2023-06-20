@@ -6,6 +6,7 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
+path = "mirage_ext/lib.rs"
 
 [dependencies]
 ndarray = { version = "0.15.3"}

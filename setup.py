@@ -11,8 +11,8 @@ def get_ext_modules() -> Optional[List[Extension]]:
   try:
     from Cython.Build import cythonize
   except ImportError:
-    logger.warn("Could not import cython. Using pre-compiled extension modules")
-    logger.warn(
+    logger.warning("Could not import cython. Using pre-compiled extension modules")
+    logger.warning(
         "In order to compile extension modules please run 'pip install .[dev]'"
         " and run setup.py again."
     )
@@ -26,6 +26,7 @@ def get_ext_modules() -> Optional[List[Extension]]:
           # define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
           include_dirs=[numpy.get_include()],
           extra_compile_args=["-fopenmp"],
+          extra_link_args=["-fopenmp"],
       ),
       Extension(
           "mirage.calc.reducer_funcs",
@@ -33,6 +34,7 @@ def get_ext_modules() -> Optional[List[Extension]]:
           # define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
           include_dirs=[numpy.get_include()],
           extra_compile_args=["-fopenmp"],
+          extra_link_args=["-fopenmp"],
       ),
   ]
   return cythonize(
@@ -45,20 +47,5 @@ setup(
     name="mirage",
     version="2.0",
     packages=find_packages(),
-    install_requires=[
-        "numpy==1.23.5",
-        "astropy==5.1",
-        "matplotlib==3.7.1",
-        "scipy==1.10.0",
-        "yaml==0.2.5",
-    ],
-    extras_require={
-        "interractive": [
-            "ipython==8.10.0",
-        ],
-        "dev": [
-            "cython==0.29.33",
-        ],
-    },
     ext_modules=get_ext_modules(),
 )

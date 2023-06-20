@@ -1,5 +1,5 @@
 [project]
-name = "Mirage"
+name = "mirage"
 version = "2.0.0"
 description = "Simulating Gravitational Microlensing"
 authors = [
@@ -9,9 +9,25 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11"
 
+dependencies = [
+  "dask==2023.6.0",
+  "dask[distributed]==2023.6.0",
+  "numpy==1.23.5",
+  "astropy==5.1",
+  "bokeh==3.1.1",
+  "scipy==1.10.0",
+  "maturin==1.1.0",
+  "PyYAML==6.0",
+  "cython==0.29.33",
+]
+
 [build-system]
 requires = ["maturin>=1,<2"]
 build-backend = "maturin"
+
+[tool.maturin]
+python-source = "mirage"
+module-name = "mirage_ext"
 
 [project.urls]
 Repo = "https://github.com/jordankoeller/mirage"

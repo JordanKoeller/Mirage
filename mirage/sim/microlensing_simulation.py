@@ -107,8 +107,6 @@ class MicrolensingSimulation(Simulation):
 
   @property
   def source_plane(self) -> Optional[SourcePlane]:
-    from matplotlib import pyplot as plt
-
     region = Region(
         dims=self.source_region_dimensions,
         center=Vec2D.zero_vector(self.source_region_dimensions.unit),

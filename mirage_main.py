@@ -10,7 +10,6 @@ import yaml
 from mirage.sim import Simulation, MacrolensingSimulation, MicrolensingSimulation
 from mirage.util import Dictify
 from mirage.calc import reducers
-from mirage.viz import VizRunner
 from mirage.calc.batch_runner import BatchRunner
 
 logger = logging.getLogger("mirage_main")
@@ -152,6 +151,8 @@ if __name__ == "__main__":
     raise NotImplementedError()
 
   if run_mode == "viz" and simulation:
+    from mirage.viz import VizRunner
+
     logger.info("Running visualization")
     viz_runner = VizRunner(simulation)
     viz_runner.start()

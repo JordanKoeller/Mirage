@@ -20,7 +20,7 @@ from mirage.model import SourcePlane
 
 logger = logging.getLogger(__name__)
 
-RAYS_PER_PARTITION = 8000000  # Equates to 128 MB / Partition
+RAYS_PER_PARTITION = 6000000  # Equates to 32 MB / Partition
 
 
 @dataclass
@@ -35,40 +35,46 @@ class DaskEngine:
         simulation.lensing_system.einstein_radius,
     ]):
       self.cluster_provider.initialize()
-      logger.info("Starting Simulation. Now ray tracing")
-      logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
-      ray_tracer = simulation.get_ray_tracer()
-      rays_region = simulation.get_ray_bundle().to(simulation.lensing_system.theta_0)
+      try:
+        logger.info("Starting Simulation. Now ray tracing")
+        logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
+        ray_tracer = simulation.get_ray_tracer()
+        rays_region = simulation.get_ray_bundle().to(simulation.lensing_system.theta_0)
 
-      num_rays = rays_region.num_pixels
+        num_rays = rays_region.num_pixels
 
-      num_partitions = 10 * int(math.ceil(num_rays / RAYS_PER_PARTITION))
+        num_partitions = int(math.ceil(num_rays / RAYS_PER_PARTITION))
 
-      logger.info(f"Subdividing into {num_partitions} partitions")
+        logger.info(f"Subdividing into {num_partitions} partitions")
 
-      trees = (
-          dask_bag.from_sequence(rays_region.subdivide(num_partitions))
-          .map(DaskEngine._trace_map(simulation, ray_tracer))
-          .map(DaskEngine._kd_tree_map(simulation))
-      )
-
-      trees = self.cluster_provider.client.persist(trees)
-
-      source_plane = simulation.source_plane
-      for reducer in self.get_reducers(simulation):
-        self.event_channel.recv()
-        if self.event_channel.sender_closed:
-          return  # Short circuit if event channel is closed
-        mapped_reducers = trees.map(
-            DaskEngine._reduce_map(simulation, source_plane, reducer)
+        trees = (
+            dask_bag.from_sequence(rays_region.subdivide(num_partitions))
+            .map(DaskEngine._trace_map(simulation, ray_tracer))
+            .map(DaskEngine._kd_tree_map(simulation))
         )
-        merged_reducer = mapped_reducers.fold(lambda a, b: a.merge(b))
-        hydrated_reducer = self.cluster_provider.client.compute(
-            merged_reducer, sync=True
-        )
-        self.export_outcome(hydrated_reducer)
-      self.cluster_provider.close()
-      self.event_channel.close()
+
+        trees = self.cluster_provider.client.persist(trees)
+
+        source_plane = simulation.source_plane
+        for reducer in self.get_reducers(simulation):
+          self.event_channel.recv()
+          if self.event_channel.sender_closed:
+            return  # Short circuit if event channel is closed
+          mapped_reducers = trees.map(
+              DaskEngine._reduce_map(simulation, source_plane, reducer)
+          )
+          merged_reducer = mapped_reducers.fold(lambda a, b: a.merge(b))
+          hydrated_reducer = self.cluster_provider.client.compute(
+              merged_reducer, sync=True
+          )
+          logger.info(f"Has hydrated {type(hydrated_reducer)}")
+          self.export_outcome(hydrated_reducer)
+      except Exception as e:
+        logger.error("Encountered Error")
+        logger.error(str(e))
+      finally:
+        self.cluster_provider.close()
+        self.event_channel.close()
 
   def get_reducers(self, simulation: Simulation) -> Iterator[Reducer]:
     """

@@ -10,9 +10,9 @@ Starfield:
   InitialMassFunction: Kroupa2001
   Seed: 110
 LensedImageCenter: [0.0, 0.0, 'uas']
-RayCount: 10000000
+RayCount: 400000000
 SourceRegionDimensions: [100, 100, 'uas']
 Reducers:
   - MagnificationMapReducer:
-      Radius: [0.5, 'uas']
-      Resolution: [800, 800, '']
+      Radius: [0.8, 'uas']
+      Resolution: [1000, 1000, '']

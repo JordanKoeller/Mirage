@@ -8,4 +8,4 @@ from .stopwatch import Stopwatch
 from .custom_serializers import register_serializers
 from .io import ResultFileManager
 from .logger import RepeatLogger
-from .cluster_provider import ClusterProvider, LocalClusterProvider, RemoteClusterProvider
+from .cluster_provider import ClusterProvider, LocalClusterProvider, RemoteClusterProvider, AwsEphemeralClusterProvider

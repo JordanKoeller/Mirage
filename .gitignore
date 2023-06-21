@@ -201,5 +201,6 @@ project/plugins/project/
 #OTher files:
 /data/*
 /venv/*
+config/
 
 .vscode

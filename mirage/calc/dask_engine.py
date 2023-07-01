@@ -15,12 +15,13 @@ import dask.bag as dask_bag
 
 from mirage.sim import Simulation
 from mirage.calc import Reducer, KdTree, RayTracer
-from mirage.util import Vec2D, DuplexChannel, RepeatLogger, Stopwatch, PixelRegion, ClusterProvider
+from mirage.util import Vec2D, DuplexChannel, RepeatLogger, Stopwatch, PixelRegion, ClusterProvider, size_to_bytes, bytes_to_size
 from mirage.model import SourcePlane
 
 logger = logging.getLogger(__name__)
 
-RAYS_PER_PARTITION = 6000000  # Equates to 32 MB / Partition
+PARTITION_SIZE_RANGE = ["20MB", "100MB"]
+RAYS_PER_PARTITION = list(map(lambda s: size_to_bytes(s) / 16, PARTITION_SIZE_RANGE))
 
 
 @dataclass
@@ -38,14 +39,33 @@ class DaskEngine:
       try:
         logger.info("Starting Simulation. Now ray tracing")
         logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
+        timer = Stopwatch()
+        timer.start()
         ray_tracer = simulation.get_ray_tracer()
         rays_region = simulation.get_ray_bundle().to(simulation.lensing_system.theta_0)
 
+        partition_size = self.cluster_provider.rays_per_partition
+
+        if (
+            partition_size < RAYS_PER_PARTITION[0]
+            or partition_size > RAYS_PER_PARTITION[1]
+        ):
+          logger.warning(
+              f"ClusterProvider requested {partition_size} per partition, which falls outside"
+              " of the recommended range. For optimal performance, each partition should"
+              f" be in the range {RAYS_PER_PARTITION}, or {PARTITION_SIZE_RANGE} in"
+              " memory."
+          )
+
         num_rays = rays_region.num_pixels
 
-        num_partitions = int(math.ceil(num_rays / RAYS_PER_PARTITION))
+        num_partitions = int(math.ceil(num_rays / partition_size))
 
-        logger.info(f"Subdividing into {num_partitions} partitions")
+        partition_mem_size = bytes_to_size(partition_size * 16)
+
+        logger.info(
+            f"Subdividing into {num_partitions} ({partition_mem_size}) partitions"
+        )
 
         trees = (
             dask_bag.from_sequence(rays_region.subdivide(num_partitions))
@@ -73,6 +93,8 @@ class DaskEngine:
         logger.error("Encountered Error")
         logger.error(str(e))
       finally:
+        timer.stop()
+        logger.info("Total Engine Elapsed Time: %ss", timer.total_elapsed())
         self.cluster_provider.close()
         self.event_channel.close()
 

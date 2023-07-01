@@ -12,7 +12,7 @@ import numpy as np
 
 from mirage.calc.dask_engine import DaskEngine
 from mirage.sim import Simulation
-from mirage.util import ResultFileManager, DuplexChannel, LocalClusterProvider, RemoteClusterProvider, AwsEphemeralClusterProvider
+from mirage.util import ResultFileManager, DuplexChannel, ClusterProvider, Dictify, Stopwatch
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +26,8 @@ class BatchRunner:
   @staticmethod
   def _engine_main(simulation: Simulation, channel: DuplexChannel):
     try:
-      # local_cluster = LocalClusterProvider(num_workers=8, worker_mem="2GiB")
-      local_cluster = AwsEphemeralClusterProvider(num_workers=10, cpus_per_worker=1)
-      engine = DaskEngine(event_channel=channel, cluster_provider=local_cluster)
+      cluster_provider = Dictify.from_yaml(ClusterProvider, "cluster.yaml")  # type: ignore
+      engine = DaskEngine(event_channel=channel, cluster_provider=cluster_provider)
       engine.blocking_run_simulation(simulation)
       logger.info("Terminating Engine")
     except Exception as e:
@@ -37,6 +36,8 @@ class BatchRunner:
       raise e
 
   def start(self):
+    timer = Stopwatch()
+    timer.start()
     send, recv = DuplexChannel.create(10)
 
     engine_process = Process(
@@ -65,3 +66,5 @@ class BatchRunner:
       serializer.close()
       logger.info("Result saved to %s", self.output_filename)
       engine_process.join()  # After UI is closed, gracefully terminate engine process
+      timer.stop()
+      logger.info("Total Runtime: %ss", timer.total_elapsed())

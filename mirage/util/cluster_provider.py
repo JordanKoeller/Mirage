@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from dask.distributed import Client, LocalCluster
 from dask_cloudprovider.aws import FargateCluster
 
-from mirage.util import DelegateRegistry
+from mirage.util import DelegateRegistry, size_to_bytes
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +17,9 @@ class ClusterProvider(ABC):
 
   @property
   @abstractmethod
-  def num_partitions(self) -> int:
+  def rays_per_partition(self) -> float:
     """
-    The number of partitions to use when running a simulation.
+    The requested number of rays to put in each partition
     """
 
   @abstractmethod
@@ -78,8 +78,8 @@ class LocalClusterProvider(ClusterProvider):
     raise ValueError("Cluster was not intiailized. Please call `.intiailize()` first")
 
   @property
-  def num_partitions(self) -> int:
-    return self.num_workers
+  def rays_per_partition(self) -> float:
+    return 1e7
 
   @property
   def dashboard(self) -> str:
@@ -110,8 +110,8 @@ class RemoteClusterProvider(ClusterProvider):
     raise ValueError("Client was not intiailized. Please call `.intiailize()` first")
 
   @property
-  def num_partitions(self) -> int:
-    return 12
+  def rays_per_partition(self) -> float:
+    return 1e7
 
   @property
   def dashboard(self) -> str:
@@ -125,6 +125,7 @@ class RemoteClusterProvider(ClusterProvider):
 class AwsEphemeralClusterProvider(ClusterProvider):
   num_workers: int
   cpus_per_worker: int
+  partition_size: str
 
   def __pre_init__(self):
     self._client: Optional[Client] = None
@@ -135,10 +136,13 @@ class AwsEphemeralClusterProvider(ClusterProvider):
         image="jkoeller12/mirage:latest",
         worker_cpu=1024 * self.cpus_per_worker,
         worker_mem=1024 * self.cpus_per_worker * 2,
-        worker_nthreads=self.cpus_per_worker * 2,
+        worker_nthreads=1,
         scheduler_cpu=1024 * 2,
         scheduler_mem=1024 * 4,
         n_workers=self.num_workers,
+        worker_extra_args=f"--nworkers {self.cpus_per_worker} --memory-limit 1.8GiB".split(
+            " "
+        ),
     )
     self._client = self._cluster.get_client()
     logger.info(f"Connected to Dask Cluster {self._client.dashboard_link}")
@@ -154,8 +158,8 @@ class AwsEphemeralClusterProvider(ClusterProvider):
     raise ValueError("Client was not intiailized. Please call `.intiailize()` first")
 
   @property
-  def num_partitions(self) -> int:
-    return 32
+  def rays_per_partition(self) -> float:
+    return size_to_bytes(self.partition_size) / 16
 
   @property
   def dashboard(self) -> str:

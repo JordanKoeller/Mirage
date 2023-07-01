@@ -19,6 +19,7 @@ dependencies = [
   "maturin==1.1.0",
   "PyYAML==6.0",
   "cython==0.29.33",
+  "hurry.filesize==0.9",
 ]
 
 [build-system]

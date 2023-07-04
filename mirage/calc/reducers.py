@@ -5,7 +5,7 @@ from mirage.calc import Reducer, KdTree
 from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region
 from mirage.model import SourcePlane
-from mirage_ext import reduce_lensed_image
+from mirage_ext import reduce_lensed_image, reduce_magmap
 
 import numpy as np
 from astropy import units as u
@@ -64,6 +64,8 @@ class MagnificationMapReducer(Reducer):
 
     pixels = pixel_region.to("theta_0").pixels.value
     radius = self.radius.to("theta_0").value
+
+    # self.canvas = reduce_magmap(traced_rays.tree, pixels, radius)
 
     self.canvas = populate_magmap(pixels, radius, traced_rays)
 

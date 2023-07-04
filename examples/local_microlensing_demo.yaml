@@ -1,0 +1,18 @@
+LensingSystem_MicrolensingLens:
+  Quasar:
+    Redshift: 1.69
+  Redshift: 0.04
+  Cosmology: WMAP7
+  Convergence: 0.3
+  Shear: 0.0
+  StarryFraction: 0.9
+Starfield:
+  InitialMassFunction: Kroupa2001
+  Seed: 110
+LensedImageCenter: [0.0, 0.0, 'uas']
+RayCount: 16000000
+SourceRegionDimensions: [100, 100, 'uas']
+Reducers:
+  - MagnificationMapReducer:
+      Radius: [1.2, 'uas']
+      Resolution: [1920, 1080, '']

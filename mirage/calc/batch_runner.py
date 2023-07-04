@@ -19,14 +19,21 @@ logger = logging.getLogger(__name__)
 
 class BatchRunner:
 
-  def __init__(self, simulation: Simulation, output_filename: str):
+  def __init__(
+      self,
+      simulation: Simulation,
+      output_filename: str,
+      cluster_provider: ClusterProvider,
+  ):
     self.simulation: Simulation = simulation.copy()
     self.output_filename: str = output_filename
+    self.cluster_provider = cluster_provider
 
   @staticmethod
-  def _engine_main(simulation: Simulation, channel: DuplexChannel):
+  def _engine_main(
+      simulation: Simulation, channel: DuplexChannel, cluster_provider: ClusterProvider
+  ):
     try:
-      cluster_provider = Dictify.from_yaml(ClusterProvider, "cluster.yaml")  # type: ignore
       engine = DaskEngine(event_channel=channel, cluster_provider=cluster_provider)
       engine.blocking_run_simulation(simulation)
       logger.info("Terminating Engine")
@@ -43,7 +50,7 @@ class BatchRunner:
     engine_process = Process(
         name="EngineProcess",
         target=BatchRunner._engine_main,
-        args=(self.simulation, send),
+        args=(self.simulation, send, self.cluster_provider),
     )
 
     engine_process.start()  # This starts the engine in a separate process

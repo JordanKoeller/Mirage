@@ -6,10 +6,10 @@ from astropy import units as u
 
 from mirage.util import Vec2D
 
-# from mirage_ext import KdTree as RustKdTree
+from mirage_ext import KiddoTree
 
 
-class KdTree:
+class PyKdTree:
 
   def __init__(self, data: u.Quantity):
     major_sz = data.shape[0] * data.shape[1]
@@ -43,6 +43,27 @@ class KdTree:
     query_pos = query_pos.to(self.unit)
     radius = radius.to(self.unit)
     return query_pos.x.value, query_pos.y.value, radius.value
+
+
+class RustKdTree:
+
+  def __init__(self, data: u.Quantity):
+    self.unit = data.unit
+    self.tree = KiddoTree(data.value)
+
+  def query_rays(self, query_pos: Vec2D, radius: u.Quantity) -> u.Quantity:
+    query_pos = query_pos.to(self.unit)
+    radius = radius.to(self.unit)
+    rays = self.tree.query_rays(query_pos.x.value, query_pos.y.value, radius.value)
+    return u.Quantity(rays, self.unit)
+
+  def query_count(self, x, y, radius) -> int:
+    return self.tree.query_count(x, y, radius)
+
+  def query_indicies(self, query_pos: Vec2D, radius: u.Quantity) -> np.ndarray:
+    query_pos = query_pos.to(self.unit)
+    radius = radius.to(self.unit)
+    return self.tree.query_indices(query_pos.x.value, query_pos.y.value, radius.value)
 
 
 # class KdTree:

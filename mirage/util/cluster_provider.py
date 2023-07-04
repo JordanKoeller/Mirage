@@ -53,7 +53,7 @@ class ClusterProvider(ABC):
 @DelegateRegistry.register
 class LocalClusterProvider(ClusterProvider):
   num_workers: int = field(default_factory=multiprocessing.cpu_count)
-  worker_mem: str = field(default_factory=lambda: "1GiB")
+  worker_mem: str = field(default_factory=lambda: "1.5GiB")
 
   def __pre_init__(self):
     self._cluster: Optional[LocalCluster] = None
@@ -61,7 +61,7 @@ class LocalClusterProvider(ClusterProvider):
 
   def initialize(self):
     self._cluster = LocalCluster(
-        n_workers=self.num_workers, memory_limit=self.worker_mem, threads_per_worker=2
+        n_workers=self.num_workers, memory_limit=self.worker_mem
     )
     self._client = Client(self._cluster)
 
@@ -79,7 +79,7 @@ class LocalClusterProvider(ClusterProvider):
 
   @property
   def rays_per_partition(self) -> float:
-    return 1e7
+    return 1e6
 
   @property
   def dashboard(self) -> str:

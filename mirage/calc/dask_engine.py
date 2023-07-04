@@ -20,7 +20,7 @@ from mirage.model import SourcePlane
 
 logger = logging.getLogger(__name__)
 
-PARTITION_SIZE_RANGE = ["20MB", "100MB"]
+PARTITION_SIZE_RANGE = ["10MB", "100MB"]
 RAYS_PER_PARTITION = list(map(lambda s: size_to_bytes(s) / 16, PARTITION_SIZE_RANGE))
 
 

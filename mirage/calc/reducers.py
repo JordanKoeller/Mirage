@@ -51,7 +51,7 @@ class LensedImageReducer(Reducer):
 class MagnificationMapReducer(Reducer):
   radius: u.Quantity
   resolution: Vec2D
-  canvas: Optional[np.ndarray]
+  canvas: Optional[np.ndarray] = None
 
   def reduce(self, traced_rays: KdTree, source_plane: Optional[SourcePlane]):
     if not source_plane:

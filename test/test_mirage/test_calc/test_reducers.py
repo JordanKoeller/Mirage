@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from astropy import units as u
 import numpy as np
 
-from mirage.calc.reducers import LightCurvesReducer
+from mirage.calc.reducers import LightCurvesReducer, MagnificationMapReducer
 from mirage.util import Region, Vec2D
 
 
@@ -39,6 +39,18 @@ class TestLightCurvesReducer(TestCase):
       dy = line[1, 1] - line[0, 1]
       r = np.sqrt(dx**2 + dy**2)
       self.assertAlmostEqual(r, 0.1)
+
+  def testMaterializeAll_appliesVariationToReducer(self):
+    reducer = MagnificationMapReducer(
+        radius=1.2 * u.uas,
+        resolution=Vec2D.unitless(300, 300),
+        variation="Radius = linspace(1, 5, 10) uas",
+    )
+    materialized = reducer.materialize_all()
+    self.assertEqual(len(materialized), 10)
+    expected_radii = np.linspace(1, 5, 10) * u.uas
+    for m, r in zip(materialized, expected_radii):
+      self.assertEqual(m.radius, r)
 
   def assertAlmostWithin(self, v, low, high, tol=1e-8):
     self.assertGreaterEqual(v, low - tol)

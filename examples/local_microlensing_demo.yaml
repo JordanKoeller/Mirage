@@ -1,6 +1,7 @@
 LensingSystem_MicrolensingLens:
   Quasar:
     Redshift: 1.69
+    Mass: 1e9 solMass
   Redshift: 0.04
   Cosmology: WMAP7
   Convergence: 0.3
@@ -14,5 +15,6 @@ RayCount: 16000000
 SourceRegionDimensions: [100, 100, 'uas']
 Reducers:
   - MagnificationMapReducer:
-      Radius: [1.2, 'uas']
+      Radius: 1.2 uas
+      Variation: Radius = linspace(1.2, 12, 5) uas
       Resolution: [1920, 1080, '']

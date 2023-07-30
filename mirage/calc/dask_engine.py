@@ -42,7 +42,9 @@ class DaskEngine:
         timer = Stopwatch()
         timer.start()
         ray_tracer = simulation.get_ray_tracer()
-        rays_region = simulation.get_ray_bundle().to(simulation.lensing_system.theta_0)
+        rays_region: PixelRegion = simulation.get_ray_bundle().to(
+            simulation.lensing_system.theta_0
+        )
 
         partition_size = self.cluster_provider.rays_per_partition
 

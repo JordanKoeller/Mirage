@@ -74,4 +74,4 @@ class BatchRunner:
       logger.info("Result saved to %s", self.output_filename)
       engine_process.join()  # After UI is closed, gracefully terminate engine process
       timer.stop()
-      logger.info("Total Runtime: %ss", timer.total_elapsed())
+      logger.info("Total Runtime: %ss", timer.total_elapsed_seconds())

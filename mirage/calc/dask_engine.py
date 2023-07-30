@@ -94,7 +94,7 @@ class DaskEngine:
         logger.error(str(e))
       finally:
         timer.stop()
-        logger.info("Total Engine Elapsed Time: %ss", timer.total_elapsed())
+        logger.info("Total Engine Elapsed Time: %ss", timer.total_elapsed_seconds())
         self.cluster_provider.close()
         self.event_channel.close()
 

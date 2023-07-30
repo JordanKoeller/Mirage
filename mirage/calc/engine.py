@@ -45,7 +45,7 @@ class Engine:
         reducer.reduce(rays_tree, simulation.source_plane)
         self.export_outcome(reducer)
         stopwatch.start()
-        if r_logger.log(f"Frame time = {stopwatch.avg_elapsed()} ms"):
+        if r_logger.log(f"Frame time = {stopwatch.avg_elapsed_seconds()} ms"):
           stopwatch.reset()
       self.event_channel.close()
 

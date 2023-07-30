@@ -21,18 +21,18 @@ class Stopwatch:
     self._start_times = []
     self._end_times = []
 
-  def total_elapsed(self):
+  def total_elapsed_seconds(self) -> float:
     start = self._start_times[0]
     end = self._end_times[-1]
-    return self._delta_micros(start, end)
+    return self._delta_micros(start, end) / 1000
 
-  def avg_elapsed(self) -> int:
+  def avg_elapsed_seconds(self) -> float:
     if len(self._start_times) == 0:
       return 0
     total_micros = 0
     for s, e in zip(self._start_times, self._end_times):
       total_micros += self._delta_micros(s, e)
-    return int(total_micros / len(self._start_times))
+    return total_micros / len(self._start_times) / 1000
 
   @property
   def loops(self) -> int:

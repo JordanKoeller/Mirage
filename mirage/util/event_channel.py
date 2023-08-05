@@ -101,7 +101,7 @@ class DuplexChannel:
     Blocking check to receive a message. This method waits a max of 5 minutes
     before timing out and throwing an exception.
     """
-    structured_event: StructuredEvent = self.receiver.get(True, MAX_TIMEOUT)
+    structured_event: StructuredEvent = self.receiver.get(True, MAX_TIMEOUT * 100)
     return self._recv_helper(structured_event)
 
   def close(self):

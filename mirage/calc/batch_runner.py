@@ -12,22 +12,29 @@ import numpy as np
 
 from mirage.calc.dask_engine import DaskEngine
 from mirage.sim import Simulation
-from mirage.util import ResultFileManager, DuplexChannel, LocalClusterProvider
+from mirage.util import ResultFileManager, DuplexChannel, ClusterProvider, Dictify, Stopwatch
 
 logger = logging.getLogger(__name__)
 
 
 class BatchRunner:
 
-  def __init__(self, simulation: Simulation, output_filename: str):
+  def __init__(
+      self,
+      simulation: Simulation,
+      output_filename: str,
+      cluster_provider: ClusterProvider,
+  ):
     self.simulation: Simulation = simulation.copy()
     self.output_filename: str = output_filename
+    self.cluster_provider = cluster_provider
 
   @staticmethod
-  def _engine_main(simulation: Simulation, channel: DuplexChannel):
+  def _engine_main(
+      simulation: Simulation, channel: DuplexChannel, cluster_provider: ClusterProvider
+  ):
     try:
-      local_cluster = LocalClusterProvider(num_workers=10, worker_mem="2GiB")
-      engine = DaskEngine(event_channel=channel, cluster_provider=local_cluster)
+      engine = DaskEngine(event_channel=channel, cluster_provider=cluster_provider)
       engine.blocking_run_simulation(simulation)
       logger.info("Terminating Engine")
     except Exception as e:
@@ -36,12 +43,14 @@ class BatchRunner:
       raise e
 
   def start(self):
+    timer = Stopwatch()
+    timer.start()
     send, recv = DuplexChannel.create(10)
 
     engine_process = Process(
         name="EngineProcess",
         target=BatchRunner._engine_main,
-        args=(self.simulation, send),
+        args=(self.simulation, send, self.cluster_provider),
     )
 
     engine_process.start()  # This starts the engine in a separate process
@@ -57,7 +66,12 @@ class BatchRunner:
         else:
           reducer = evt.value
           serializer.dump_result(reducer)
+    except Exception as e:
+      logger.error("Encountered Error!")
+      logger.error(str(e))
     finally:
       serializer.close()
       logger.info("Result saved to %s", self.output_filename)
       engine_process.join()  # After UI is closed, gracefully terminate engine process
+      timer.stop()
+      logger.info("Total Runtime: %ss", timer.total_elapsed_seconds())

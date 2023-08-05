@@ -18,7 +18,9 @@ class TestMicrolensingSimulation(TestCase):
   def setUp(self):
     self.sim = MicrolensingSimulation(
         lensing_system=PointLens(
-            quasar=Quasar(2.0), redshift=0.5, mass=Quantity(1e12, "solMass")
+            quasar=Quasar(2.0, mass=Quantity(1e9, "solMass")),
+            redshift=0.5,
+            mass=Quantity(1e12, "solMass"),
         ),
         lensed_image_center=Vec2D(0.2, 2.1, "arcsec"),
         ray_count=100_000_000,

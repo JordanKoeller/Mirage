@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from astropy import units as u
 import numpy as np
 
-from mirage.calc.reducers import LightCurvesReducer
+from mirage.calc.reducers import LightCurvesReducer, MagnificationMapReducer
 from mirage.util import Region, Vec2D
 
 
@@ -13,7 +13,11 @@ class TestLightCurvesReducer(TestCase):
   def setUp(self):
     plt.cla()
     self.lcr = LightCurvesReducer(
-        radius=1 * u.arcsec, resolution=10 / u.arcsec, num_curves=5, seed=12
+        radius=1 * u.arcsec,
+        resolution=10 / u.arcsec,
+        num_curves=5,
+        seed=12,
+        name="lightcurve",
     )
     self.region = Region(
         dims=Vec2D(10, 10, u.arcsec), center=Vec2D(1.2, -4.0, u.arcsec)

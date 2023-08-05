@@ -1,0 +1,20 @@
+# Built artifacts / gitignored things
+build/
+.mypy_cache/
+.vscode/
+target/
+.git/
+.github/
+
+# Non-source-code directories
+examples/
+docs/
+images/
+test/
+scripts/
+resources/
+config/
+
+# Misc
+.gitignore
+Dockerfile

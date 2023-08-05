@@ -8,9 +8,8 @@ from functools import cached_property
 import yaml
 
 from mirage.sim import Simulation, MacrolensingSimulation, MicrolensingSimulation
-from mirage.util import Dictify
+from mirage.util import Dictify, ClusterProvider, LocalClusterProvider
 from mirage.calc import reducers
-from mirage.viz import VizRunner
 from mirage.calc.batch_runner import BatchRunner
 
 logger = logging.getLogger("mirage_main")
@@ -33,6 +32,17 @@ class MirageMain:
         required=False,
         nargs=1,
         help="Simulation yaml file to load",
+    )
+    self.parser.add_argument(
+        "-c",
+        "--cluster",
+        required=False,
+        nargs=1,
+        type=str,
+        default="cluster.yaml",
+        help="Filename containing the cluster spec to use. If not provided, the program"
+        "looks for a `cluster.yaml` in the current directory. Otherwise, a default"
+        "cluster on localhost is provisioned",
     )
     self.parser.add_argument(
         "-w",
@@ -111,6 +121,18 @@ class MirageMain:
     return None
 
   @property
+  def cluster_provider(self) -> ClusterProvider:
+    try:
+      cluster = Dictify.from_yaml(ClusterProvider, self.args.cluster[0])  # type: ignore
+      logger.info(
+          f"Constructed {type(cluster).__name__} cluster from file {self.args.cluster[0]}"
+      )
+      return cluster
+    except FileNotFoundError:
+      logger.info("No cluster config file found. Using default local cluster")
+      return LocalClusterProvider()
+
+  @property
   def overwrite(self) -> bool:
     return bool(self.args.force)
 
@@ -144,7 +166,7 @@ if __name__ == "__main__":
 
   if run_mode == "batch" and simulation and main.output_file:
     logger.info("Running Batch Job")
-    batch_runner = BatchRunner(simulation, main.output_file)
+    batch_runner = BatchRunner(simulation, main.output_file, main.cluster_provider)
     batch_runner.start()
     logger.info("Goodbye!")
 
@@ -152,6 +174,8 @@ if __name__ == "__main__":
     raise NotImplementedError()
 
   if run_mode == "viz" and simulation:
+    from mirage.viz import VizRunner
+
     logger.info("Running visualization")
     viz_runner = VizRunner(simulation)
     viz_runner.start()

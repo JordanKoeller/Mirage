@@ -223,6 +223,10 @@ class PixelRegion(Region):
     grid = np.stack([x, y], 2)
     return u.Quantity(grid, self.unit)
 
+  @property
+  def num_pixels(self) -> int:
+    return int((self.resolution.x * self.resolution.y).value)
+
   @staticmethod
   def _find_closest_divisors(n: int) -> Tuple[int, int]:
     rover = int(np.round(np.sqrt(n)))

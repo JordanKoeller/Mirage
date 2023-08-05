@@ -1,17 +1,35 @@
 from abc import ABC, abstractmethod
 from typing import Self, Optional, List
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
+from copy import deepcopy
+import re
+import logging
 
 import numpy as np
+from astropy import units as u
 
+from mirage.util import Dictify
 from mirage.calc import KdTree
 from mirage.model import SourcePlane
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(kw_only=True)
 class Reducer(ABC):
-  _parent_key: Optional[List[str]] = None
-  _name: Optional[str] = None
+  """
+  Variation Function:
+  ===================
+
+  The variation function should change one variable in the parameter space a finite
+  number of times. Each sub-reducer will be run with each iteration of the parameter
+  space set up in the variation.
+
+  The variation function may be used to change any property on the reducer. It cannot
+  be used to change properties of the lens.
+  """
+
+  name: str
 
   @abstractmethod
   def reduce(self, traced_rays: KdTree, source_plane: Optional[SourcePlane]):
@@ -36,24 +54,37 @@ class Reducer(ABC):
     Return the outcome of this reduction.
     """
 
-  @classmethod
-  def type_key(cls) -> str:
-    """
-    A key uniquely identifying this reducer.
 
-    By default the reducer's class name is used. For most uses this is probably fine,
-    but if a new key is needed, this method can be overwritten. in a subclass
-    """
-    return cls.__name__
-
-  def _set_parent_key(self, parent_key: List[str]):
-    self._parent_key = parent_key
-
-  @property
-  def key(self):
-    if self._name:
-      return self._name
-    type_key = self.type_key()
-    if self._parent_key:
-      return os.path.join(*self._parent_key, type_key)
-    return type_key
+EXPR_REGEXES = [
+    (
+        re.compile(
+            r"(\w+) ?= ?linspace\(([0-9.e\-]+), ?([0-9.e\-]+), ?([0-9]+)\) ([\w]+)"
+        ),
+        lambda matches: u.Quantity(
+            np.linspace(
+                float(matches[0]), float(matches[1]), int(matches[2]), endpoint=True
+            ),
+            matches[3],
+        ),
+    ),
+    (
+        re.compile(r"(\w+) ?= ?\[([0-9.e\-]+):([0-9.e\-]+):([0-9]+)\] ([\w]+)"),
+        lambda matches: u.Quantity(
+            np.linspace(
+                float(matches[0]), float(matches[1]), int(matches[2]), endpoint=True
+            ),
+            matches[3],
+        ),
+    ),
+    (
+        re.compile(
+            r"(\w+) ?= ?logspace\(([0-9.e\-]+), ?([0-9.e\-]+), ?([0-9]+)\) ([\w]+)"
+        ),
+        lambda matches: u.Quantity(
+            np.logspace(
+                float(matches[0]), float(matches[1]), int(matches[2]), endpoint=True
+            ),
+            matches[3],
+        ),
+    ),
+]

@@ -1,10 +1,12 @@
 LensingSystem_PointLens:
   Quasar:
     Redshift: 2.0
+    Mass: 1e9 solMass
   Redshift: 0.5
   Cosmology: WMAP7
   Mass: [1e12, solMass]
 Reducers:
 - LensedImageReducer:
+    Name: image
     Query: [0.3, 0.7, 'arcsec']
     Radius: [0.1, 'arcsec']

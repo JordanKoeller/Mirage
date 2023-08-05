@@ -1,13 +1,14 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 from datetime import datetime
 
 import numpy as np
 from astropy import units as u
 
-from mirage.calc.kd_tree import KdTree
+from mirage.calc import KdTree, RustKdTree, PyKdTree
 from mirage.util import Vec2D
 
 
+@skip("Medium Test")
 class TestKdTreePerformance(TestCase):
 
   def setUp(self):
@@ -21,13 +22,13 @@ class TestKdTreePerformance(TestCase):
 
   def testKdTreeConstruction(self):
     self.timeit(lambda: KdTree(self.dataset), "Py.__init__")
-    self.timeit(lambda: KdTree(self.dataset), "Rust.__init__")
+    self.timeit(lambda: RustKdTree(self.dataset), "Rust.__init__")
 
   def testKdTreeQuery(self):
     pytree = KdTree(self.dataset)
-    self.timeit(lambda: pytree.query(self.pos, self.radius), "Py.query")
-    rstree = KdTree(self.dataset)
-    self.timeit(lambda: rstree.query(self.pos, self.radius), "Rs.query")
+    self.timeit(lambda: pytree.query_rays(self.pos, self.radius), "Py.query")
+    rstree = RustKdTree(self.dataset)
+    self.timeit(lambda: rstree.query_rays(self.pos, self.radius), "Rs.query")
 
   def testKdTreeQueryCount(self):
     pytree = KdTree(self.dataset)
@@ -37,7 +38,7 @@ class TestKdTreePerformance(TestCase):
         ),
         "Py.query_count",
     )
-    rstree = KdTree(self.dataset)
+    rstree = RustKdTree(self.dataset)
     self.timeit(
         lambda: rstree.query_count(
             self.pos.x.value, self.pos.y.value, self.radius.value
@@ -51,9 +52,10 @@ class TestKdTreePerformance(TestCase):
     rs_times = []
     for s in scales:
       py_times.append(self.getConstructionTime(s, KdTree))
-      rs_times.append(self.getConstructionTime(s, KdTree))
+      rs_times.append(self.getConstructionTime(s, RustKdTree))
     from matplotlib import pyplot as plt
 
+    plt.title("Construction Performance Trend (Py in Red)")
     plt.plot(np.array(scales) ** 2, py_times, "r")
     plt.plot(np.array(scales) ** 2, rs_times, "b")
     plt.show()
@@ -64,21 +66,25 @@ class TestKdTreePerformance(TestCase):
     rs_times = []
     for s in scales:
       py_times.append(self.getQueryTime(s, KdTree))
-      # rs_times.append(self.getQueryTime(s, KdTree))
+      rs_times.append(self.getQueryTime(s, RustKdTree))
     from matplotlib import pyplot as plt
 
+    plt.title("Query Performance Trend (Py in Red)")
     plt.plot(np.array(scales) ** 2, py_times, "r")
-    # plt.plot(np.array(scales) ** 2, rs_times, 'b')
+    plt.plot(np.array(scales) ** 2, rs_times, "b")
     plt.show()
 
   def getConstructionTime(self, size: int, Tree) -> float:
     dataset = u.Quantity(np.random.rand(size, size, 2), "arcsec")
-    return self.timeit(lambda: Tree(dataset), "")
+    return self.timeit(lambda: Tree(dataset), f"Construction Time {Tree.__name__}")
 
   def getQueryTime(self, size: int, Tree) -> float:
     dataset = u.Quantity(np.random.rand(size, size, 2), "arcsec")
     tree = Tree(dataset)
-    return self.timeit(lambda: tree.query_count(0, 0, 0.06), "")
+    return self.timeit(
+        lambda: tree.query_rays(Vec2D(0.2, 0.1, "arcsec"), u.Quantity(0.06, "arcsec")),
+        f"Query Time {type(tree).__name__}",
+    )
 
   def timeit(self, func, label):
     starttime = datetime.now()

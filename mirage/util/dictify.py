@@ -33,6 +33,7 @@ from abc import ABC, abstractmethod, abstractclassmethod
 from inspect import isabstract, isclass
 import logging
 import json
+import yaml
 
 from astropy import units as u
 
@@ -147,6 +148,38 @@ class Dictify:
     return Dictify._value_from_dict(klass, dict_obj)
 
   @staticmethod
+  def from_yaml(klass: Type[T], yaml_filename: str) -> T:
+    """
+    Loads the specified yaml file and deserializes into the specified type.
+
+    Args:
+
+      + klass (Type): The Class definition to construct an instance of. Must be a
+                      @dataclass type or a class that inherits DictifyMixin.
+      + yaml_filename (str): The name of the yaml file to parse.
+
+    Returns:
+
+      + T: An instance of `klass` constructed from the yaml file.
+
+    Raises:
+
+      + ValueError: `klass` is not a type that `Dictify` can deserialize.
+      + ValueError: The yaml document could not be deserialized to an instance of `klass`.
+      + ValueError: The specified document was not a valid yaml file.
+      + FileNotFoundError: The specified yaml file could not be found.
+    """
+    with open(yaml_filename) as f:
+      yaml_str = f.read()
+      dict_obj = yaml.load(yaml_str, yaml.CLoader)
+      logger.debug("Dict_obj %s", dict_obj)
+      obj = Dictify.from_dict(klass, dict_obj)
+      if obj is None:
+        raise ValueError(f"Could not deserialize {dict_obj} to {klass}")
+      logger.debug("Constructed instance %s", repr(obj))
+      return obj
+
+  @staticmethod
   def _sanitize(value: Union[dict, list]) -> dict:
     """
     Sanitizes complex types, converting them to primitives.
@@ -158,8 +191,8 @@ class Dictify:
 
   @staticmethod
   def _value_from_dict(klass: Type[T], dictable_value: Any) -> Optional[T]:
-    if isabstract(klass):
-      raise ValueError(f"Cannot convert a dict to an abstract type {klass.__name__}")
+    # if isabstract(klass):
+    #   raise ValueError(f"Cannot convert a dict to an abstract type {klass.__name__}")
     custom_serializer = Dictify._get_custom_serializer(klass)  # type: ignore
     if dictable_value is None:
       return None
@@ -172,10 +205,21 @@ class Dictify:
       return klass(dictable_value)  # type: ignore
     if Dictify._is_python_collection(klass):
       return Dictify._value_from_py_collection(klass, dictable_value)
-      return dictable_value  # TODO: Properly handle lists and dicts
     if issubclass(klass, DictifyMixin):
       return klass.from_dict(dictable_value)  # type: ignore
     if is_dataclass(klass):
+      if isabstract(klass):
+        klassName = list(dictable_value.keys())[0]
+        klass = DelegateRegistry.get_typedef(klass, klassName)  # type: ignore
+        if klass:
+          return Dictify._dataclass_from_dict(
+              klass, dictable_value[klassName]
+          )  # type: ignore
+        else:
+          raise ValueError(
+              f"klass {klass.__name__} does not exist,"
+              " or a vaild delegate could not be found"
+          )
       return Dictify._dataclass_from_dict(klass, dictable_value)  # type: ignore
     raise ValueError(
         f"Could not construct a {klass.__name__} from value:\n{dictable_value}"

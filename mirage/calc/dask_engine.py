@@ -15,10 +15,13 @@ import dask.bag as dask_bag
 
 from mirage.sim import Simulation
 from mirage.calc import Reducer, KdTree, RayTracer
-from mirage.util import Vec2D, DuplexChannel, RepeatLogger, Stopwatch, PixelRegion, ClusterProvider
+from mirage.util import Vec2D, DuplexChannel, RepeatLogger, Stopwatch, PixelRegion, ClusterProvider, size_to_bytes, bytes_to_size
 from mirage.model import SourcePlane
 
 logger = logging.getLogger(__name__)
+
+PARTITION_SIZE_RANGE = ["10MB", "100MB"]
+RAYS_PER_PARTITION = list(map(lambda s: size_to_bytes(s) / 16, PARTITION_SIZE_RANGE))
 
 
 @dataclass
@@ -33,36 +36,69 @@ class DaskEngine:
         simulation.lensing_system.einstein_radius,
     ]):
       self.cluster_provider.initialize()
-      logger.info("Starting Simulation. Now ray tracing")
-      logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
-      ray_tracer = simulation.get_ray_tracer()
-      rays_region = simulation.get_ray_bundle().to(simulation.lensing_system.theta_0)
+      try:
+        logger.info("Starting Simulation. Now ray tracing")
+        logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
+        timer = Stopwatch()
+        timer.start()
+        ray_tracer = simulation.get_ray_tracer()
+        rays_region: PixelRegion = simulation.get_ray_bundle().to(
+            simulation.lensing_system.theta_0
+        )
 
-      trees = (
-          dask_bag.from_sequence(
-              rays_region.subdivide(self.cluster_provider.num_partitions)
+        partition_size = self.cluster_provider.rays_per_partition
+
+        if (
+            partition_size < RAYS_PER_PARTITION[0]
+            or partition_size > RAYS_PER_PARTITION[1]
+        ):
+          logger.warning(
+              f"ClusterProvider requested {partition_size} per partition, which falls outside"
+              " of the recommended range. For optimal performance, each partition should"
+              f" be in the range {RAYS_PER_PARTITION}, or {PARTITION_SIZE_RANGE} in"
+              " memory."
           )
-          .map(DaskEngine._trace_map(simulation, ray_tracer))
-          .map(DaskEngine._kd_tree_map(simulation))
-      )
 
-      trees = self.cluster_provider.client.persist(trees)
+        num_rays = rays_region.num_pixels
 
-      source_plane = simulation.source_plane
-      for reducer in self.get_reducers(simulation):
-        self.event_channel.recv()
-        if self.event_channel.sender_closed:
-          return  # Short circuit if event channel is closed
-        mapped_reducers = trees.map(
-            DaskEngine._reduce_map(simulation, source_plane, reducer)
+        num_partitions = int(math.ceil(num_rays / partition_size))
+
+        partition_mem_size = bytes_to_size(partition_size * 16)
+
+        logger.info(
+            f"Subdividing into {num_partitions} ({partition_mem_size}) partitions"
         )
-        merged_reducer = mapped_reducers.fold(lambda a, b: a.merge(b))
-        hydrated_reducer = self.cluster_provider.client.compute(
-            merged_reducer, sync=True
+
+        trees = (
+            dask_bag.from_sequence(rays_region.subdivide(num_partitions))
+            .map(DaskEngine._trace_map(simulation, ray_tracer))
+            .map(DaskEngine._kd_tree_map(simulation))
         )
-        self.export_outcome(hydrated_reducer)
-      self.cluster_provider.close()
-      self.event_channel.close()
+
+        trees = self.cluster_provider.client.persist(trees)
+
+        source_plane = simulation.source_plane
+        for reducer in self.get_reducers(simulation):
+          self.event_channel.recv()
+          if self.event_channel.sender_closed:
+            return  # Short circuit if event channel is closed
+          mapped_reducers = trees.map(
+              DaskEngine._reduce_map(simulation, source_plane, reducer)
+          )
+          merged_reducer = mapped_reducers.fold(lambda a, b: a.merge(b))
+          hydrated_reducer = self.cluster_provider.client.compute(
+              merged_reducer, sync=True
+          )
+          logger.info(f"Has hydrated {type(hydrated_reducer)}")
+          self.export_outcome(hydrated_reducer)
+      except Exception as e:
+        logger.error("Encountered Error")
+        logger.error(str(e))
+      finally:
+        timer.stop()
+        logger.info("Total Engine Elapsed Time: %ss", timer.total_elapsed_seconds())
+        self.cluster_provider.close()
+        self.event_channel.close()
 
   def get_reducers(self, simulation: Simulation) -> Iterator[Reducer]:
     """

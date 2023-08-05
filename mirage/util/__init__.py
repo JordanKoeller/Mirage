@@ -4,8 +4,9 @@ from .delegate_registry import DelegateRegistry
 from .region import Region, PixelRegion
 from .event_channel import DuplexChannel
 from .stopwatch import Stopwatch
+from .conversions import size_to_bytes, bytes_to_size
 
 from .custom_serializers import register_serializers
 from .io import ResultFileManager
 from .logger import RepeatLogger
-from .cluster_provider import ClusterProvider, LocalClusterProvider
+from .cluster_provider import ClusterProvider, LocalClusterProvider, RemoteClusterProvider, AwsEphemeralClusterProvider

@@ -11,3 +11,4 @@ class Quasar:
   """
 
   redshift: float
+  mass: u.Quantity

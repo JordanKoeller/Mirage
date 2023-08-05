@@ -30,7 +30,9 @@ class TestMicroTracer(TestCase):
 
   def testTrace_oneLargeStar_sameResultAsPointLenseTracer(self):
     point_lens = PointLens(
-        quasar=Quasar(2.0), redshift=0.5, mass=u.Quantity(1e12, "solMass")
+        quasar=Quasar(2.0, mass=u.Quantity(1e9, "solMass")),
+        redshift=0.5,
+        mass=u.Quantity(1e12, "solMass"),
     )
     region = PixelRegion(
         dims=Vec2D(5, 55, "arcsec"),

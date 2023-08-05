@@ -99,10 +99,10 @@ class TestJsonableMixin(TestCase):
     serialized = Dictify.to_dict(dc)
 
     expected = {
-        "Q": [3.2, "m"],
+        "Q": "3.2 m",
         "C": "WMAP7",
         "V": [3.2, 3.4, "km"],
-        "P": {"R": [3, "m"], "Theta": [0.4, "arcsec"]},
+        "P": {"R": "3 m", "Theta": "0.4 arcsec"},
     }
 
     self.assertDictEqual(serialized, expected)
@@ -177,12 +177,14 @@ class TestJsonableMixin(TestCase):
         "Resolution": [10, "1/uas"],
         "NumCurves": 10,
         "Seed": 12,
+        "Name": "lightcurve",
     }
     expected = LightCurvesReducer(
         radius=1 * u.uas,
         resolution=10 / u.uas,
         num_curves=10,
         seed=12,
+        name="lightcurve",
     )
     actual = Dictify.from_dict(LightCurvesReducer, dict_repr)
     self.assertEqual(expected, actual)

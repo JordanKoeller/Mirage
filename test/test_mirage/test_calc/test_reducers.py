@@ -13,7 +13,11 @@ class TestLightCurvesReducer(TestCase):
   def setUp(self):
     plt.cla()
     self.lcr = LightCurvesReducer(
-        radius=1 * u.arcsec, resolution=10 / u.arcsec, num_curves=5, seed=12
+        radius=1 * u.arcsec,
+        resolution=10 / u.arcsec,
+        num_curves=5,
+        seed=12,
+        name="lightcurve",
     )
     self.region = Region(
         dims=Vec2D(10, 10, u.arcsec), center=Vec2D(1.2, -4.0, u.arcsec)
@@ -39,18 +43,6 @@ class TestLightCurvesReducer(TestCase):
       dy = line[1, 1] - line[0, 1]
       r = np.sqrt(dx**2 + dy**2)
       self.assertAlmostEqual(r, 0.1)
-
-  def testMaterializeAll_appliesVariationToReducer(self):
-    reducer = MagnificationMapReducer(
-        radius=1.2 * u.uas,
-        resolution=Vec2D.unitless(300, 300),
-        variation="Radius = linspace(1, 5, 10) uas",
-    )
-    materialized = reducer.materialize_all()
-    self.assertEqual(len(materialized), 10)
-    expected_radii = np.linspace(1, 5, 10) * u.uas
-    for m, r in zip(materialized, expected_radii):
-      self.assertEqual(m.radius, r)
 
   def assertAlmostWithin(self, v, low, high, tol=1e-8):
     self.assertGreaterEqual(v, low - tol)

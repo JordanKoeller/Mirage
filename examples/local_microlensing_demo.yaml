@@ -15,6 +15,6 @@ RayCount: 16000000
 SourceRegionDimensions: [100, 100, 'uas']
 Reducers:
   - MagnificationMapReducer:
+      Name: magmap
       Radius: 1.2 uas
-      Variation: Radius = linspace(1.2, 12, 5) uas
       Resolution: [1920, 1080, '']

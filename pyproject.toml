@@ -22,6 +22,14 @@ dependencies = [
   "cython==0.29.33",
   "hurry.filesize==0.9",
   "pandas==2.0.2",
+  "ruamel.yaml==0.17.32",
+]
+
+[project.optional-dependencies]
+dev = [
+  "matplotlib",
+  "pytest",
+  "mockito",
 ]
 
 [build-system]

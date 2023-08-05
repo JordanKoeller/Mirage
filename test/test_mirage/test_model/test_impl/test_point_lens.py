@@ -11,7 +11,9 @@ class TestPointLens(TestCase):
 
   def get_lens(self):
     return PointLens(
-        quasar=Quasar(redshift=1.2), redshift=0.7, mass=u.Quantity(1e12, "solMass")
+        quasar=Quasar(redshift=1.2, mass=u.Quantity(1e9, "solMass")),
+        redshift=0.7,
+        mass=u.Quantity(1e12, "solMass"),
     )
 
   def testEinsteinRadius_success(self):

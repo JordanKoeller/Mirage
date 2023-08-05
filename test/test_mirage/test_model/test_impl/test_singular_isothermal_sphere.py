@@ -11,7 +11,7 @@ class TestPointLens(TestCase):
 
   def get_lens(self):
     return SingularIsothermalSphereLens(
-        quasar=Quasar(1.2),
+        quasar=Quasar(1.2, mass=u.Quantity(1e9, "solMass")),
         redshift=0.7,
         velocity_dispersion=u.Quantity(300, "km/s"),
         star_fraction=0.8,

@@ -1,13 +1,14 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 from datetime import datetime
 
 import numpy as np
 from astropy import units as u
 
-from mirage.calc.kd_tree import KdTree, RustTree
+from mirage.calc import KdTree, RustKdTree, PyKdTree
 from mirage.util import Vec2D
 
 
+@skip("Medium Test")
 class TestKdTreePerformance(TestCase):
 
   def setUp(self):
@@ -21,12 +22,12 @@ class TestKdTreePerformance(TestCase):
 
   def testKdTreeConstruction(self):
     self.timeit(lambda: KdTree(self.dataset), "Py.__init__")
-    self.timeit(lambda: RustTree(self.dataset), "Rust.__init__")
+    self.timeit(lambda: RustKdTree(self.dataset), "Rust.__init__")
 
   def testKdTreeQuery(self):
     pytree = KdTree(self.dataset)
     self.timeit(lambda: pytree.query_rays(self.pos, self.radius), "Py.query")
-    rstree = RustTree(self.dataset)
+    rstree = RustKdTree(self.dataset)
     self.timeit(lambda: rstree.query_rays(self.pos, self.radius), "Rs.query")
 
   def testKdTreeQueryCount(self):
@@ -37,7 +38,7 @@ class TestKdTreePerformance(TestCase):
         ),
         "Py.query_count",
     )
-    rstree = RustTree(self.dataset)
+    rstree = RustKdTree(self.dataset)
     self.timeit(
         lambda: rstree.query_count(
             self.pos.x.value, self.pos.y.value, self.radius.value
@@ -51,7 +52,7 @@ class TestKdTreePerformance(TestCase):
     rs_times = []
     for s in scales:
       py_times.append(self.getConstructionTime(s, KdTree))
-      rs_times.append(self.getConstructionTime(s, RustTree))
+      rs_times.append(self.getConstructionTime(s, RustKdTree))
     from matplotlib import pyplot as plt
 
     plt.title("Construction Performance Trend (Py in Red)")
@@ -65,7 +66,7 @@ class TestKdTreePerformance(TestCase):
     rs_times = []
     for s in scales:
       py_times.append(self.getQueryTime(s, KdTree))
-      rs_times.append(self.getQueryTime(s, RustTree))
+      rs_times.append(self.getQueryTime(s, RustKdTree))
     from matplotlib import pyplot as plt
 
     plt.title("Query Performance Trend (Py in Red)")

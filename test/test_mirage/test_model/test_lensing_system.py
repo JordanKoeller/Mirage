@@ -14,7 +14,7 @@ class TestLensingSystem(TestCase):
 
   def testToDict_canDictify(self):
     sis = SingularIsothermalSphereLens(
-        quasar=Quasar(0.7),
+        quasar=Quasar(0.7, mass=u.Quantity(1e9, "solMass")),
         redshift=1.2,
         velocity_dispersion=u.Quantity(300, "km/s"),
         star_fraction=0.8,
@@ -24,14 +24,12 @@ class TestLensingSystem(TestCase):
     )
 
     expected = {
-        "Quasar": {
-            "Redshift": 0.7,
-        },
+        "Quasar": {"Redshift": 0.7, "Mass": "1000000000 solMass"},
         "Redshift": 1.2,
-        "VelocityDispersion": [300, "km / s"],
+        "VelocityDispersion": "300 km / s",
         "StarFraction": 0.8,
-        "Shear": {"R": [0.1, "rad"], "Theta": [0.2, "rad"]},
-        "Ellipticity": {"R": [0.1, "rad"], "Theta": [0.3, "rad"]},
+        "Shear": {"R": "0.1 rad", "Theta": "0.2 rad"},
+        "Ellipticity": {"R": "0.1 rad", "Theta": "0.3 rad"},
         "Cosmology": "WMAP9",
     }
 
@@ -41,9 +39,7 @@ class TestLensingSystem(TestCase):
 
   def testFromDict_canParseLens(self):
     sis_dict = {
-        "Quasar": {
-            "Redshift": 0.7,
-        },
+        "Quasar": {"Redshift": 0.7, "Mass": [1e9, "solMass"]},
         "Redshift": 1.2,
         "VelocityDispersion": [300, "km / s"],
         "StarFraction": 0.8,
@@ -54,7 +50,7 @@ class TestLensingSystem(TestCase):
 
     actual_sis = Dictify.from_dict(SingularIsothermalSphereLens, sis_dict)
     expected_sis = SingularIsothermalSphereLens(
-        quasar=Quasar(0.7),
+        quasar=Quasar(0.7, mass=u.Quantity(1e9, "solMass")),
         redshift=1.2,
         velocity_dispersion=u.Quantity(300, "km/s"),
         star_fraction=0.8,

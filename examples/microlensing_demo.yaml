@@ -15,5 +15,6 @@ RayCount: 1_600_000_000
 SourceRegionDimensions: [100, 100, 'uas']
 Reducers:
   - MagnificationMapReducer:
+      Name: magmap
       Radius: [0.8, 'uas']
       Resolution: [1000, 1000, '']

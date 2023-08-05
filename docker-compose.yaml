@@ -1,0 +1,24 @@
+version: "3.1"
+
+services:
+  scheduler:
+    image: jkoeller12/mirage:latest
+    hostname: scheduler
+    ports:
+      - "8786:8786"
+      - "8787:8787"
+    command: ["dask-scheduler"]
+    networks:
+      - dask-mirage
+
+  worker:
+    image: jkoeller12/mirage:latest
+    command: ["dask-worker", "scheduler:8786"]
+    networks:
+      - dask-mirage
+    deploy:
+      mode: replicated
+      replicas: 4 # To make more workers, update this value.
+
+networks:
+  dask-mirage: {}

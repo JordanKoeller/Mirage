@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Self, Optional, List
+from typing import Optional, List
 from dataclasses import dataclass, field, fields
 from copy import deepcopy
 import re
@@ -41,7 +41,7 @@ class Reducer(ABC):
     """
 
   @abstractmethod
-  def merge(self, other: Self) -> Self:
+  def merge(self, other: 'Reducer') -> 'Reducer':
     """
     Accumulate the result of another reducer with the result
     inside this reducer.
@@ -54,37 +54,9 @@ class Reducer(ABC):
     Return the outcome of this reduction.
     """
 
-
-EXPR_REGEXES = [
-    (
-        re.compile(
-            r"(\w+) ?= ?linspace\(([0-9.e\-]+), ?([0-9.e\-]+), ?([0-9]+)\) ([\w]+)"
-        ),
-        lambda matches: u.Quantity(
-            np.linspace(
-                float(matches[0]), float(matches[1]), int(matches[2]), endpoint=True
-            ),
-            matches[3],
-        ),
-    ),
-    (
-        re.compile(r"(\w+) ?= ?\[([0-9.e\-]+):([0-9.e\-]+):([0-9]+)\] ([\w]+)"),
-        lambda matches: u.Quantity(
-            np.linspace(
-                float(matches[0]), float(matches[1]), int(matches[2]), endpoint=True
-            ),
-            matches[3],
-        ),
-    ),
-    (
-        re.compile(
-            r"(\w+) ?= ?logspace\(([0-9.e\-]+), ?([0-9.e\-]+), ?([0-9]+)\) ([\w]+)"
-        ),
-        lambda matches: u.Quantity(
-            np.logspace(
-                float(matches[0]), float(matches[1]), int(matches[2]), endpoint=True
-            ),
-            matches[3],
-        ),
-    ),
-]
+  @abstractmethod
+  def set_output(self, output: object):
+    """
+    Explicitly sets the output of this reducer. Used to reconstruct the
+    populated reducer while deserializing.
+    """

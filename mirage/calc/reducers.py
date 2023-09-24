@@ -45,6 +45,9 @@ class LensedImageReducer(Reducer):
       return np.copy(self.canvas)
     return None
 
+  def set_output(self, output: object):
+    self.canvas = output  # type: ignore
+
 
 @DelegateRegistry.register
 @dataclass(kw_only=True)
@@ -83,6 +86,9 @@ class MagnificationMapReducer(Reducer):
       return np.copy(self.canvas)
     return None
 
+  def set_output(self, output: object):
+    self.canvas = output  # type: ignore
+
 
 @DelegateRegistry.register
 @dataclass(kw_only=True)
@@ -115,6 +121,9 @@ class LightCurvesReducer(Reducer):
   @property
   def output(self):
     return self._curves
+
+  def set_output(self, output: object):
+    self._curves = output  # type: ignore
 
   def get_query_points(self, region: Region) -> List[u.Quantity]:
     """

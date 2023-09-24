@@ -23,19 +23,21 @@ For standard IMF distributions (Kroupa, Salpeter, etc) or example usage
 please look at starfield.py"""
 import logging
 import pdb
+from typing import Optional
 
 import numpy as np
 
 
 class Imf:
 
-  def __init__(self, massLimits=np.array([0.1, 150]), multiplicity=None):
+  def __init__(self, massLimits=np.array([0.1, 150]), multiplicity=None, rng_seed: Optional[int] = None):
     """
     The IMF base class. The multiplicity implementation is here.
     """
-    self._random_number_generator = np.random.RandomState()
+    self._random_number_generator = np.random.RandomState(rng_seed)
     self._multi_props = multiplicity
     self._mass_limits = massLimits
+    self._rng_seed = rng_seed
 
     if multiplicity == None:
       self.make_multiples = False
@@ -43,6 +45,12 @@ class Imf:
       self.make_multiples = True
 
     return
+
+  def __eq__(self, other) -> bool:
+    return type(self) == type(other) and \
+      (self._mass_limits == other._mass_limits).all() and \
+      self._multi_props == other._multi_props and \
+      self._rng_seed == other._rng_seed
 
   @property
   def mass_limits(self):
@@ -83,7 +91,8 @@ class Imf:
 
     # Estimate the mean number of stars expected.
     self.normalize(totalMass)  # type: ignore
-    mean_number = self.int_xi(self._mass_limits[0], self._mass_limits[-1])  # type: ignore
+    mean_number = self.int_xi(
+      self._mass_limits[0], self._mass_limits[-1])  # type: ignore
     newStarCount = np.round(mean_number)
     if self._multi_props == None:
       newStarCount *= 1.1
@@ -261,11 +270,11 @@ class Imf:
 
 class ImfBrokenPowerlaw(Imf):
 
-  def __init__(self, mass_limits, powers, multiplicity=None):
+  def __init__(self, mass_limits, powers, multiplicity=None, rng_seed: Optional[int] = None):
     """
       Initialze a multi-part power-law with N parts. Each part of the
       power-law is described with a probability density function:
-      >>> P(m) \propto m ** power[n]
+      >>> P(m) \\propto m ** power[n]
       for mass_limits[n] < m <= mass_limits[n+1].
       Parameters:
 
@@ -275,8 +284,8 @@ class ImfBrokenPowerlaw(Imf):
     if len(mass_limits) != len(powers) + 1:
       msg = "Incorrect specification of multi-part powerlaw.\n"
       msg += "    len(massLimts) != len(powers)+1\n"
-      msg += "    len(massLimits) = \n" + len(mass_limits)
-      msg += "    len(powers) = \n" + len(powers)
+      msg += "    len(massLimits) = \n" + str(len(mass_limits))
+      msg += "    len(powers) = \n" + str(len(powers))
 
     mass_limits = np.array(mass_limits)
     powers = np.array(powers)
@@ -286,7 +295,8 @@ class ImfBrokenPowerlaw(Imf):
     self._m_limits_high = mass_limits[1:]
     self._powers = np.ascontiguousarray(powers)
     self._multi_props = multiplicity
-    self._random_number_generator = np.random.RandomState()
+    self._random_number_generator = np.random.RandomState(rng_seed)
+    self._rng_seed = rng_seed
 
     if multiplicity == None:
       self.make_multiples = False
@@ -308,6 +318,13 @@ class ImfBrokenPowerlaw(Imf):
     self.nterms = nterms
     self.coeffs = coeffs
     self.k = 1
+
+  def __eq__(self, other) -> bool:
+    return type(self) == type(other) and \
+      (self._mass_limits == other._mass_limits).all() and \
+      (self._powers == other._powers).all() and \
+      self._multi_props == other._multi_props and \
+      self._rng_seed == other._rng_seed
 
   @property
   def powers(self):
@@ -573,43 +590,46 @@ class ImfBrokenPowerlaw(Imf):
 
 class IMFSalpeter1955(ImfBrokenPowerlaw):
 
-  def __init__(self):
-    ImfBrokenPowerlaw.__init__(self, mass_limits=[0.4, 10.0], powers=[-2.3])
+  def __init__(self, rng_seed: Optional[int] = None):
+    ImfBrokenPowerlaw.__init__(
+      self, mass_limits=[0.4, 10.0], powers=[-2.3], rng_seed=rng_seed)
 
 
 class MillerScalo1979(ImfBrokenPowerlaw):
 
-  def __init__(self):
+  def __init__(self, rng_seed: Optional[int] = None):
     ImfBrokenPowerlaw.__init__(
-        self, mass_limits=[0.1, 1.0, 10.0, np.inf], powers=[-1.4, -2.5, -3.3]
+        self, mass_limits=[0.1, 1.0, 10.0, np.inf], powers=[-1.4, -2.5, -3.3], rng_seed=rng_seed
     )
 
 
 class Kennicutt1983(ImfBrokenPowerlaw):
 
-  def __init__(self):
+  def __init__(self, rng_seed: Optional[int] = None):
     ImfBrokenPowerlaw.__init__(
-        self, mass_limits=[0.1, 1.0, np.inf], powers=[-1.4, -2.5]
+        self, mass_limits=[0.1, 1.0, np.inf], powers=[-1.4, -2.5], rng_seed=rng_seed
     )
 
 
 class Kroupa2001(ImfBrokenPowerlaw):
 
-  def __init__(self):
+  def __init__(self, rng_seed: Optional[int] = None):
     ImfBrokenPowerlaw.__init__(
         self,
         mass_limits=[0.01, 0.08, 0.5, 1.0, np.inf],
         powers=[-0.3, -1.3, -2.3, -2.3],
+        rng_seed=rng_seed
     )
 
 
 class WeidnerKroupa2004(ImfBrokenPowerlaw):
 
-  def __init__(self):
+  def __init__(self, rng_seed: Optional[int] = None):
     ImfBrokenPowerlaw.__init__(
         self,
         mass_limits=[0.01, 0.08, 0.5, 1.0, np.inf],
         powers=[-0.3, -1.3, -2.3, -2.35],
+        rng_seed=rng_seed
     )
 
 

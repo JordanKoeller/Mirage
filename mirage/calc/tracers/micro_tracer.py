@@ -1,6 +1,7 @@
 import multiprocessing
 from dataclasses import dataclass
 import logging
+from typing import Self
 
 from astropy import units as u
 import numpy as np
@@ -51,3 +52,13 @@ class MicrolensingRayTracer(RayTracer):
     )
 
     return u.Quantity(traced_values, rays.unit)
+
+  def __eq__(self, other: object) -> bool:
+    if type(self) == type(other):
+      return False
+    my_other: MicrolensingRayTracer = other  # type: ignore
+    return self.convergence == my_other.convergence and \
+        self.shear == my_other.shear and \
+        self.starfield.get_starfield(self.star_mass, self.starfield_angular_radius) == \
+        my_other.starfield.get_starfield(
+            my_other.star_mass, my_other.starfield_angular_radius)

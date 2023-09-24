@@ -6,7 +6,7 @@ import logging
 import numpy as np
 
 from mirage.model import LensingSystem, Starfield, TracingParameters, SourcePlane
-from mirage.util import Region, Vec2D, PixelRegion
+from mirage.util import Region, Vec2D, PixelRegion, DelegateRegistry
 from mirage.sim import Simulation
 from mirage.calc import Reducer, RayTracer
 from mirage.calc.tracers import MicrolensingRayTracer
@@ -19,6 +19,7 @@ RAY_REGION_FACTOR = 1.1
 logger = logging.getLogger(__name__)
 
 
+@DelegateRegistry.register
 @dataclass(kw_only=True)
 class MicrolensingSimulation(Simulation):
   """

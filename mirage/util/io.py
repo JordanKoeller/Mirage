@@ -1,13 +1,13 @@
 import os
-import yaml
+import yaml  # type: ignore
 import zipfile
 import io
 import pickle
-from typing import Union, Dict, List, Any, Self, Literal
+from typing import Union, Dict, List, Any, Self, Literal, Optional
 
 from mirage.calc import Reducer
-from mirage.sim import Simulation
 from mirage.util import Dictify
+from mirage.sim import SimulationBatch
 
 
 class ResultFileManager:
@@ -54,6 +54,7 @@ class ResultFileManager:
 
   def __init__(self, filename: str, mode: Literal["x", "r"]):
     self.filename = filename
+    self.mode = mode
     if mode == "x":
       if os.path.exists(self.filename):
         os.remove(self.filename)
@@ -61,39 +62,47 @@ class ResultFileManager:
       if not os.path.exists(self.filename):
         raise FileNotFoundError(self.filename)
     self.zip_archive = zipfile.ZipFile(self.filename, mode=mode)
-    self.manifest: Dict = {}
+    self.manifest: Dict[int, Dict[str, str]] = {}
     if mode == "r":
       self.manifest = self._load("manifest.yaml")  # type: ignore
 
   @classmethod
-  def new_loader(cls, filename: str) -> Self:
+  def new_loader(cls, filename: str) -> 'ResultFileManager':
     return cls(filename, "r")
 
   @classmethod
-  def new_writer(cls, filename: str) -> Self:
+  def new_writer(cls, filename: str) -> 'ResultFileManager':
     return cls(filename, "x")
 
-  def dump_simulation(self, simulation: Simulation):
-    self._write("simulation.yaml", Dictify.to_dict(simulation))
+  def dump_simulation(self, simulation_batch: SimulationBatch):
+    self._write("simulation_template.yaml", Dictify.to_dict(simulation_batch))
 
-  def load_simulation(self) -> Simulation:
-    sim_dict: dict = self._load("simulation.yaml")  # type: ignore
-    return Simulation.from_dict(sim_dict)
+  def load_simulation(self) -> SimulationBatch:
+    sim_dict: dict = self._load("simulation_template.yaml")  # type: ignore
+    return Dictify.from_dict(SimulationBatch, sim_dict)  # type: ignore
 
   def close(self):
-    self._write("manifest.yaml", self.manifest)
+    if self.mode == 'x':
+      self._write("manifest.yaml", self.manifest)
     self.zip_archive.close()
 
-  def dump_result(self, reducer: Reducer):
-    filename = self._insert_manifest_entry(reducer)
-    self._write(filename, reducer)
+  def dump_result(self, reducer: Reducer, simulation_id: int):
+    filename = self._insert_manifest_entry(reducer, simulation_id)
+    self._write(filename, reducer.output)
 
-  def load_result(self, reducer_id: str) -> Reducer:
-    filename = self.manifest.get(reducer_id, None)
+  def __len__(self) -> int:
+    return len(self.manifest)
+
+  def load_result(self, reducer_id: str, simulation_id: int) -> object:
+    sim_dict: dict[str, str] = self.manifest.get(simulation_id, {})
+    filename: Optional[str] = sim_dict.get(reducer_id, None)
+    if sim_dict is None:
+      raise ValueError(
+        f"Simulation of {simulation_id=} not recognized.\n Available sims: {list(self.manifest.keys())}")
     if filename is None:
       raise ValueError(
-          f"'reducer_id' {reducer_id} not present in result manifest."
-          f"\n:Available ids: {list(self.manifest.keys())}"
+          f"'reducer_id' {reducer_id} not present in result manifest for simulation {simulation_id}."
+          f"\n:Available ids: {list(sim_dict.keys())}"
       )
 
     return self._load(filename)  # type: ignore
@@ -114,21 +123,14 @@ class ResultFileManager:
       else:
         return pickle.load(f)
 
-  def _insert_manifest_entry(self, reducer: Reducer) -> str:
+  def _insert_manifest_entry(self, reducer: Reducer, simulation_id: int) -> str:
     """
     Inserts a record into the manifest and returns the filename that should
     be used to dump the output
     """
-    key = reducer.key
-    key_path_parts = key.split(os.sep)
-    key_end = f"{key_path_parts[-1]}"
-    manifest_dict = self.manifest
-    for key_part in key_path_parts[:-1]:
-      if key_part not in manifest_dict:
-        manifest_dict[key_part] = {}
-      manifest_dict = manifest_dict[key_part]
-    if key_end in manifest_dict:
-      key_end = f"{key_end}_{len(manifest_dict)}"
-    fname = os.path.join(*key_path_parts[:-1], f"{key_end}.pickle")
-    manifest_dict[key_end] = fname
+    fname = f"{reducer.name.replace('/', '-')}_{simulation_id}.pickle"
+    if simulation_id in self.manifest:
+      self.manifest[simulation_id][reducer.name] = fname
+    else:
+      self.manifest[simulation_id] = {reducer.name: fname}
     return fname

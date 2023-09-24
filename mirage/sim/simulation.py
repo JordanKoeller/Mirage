@@ -1,19 +1,25 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, fields
-from typing import Optional, List, Self, Type, Self
+from typing import Optional, List, Type
 import copy
 import logging
 from math import pi
 
 from astropy import units as u
+import yaml
 
 from mirage.util import Region, Vec2D, PixelRegion, Dictify
 from mirage.model import LensingSystem, SourcePlane
 from mirage.calc import Reducer, RayTracer
+from mirage.sim import VariancePreprocessor
 
+# These values should be used to decide if a Microlensing model or Macrolensing model should be used
 THRESHOLD_AREA = u.Quantity(100 * 100, "uas")
-THRESHOLD_STAR_COUNT = 100_000_000  # TODO: Utilize this value
 THRESHOLD_LOCAL_CURVATURE = 0.0001
+
+# If more than THRESHOLD_STAR_COUNT stars the mass distribution is assumed smooth.
+# # Individual star gravity is not computed.
+THRESHOLD_STAR_COUNT = 100_000_000  # TODO: Utilize this value
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +30,7 @@ class Simulation(ABC):
   reducers: List[Reducer] = field(default_factory=list)
 
   @staticmethod
-  def from_dict(sim_dict: dict) -> Self:  # type: ignore
+  def from_dict(sim_dict: dict) -> 'Simulation':  # type: ignore
     from mirage.sim import MicrolensingSimulation, MacrolensingSimulation
 
     dict_fields = set(sim_dict.keys())
@@ -70,6 +76,14 @@ class Simulation(ABC):
     Returns the reducers to process during this simulation run.
     """
 
+  def is_similar(self, other: 'Simulation') -> bool:
+    """
+    If `self` and `other` are similar, indicates that the two simulations have the same
+    lensing model and will deflect rays equally.
+    """
+    return self.get_ray_tracer() == other.get_ray_tracer() and \
+        self.get_ray_bundle() == other.get_ray_bundle()
+
   @property
   def source_plane(self) -> Optional[SourcePlane]:
     return None
@@ -82,5 +96,24 @@ class Simulation(ABC):
         return True
     return False
 
-  def copy(self) -> Self:
+  def copy(self) -> 'Simulation':
     return copy.deepcopy(self)
+
+
+@dataclass
+class SimulationBatch:
+
+  simulations: List[Simulation]
+
+  @classmethod
+  def from_yaml_template(cls, yaml_template: str, preprocessor: Optional[VariancePreprocessor] = None):
+    preprocessor = preprocessor if preprocessor else VariancePreprocessor()
+    return cls([
+      Simulation.from_dict(yaml.load(yaml_str, yaml.CLoader))
+      for yaml_str in preprocessor.generate_variants(yaml_template)], yaml_template)
+
+  def __len__(self) -> int:
+    return len(self.simulations)
+
+  def __getitem__(self, index: int):
+    return self.simulations[index]

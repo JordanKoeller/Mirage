@@ -11,7 +11,7 @@ import sys
 import numpy as np
 
 from mirage.calc.dask_engine import DaskEngine
-from mirage.sim import Simulation
+from mirage.sim import SimulationBatch
 from mirage.util import ResultFileManager, DuplexChannel, ClusterProvider, Dictify, Stopwatch
 
 logger = logging.getLogger(__name__)
@@ -21,21 +21,21 @@ class BatchRunner:
 
   def __init__(
       self,
-      simulation: Simulation,
+      simulation_batch: SimulationBatch,
       output_filename: str,
       cluster_provider: ClusterProvider,
   ):
-    self.simulation: Simulation = simulation.copy()
+    self.simulation_batch: SimulationBatch = simulation_batch
     self.output_filename: str = output_filename
     self.cluster_provider = cluster_provider
 
   @staticmethod
   def _engine_main(
-      simulation: Simulation, channel: DuplexChannel, cluster_provider: ClusterProvider
+      simulation_batch: SimulationBatch, channel: DuplexChannel, cluster_provider: ClusterProvider
   ):
     try:
       engine = DaskEngine(event_channel=channel, cluster_provider=cluster_provider)
-      engine.blocking_run_simulation(simulation)
+      engine.blocking_run_simulation(simulation_batch)
       logger.info("Terminating Engine")
     except Exception as e:
       channel.close()
@@ -50,12 +50,12 @@ class BatchRunner:
     engine_process = Process(
         name="EngineProcess",
         target=BatchRunner._engine_main,
-        args=(self.simulation, send, self.cluster_provider),
+        args=(self.simulation_batch, send, self.cluster_provider),
     )
 
     engine_process.start()  # This starts the engine in a separate process
     serializer = ResultFileManager(self.output_filename, "x")
-    serializer.dump_simulation(self.simulation)
+    serializer.dump_simulation(self.simulation_batch)
     flag = True
     try:
       while flag:

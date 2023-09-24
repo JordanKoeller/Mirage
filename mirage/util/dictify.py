@@ -33,7 +33,7 @@ from abc import ABC, abstractmethod, abstractclassmethod
 from inspect import isabstract, isclass
 import logging
 import json
-import yaml
+import yaml  # type: ignore
 
 from astropy import units as u
 
@@ -300,7 +300,7 @@ class Dictify:
           Dictify._value_from_dict(k_type, k): Dictify._value_from_dict(v_type, v)
           for k, v in dictable_value.items()
       }
-    logger.warn(f"could not parse out python collection type {klass}")
+    logger.warning(f"could not parse out python collection type {klass}")
     return dictable_value
 
   @staticmethod

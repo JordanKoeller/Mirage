@@ -13,7 +13,7 @@ from mirage.util import Vec2D, Dictify, ResultFileManager
 from mirage.calc.reducers import LightCurvesReducer
 
 
-def simulation(ray_count: int = 100_000) -> Simulation:
+def simulation(ray_count: int = 100_000, reducers=None) -> Simulation:
   return MicrolensingSimulation(
     lensing_system=PointLens(
       quasar=Quasar(2.0, mass=Quantity(1e9, "solMass")),
@@ -24,6 +24,7 @@ def simulation(ray_count: int = 100_000) -> Simulation:
     ray_count=ray_count,
     source_region_dimensions=Vec2D(1.2, 1.2, "arcsec"),
     starfield=Starfield(initial_mass_function=WeidnerKroupa2004(), seed=2),
+    reducers=reducers if reducers else [],
   )
 
 
@@ -71,8 +72,9 @@ class TestResultFileManager:
 
     assert sim_batch == simulation_batch
 
-  def test_dumpResult_success(self, tmp_path: Path, simulation_batch: SimulationBatch, light_curve_reducer: LightCurvesReducer):
+  def test_dumpResult_success(self, tmp_path: Path, light_curve_reducer: LightCurvesReducer):
     file_path = tmp_path / "some-file.zip"
+    simulation_batch = SimulationBatch([simulation(100000, [light_curve_reducer])])
     mgr = ResultFileManager.new_writer(str(file_path))
     mgr.dump_simulation(simulation_batch=simulation_batch)  # type: ignore
     mgr.dump_result(light_curve_reducer, 0)
@@ -82,21 +84,22 @@ class TestResultFileManager:
     reducer = mgr.load_result(light_curve_reducer.name, 0)
     mgr.close()  # type: ignore
 
-    assert mgr.manifest["0"][light_curve_reducer.name] == f"{light_curve_reducer.name}_0.pickle"
+    assert mgr.manifest[0][light_curve_reducer.name] == f"{light_curve_reducer.name}_0.pickle"
     assert reducer == light_curve_reducer
 
   def test_dumpResult_multipleResultsAndMultipleSims_success(self, tmp_path: Path):
     file_path = tmp_path / "some-file.zip"
+
+    reducers = [reducer(i) for i in range(9)]
+
     sims = [
-      simulation(10_000),
-      simulation(100_000),
-      simulation(1_000_000),
+      simulation(10_000, reducers),
+      simulation(100_000, reducers),
+      simulation(1_000_000, reducers),
     ]
 
     mgr = ResultFileManager.new_writer(str(file_path))
     mgr.dump_simulation(SimulationBatch(sims))
-
-    reducers = [reducer(i) for i in range(9)]
 
     mgr.dump_result(reducers[0], 0)
     mgr.dump_result(reducers[1], 0)

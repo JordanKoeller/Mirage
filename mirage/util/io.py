@@ -4,10 +4,14 @@ import zipfile
 import io
 import pickle
 from typing import Union, Dict, List, Any, Self, Literal, Optional
+import logging
 
 from mirage.calc import Reducer
 from mirage.util import Dictify
 from mirage.sim import SimulationBatch
+
+
+logger = logging.getLogger(__name__)
 
 
 class ResultFileManager:
@@ -93,7 +97,7 @@ class ResultFileManager:
   def __len__(self) -> int:
     return len(self.manifest)
 
-  def load_result(self, reducer_id: str, simulation_id: int) -> object:
+  def load_result(self, reducer_id: str, simulation_id: int) -> Reducer:
     sim_dict: dict[str, str] = self.manifest.get(simulation_id, {})
     filename: Optional[str] = sim_dict.get(reducer_id, None)
     if sim_dict is None:
@@ -105,7 +109,16 @@ class ResultFileManager:
           f"\n:Available ids: {list(sim_dict.keys())}"
       )
 
-    return self._load(filename)  # type: ignore
+    output = self._load(filename)  # type: ignore
+    reducers = self.load_simulation()[simulation_id].reducers
+    logger.warning("Has reducers %s" % str(reducers))
+    for reducer in reducers:
+      logger.warning("Has name %s" % reducer.name)
+      if reducer.name == reducer_id:
+        reducer.set_output(output)
+        return reducer
+    raise ValueError(
+      f"Could not find reducer with name={reducer_id} in Simulation {simulation_id}")
 
   def _write(self, filename: str, data: Any):
     with self.zip_archive.open(filename, mode="w") as f:

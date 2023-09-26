@@ -22,6 +22,8 @@ class Starfield:
   def get_starfield(
       self, total_mass: u.Quantity, region_radius: u.Quantity
   ) -> Tuple[u.Quantity, u.Quantity]:
+    self._reset_rng(self.seed)
+
     num_stars = total_mass / 0.5
     masses = u.Quantity(
         self.initial_mass_function.generate_cluster(total_mass.to("solMass").value),

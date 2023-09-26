@@ -326,6 +326,14 @@ class ImfBrokenPowerlaw(Imf):
       self._multi_props == other._multi_props and \
       self._rng_seed == other._rng_seed
 
+  def __hash__(self) -> int:
+    return hash((
+      self._mass_limits.tobytes(),
+      self._powers.tobytes(),
+      self._multi_props,
+      self._rng_seed
+    ))
+
   @property
   def powers(self):
     return self._powers

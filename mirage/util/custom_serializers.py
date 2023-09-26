@@ -12,7 +12,7 @@ def register_serializers():
           value_type=Quantity,
           to_dict=lambda q: f"{int(q.value) if q.value.is_integer() else float(q.value)} {q.unit.to_string()}",
           from_dict=lambda value_str: Quantity(
-              *(float(value_str.split(" ")[0].strip()), value_str.split(" ")[1].strip())
+              *(float(value_str.split(" ")[0].strip()), "".join(value_str.split(" ")[1:]).strip())
               if isinstance(value_str, str)
               else value_str
           ),

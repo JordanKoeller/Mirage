@@ -110,7 +110,7 @@ class SimulationBatch:
     preprocessor = preprocessor if preprocessor else VariancePreprocessor()
     return cls([
       Simulation.from_dict(yaml.load(yaml_str, yaml.CLoader))
-      for yaml_str in preprocessor.generate_variants(yaml_template)], yaml_template)
+      for yaml_str in preprocessor.generate_variants(yaml_template)])
 
   def __len__(self) -> int:
     return len(self.simulations)

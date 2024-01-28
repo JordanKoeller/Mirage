@@ -1,11 +1,14 @@
 from typing import Union, Optional
 
-from .result import Result
+from .result import Result, MultiResult
 from mirage.viz import Viz
+from mirage.util.io import ResultFileManager
 
 
-def load(filename: str) -> Result:
-  return Result(filename)
+def load(filename: str) -> MultiResult:
+  io_manager = ResultFileManager(filename, 'r')
+
+  return MultiResult(io_manager)
 
 
 def visualize(

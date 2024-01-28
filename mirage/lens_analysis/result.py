@@ -44,20 +44,20 @@ class Result:
     raise ValueError(f"Could not find reducer with name '{name}'")
 
 
+@dataclass
 class MultiResult:
 
-  def __init__(self, filename: str):
-    self._io: ResultFileManager = ResultFileManager.new_loader(filename)
+  io_manager: ResultFileManager
 
   @cached_property
   def simulation_batch(self) -> SimulationBatch:
-    return self._io.load_simulation()
+    return self.io_manager.load_simulation()
 
   def get_result(self, index: int = 0) -> Result:
-    if index >= len(self._io):
+    if index >= len(self):
       raise ValueError(
-        f"Cannot extract Simulation {index} from file containing {len(self._io)} simulations")
-    return Result(self._io, index)
+        f"Cannot extract Simulation {index} from file containing {len(self.io_manager)} simulations")
+    return Result(self.io_manager, index)
 
   def simulation(self, index: int = 0) -> Simulation:
     return self.simulation_batch[index]

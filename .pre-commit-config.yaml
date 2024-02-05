@@ -25,11 +25,15 @@ repos:
   #   - id: codespell
   #     exclude_types: [json]
   #     args: [--ignore-words-list, 'datas']
-
-  - repo: https://github.com/hhatto/autopep8
-    rev: v2.0.4  # select the tag or revision you want, or run `pre-commit autoupdate`
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.1.14
     hooks:
-      - id: autopep8
+      # Run the linter.
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
 
   # - repo: https://github.com/google/pyink
   #   rev: 23.3.0

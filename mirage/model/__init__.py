@@ -19,3 +19,12 @@ from .lensing_system import LensingSystem
 from .starfield import Starfield
 
 from . import impl as lenses
+
+__all__ = [
+    "Quasar",
+    "SourcePlane",
+    "TracingParameters",
+    "LensingSystem",
+    "Starfield",
+    "lenses",
+]

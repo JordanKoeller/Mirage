@@ -1,14 +1,13 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from astropy.cosmology import Cosmology, WMAP7
 from astropy import units as u
 
 
 @dataclass(frozen=True)
 class Quasar:
-  """
-  Defines a Quasar Source Object being lensed.
-  """
+    """
+    Defines a Quasar Source Object being lensed.
+    """
 
-  redshift: float
-  mass: u.Quantity
+    redshift: float
+    mass: u.Quantity

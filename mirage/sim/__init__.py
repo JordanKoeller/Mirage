@@ -2,3 +2,11 @@ from .variance_preprocessor import VariancePreprocessor
 from .simulation import Simulation, SimulationBatch
 from .macrolensing_simulation import MacrolensingSimulation
 from .microlensing_simulation import MicrolensingSimulation
+
+__all__ = [
+    "VariancePreprocessor",
+    "Simulation",
+    "SimulationBatch",
+    "MacrolensingSimulation",
+    "MicrolensingSimulation",
+]

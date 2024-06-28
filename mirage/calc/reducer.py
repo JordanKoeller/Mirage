@@ -5,29 +5,16 @@ import logging
 
 
 from mirage.calc import KdTree
-from mirage.model import SourcePlane
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass(kw_only=True)
 class Reducer(ABC):
-    """
-    Variation Function:
-    ===================
-
-    The variation function should change one variable in the parameter space a finite
-    number of times. Each sub-reducer will be run with each iteration of the parameter
-    space set up in the variation.
-
-    The variation function may be used to change any property on the reducer. It cannot
-    be used to change properties of the lens.
-    """
-
     name: str
 
     @abstractmethod
-    def reduce(self, traced_rays: KdTree, source_plane: Optional[SourcePlane]):
+    def reduce(self, traced_rays: KdTree):
         """
         Apply the reducer to the specified set of rays.
 
@@ -49,9 +36,23 @@ class Reducer(ABC):
         Return the outcome of this reduction.
         """
 
+    @property
+    def has_output(self) -> bool:
+        return self.output is not None
+
     @abstractmethod
     def set_output(self, output: object):
         """
         Explicitly sets the output of this reducer. Used to reconstruct the
         populated reducer while deserializing.
         """
+
+    def initialize(self, simulation: "mirage.sim.Simulation"):
+        """
+        Optional method used to finish initializing this Reducer, giving it
+        an opportunity to gather any properties needed from the larger
+        Simulation object. Note that the `Simulation` passed in is a
+        throwaway copy. Any mutations to the Simulation will not be reflected
+        outside of this method's context.
+        """
+        pass

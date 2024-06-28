@@ -8,7 +8,7 @@ import logging
 
 from mirage.calc import Reducer
 from mirage.util import Dictify
-from mirage.sim import SimulationBatch
+from mirage.sim import Experiment
 
 
 logger = logging.getLogger(__name__)
@@ -78,14 +78,12 @@ class ResultFileManager:
     def new_writer(cls, filename: str) -> "ResultFileManager":
         return cls(filename, "x")
 
-    def dump_simulation(self, simulation_batch: SimulationBatch):
-        self._write(
-            "simulation_template.yaml", Dictify.to_dict(simulation_batch)
-        )
+    def dump_experiment(self, experiment: Experiment):
+        self._write("experiment.yaml", Dictify.to_dict(experiment))
 
-    def load_simulation(self) -> SimulationBatch:
-        sim_dict: dict = self._load("simulation_template.yaml")  # type: ignore
-        return Dictify.from_dict(SimulationBatch, sim_dict)  # type: ignore
+    def load_simulation(self) -> Experiment:
+        sim_dict: dict = self._load("experiment.yaml")  # type: ignore
+        return Dictify.from_dict(Experiment, sim_dict)  # type: ignore
 
     def close(self):
         if self.mode == "x":
@@ -99,17 +97,19 @@ class ResultFileManager:
     def __len__(self) -> int:
         return len(self.manifest)
 
-    def load_result(self, reducer_id: str, simulation_id: int) -> Reducer:
+    def load_result(self, reducer_name: str, simulation_id: int) -> Reducer:
         sim_dict: dict[str, str] = self.manifest.get(simulation_id, {})
-        filename: Optional[str] = sim_dict.get(reducer_id, None)
+        filename: Optional[str] = sim_dict.get(reducer_name, None)
         if sim_dict is None:
             raise ValueError(
-                f"Simulation of {simulation_id=} not recognized.\n Available sims: {list(self.manifest.keys())}"
+                f"Simulation of {simulation_id=} not recognized.\n Available "
+                f"sims: {list(self.manifest.keys())}"
             )
         if filename is None:
             raise ValueError(
-                f"'reducer_id' {reducer_id} not present in result manifest for simulation {simulation_id}."
-                f"\n:Available ids: {list(sim_dict.keys())}"
+                f"'reducer_id' {reducer_name} not present in result manifest "
+                f"for simulation {simulation_id}.\nAvailable ids: "
+                f"{list(sim_dict.keys())}"
             )
 
         output = self._load(filename)  # type: ignore
@@ -117,11 +117,12 @@ class ResultFileManager:
         logger.warning("Has reducers %s" % str(reducers))
         for reducer in reducers:
             logger.warning("Has name %s" % reducer.name)
-            if reducer.name == reducer_id:
+            if reducer.name == reducer_name:
                 reducer.set_output(output)
                 return reducer
         raise ValueError(
-            f"Could not find reducer with name={reducer_id} in Simulation {simulation_id}"
+            f"Could not find reducer with "
+            f"name={reducer_name} in Simulation {simulation_id}"
         )
 
     def _write(self, filename: str, data: Any):

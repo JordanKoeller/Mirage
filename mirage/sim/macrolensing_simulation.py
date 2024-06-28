@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from copy import copy
 
-from mirage.util import Vec2D, PixelRegion, DelegateRegistry
+from mirage.util import Vec2D, PixelRegion, DelegateRegistry, DictifyMixin, Dictify
 from mirage.sim import Simulation
 from mirage.calc import Reducer, RayTracer
 
@@ -11,7 +11,16 @@ _MACROLENSING_RESOLUTION = Vec2D.unitless(1_200, 1_200)
 
 @DelegateRegistry.register
 @dataclass(kw_only=True)
-class MacrolensingSimulation(Simulation):
+class MacrolensingSimulation(Simulation, DictifyMixin):
+
+    @classmethod
+    def from_dict(cls, sim_dict: dict):
+        with Simulation.units_from_dict(sim_dict):
+            return Dictify.from_dict(cls, sim_dict, False)
+
+    def to_dict(self) -> dict:
+        return Dictify.to_dict(self, allow_custom_serializer=False)
+
     def get_ray_tracer(self) -> RayTracer:
         return self.lensing_system.get_ray_tracer()
 

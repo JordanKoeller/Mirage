@@ -5,6 +5,7 @@ from mirage.calc import Reducer, KdTree
 from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region
 from mirage.model import SourcePlane
+from mirage.sim import MicrolensingSimulation
 from mirage_ext import reduce_lensed_image
 
 import numpy as np
@@ -22,7 +23,7 @@ class LensedImageReducer(Reducer):
     def __post_init__(self) -> None:
         self.canvas: Optional[np.ndarray] = None
 
-    def reduce(self, traced_rays: KdTree, _source_plane: Optional[SourcePlane]):
+    def reduce(self, traced_rays: KdTree):
         inds = traced_rays.query_indices(
             self.query.to("theta_0"), self.radius.to("theta_0")
         )
@@ -57,12 +58,27 @@ class MagnificationMapReducer(Reducer):
     resolution: Vec2D
     canvas: Optional[np.ndarray] = None
 
-    def reduce(self, traced_rays: KdTree, source_plane: Optional[SourcePlane]):
-        if not source_plane:
-            raise ValueError("Reducer did not have a source_plane instance")
+    def initialize(self, simulation: MicrolensingSimulation):
+        self.source_region = simulation.source_plane.source_region
+        pixel_region = simulation.get_ray_bundle().to("uas")
+        apparent_quasar_area = (
+            self.radius.to("uas") ** 2
+            * simulation.lensing_system.magnification_coefficient(
+                self.source_region.center
+            )
+            * np.pi
+        )
+        unlensed_pixel_count = apparent_quasar_area / (
+            pixel_region.delta.x * pixel_region.delta.y
+        ).to("uas2")
+        # Number of pixels expected for the quasar, based on large-scale
+        # magnification only.
+        self.expected_pixels = unlensed_pixel_count.value
+
+    def reduce(self, traced_rays: KdTree):
         pixel_region = PixelRegion(
-            dims=source_plane.source_region.to("theta_0").dims,
-            center=source_plane.source_region.to("theta_0").center,
+            dims=self.source_region.to("theta_0").dims,
+            center=self.source_region.to("theta_0").center,
             resolution=self.resolution,
         )
 
@@ -87,6 +103,12 @@ class MagnificationMapReducer(Reducer):
             return np.copy(self.canvas)
         return None
 
+    @property
+    def magnitudes(self) -> np.ndarray:
+        if self.output is None:
+            raise ValueError("Cannot compute magnitudes for empty reducer")
+        return -2.5 * np.log10(self.output / self.expected_pixels)
+
     def set_output(self, output: object):
         self.canvas = output  # type: ignore
 
@@ -99,15 +121,14 @@ class LightCurvesReducer(Reducer):
     num_curves: int
     seed: Optional[int]
 
-    def __post_init__(self):
+    def initialize(self, simulation: MicrolensingSimulation):
         self._curves: List[np.ndarray] = [
             np.array([]) for _ in range(self.num_curves)
         ]
+        self.source_region = simulation.source_plane.source_region
 
-    def reduce(self, traced_rays: KdTree, source_plane: Optional[SourcePlane]):
-        if not source_plane:
-            raise ValueError("Reducer did not have a source_plane instance")
-        query_points = self.get_query_points(source_plane.source_region)
+    def reduce(self, traced_rays: KdTree):
+        query_points = self.get_query_points(self.source_region)
         radius = self.radius.to("theta_0").value
         for i in range(self.num_curves):
             queries = query_points[i].to("theta_0").value
@@ -130,8 +151,9 @@ class LightCurvesReducer(Reducer):
 
     def get_query_points(self, region: Region) -> List[u.Quantity]:
         """
-        Returns a list of fully interpolated, randomly generated query points, where each
-        element of the list is all the query points for a single light curve.
+        Returns a list of fully interpolated, randomly generated query points,
+        where each element of the list is all the query points for a single
+        light curve.
         """
         lines = []
         query_seeds = self.get_query_seeds(region)

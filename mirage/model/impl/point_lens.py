@@ -39,3 +39,8 @@ class PointLens(LensingSystem):
         einstein_radius = self.einstein_radius
         distance = position.magnitude.to(einstein_radius.unit)
         return (einstein_radius**2 / distance**2).to("").value
+
+    def magnification_coefficient(self, p: Vec2D) -> float:
+        kappa = self._convergence(p)
+        gamma = 0  # self._shear(p)
+        return 1 / ((1 - kappa) ** 2 - gamma**2)

@@ -6,7 +6,7 @@ import sys
 from typing import Literal, Optional
 from functools import cached_property
 
-from mirage.sim import SimulationBatch
+from mirage.sim import Experiment
 from mirage.util import Dictify, ClusterProvider, LocalClusterProvider
 from mirage.calc.batch_runner import BatchRunner
 
@@ -139,7 +139,7 @@ class MirageMain:
     def overwrite(self) -> bool:
         return bool(self.args.force)
 
-    def load_simulation(self) -> Optional[SimulationBatch]:
+    def load_simulation(self) -> Optional[Experiment]:
         if not self.args.read_sim:
             return None
 
@@ -153,7 +153,7 @@ class MirageMain:
             yaml_str = f.read()
             logger.debug("Contents:\n" + yaml_str)
 
-            simulation_batch = SimulationBatch.from_yaml_template(yaml_str)
+            simulation_batch = Experiment.from_yaml_template(yaml_str)
 
             logger.info(
                 f"Constructed Simulation of type: {type(simulation_batch).__name__}"

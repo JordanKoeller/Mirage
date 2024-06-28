@@ -36,7 +36,8 @@ class MicrolensingRayTracer(RayTracer):
             % (stars_mass.shape[0], np.sum(stars_mass.value))
         )
         logger.info(
-            f"Running with {pixels.shape} (Total={pixels.shape[0]*pixels.shape[1]}) pixels"
+            f"Running with {pixels.shape} "
+            f"(Total={pixels.shape[0]*pixels.shape[1]}) pixels"
         )
 
         traced_values = micro_ray_trace(
@@ -51,7 +52,7 @@ class MicrolensingRayTracer(RayTracer):
         return u.Quantity(traced_values, rays.unit)
 
     def __eq__(self, other: object) -> bool:
-        if type(self) == type(other):
+        if not type(self) is type(other):
             return False
         my_other: MicrolensingRayTracer = other  # type: ignore
         return (

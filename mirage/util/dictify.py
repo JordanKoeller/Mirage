@@ -94,7 +94,7 @@ class Dictify:
         Dictify.__custom_serializers.append(serializer)
 
     @staticmethod
-    def to_dict(value: Any, type_as_key: bool = False) -> Any:
+    def to_dict(value: Any, type_as_key: bool = False, allow_custom_serializer: bool = True) -> Any:
         """
         Converts an object into a representation that is JSON-compatible.
 
@@ -111,10 +111,10 @@ class Dictify:
         if value is None:
             return None
         custom_serializer = Dictify._get_custom_serializer(value)
-        if custom_serializer:
+        if custom_serializer and allow_custom_serializer:
             ret = custom_serializer.to_dict(value)
             return Dictify._sanitize(ret)
-        if isinstance(value, DictifyMixin):
+        if isinstance(value, DictifyMixin) and allow_custom_serializer:
             return Dictify._sanitize(value.to_dict())
         if isinstance(value, (int, float, str, bool)):
             return value
@@ -137,7 +137,11 @@ class Dictify:
         )
 
     @staticmethod
-    def from_dict(klass: Type[T], dict_obj: Dict[str, Any]) -> Optional[T]:
+    def from_dict(
+        klass: Type[T],
+        dict_obj: Dict[str, Any],
+        allow_custom_serializer: bool = True,
+    ) -> Optional[T]:
         """
         Converts a dict into an instance of a @dataclass type.
 
@@ -155,11 +159,11 @@ class Dictify:
           + ValueError: The passed in type was not a @dataclass type.
         """
         custom_serializer = Dictify._get_custom_serializer(klass)  # type: ignore
-        if custom_serializer:
+        if custom_serializer and allow_custom_serializer:
             return custom_serializer.from_dict(dict_obj)
-        if isinstance(klass, DictifyMixin):
+        if isinstance(klass, DictifyMixin) and allow_custom_serializer:
             return klass.from_dict(dict_obj)
-        return Dictify._value_from_dict(klass, dict_obj)
+        return Dictify._value_from_dict(klass, dict_obj, allow_custom_serializer)
 
     @staticmethod
     def from_yaml(klass: Type[T], yaml_filename: str) -> T:
@@ -204,24 +208,23 @@ class Dictify:
         return json.loads(json.dumps(value))
 
     @staticmethod
-    def _value_from_dict(klass: Type[T], dictable_value: Any) -> Optional[T]:
-        # if isabstract(klass):
-        #   raise ValueError(f"Cannot convert a dict to an abstract type {klass.__name__}")
+    def _value_from_dict(klass: Type[T], dictable_value: Any, allow_custom_serializer: bool = True) -> Optional[T]:
         custom_serializer = Dictify._get_custom_serializer(klass)  # type: ignore
         if dictable_value is None:
             return None
         if get_origin(klass) is Union and type(None) in get_args(klass):
             klass = get_args(klass)[0]
         logger.debug(f"_value_from_dict: {klass} {dictable_value}")
-        if custom_serializer:
+        if custom_serializer and allow_custom_serializer:
             return custom_serializer.from_dict(dictable_value)
         if klass in (int, float, str, bool):
             return klass(dictable_value)  # type: ignore
         if Dictify._is_python_collection(klass):
             return Dictify._value_from_py_collection(klass, dictable_value)
-        if issubclass(klass, DictifyMixin):
+        if allow_custom_serializer and Dictify._has_custom_dictify(klass):
             return klass.from_dict(dictable_value)  # type: ignore
         if is_dataclass(klass):
+            logger.debug("Checking isabstract on ", klass)
             if isabstract(klass):
                 klassName = list(dictable_value.keys())[0]
                 klass = DelegateRegistry.get_typedef(klass, klassName)  # type: ignore
@@ -238,6 +241,12 @@ class Dictify:
             return Dictify._dataclass_from_dict(klass, dictable_value)
         raise ValueError(
             f"Could not construct a {klass.__name__} from value:\n{dictable_value}"
+        )
+
+    @staticmethod
+    def _has_custom_dictify(klass: Type[T]) -> bool:
+        return issubclass(klass, DictifyMixin) or (
+            hasattr(klass, "from_dict") and hasattr(klass, "to_dict")
         )
 
     @staticmethod

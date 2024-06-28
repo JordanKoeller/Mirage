@@ -62,20 +62,22 @@ class LensingSystem(ABC):
           + :class:`mirage.model.TracingParameters`
         """
         raise NotImplementedError(
-            f"LensingSystem delegate {type(self).__name__} does not suport microlensing ray-tracing"
+            f"LensingSystem delegate {type(self).__name__} does not suport "
+            f"microlensing ray-tracing"
         )
 
     def get_ray_tracer(self) -> RayTracer:
         """
-        Returns a :class:`RayTracer` instance that can be used to trace a bundle of rays around this
-        lens.
+        Returns a :class:`RayTracer` instance that can be used to trace a
+        bundle of rays around this lens.
 
-        Note that this is only really used for _macrolensing_ simulation (tracing caused by the mass
-        of the entire galaxy). If the model does not support macrolensing, this method should return
-        None instead.
+        Note that this is only really used for _macrolensing_ simulation
+        (tracing caused by the mass of the entire galaxy). If the model does
+        not support macrolensing, this method should return None instead.
         """
         raise NotImplementedError(
-            f"LensingSystem delegate {type(self).__name__} does not suport macrolensing ray-tracing"
+            f"LensingSystem delegate {type(self).__name__} does not suport "
+            f"macrolensing ray-tracing"
         )
 
     @property
@@ -85,20 +87,29 @@ class LensingSystem(ABC):
         Computes the einstein radius for the lensing system.
         """
 
+    @abstractmethod
+    def magnification_coefficient(self, p: Vec2D) -> float:
+        """
+        Computes the magnification coefficient of the LensingSystem
+        at a particular location
+        """
+
     @property
     def xi_0(self) -> u.Unit:
         """
         Impact parameter (distance) of a 1 M_sun point lens
         """
-        xi_0 = np.sqrt(
-            4
-            * const.G
-            * u.Quantity(1, "solMass")
-            * self.effective_distance
-            / const.c
-            / const.c
-        ).to("m")
-        return u.def_unit("xi_0", xi_0)
+        return u.def_unit(
+            "xi_0",
+            np.sqrt(
+                4
+                * const.G
+                * u.Quantity(1, "solMass")
+                * self.effective_distance
+                / const.c
+                / const.c
+            ).to("m"),
+        )
 
     @property
     def theta_0(self) -> u.Unit:
@@ -108,6 +119,28 @@ class LensingSystem(ABC):
         xi_0 = 1.0 * self.xi_0
         factor = xi_0.to("m") / self.lens_distance.to("m")
         return u.def_unit("theta_0", u.Quantity(factor.value, "rad"))
+
+    @property
+    def r_g(self) -> u.Unit:
+        """
+        Gravitational radius of the Quasar, expressed as an angle on the sky
+        """
+        return u.def_unit(
+            "r_g",
+            u.Quantity(
+                (
+                    2
+                    * const.G
+                    * self.quasar.mass
+                    / const.c
+                    / const.c
+                    / self.source_distance
+                )
+                .to("")
+                .value,
+                "rad",
+            ),
+        )
 
     @property
     def lens_distance(self) -> u.Quantity:
@@ -144,3 +177,16 @@ class LensingSystem(ABC):
             const.c * const.c / (4 * pi * const.G * self.effective_distance)
         )
         return density.to("solMass / lyr2")
+
+    def special_units(self):
+        """
+        Returns a context-object with special lens-specific units.
+        """
+        return u.add_enabled_units(
+            [
+                self.theta_0,
+                self.xi_0,
+                self.einstein_radius,
+                self.r_g,
+            ]
+        )

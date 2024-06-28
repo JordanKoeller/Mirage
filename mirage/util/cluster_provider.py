@@ -93,6 +93,7 @@ class LocalClusterProvider(ClusterProvider):
 @DelegateRegistry.register
 class RemoteClusterProvider(ClusterProvider):
     scheduler_uri: str
+    partition_size: str
 
     def __pre_init__(self):
         self._client: Optional[Client] = None
@@ -114,7 +115,7 @@ class RemoteClusterProvider(ClusterProvider):
 
     @property
     def rays_per_partition(self) -> float:
-        return 1e7
+        return size_to_bytes(self.partition_size) / 16
 
     @property
     def dashboard(self) -> str:
@@ -129,6 +130,7 @@ class AwsEphemeralClusterProvider(ClusterProvider):
     num_workers: int
     cpus_per_worker: int
     partition_size: str
+    docker_image: str = "jkoeller12/mirage:latest"
 
     def __pre_init__(self):
         self._client: Optional[Client] = None
@@ -136,15 +138,16 @@ class AwsEphemeralClusterProvider(ClusterProvider):
 
     def initialize(self):
         self._cluster = FargateCluster(
-            image="jkoeller12/mirage:latest",
+            image=self.docker_image,
             worker_cpu=1024 * self.cpus_per_worker,
             worker_mem=1024 * self.cpus_per_worker * 2,
             worker_nthreads=1,
             scheduler_cpu=1024 * 2,
             scheduler_mem=1024 * 4,
             n_workers=self.num_workers,
-            worker_extra_args=f"--nworkers {self.cpus_per_worker} --memory-limit 1.8GiB".split(
-                " "
+            worker_extra_args=(
+                f"--nworkers {self.cpus_per_worker} "
+                f"--memory-limit 1.8GiB".split(" ")
             ),
         )
         self._client = self._cluster.get_client()

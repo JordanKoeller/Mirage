@@ -10,7 +10,7 @@ from mirage.model import (
     TracingParameters,
     SourcePlane,
 )
-from mirage.util import Region, Vec2D, PixelRegion, DelegateRegistry
+from mirage.util import Region, Vec2D, PixelRegion, DelegateRegistry, Dictify, DictifyMixin
 from mirage.sim import Simulation
 from mirage.calc import Reducer, RayTracer
 from mirage.calc.tracers import MicrolensingRayTracer
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 @DelegateRegistry.register
 @dataclass(kw_only=True)
-class MicrolensingSimulation(Simulation):
+class MicrolensingSimulation(Simulation, DictifyMixin):
     """
     Simulates a Microlensed situation
 
@@ -43,6 +43,14 @@ class MicrolensingSimulation(Simulation):
     lensed_image_center: Vec2D
     ray_count: int
     source_region_dimensions: Vec2D
+
+    @classmethod
+    def from_dict(cls, sim_dict: dict):
+        with Simulation.units_from_dict(sim_dict):
+            return Dictify.from_dict(MicrolensingSimulation, sim_dict, False)
+
+    def to_dict(self) -> dict:
+        return Dictify.to_dict(self, allow_custom_serializer=False)
 
     def get_ray_tracer(self) -> RayTracer:
         starfield_radius = (

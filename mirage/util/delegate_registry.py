@@ -1,5 +1,8 @@
 from typing import Dict, Optional, Type, Any
 from inspect import getmro, isabstract
+import logging
+
+logger = logging.getLogger(__file__)
 
 
 class DelegateRegistry:
@@ -40,6 +43,7 @@ class DelegateRegistry:
 
           + Optional[type] The delegate definition found in the registry, if found.
         """
+        logging.debug(f"get_typedef: {supertype=} {delegate_name=}")
         supertype_tree = DelegateRegistry.__delegate_registry.get(
             supertype.__name__, None
         )

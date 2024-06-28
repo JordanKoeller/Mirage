@@ -40,6 +40,11 @@ class SingularIsothermalSphereLens(LensingSystem):
             starry_fraction=self.star_fraction,
         )
 
+    def magnification_coefficient(self, p: Vec2D) -> float:
+        kappa = self._convergence(p)
+        gamma = self._shear(p)
+        return 1 / ((1 - kappa) ** 2 - gamma**2)
+
     def _convergence(self, position: Vec2D) -> float:
         # TODO: Validate that this is the correct convergence equation
         b = self.einstein_radius.to("rad").value

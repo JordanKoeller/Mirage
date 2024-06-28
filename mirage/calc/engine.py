@@ -12,17 +12,19 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
+class ResultEvent:
+    result: object
+    simulation_id: int
+
+
+@dataclass
 class Engine:
     event_channel: DuplexChannel
 
-    def blocking_run_simulation(self, simulation: Simulation):
-        with u.add_enabled_units(
-            [
-                simulation.lensing_system.theta_0,
-                simulation.lensing_system.xi_0,
-                simulation.lensing_system.einstein_radius,
-            ]
-        ):
+    def blocking_run_simulation(
+        self, simulation: Simulation, simulation_id: int
+    ):
+        with simulation.special_units():
             logger.info("Starting Simulation. Now ray tracing")
             ray_tracer = simulation.get_ray_tracer()
             rays = simulation.get_ray_bundle().to(
@@ -41,8 +43,8 @@ class Engine:
                 self.event_channel.recv()
                 if self.event_channel.sender_closed:
                     return  # Short circuit if event channel is closed
-                reducer.reduce(rays_tree, simulation.source_plane)
-                self.export_outcome(reducer)
+                reducer.reduce(rays_tree, simulation)
+                self.export_outcome(reducer, simulation_id)
                 stopwatch.start()
                 if r_logger.log(
                     f"Frame time = {stopwatch.avg_elapsed_seconds()} ms"
@@ -56,8 +58,8 @@ class Engine:
         """
         return iter(simulation.get_reducers())
 
-    def export_outcome(self, outcome: object):
+    def export_outcome(self, outcome: object, simulation_id: int):
         """
         Save off a result of this simulation.
         #"""
-        self.event_channel.send_blocking(outcome)
+        self.event_channel.send_blocking(ResultEvent(outcome, simulation_id))

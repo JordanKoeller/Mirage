@@ -115,7 +115,7 @@ class DuplexChannel:
 
     def close(self):
         try:
-            logger.info("Called EventChanne.close()")
+            logger.info("Called EventChannel.close()")
             self.sender.put(
                 StructuredEvent.close_event(needs_response=True), True
             )

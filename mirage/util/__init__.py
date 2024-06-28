@@ -12,6 +12,7 @@ from .cluster_provider import (
     ClusterProvider,
     RemoteClusterProvider,
     AwsEphemeralClusterProvider,
+    LocalClusterProvider,
 )
 
 __all__ = [
@@ -32,7 +33,7 @@ __all__ = [
     "ResultFileManager",
     "RepeatLogger",
     "ClusterProvider",
-    "LocalClosterProvider",
+    "LocalClusterProvider",
     "RemoteClusterProvider",
     "AwsEphemeralClusterProvider",
 ]

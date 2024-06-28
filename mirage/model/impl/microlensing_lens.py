@@ -26,3 +26,6 @@ class MicrolensingLens(LensingSystem):
     @property
     def einstein_radius(self) -> u.Quantity:
         return 1 * self.xi_0
+
+    def magnification_coefficient(self, p: Vec2D) -> float:
+        return 1 / ((1 - self.convergence) ** 2 - self.shear**2)

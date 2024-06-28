@@ -27,14 +27,19 @@ class Viz(ABC):
         if not issubclass(klass, Viz):
             raise ValueError("Visualizers must be a subclass of mirage.viz.Viz")
         Viz._registry.append(klass)
+        return klass
 
     @staticmethod
-    def get_visualizer(reducer: Reducer) -> Self:  # type: ignore
+    def get_visualizer(reducer: Reducer, window: "VizWindow") -> Self:  # type: ignore
         reducer_type = type(reducer)
         for visualizer_type in Viz._registry:
             if reducer_type in visualizer_type.compatible_reducers():  # type: ignore
-                return visualizer_type()
+                return visualizer_type.for_window(window)
         raise ValueError(
-            f"Could not find a registered Visualizer for reducer {reducer_type.__name__}. Are you sure"
-            " you registered the Visuailzer with @Visualizer.register annotating its definition?"
+            f"Could not find a registered Visualizer for reducer "
+            f"{reducer_type.__name__}. Are you sure you registered the "
+            f"visualizer with @Visualizer.register annotating its definition?"
         )
+
+    def get_event_handlers(self) -> dict[str, callable]:
+        return {}

@@ -4,4 +4,14 @@ from .kd_tree import PyKdTree as KdTree, PyKdTree, RustKdTree
 from .ray_tracer import RayTracer
 from .reducer import Reducer
 
-__all__ = ["KdTree", "PyKdTree", "RustKdTree", "RayTracer", "Reducer"]
+from .engine import Engine, ResultEvent
+
+__all__ = [
+    "KdTree",
+    "PyKdTree",
+    "RustKdTree",
+    "RayTracer",
+    "Reducer",
+    "Engine",
+    "ResultEvent",
+]

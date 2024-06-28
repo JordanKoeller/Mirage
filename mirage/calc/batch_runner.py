@@ -3,7 +3,7 @@ import logging
 
 
 from mirage.calc.dask_engine import DaskEngine
-from mirage.sim import SimulationBatch
+from mirage.sim import Experiment
 from mirage.util import (
     DuplexChannel,
     ClusterProvider,
@@ -17,17 +17,17 @@ logger = logging.getLogger(__name__)
 class BatchRunner:
     def __init__(
         self,
-        simulation_batch: SimulationBatch,
+        experiment: Experiment,
         output_filename: str,
         cluster_provider: ClusterProvider,
     ):
-        self.simulation_batch: SimulationBatch = simulation_batch
+        self.experiment: Experiment = experiment
         self.output_filename: str = output_filename
         self.cluster_provider = cluster_provider
 
     @staticmethod
     def _engine_main(
-        simulation_batch: SimulationBatch,
+        experiment: Experiment,
         channel: DuplexChannel,
         cluster_provider: ClusterProvider,
     ):
@@ -35,7 +35,7 @@ class BatchRunner:
             engine = DaskEngine(
                 event_channel=channel, cluster_provider=cluster_provider
             )
-            engine.blocking_run_simulation(simulation_batch)
+            engine.blocking_run_simulation(experiment)
             logger.info("Terminating Engine")
         except Exception as e:
             channel.close()
@@ -50,12 +50,12 @@ class BatchRunner:
         engine_process = Process(
             name="EngineProcess",
             target=BatchRunner._engine_main,
-            args=(self.simulation_batch, send, self.cluster_provider),
+            args=(self.experiment, send, self.cluster_provider),
         )
 
         engine_process.start()  # This starts the engine in a separate process
         serializer = ResultFileManager(self.output_filename, "x")
-        serializer.dump_simulation(self.simulation_batch)
+        serializer.dump_experiment(self.experiment)
         flag = True
         try:
             while flag:
@@ -64,14 +64,16 @@ class BatchRunner:
                     logger.info("EngineProcess Closed. Saving and quiting")
                     flag = False
                 else:
-                    reducer = evt.value
-                    serializer.dump_result(reducer)
+                    result_event = evt.value
+                    serializer.dump_result(
+                        result_event.result, result_event.simulation_id
+                    )
         except Exception as e:
             logger.error("Encountered Error!")
             logger.error(str(e))
         finally:
             serializer.close()
             logger.info("Result saved to %s", self.output_filename)
-            engine_process.join()  # After UI is closed, gracefully terminate engine process
+            engine_process.join()  # After UI is closed, terminate engine
             timer.stop()
             logger.info("Total Runtime: %ss", timer.total_elapsed_seconds())

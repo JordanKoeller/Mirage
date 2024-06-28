@@ -7,7 +7,7 @@ import logging
 from astropy import units as u
 import yaml
 
-from mirage.util import PixelRegion, Dictify
+from mirage.util import PixelRegion, Dictify, DelegateRegistry, DictifyMixin
 from mirage.model import LensingSystem, SourcePlane
 from mirage.calc import Reducer, RayTracer
 from mirage.sim import VariancePreprocessor
@@ -28,6 +28,23 @@ class Simulation(ABC):
     lensing_system: LensingSystem
     reducers: List[Reducer] = field(default_factory=list)
 
+    def __post_init__(self):
+        with self.special_units():
+            for reducer in self.reducers:
+                reducer.initialize(self)
+
+    @staticmethod
+    def units_from_dict(sim_dict: dict):
+        lensing_system: Optional[LensingSystem] = None
+        for fieldname in sim_dict:
+            if fieldname.startswith("LensingSystem"):
+                subtype = DelegateRegistry.get_typedef(
+                    LensingSystem, fieldname.split("_")[1]
+                )
+                lensing_system = Dictify.from_dict(subtype, sim_dict[fieldname])
+        if lensing_system:
+            return lensing_system.special_units()
+
     @staticmethod
     def from_dict(sim_dict: dict) -> "Simulation":  # type: ignore
         from mirage.sim import MicrolensingSimulation, MacrolensingSimulation
@@ -43,23 +60,21 @@ class Simulation(ABC):
         }
         micro_only_fields = micro_fields - macro_fields
         present_micro_fields = dict_fields & micro_only_fields
-        logger.debug(f"Present Fields {dict_fields}")
-        logger.debug(f"Micro-only Fields {micro_only_fields}")
-        logger.debug(f"Macro Fields {macro_fields}")
-        logger.debug(f"Present Micro Fields {present_micro_fields}")
-        if present_micro_fields:
-            micro_sim = Dictify.from_dict(MicrolensingSimulation, sim_dict)
-            if micro_sim:
-                return micro_sim  # type: ignore
+        with Simulation.units_from_dict(sim_dict):
+            if present_micro_fields:
+                micro_sim = Dictify.from_dict(
+                    MicrolensingSimulation, sim_dict, False)
+                if micro_sim:
+                    return micro_sim  # type: ignore
+                raise ValueError(
+                    "Tried to construct a MicrolensingSimulation but got None instead"
+                )
+            macro_sim = Dictify.from_dict(MacrolensingSimulation, sim_dict, False)
+            if macro_sim:
+                return macro_sim  # type: ignore
             raise ValueError(
-                "Tried to construct a MicrolensingSimulation but got None instead"
+                "Tried to construct a MacrolensingSimulation but got None instead"
             )
-        macro_sim = Dictify.from_dict(MacrolensingSimulation, sim_dict)
-        if macro_sim:
-            return macro_sim  # type: ignore
-        raise ValueError(
-            "Tried to construct a MacrolensingSimulation but got None instead"
-        )
 
     @abstractmethod
     def get_ray_tracer(self) -> RayTracer:
@@ -81,8 +96,8 @@ class Simulation(ABC):
 
     def is_similar(self, other: "Simulation") -> bool:
         """
-        If `self` and `other` are similar, indicates that the two simulations have the same
-        lensing model and will deflect rays equally.
+        If `self` and `other` are similar, indicates that the two simulations
+        have the same lensing model and will deflect rays equally.
         """
         return (
             self.get_ray_tracer() == other.get_ray_tracer()
@@ -92,6 +107,12 @@ class Simulation(ABC):
     @property
     def source_plane(self) -> Optional[SourcePlane]:
         return None
+
+    def special_units(self):
+        """
+        Returns a context-object with special lens-specific units.
+        """
+        return self.lensing_system.special_units()
 
     def contains_reducer(self, klass: Type[Reducer]) -> bool:
         if not self.reducers:
@@ -106,7 +127,7 @@ class Simulation(ABC):
 
 
 @dataclass
-class SimulationBatch:
+class Experiment:
     simulations: List[Simulation]
 
     @classmethod

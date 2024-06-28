@@ -7,8 +7,8 @@ import copy
 from astropy import units as u
 import dask.bag as dask_bag
 
-from mirage.sim import Simulation, SimulationBatch
-from mirage.calc import Reducer, KdTree, RayTracer
+from mirage.sim import Simulation, Experiment
+from mirage.calc import Reducer, KdTree, RayTracer, Engine, ResultEvent
 from mirage.util import (
     DuplexChannel,
     Stopwatch,
@@ -28,19 +28,19 @@ RAYS_PER_PARTITION = list(
 
 
 @dataclass
-class DaskEngine:
+class DaskEngine(Engine):
     event_channel: DuplexChannel
     cluster_provider: ClusterProvider
 
-    def blocking_run_simulation(self, simulation_batch: SimulationBatch):
+    def blocking_run_simulation(self, simulation_batch: Experiment):
         self.cluster_provider.initialize()
         logger.info("Starting Simulation. Now ray tracing")
         logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
         timer = Stopwatch()
         timer.start()
         try:
-            for sim in simulation_batch.simulations:
-                self._run_single_simulation(sim)
+            for simulation_id, sim in enumerate(simulation_batch.simulations):
+                self._run_single_simulation(sim, simulation_id)
         except Exception as e:
             logger.error("Encountered Error")
             logger.error(str(e))
@@ -52,7 +52,9 @@ class DaskEngine:
             self.cluster_provider.close()
             self.event_channel.close()
 
-    def _run_single_simulation(self, simulation: Simulation):
+    def _run_single_simulation(
+        self, simulation: Simulation, simulation_id: int
+    ):
         with u.add_enabled_units(
             [
                 simulation.lensing_system.theta_0,
@@ -91,23 +93,21 @@ class DaskEngine:
                 .map(DaskEngine._trace_map(simulation, ray_tracer))
                 .map(DaskEngine._kd_tree_map(simulation))
             )
-
             trees = self.cluster_provider.client.persist(trees)
 
-            source_plane = simulation.source_plane
             for reducer in self.get_reducers(simulation):
                 self.event_channel.recv()
                 if self.event_channel.sender_closed:
                     return  # Short circuit if event channel is closed
                 mapped_reducers = trees.map(
-                    DaskEngine._reduce_map(simulation, source_plane, reducer)
+                    DaskEngine._reduce_map(simulation, reducer)
                 )
                 merged_reducer = mapped_reducers.fold(lambda a, b: a.merge(b))
                 hydrated_reducer = self.cluster_provider.client.compute(
                     merged_reducer, sync=True
                 )
                 logger.info(f"Has hydrated {type(hydrated_reducer)}")
-                self.export_outcome(hydrated_reducer)
+                self.export_outcome(hydrated_reducer, simulation_id)
 
     def get_reducers(self, simulation: Simulation) -> Iterator[Reducer]:
         """
@@ -115,11 +115,11 @@ class DaskEngine:
         """
         return iter(simulation.get_reducers())
 
-    def export_outcome(self, outcome: object):
+    def export_outcome(self, outcome: object, simulation_id: int):
         """
         Save off a result of this simulation.
         #"""
-        self.event_channel.send_blocking(outcome)
+        self.event_channel.send_blocking(ResultEvent(outcome, simulation_id))
 
     # The following are definitions for mapping functions
     @staticmethod
@@ -155,7 +155,6 @@ class DaskEngine:
     @staticmethod
     def _reduce_map(
         simulation: Simulation,
-        source_plane: Optional[SourcePlane],
         reducer: Reducer,
     ):
         def apply_reducer(tree):
@@ -168,7 +167,7 @@ class DaskEngine:
                 ]
             ):
                 reducable = copy.deepcopy(reducer)
-                reducable.reduce(tree, source_plane)
+                reducable.reduce(tree)
                 return reducable
 
         return apply_reducer

@@ -4,7 +4,7 @@ from pytest import fixture
 from astropy.units import Quantity
 from astropy import units as u
 
-from mirage.sim import MicrolensingSimulation, Simulation, SimulationBatch
+from mirage.sim import MicrolensingSimulation, Simulation, Experiment
 from mirage.model import Quasar, Starfield
 from mirage.model.initial_mass_function import WeidnerKroupa2004
 from mirage.model.impl import PointLens
@@ -28,8 +28,8 @@ def simulation(ray_count: int = 100_000, reducers=None) -> Simulation:
 
 
 @fixture
-def simulation_batch() -> SimulationBatch:
-    return SimulationBatch([simulation()])
+def simulation_batch() -> Experiment:
+    return Experiment([simulation()])
 
 
 @fixture
@@ -55,7 +55,7 @@ def reducer(radius: int = 1) -> LightCurvesReducer:
 
 class TestResultFileManager:
     def test_dumpSimulation_success(
-        self, tmp_path: Path, simulation_batch: SimulationBatch
+        self, tmp_path: Path, simulation_batch: Experiment
     ):
         file_path = tmp_path / "some-file.zip"
         mgr = ResultFileManager.new_writer(str(file_path))
@@ -63,7 +63,7 @@ class TestResultFileManager:
         mgr.close()  # type: ignore
 
     def test_loadSimulation_success(
-        self, tmp_path: Path, simulation_batch: SimulationBatch
+        self, tmp_path: Path, simulation_batch: Experiment
     ):
         file_path = tmp_path / "some-file.zip"
         mgr = ResultFileManager.new_writer(str(file_path))
@@ -80,7 +80,7 @@ class TestResultFileManager:
         self, tmp_path: Path, light_curve_reducer: LightCurvesReducer
     ):
         file_path = tmp_path / "some-file.zip"
-        simulation_batch = SimulationBatch(
+        simulation_batch = Experiment(
             [simulation(100000, [light_curve_reducer])]
         )
         mgr = ResultFileManager.new_writer(str(file_path))
@@ -112,7 +112,7 @@ class TestResultFileManager:
         ]
 
         mgr = ResultFileManager.new_writer(str(file_path))
-        mgr.dump_simulation(SimulationBatch(sims))
+        mgr.dump_simulation(Experiment(sims))
 
         mgr.dump_result(reducers[0], 0)
         mgr.dump_result(reducers[1], 0)
@@ -128,7 +128,7 @@ class TestResultFileManager:
         mgr = ResultFileManager.new_loader(str(file_path))
         sim = mgr.load_simulation()
 
-        assert sim == SimulationBatch(sims)
+        assert sim == Experiment(sims)
         assert mgr.load_result(reducers[0].name, 0) == reducers[0]
         assert mgr.load_result(reducers[1].name, 0) == reducers[1]
         assert mgr.load_result(reducers[2].name, 0) == reducers[2]

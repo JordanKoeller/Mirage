@@ -1,12 +1,12 @@
 from .variance_preprocessor import VariancePreprocessor
-from .simulation import Simulation, SimulationBatch
+from .simulation import Simulation, Experiment
 from .macrolensing_simulation import MacrolensingSimulation
 from .microlensing_simulation import MicrolensingSimulation
 
 __all__ = [
     "VariancePreprocessor",
     "Simulation",
-    "SimulationBatch",
+    "Experiment",
     "MacrolensingSimulation",
     "MicrolensingSimulation",
 ]

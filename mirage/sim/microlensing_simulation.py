@@ -10,7 +10,14 @@ from mirage.model import (
     TracingParameters,
     SourcePlane,
 )
-from mirage.util import Region, Vec2D, PixelRegion, DelegateRegistry, Dictify, DictifyMixin
+from mirage.util import (
+    Region,
+    Vec2D,
+    PixelRegion,
+    DelegateRegistry,
+    Dictify,
+    DictifyMixin,
+)
 from mirage.sim import Simulation
 from mirage.calc import Reducer, RayTracer
 from mirage.calc.tracers import MicrolensingRayTracer

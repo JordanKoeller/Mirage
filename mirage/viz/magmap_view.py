@@ -24,45 +24,33 @@ class MagmapView(Viz):
           low-magnitude, respectively.
         + Click/dragging through the magmap will allow for creation of a
           lightcurve by sampling the pixel data.
-
-
     """
 
-    def __init__(self, image_axes: Axes):
-        self._setup_axes(image_axes)
+    def __init__(self):
         self._reducer: Optional[MagnificationMapReducer] = None
         self._line: Optional[Line2D] = None
+        self._colormap = None
 
-    @classmethod
-    def for_window(cls, window):
-        return window.bind_bottom_view(cls)
+    def draw(self, canvas: Axes, line_graph: Axes) -> None:
+        # Draw to main canvas
+        canvas.set_axis_off()
+        canvas.set_frame_on(True)
+        if not self.magmap.has_output:
+            raise ValueError("`magmap` did not have any output")
+        magnitudes = self.magmap.magnitudes
+        colormap = plt.get_cmap("RdBu")
+        img = canvas.imshow(magnitudes, cmap=colormap)
+        if self._colormap:
+            self._colormap.remove()
+        self._colormap = canvas.figure.colorbar(
+            img, ax=canvas, pad=0.01, fraction=0.05)
+        self._colormap.set_label("Magnitudes")
+        canvas.figure.canvas.draw()
 
-    @staticmethod
-    def new() -> "MagmapView":
-        figure = plt.figure(
-            layout="tight",
-            clear=True,
-        )
-        axes = figure.add_subplot()
-        return MagmapView(axes)
+        # Overlay line, if present
+        if self._line:
+            canvas.add_line(self._line)
 
-    def show(self, reducer: MagnificationMapReducer):  # type: ignore
-        if not reducer.has_output:
-            raise ValueError("`reducer` did not have any output")
-        self._reducer = reducer
-        magnitudes = reducer.magnitudes
-        img = self.image_axes.imshow(magnitudes, cmap=self.colormap)
-        cb = self._figure.colorbar(
-            img, ax=self.image_axes, pad=0.01, fraction=0.05
-        )
-        cb.set_label("Magnitudes")
-        self._figure.show()
-
-    def _setup_axes(self, image_axes: Axes):
-        self.colormap = plt.get_cmap("RdBu")
-        self.image_axes = image_axes
-        self.image_axes.set_axis_off()
-        self.image_axes.set_frame_on(True)
 
     def get_event_handlers(self):
         return {}
@@ -87,8 +75,8 @@ class MagmapView(Viz):
         pass
 
     @property
-    def _figure(self):
-        return self.image_axes.get_figure()
+    def magmap(self) -> MagnificationMapReducer | None:
+        return self.simulation.get_reducer("magmap")
 
     @classmethod
     def compatible_reducers(cls):

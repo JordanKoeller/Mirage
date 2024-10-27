@@ -48,8 +48,8 @@ class SimulationTemplate:
 
 ## Isn't this just the SimulationBatch?
 
-No. This is a replacement of the `Simulation`. The key difference is that the 
-`Simulation` is no longer the source of truth of an execution. Instead it is a 
+No. This is a replacement of the `Simulation`. The key difference is that the
+`Simulation` is no longer the source of truth of an execution. Instead it is a
 generator of the (ray_tracer, reducers) that control execution. This decouples
 the Simulation from the execution itself, enabling a many-to-one relationship
 between `SimulationTemplate` and an execution.

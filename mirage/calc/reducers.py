@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from mirage.calc import Reducer, KdTree
 from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region
-from mirage.model import SourcePlane
 from mirage.sim import MicrolensingSimulation
 from mirage_ext import reduce_lensed_image
 

@@ -7,7 +7,7 @@ import logging
 from astropy import units as u
 import yaml
 
-from mirage.util import PixelRegion, Dictify, DelegateRegistry, DictifyMixin
+from mirage.util import PixelRegion, Dictify, DelegateRegistry
 from mirage.model import LensingSystem, SourcePlane
 from mirage.calc import Reducer, RayTracer
 from mirage.sim import VariancePreprocessor
@@ -63,13 +63,16 @@ class Simulation(ABC):
         with Simulation.units_from_dict(sim_dict):
             if present_micro_fields:
                 micro_sim = Dictify.from_dict(
-                    MicrolensingSimulation, sim_dict, False)
+                    MicrolensingSimulation, sim_dict, False
+                )
                 if micro_sim:
                     return micro_sim  # type: ignore
                 raise ValueError(
                     "Tried to construct a MicrolensingSimulation but got None instead"
                 )
-            macro_sim = Dictify.from_dict(MacrolensingSimulation, sim_dict, False)
+            macro_sim = Dictify.from_dict(
+                MacrolensingSimulation, sim_dict, False
+            )
             if macro_sim:
                 return macro_sim  # type: ignore
             raise ValueError(

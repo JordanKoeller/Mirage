@@ -52,7 +52,7 @@ class MicrolensingRayTracer(RayTracer):
         return u.Quantity(traced_values, rays.unit)
 
     def __eq__(self, other: object) -> bool:
-        if not type(self) is type(other):
+        if type(self) is not type(other):
             return False
         my_other: MicrolensingRayTracer = other  # type: ignore
         return (

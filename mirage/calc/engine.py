@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Iterator
 import logging
 
-from astropy import units as u
 
 from mirage.sim import Simulation
 from mirage.calc import Reducer, KdTree

@@ -94,7 +94,11 @@ class Dictify:
         Dictify.__custom_serializers.append(serializer)
 
     @staticmethod
-    def to_dict(value: Any, type_as_key: bool = False, allow_custom_serializer: bool = True) -> Any:
+    def to_dict(
+        value: Any,
+        type_as_key: bool = False,
+        allow_custom_serializer: bool = True,
+    ) -> Any:
         """
         Converts an object into a representation that is JSON-compatible.
 
@@ -163,7 +167,9 @@ class Dictify:
             return custom_serializer.from_dict(dict_obj)
         if isinstance(klass, DictifyMixin) and allow_custom_serializer:
             return klass.from_dict(dict_obj)
-        return Dictify._value_from_dict(klass, dict_obj, allow_custom_serializer)
+        return Dictify._value_from_dict(
+            klass, dict_obj, allow_custom_serializer
+        )
 
     @staticmethod
     def from_yaml(klass: Type[T], yaml_filename: str) -> T:
@@ -208,7 +214,11 @@ class Dictify:
         return json.loads(json.dumps(value))
 
     @staticmethod
-    def _value_from_dict(klass: Type[T], dictable_value: Any, allow_custom_serializer: bool = True) -> Optional[T]:
+    def _value_from_dict(
+        klass: Type[T],
+        dictable_value: Any,
+        allow_custom_serializer: bool = True,
+    ) -> Optional[T]:
         custom_serializer = Dictify._get_custom_serializer(klass)  # type: ignore
         if dictable_value is None:
             return None
@@ -217,8 +227,10 @@ class Dictify:
         logger.debug(f"_value_from_dict: {klass} {dictable_value}")
         if custom_serializer and allow_custom_serializer:
             return custom_serializer.from_dict(dictable_value)
-        if klass in (int, float, str, bool):
+        if klass in (float, str, bool):
             return klass(dictable_value)  # type: ignore
+        if klass is int:
+            return int(float(dictable_value)) # type: ignore
         if Dictify._is_python_collection(klass):
             return Dictify._value_from_py_collection(klass, dictable_value)
         if allow_custom_serializer and Dictify._has_custom_dictify(klass):

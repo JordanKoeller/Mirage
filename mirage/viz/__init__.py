@@ -30,8 +30,23 @@ multiple views in a unified interface. So it would be good to have that
 flexibility.
 
 With that in mind, I'm going to make sure that the render-surface is just an
-Axes as defined in matplotlib. Then can have special builders that build 
+Axes as defined in matplotlib. Then can have special builders that build
 to a new figure, an existing figure, etc.
+
+## API Example
+
+We use a simple object-oriented approach, with a `VizWindow` that acts as the
+UI window.
+
+From this window, you can bind an `ExperimentResult` to it. This just associates
+the window with a set of Simulation results. By default, it will inspect what
+reducers exist in the ExperimentResult and bind reducers in a sensible way. If
+there is ambiguity in how the reducers should bind, the user is prompted. Of
+course, this can be changed later via an api. Something like 
+`window.bind_top_pane('reducer_name')`.
+
+The UI includes arrow buttons to step forward or backward through the set of
+simulations in the ExperimentResult.
 
 
 """

@@ -3,7 +3,6 @@ from typing import Optional
 from dataclasses import dataclass
 import logging
 
-
 from mirage.calc import KdTree
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ class Reducer(ABC):
         populated reducer while deserializing.
         """
 
-    def initialize(self, simulation: "mirage.sim.Simulation"):
+    def initialize(self, simulation: ".sim.Simulation"):
         """
         Optional method used to finish initializing this Reducer, giving it
         an opportunity to gather any properties needed from the larger

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterator, Optional
+from typing import Iterator
 import math
 import logging
 import copy
@@ -17,7 +17,6 @@ from mirage.util import (
     size_to_bytes,
     bytes_to_size,
 )
-from mirage.model import SourcePlane
 
 logger = logging.getLogger(__name__)
 

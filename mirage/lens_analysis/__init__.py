@@ -4,10 +4,12 @@ from .result import ExperimentResult, SimulationResult
 from mirage.viz import Viz, VizWindow
 from mirage.io import ResultFileManager
 
-ACTIVE_WINDOW: Optional[VizWindow] = None
-
-
 def load(filename: str) -> ExperimentResult:
+    """
+    Load the result of a mirage Experiment from the specified filename.
+
+    The result is loaded in a read-only fashion.
+    """
     return ExperimentResult(ResultFileManager(filename, "r"))
 
 
@@ -15,7 +17,6 @@ def visualize(
     file_or_result: Union[str, SimulationResult],
     reducer_key: Optional[str] = None,
 ) -> Viz:
-    global ACTIVE_WINDOW
     result: SimulationResult = file_or_result  # type: ignore
     if isinstance(file_or_result, str):
         result = load(file_or_result)
@@ -30,9 +31,8 @@ def visualize(
             )
         reducer = reducers[0]
     reducer = result.get_reducer(reducer.name)
-    if ACTIVE_WINDOW is None:
-        ACTIVE_WINDOW = VizWindow()
-    visualizer = Viz.get_visualizer(reducer, ACTIVE_WINDOW)
+    window = VizWindow()
+    visualizer = Viz.get_visualizer(reducer, window)
 
     visualizer.show(reducer)
     return visualizer

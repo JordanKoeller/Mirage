@@ -10,19 +10,19 @@ readme = "README.md"
 requires-python = ">=3.11"
 
 dependencies = [
-  "dask==2023.6.0",
-  "dask[distributed]==2023.6.0",
-  "dask-cloudprovider[aws]==2022.10.0",
-  "numpy==1.23.5",
-  "astropy==5.1",
-  "bokeh==3.1.1",
-  "scipy==1.10.0",
-  "maturin==1.1.0",
-  "PyYAML==6.0",
-  "cython==0.29.33",
-  "hurry.filesize==0.9",
-  "pandas==2.0.2",
-  "ruamel.yaml==0.17.32",
+  "dask",
+  "dask[distributed]",
+  "dask-cloudprovider[aws]",
+  "numpy",
+  "astropy",
+  "bokeh",
+  "scipy",
+  "maturin",
+  "PyYAML",
+  "cython",
+  "hurry.filesize",
+  "pandas",
+  "ruamel.yaml",
 ]
 
 [project.optional-dependencies]

@@ -26,6 +26,7 @@ Model_SingularIsothermalSphere:
     Redshift: 0.7
     Cosmology: "WMAP7"
 ```"""
+
 from dataclasses import fields, is_dataclass, dataclass
 from datetime import date, datetime, time
 from typing import (
@@ -53,9 +54,7 @@ from .delegate_registry import DelegateRegistry
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar(
-    "T",
-)
+T = TypeVar("T")
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -230,7 +229,7 @@ class Dictify:
         if klass in (float, str, bool):
             return klass(dictable_value)  # type: ignore
         if klass is int:
-            return int(float(dictable_value)) # type: ignore
+            return int(float(dictable_value))  # type: ignore
         if Dictify._is_python_collection(klass):
             return Dictify._value_from_py_collection(klass, dictable_value)
         if allow_custom_serializer and Dictify._has_custom_dictify(klass):

@@ -53,6 +53,7 @@ class ClusterProvider(ABC):
 class LocalClusterProvider(ClusterProvider):
     num_workers: int = field(default_factory=multiprocessing.cpu_count)
     worker_mem: str = field(default_factory=lambda: "1.5GiB")
+    rays_per_chunk: int = field(default_factory=lambda: 1e6)
 
     def __pre_init__(self):
         self._cluster: Optional[LocalCluster] = None
@@ -60,7 +61,8 @@ class LocalClusterProvider(ClusterProvider):
 
     def initialize(self):
         self._cluster = LocalCluster(
-            n_workers=self.num_workers, memory_limit=self.worker_mem
+            n_workers=self.num_workers, memory_limit=self.worker_mem,
+            threads_per_worker=2,
         )
         self._client = Client(self._cluster)
 
@@ -75,12 +77,12 @@ class LocalClusterProvider(ClusterProvider):
         if self._client:
             return self._client
         raise ValueError(
-            "Cluster was not intiailized. Please call `.intiailize()` first"
+            "Cluster was not initialize. Please call `.initialize()` first"
         )
 
     @property
     def rays_per_partition(self) -> float:
-        return 1e6
+        return self.rays_per_chunk
 
     @property
     def dashboard(self) -> str:
@@ -110,7 +112,7 @@ class RemoteClusterProvider(ClusterProvider):
         if self._client:
             return self._client
         raise ValueError(
-            "Client was not intiailized. Please call `.intiailize()` first"
+            "Client was not initialized. Please call `.initialize()` first"
         )
 
     @property
@@ -162,7 +164,7 @@ class AwsEphemeralClusterProvider(ClusterProvider):
         if self._client:
             return self._client
         raise ValueError(
-            "Client was not intiailized. Please call `.intiailize()` first"
+            "Client was not initialized. Please call `.initialize()` first"
         )
 
     @property

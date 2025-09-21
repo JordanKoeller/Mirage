@@ -73,10 +73,9 @@ class DaskEngine(Engine):
                 or partition_size > RAYS_PER_PARTITION[1]
             ):
                 logger.warning(
-                    f"ClusterProvider requested {partition_size} per partition, which falls outside"
+                    f"ClusterProvider requested {partition_size} rays per partition, which falls outside"
                     " of the recommended range. For optimal performance, each partition should"
-                    f" be in the range {RAYS_PER_PARTITION}, or {PARTITION_SIZE_RANGE} in"
-                    " memory."
+                    f" be in the range {RAYS_PER_PARTITION} rays ({PARTITION_SIZE_RANGE}) per partition."
                 )
 
             num_rays = rays_region.num_pixels

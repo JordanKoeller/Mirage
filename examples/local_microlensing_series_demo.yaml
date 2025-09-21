@@ -11,10 +11,10 @@ Starfield:
   InitialMassFunction: Kroupa2001
   Seed: 110
 LensedImageCenter: [0.0, 0.0, 'uas']
-RayCount: 1000000
+RayCount: 10000
 SourceRegionDimensions: [100, 100, 'uas']
 Reducers:
   - MagnificationMapReducer:
       Name: magmap
       Radius: 1.2 uas
-      Resolution: [1000, 1000, '']
+      Resolution: [100, 100, '']

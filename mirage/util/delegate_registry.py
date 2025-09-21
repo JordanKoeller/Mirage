@@ -17,6 +17,7 @@ class DelegateRegistry:
         It will add the class definition to a registry, useful for deserializing dictionaries
         into registered class instances.
         """
+        logger.debug(f"Registering delegate: {klass.__name__}")
         type_resolution = getmro(klass)
         immediate_supertype = type_resolution[1]
         if isabstract(immediate_supertype):

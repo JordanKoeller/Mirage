@@ -53,7 +53,6 @@ class MagmapView(Viz):
 
 
     def get_event_handlers(self):
-        return {}
         return {
             "button_press_events": self._on_press,
             "button_release_events": self._on_release,

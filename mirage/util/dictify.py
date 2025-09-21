@@ -195,11 +195,9 @@ class Dictify:
         with open(yaml_filename) as f:
             yaml_str = f.read()
             dict_obj = yaml.load(yaml_str, yaml.CLoader)
-            logger.debug("Dict_obj %s", dict_obj)
             obj = Dictify.from_dict(klass, dict_obj)
             if obj is None:
                 raise ValueError(f"Could not deserialize {dict_obj} to {klass}")
-            logger.debug("Constructed instance %s", repr(obj))
             return obj
 
     @staticmethod
@@ -223,7 +221,6 @@ class Dictify:
             return None
         if get_origin(klass) is Union and type(None) in get_args(klass):
             klass = get_args(klass)[0]
-        logger.debug(f"_value_from_dict: {klass} {dictable_value}")
         if custom_serializer and allow_custom_serializer:
             return custom_serializer.from_dict(dictable_value)
         if klass in (float, str, bool):
@@ -235,7 +232,6 @@ class Dictify:
         if allow_custom_serializer and Dictify._has_custom_dictify(klass):
             return klass.from_dict(dictable_value)  # type: ignore
         if is_dataclass(klass):
-            logger.debug("Checking isabstract on ", klass)
             if isabstract(klass):
                 klassName = list(dictable_value.keys())[0]
                 klass = DelegateRegistry.get_typedef(klass, klassName)  # type: ignore
@@ -262,7 +258,6 @@ class Dictify:
 
     @staticmethod
     def _dataclass_from_dict(klass: Type[T], dict_obj: Dict[str, Any]) -> T:
-        logger.debug(f"_dataclass_from_dict {str(klass)} | {str(dict_obj)}")
         field_map = {k.split("_")[0]: v for k, v in dict_obj.items()}
         subtype_map = {
             k.split("_")[0]: k.split("_")[1]
@@ -326,8 +321,7 @@ class Dictify:
 
     @staticmethod
     def _value_from_py_collection(klass: Type[T], dictable_value: Any) -> Any:
-        logger.debug(f"py_collection {str(klass)} | {str(dictable_value)}")
-        if get_origin(klass) == list:
+        if get_origin(klass) is list:
             inner_type = get_args(klass)[0]
             if isabstract(inner_type):
                 # Case where we have a polymorphic list of Dataclass type.
@@ -346,7 +340,7 @@ class Dictify:
                         )
                     else:
                         raise ValueError(
-                            "Encountered polymorphic list with non-matching element"
+                            f"Encountered polymorphic list with non-matching element: {concrete_type_name}"
                         )
                 return values
             return [

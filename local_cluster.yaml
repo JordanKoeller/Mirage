@@ -1,0 +1,9 @@
+#AwsEphemeralClusterProvider:
+#  NumWorkers: 8
+#  CpusPerWorker: 8
+#  PartitionSize: 50M
+
+LocalClusterProvider:
+  NumWorkers: 8
+  WorkerMem: 1GiB
+  RaysPerChunk: 128000

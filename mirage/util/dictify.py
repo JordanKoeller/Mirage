@@ -27,6 +27,7 @@ Model_SingularIsothermalSphere:
     Cosmology: "WMAP7"
 ```"""
 
+import copy
 from dataclasses import fields, is_dataclass, dataclass
 from datetime import date, datetime, time
 from typing import (
@@ -51,6 +52,7 @@ import yaml  # type: ignore
 
 
 from .delegate_registry import DelegateRegistry
+from .variant import Variant
 
 logger = logging.getLogger(__name__)
 
@@ -403,6 +405,47 @@ class Dictify:
             else:
                 ret.append(char)
         return "".join(ret)
+
+class VarianceDictify:
+    """
+    Drop-in replacement for Dictify that will process any variants present and
+    return all the resultant dictified objects.
+    """
+
+    @staticmethod
+    def from_dict(
+        klass: Type[T],
+        dict_obj: Dict[str, Any],
+        allow_custom_serializer: bool = True,
+    ) -> List[T]:
+        if "Variants" not in dict_obj:
+            return [Dictify.from_dict(klass, dict_obj, allow_custom_serializer)]
+        variants = [Dictify.from_dict(Variant, obj) for obj in dict_obj["Variants"]]
+        del dict_obj["Variants"]
+        objs = []
+        for substitutions in VarianceDictify._get_substitutions(variants):
+            dict_obj_copy = copy.deepcopy(dict_obj)
+            VarianceDictify._apply_substitutions(dict_obj_copy, substitutions)
+            objs.append(Dictify.from_dict(klass, dict_obj_copy, allow_custom_serializer))
+        return objs
+
+    @staticmethod
+    def _get_substitutions(variants: list[Variant]) -> list[dict[str, Any]]:
+        """
+        Gives a list of substitution objects based on the values produced by the set of variants.
+
+        The elements of the returned list consist of key-value pairs, where each key maps to a
+        value that should be substituted in.
+        """
+        substitutions = []
+        variants_per_tag = {}
+        for variant in variants:
+            variants_per_tag.get(variant.tag, []).append(variant)
+
+
+    @staticmethod
+    def _apply_substitutions(dict_obj: dict[str, Any], substitutions: dict[str, Any]):
+        pass
 
 
 class DictifyMixin(ABC):

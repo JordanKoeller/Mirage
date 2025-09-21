@@ -45,6 +45,7 @@ from typing import (
     get_origin,
 )
 from abc import ABC, abstractmethod
+from enum import Enum
 from inspect import isabstract, isclass
 import logging
 import json
@@ -229,6 +230,8 @@ class Dictify:
             return klass(dictable_value)  # type: ignore
         if klass is int:
             return int(float(dictable_value))  # type: ignore
+        if is_enum(klass):
+            return klass(dictable_value)
         if Dictify._is_python_collection(klass):
             return Dictify._value_from_py_collection(klass, dictable_value)
         if allow_custom_serializer and Dictify._has_custom_dictify(klass):
@@ -273,14 +276,14 @@ class Dictify:
         }
         for dict_name, field in expected_fields.items():
             custom_serializer = Dictify._get_custom_serializer(field.type)
-            dict_value = field_map.get(dict_name, None)
+            if dict_name not in field_map:
+                continue
+            dict_value = field_map[dict_name]
             if custom_serializer:
                 constructor_args[field.name] = custom_serializer.from_dict(
                     dict_value
                 )
-            elif isabstract(
-                field.type
-            ):  # Find its subtype by name and construct
+            elif isabstract(field.type):  # Find its subtype by name and construct
                 delegate_name = subtype_map[dict_name]
                 subtype = DelegateRegistry.get_typedef(
                     field.type, delegate_name
@@ -406,6 +409,27 @@ class Dictify:
                 ret.append(char)
         return "".join(ret)
 
+class _TagsCounter:
+    def __init__(self, variants: list[Variant]) -> None:
+        self.tag_indices = {}
+        self.tag_lengths = {}
+        for variant in variants:
+            self.tag_indices[variant.tag] = 0
+            self.tag_lengths[variant.tag] = max(self.tag_lengths.get(variant.tag, 0), len(variant))
+        self.tags = list(self.tag_lengths.keys())
+
+    def increment(self) -> bool:
+        for tag in self.tags:
+            self.tag_indices[tag] += 1
+            if self.tag_indices[tag] == self.tag_lengths[tag]:
+                self.tag_indices[tag] = 0
+            else:
+                return True
+        return False
+
+    def get_tag_indices(self) -> dict[str, int]:
+        return self.tag_indices
+
 class VarianceDictify:
     """
     Drop-in replacement for Dictify that will process any variants present and
@@ -419,8 +443,15 @@ class VarianceDictify:
         allow_custom_serializer: bool = True,
     ) -> List[T]:
         if "Variants" not in dict_obj:
-            return [Dictify.from_dict(klass, dict_obj, allow_custom_serializer)]
-        variants = [Dictify.from_dict(Variant, obj) for obj in dict_obj["Variants"]]
+            obj = Dictify.from_dict(klass, dict_obj, allow_custom_serializer)
+            if obj:
+                return [obj]
+            return []
+        variants = []
+        for obj in dict_obj["Variants"]:
+            parsed = Dictify.from_dict(Variant, obj) 
+            if parsed:
+                variants.append(parsed)
         del dict_obj["Variants"]
         objs = []
         for substitutions in VarianceDictify._get_substitutions(variants):
@@ -438,15 +469,48 @@ class VarianceDictify:
         value that should be substituted in.
         """
         substitutions = []
-        variants_per_tag = {}
-        for variant in variants:
-            variants_per_tag.get(variant.tag, []).append(variant)
-
+        tags_counter = _TagsCounter(variants)
+        while True:
+            substitution_set = {}
+            tag_inds = tags_counter.get_tag_indices()
+            for variant in variants:
+                substitution_set[variant.name] = variant.get_value(tag_inds[variant.tag])
+            substitutions.append(substitution_set)
+            if not tags_counter.increment():
+                return substitutions
 
     @staticmethod
-    def _apply_substitutions(dict_obj: dict[str, Any], substitutions: dict[str, Any]):
-        pass
+    def _apply_substitutions(dict_obj: Any, substitutions: dict[str, Any]):
+        if isinstance(dict_obj, dict):
+            for k in dict_obj:
+                if isinstance(dict_obj[k], (dict, list)):
+                    VarianceDictify._apply_substitutions(dict_obj[k], substitutions)
+                if not isinstance(dict_obj[k], str):
+                    continue
+                for s in substitutions:
+                    sub_str = "${" + s + "}"
+                    if dict_obj[k] == sub_str:
+                        dict_obj[k] = substitutions[s]
+                    elif isinstance(dict_obj[k], str):
+                        dict_obj[k] = dict_obj[k].replace(sub_str, str(substitutions[s]))
+        elif isinstance(dict_obj, list):
+            for i in range(len(dict_obj)):
+                if isinstance(dict_obj[i], (dict, list)):
+                    VarianceDictify._apply_substitutions(dict_obj[i], substitutions)
+                if not isinstance(dict_obj[i], str):
+                    continue
+                for s in substitutions:
+                    sub_str = "${" + s + "}"
+                    if dict_obj[i] == sub_str:
+                        dict_obj[i] = substitutions[s]
+                    elif isinstance(dict_obj[i], str):
+                        dict_obj[i] = dict_obj[i].replace(sub_str, str(substitutions[s]))
 
+def is_enum(klass) -> bool:
+    try:
+        return issubclass(klass, Enum)
+    except BaseException:
+        return False
 
 class DictifyMixin(ABC):
     @abstractmethod

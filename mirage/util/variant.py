@@ -50,7 +50,7 @@ class Variant(ABC):
                but produce a different number of values.
     """
     name: str
-    tag: str = field(default_factory=uuid4)
+    tag: str = field(default_factory=lambda: str(uuid4()))
     end_behavior: EndBehavior = EndBehavior.FIXED
 
     @abstractmethod
@@ -63,6 +63,9 @@ class Variant(ABC):
     def _values(self):
         return self.get_values()
 
+    def __len__(self) -> int:
+        return len(self._values)
+
     def get_value(self, index: int) -> Any:
         if index < len(self._values):
             return self._values[index]
@@ -72,9 +75,8 @@ class Variant(ABC):
             case EndBehavior.REPEAT:
                 return self._values[index % len(self._values)]
             case EndBehavior.MIRROR:
-                tooth = self._values[:-1] + self._values[::-1]
+                tooth = self._values[:-1] + self._values[1:][::-1]
                 return tooth[index % len(tooth)]
-        return ValueError("Unrecognized EndBehavior")
 
 
 
@@ -87,10 +89,10 @@ class LinspaceVariant(Variant):
     """
     start: float
     stop: float
-    step: Optional[float] = None
+    num_points: int
 
     def get_values(self) -> list:
-        return np.linspace(self.start, self.stop, self.step, endpoint=True).tolist()
+        return np.linspace(self.start, self.stop, self.num_points, endpoint=True).tolist()
 
 @DelegateRegistry.register
 @dataclass(frozen=True, kw_only=True)
@@ -100,8 +102,8 @@ class LogspaceVariant(Variant):
     """
     start: float
     stop: float
-    step: Optional[float] = None
+    num_points: int
 
     def get_values(self) -> list:
-        return np.logspace(self.start, self.stop, self.step, endpoint=True).tolist()
+        return np.logspace(self.start, self.stop, self.num_points, endpoint=True).tolist()
 

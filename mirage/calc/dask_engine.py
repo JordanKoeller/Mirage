@@ -16,6 +16,7 @@ from mirage.util import (
     ClusterProvider,
     size_to_bytes,
     bytes_to_size,
+    VariantKey,
 )
 
 logger = logging.getLogger(__name__)
@@ -31,15 +32,15 @@ class DaskEngine(Engine):
     event_channel: DuplexChannel
     cluster_provider: ClusterProvider
 
-    def blocking_run_simulation(self, simulation_batch: Experiment):
+    def blocking_run_simulation(self, experiment: Experiment):
         self.cluster_provider.initialize()
         logger.info("Starting Simulation. Now ray tracing")
         logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
         timer = Stopwatch()
         timer.start()
         try:
-            for simulation_id, sim in enumerate(simulation_batch.simulations):
-                self._run_single_simulation(sim, simulation_id)
+            for simulation_key, simulation in experiment.simulations():
+                self._run_single_simulation(sim, simulation_key)
         except Exception as e:
             logger.error("Encountered Error")
             logger.error(str(e))
@@ -52,7 +53,7 @@ class DaskEngine(Engine):
             self.event_channel.close()
 
     def _run_single_simulation(
-        self, simulation: Simulation, simulation_id: int
+        self, simulation: Simulation, simulation_key: VariantKey
     ):
         with u.add_enabled_units(
             [

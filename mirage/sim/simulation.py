@@ -7,10 +7,9 @@ import logging
 from astropy import units as u
 import yaml
 
-from mirage.util import PixelRegion, Dictify, DelegateRegistry
+from mirage.util import PixelRegion, Dictify, DelegateRegistry, ObjVariants, VariantKey
 from mirage.model import LensingSystem, SourcePlane
 from mirage.calc import Reducer, RayTracer
-from mirage.sim import VariancePreprocessor
 
 # These values should be used to decide if a Microlensing model or Macrolensing model should be used
 THRESHOLD_AREA = u.Quantity(100 * 100, "uas")
@@ -128,27 +127,20 @@ class Simulation(ABC):
     def copy(self) -> "Simulation":
         return copy.deepcopy(self)
 
+class Experiment(ObjVariants[Simulation]):
 
-@dataclass
-class Experiment:
-    simulations: List[Simulation]
+    def simulations(self) -> list[tuple[VariantKey, Simulation]]:
+        return list(self._objs.items())
 
     @classmethod
-    def from_yaml_template(
-        cls,
-        yaml_template: str,
-        preprocessor: Optional[VariancePreprocessor] = None,
-    ):
-        preprocessor = preprocessor if preprocessor else VariancePreprocessor()
-        return cls(
-            [
-                Simulation.from_dict(yaml.load(yaml_str, yaml.CLoader))
-                for yaml_str in preprocessor.generate_variants(yaml_template)
-            ]
-        )
-
-    def __len__(self) -> int:
-        return len(self.simulations)
-
-    def __getitem__(self, index: int):
-        return self.simulations[index]
+    def from_yaml(cls, yaml_filename: str) -> 'Experiment':
+        with open(yaml_filename) as f:
+            yaml_str = f.read()
+            dict_obj = yaml.load(yaml_str, yaml.CLoader)
+            experiment = VariantDictify.from_dict(Simulation, dict_obj)
+            if experiment is None:
+                raise ValueError("Failed to construct an experiement")
+            return cls(
+                list(experiment._variants.values()),
+                experiments._objs,
+                experiments._template)

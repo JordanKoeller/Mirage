@@ -47,13 +47,13 @@ from typing import (
 from abc import ABC, abstractmethod
 from enum import Enum
 from inspect import isabstract, isclass
+from collections import namedtuple
 import logging
 import json
 import yaml  # type: ignore
 
 
 from .delegate_registry import DelegateRegistry
-from .variant import Variant
 
 logger = logging.getLogger(__name__)
 
@@ -409,102 +409,6 @@ class Dictify:
                 ret.append(char)
         return "".join(ret)
 
-class _TagsCounter:
-    def __init__(self, variants: list[Variant]) -> None:
-        self.tag_indices = {}
-        self.tag_lengths = {}
-        for variant in variants:
-            self.tag_indices[variant.tag] = 0
-            self.tag_lengths[variant.tag] = max(self.tag_lengths.get(variant.tag, 0), len(variant))
-        self.tags = list(self.tag_lengths.keys())
-
-    def increment(self) -> bool:
-        for tag in self.tags:
-            self.tag_indices[tag] += 1
-            if self.tag_indices[tag] == self.tag_lengths[tag]:
-                self.tag_indices[tag] = 0
-            else:
-                return True
-        return False
-
-    def get_tag_indices(self) -> dict[str, int]:
-        return self.tag_indices
-
-class VarianceDictify:
-    """
-    Drop-in replacement for Dictify that will process any variants present and
-    return all the resultant dictified objects.
-    """
-
-    @staticmethod
-    def from_dict(
-        klass: Type[T],
-        dict_obj: Dict[str, Any],
-        allow_custom_serializer: bool = True,
-    ) -> List[T]:
-        if "Variants" not in dict_obj:
-            obj = Dictify.from_dict(klass, dict_obj, allow_custom_serializer)
-            if obj:
-                return [obj]
-            return []
-        variants = []
-        for obj in dict_obj["Variants"]:
-            parsed = Dictify.from_dict(Variant, obj) 
-            if parsed:
-                variants.append(parsed)
-        del dict_obj["Variants"]
-        objs = []
-        for substitutions in VarianceDictify._get_substitutions(variants):
-            dict_obj_copy = copy.deepcopy(dict_obj)
-            VarianceDictify._apply_substitutions(dict_obj_copy, substitutions)
-            objs.append(Dictify.from_dict(klass, dict_obj_copy, allow_custom_serializer))
-        return objs
-
-    @staticmethod
-    def _get_substitutions(variants: list[Variant]) -> list[dict[str, Any]]:
-        """
-        Gives a list of substitution objects based on the values produced by the set of variants.
-
-        The elements of the returned list consist of key-value pairs, where each key maps to a
-        value that should be substituted in.
-        """
-        substitutions = []
-        tags_counter = _TagsCounter(variants)
-        while True:
-            substitution_set = {}
-            tag_inds = tags_counter.get_tag_indices()
-            for variant in variants:
-                substitution_set[variant.name] = variant.get_value(tag_inds[variant.tag])
-            substitutions.append(substitution_set)
-            if not tags_counter.increment():
-                return substitutions
-
-    @staticmethod
-    def _apply_substitutions(dict_obj: Any, substitutions: dict[str, Any]):
-        if isinstance(dict_obj, dict):
-            for k in dict_obj:
-                if isinstance(dict_obj[k], (dict, list)):
-                    VarianceDictify._apply_substitutions(dict_obj[k], substitutions)
-                if not isinstance(dict_obj[k], str):
-                    continue
-                for s in substitutions:
-                    sub_str = "${" + s + "}"
-                    if dict_obj[k] == sub_str:
-                        dict_obj[k] = substitutions[s]
-                    elif isinstance(dict_obj[k], str):
-                        dict_obj[k] = dict_obj[k].replace(sub_str, str(substitutions[s]))
-        elif isinstance(dict_obj, list):
-            for i in range(len(dict_obj)):
-                if isinstance(dict_obj[i], (dict, list)):
-                    VarianceDictify._apply_substitutions(dict_obj[i], substitutions)
-                if not isinstance(dict_obj[i], str):
-                    continue
-                for s in substitutions:
-                    sub_str = "${" + s + "}"
-                    if dict_obj[i] == sub_str:
-                        dict_obj[i] = substitutions[s]
-                    elif isinstance(dict_obj[i], str):
-                        dict_obj[i] = dict_obj[i].replace(sub_str, str(substitutions[s]))
 
 def is_enum(klass) -> bool:
     try:

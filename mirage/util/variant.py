@@ -15,9 +15,11 @@ dict, with a value type of list[Variant]
 """
 
 from abc import ABC, abstractmethod
+import copy
+from collections import namedtuple
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Any
+from typing import Any, Generic, Type, TypeVar, Iterator
 from uuid import uuid4
 from functools import cached_property
 
@@ -25,11 +27,40 @@ from functools import cached_property
 import numpy as np
 
 from .delegate_registry import DelegateRegistry
+from .dictify import Dictify
+
+T = TypeVar("T")
 
 class EndBehavior(Enum):
     FIXED = "FIXED"
     REPEAT = "REPEAT"
     MIRROR = "MIRROR"
+
+class VariantKey:
+    def __init__(self, keys: dict[str, int]) -> None:
+        self._tuple_type = namedtuple("VariantKey", list(keys.keys()))
+        self._keys_tuple = self._tuple_type(**keys)
+
+    def matches(self, key: dict[str, Any]) -> bool:
+        for k, v in key.items():
+            if k not in self._keys_tuple:
+                raise ValueError(f"Unrecognized variance name: {k}")
+            if callable(v):
+                if not v(self._keys_tuple[k]):
+                    return False
+            if isinstance(v, slice):
+                value = self._keys_tuple[k]
+                if not (v.start < value and value <= v.stop):
+                    return False
+            if self._keys_tuple[k] != v:
+                return False
+        return True
+
+    def __str__(self) -> str:
+        return str(self._keys_tuple)
+
+    def __hash__(self) -> int:
+        return hash(self._keys_tuple)
 
 @dataclass(frozen=True, kw_only=True)
 class Variant(ABC):
@@ -79,8 +110,6 @@ class Variant(ABC):
                 return tooth[index % len(tooth)]
 
 
-
-
 @DelegateRegistry.register
 @dataclass(frozen=True, kw_only=True)
 class LinspaceVariant(Variant):
@@ -93,6 +122,7 @@ class LinspaceVariant(Variant):
 
     def get_values(self) -> list:
         return np.linspace(self.start, self.stop, self.num_points, endpoint=True).tolist()
+
 
 @DelegateRegistry.register
 @dataclass(frozen=True, kw_only=True)
@@ -107,3 +137,187 @@ class LogspaceVariant(Variant):
     def get_values(self) -> list:
         return np.logspace(self.start, self.stop, self.num_points, endpoint=True).tolist()
 
+
+class ObjVariants(Generic[T]):
+    """
+    Encapsulates variants of an object produced by an object template + variance.
+
+    """
+    
+    def __init__(self, variants: list[Variant], objs: dict[VariantKey, T], template: dict[str, Any] | None = None) -> None:
+        self._variants = {v.name: v for v in variants}
+        self._objs = objs
+        self._template = template
+
+    @property
+    def klass(self) -> Type[object]:
+        for k in self._objs:
+            return type(self._objs[k])
+        raise ValueError("Could not infer object type")
+
+    def get(self, key: Any = None, **kwargs) -> T | list[T] | None:
+        """
+        Returns single object if a single key is provided, or list of objects
+        if slicing.
+
+        This method can be called either with a single key object, or with key-value pairs as kwargs
+
+        If calling with a single key, the key may be:
+          A VariantKey object
+          A dictionary object
+
+        Value Matching:
+          If called with a dictionary or kwargs, the values should be:
+            + a value that equals the variant
+            + A slice object that equals a range of values. Note that the 'step'
+              of a slice is interpreted as how many matches to include. For
+              example, slice [0:10:1] will match all variants with value between
+              0 and 10. Slice [0:10:2] will match every other variant with value
+              between 0 and 10. Slice [0:10:3] will match every third variant, etc.
+              Fractional "step"s will throw an error.
+            + A Callable[Any] -> bool, where the argument is a value, and should
+              return a boolean if the variant should be selected.
+
+        NOTE: If a VariantKey is provided, or only strict equality matches are
+        used, a single object is returned. Otherwise, a list is returned.
+
+        Examples:
+          v = obj_variants.get(some_variant_key)
+          v = obj_variants.get({"key": v1, "key2": v2})
+          v = obj_variants.get(key=v1, key2=v2)
+        """
+        if key and kwargs:
+            raise ValueError("Cannot specify both a key and kwargs")
+        if kwargs:
+            return self.get(kwargs)
+        if isinstance(key, VariantKey):
+            return self._objs.get(key, None)
+        ret = {}
+        is_multi_response = False
+        for variant_key, variant in self._objs:
+            if variant_key.matches(key):
+                ret[variant_key] = variant
+        for k, v in key.items():
+            if callable(v) or isinstance(v, slice):
+                is_multi_response = True
+        if is_multi_response:
+            return ret
+        if len(ret) == 0:
+            return None
+        if len(ret) != 1:
+            return ValueError(f"Ambiguous matches: {list(ret.keys())}")
+        for k in ret:
+            return ret[k]
+
+    def variants(self) -> list[T]:
+        return [self._objs[k] for k in self._objs]
+
+    def __len__(self) -> int:
+        return len(self._objs)
+
+    def __iter__(self) -> Iterator[[VariantKey, T]]:
+        return iter(self._objs)
+
+
+class VariantDictify:
+    """
+    Drop-in replacement for Dictify that will process any variants present and
+    return all the resultant dictified objects.
+    """
+
+    @staticmethod
+    def from_dict(
+        klass: Type[T],
+        dict_obj: dict[str, Any],
+        allow_custom_serializer: bool = True,
+    ) -> dict[VariantKey, T]:
+        if "Variants" not in dict_obj:
+            obj = Dictify.from_dict(klass, dict_obj, allow_custom_serializer)
+            if obj:
+                return {VariantKey(): obj}
+            return {}
+        variants = []
+        for obj in dict_obj["Variants"]:
+            parsed = Dictify.from_dict(Variant, obj) 
+            if parsed:
+                variants.append(parsed)
+        original_dict_obj = copy.deepcopy(dict_obj)
+        del dict_obj["Variants"]
+        objs = {}
+        for substitutions, _ in VariantDictify._get_substitutions(variants):
+            dict_obj_copy = copy.deepcopy(dict_obj)
+            VariantDictify._apply_substitutions(dict_obj_copy, substitutions)
+            key = VariantKey(substitutions)
+            objs[key] = Dictify.from_dict(klass, dict_obj_copy, allow_custom_serializer)
+        return ObjVariants(variants, objs, dict_obj)
+
+    @staticmethod
+    def _get_substitutions(variants: list[Variant]) -> list[tuple[dict[str, Any], dict[str, int]]]:
+        """
+        Gives a list of substitution objects based on the values produced by the set of variants.
+
+        The elements of the returned list consist of key-value pairs, where each key maps to a
+        value that should be substituted in.
+        """
+        substitutions = []
+        tags_counter = _TagsCounter(variants)
+        while True:
+            substitution_set = {}
+            tag_inds = tags_counter.get_tag_indices()
+            for variant in variants:
+                substitution_set[variant.name] = variant.get_value(tag_inds[variant.tag])
+            substitutions.append((substitution_set, tag_inds))
+            if not tags_counter.increment():
+                return substitutions
+
+    @staticmethod
+    def _apply_substitutions(dict_obj: Any, substitutions: dict[str, Any]):
+        """
+        Mutates dict_obj inplace with the provided substitutions.
+        """
+        ret = {}
+        if isinstance(dict_obj, dict):
+            for k in dict_obj:
+                if isinstance(dict_obj[k], (dict, list)):
+                    VariantDictify._apply_substitutions(dict_obj[k], substitutions)
+                if not isinstance(dict_obj[k], str):
+                    continue
+                for s in substitutions:
+                    sub_str = "${" + s + "}"
+                    if dict_obj[k] == sub_str:
+                        dict_obj[k] = substitutions[s]
+                    elif isinstance(dict_obj[k], str):
+                        dict_obj[k] = dict_obj[k].replace(sub_str, str(substitutions[s]))
+        elif isinstance(dict_obj, list):
+            for i in range(len(dict_obj)):
+                if isinstance(dict_obj[i], (dict, list)):
+                    VariantDictify._apply_substitutions(dict_obj[i], substitutions)
+                if not isinstance(dict_obj[i], str):
+                    continue
+                for s in substitutions:
+                    sub_str = "${" + s + "}"
+                    if dict_obj[i] == sub_str:
+                        dict_obj[i] = substitutions[s]
+                    elif isinstance(dict_obj[i], str):
+                        dict_obj[i] = dict_obj[i].replace(sub_str, str(substitutions[s]))
+
+class _TagsCounter:
+    def __init__(self, variants: list[Variant]) -> None:
+        self.tag_indices = {}
+        self.tag_lengths = {}
+        for variant in variants:
+            self.tag_indices[variant.tag] = 0
+            self.tag_lengths[variant.tag] = max(self.tag_lengths.get(variant.tag, 0), len(variant))
+        self.tags = list(self.tag_lengths.keys())
+
+    def increment(self) -> bool:
+        for tag in self.tags:
+            self.tag_indices[tag] += 1
+            if self.tag_indices[tag] == self.tag_lengths[tag]:
+                self.tag_indices[tag] = 0
+            else:
+                return True
+        return False
+
+    def get_tag_indices(self) -> dict[str, int]:
+        return self.tag_indices

@@ -7,7 +7,7 @@ from typing import Union, Dict, Any, Literal, Optional
 import logging
 
 from mirage.calc import Reducer
-from mirage.util import Dictify
+from mirage.util import Dictify, VariantKey
 from mirage.sim import Experiment
 
 
@@ -90,30 +90,30 @@ class ResultFileManager:
             self._write("manifest.yaml", self.manifest)
         self.zip_archive.close()
 
-    def dump_result(self, reducer: Reducer, simulation_id: int):
-        filename = self._insert_manifest_entry(reducer, simulation_id)
+    def dump_result(self, reducer: Reducer, simulation_key: VariantKey):
+        filename = self._insert_manifest_entry(reducer, simulation_key)
         self._write(filename, reducer.output)
 
     def __len__(self) -> int:
         return len(self.manifest)
 
-    def load_result(self, reducer_name: str, simulation_id: int) -> Reducer:
-        sim_dict: dict[str, str] = self.manifest.get(simulation_id, {})
+    def load_result(self, reducer_name: str, simulation_key: VariantKey) -> Reducer:
+        sim_dict: dict[str, str] = self.manifest.get(str(simulation_key), {})
         filename: Optional[str] = sim_dict.get(reducer_name, None)
         if sim_dict is None:
             raise ValueError(
-                f"Simulation of {simulation_id=} not recognized.\n Available "
+                f"Simulation of {simulation_key=} not recognized.\n Available "
                 f"sims: {list(self.manifest.keys())}"
             )
         if filename is None:
             raise ValueError(
                 f"'reducer_id' {reducer_name} not present in result manifest "
-                f"for simulation {simulation_id}.\nAvailable ids: "
+                f"for simulation {simulation_key}.\nAvailable ids: "
                 f"{list(sim_dict.keys())}"
             )
 
         output = self._load(filename)  # type: ignore
-        reducers = self.load_simulation()[simulation_id].reducers
+        reducers = self.load_simulation()[simulation_key].reducers
         logger.warning("Has reducers %s" % str(reducers))
         for reducer in reducers:
             logger.warning("Has name %s" % reducer.name)
@@ -122,7 +122,7 @@ class ResultFileManager:
                 return reducer
         raise ValueError(
             f"Could not find reducer with "
-            f"name={reducer_name} in Simulation {simulation_id}"
+            f"name={reducer_name} in Simulation {simulation_key}"
         )
 
     def _write(self, filename: str, data: Any):
@@ -142,15 +142,15 @@ class ResultFileManager:
                 return pickle.load(f)
 
     def _insert_manifest_entry(
-        self, reducer: Reducer, simulation_id: int
+        self, reducer: Reducer, simulation_key: VariantKey
     ) -> str:
         """
         Inserts a record into the manifest and returns the filename that should
         be used to dump the output
         """
-        fname = f"{reducer.name.replace('/', '-')}_{simulation_id}.pickle"
-        if simulation_id in self.manifest:
-            self.manifest[simulation_id][reducer.name] = fname
+        fname = f"{reducer.name.replace('/', '-')}_{simulation_key}.pickle"
+        if simulation_key in self.manifest:
+            self.manifest[str(simulation_key)][reducer.name] = fname
         else:
-            self.manifest[simulation_id] = {reducer.name: fname}
+            self.manifest[str(simulation_key)] = {reducer.name: fname}
         return fname

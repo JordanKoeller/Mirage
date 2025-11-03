@@ -258,10 +258,10 @@ class VariantDictify:
         original_dict_obj = copy.deepcopy(dict_obj)
         del dict_obj["Variants"]
         objs = {}
-        for substitutions, _ in VariantDictify._get_substitutions(variants):
+        for substitutions, inds in VariantDictify._get_substitutions(variants):
             dict_obj_copy = copy.deepcopy(dict_obj)
             VariantDictify._apply_substitutions(dict_obj_copy, substitutions)
-            key = VariantKey(substitutions)
+            key = VariantKey(inds)
             objs[key] = Dictify.from_dict(klass, dict_obj_copy, allow_custom_serializer)
             logger.debug(f"Created Variant with {key=}")
         return ObjVariants(variants, objs, dict_obj)
@@ -278,10 +278,12 @@ class VariantDictify:
         tags_counter = _TagsCounter(variants)
         while True:
             substitution_set = {}
+            tag_set = {}
             tag_inds = tags_counter.get_tag_indices()
             for variant in variants:
                 substitution_set[variant.name] = variant.get_value(tag_inds[variant.tag])
-            substitutions.append((substitution_set, tag_inds))
+                tag_set[variant.name] = tag_inds[variant.tag]
+            substitutions.append((substitution_set, tag_set))
             if not tags_counter.increment():
                 return substitutions
 

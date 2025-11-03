@@ -79,7 +79,7 @@ class ResultFileManager:
         return cls(filename, "x")
 
     def dump_experiment(self, experiment: Experiment):
-        self._write("experiment.yaml", Dictify.to_dict(experiment))
+        self._write("experiment.yaml", experiment.to_dict())
 
     def load_simulation(self) -> Experiment:
         sim_dict: dict = self._load("experiment.yaml")  # type: ignore
@@ -93,6 +93,7 @@ class ResultFileManager:
     def dump_result(self, reducer: Reducer, simulation_key: VariantKey):
         filename = self._insert_manifest_entry(reducer, simulation_key)
         self._write(filename, reducer.output)
+        logger.debug(f"Simulation {simulation_key} Reducer {reducer.name} written to file.")
 
     def __len__(self) -> int:
         return len(self.manifest)

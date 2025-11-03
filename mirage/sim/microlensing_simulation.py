@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 @DelegateRegistry.register
 @dataclass(kw_only=True)
-class MicrolensingSimulation(Simulation, DictifyMixin):
+class MicrolensingSimulation(Simulation):
     """
     Simulates a Microlensed situation
 

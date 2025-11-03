@@ -66,7 +66,7 @@ class BatchRunner:
                 else:
                     result_event = evt.value
                     serializer.dump_result(
-                        result_event.result, result_event.simulation_id
+                        result_event.result, result_event.simulation_key
                     )
         except Exception as e:
             logger.error("Encountered Error!")

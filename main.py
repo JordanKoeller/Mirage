@@ -7,7 +7,7 @@ from typing import Literal, Optional
 from functools import cached_property
 
 from mirage.sim import Experiment
-from mirage.util import Dictify, ClusterProvider, LocalClusterProvider, VariantDictify
+from mirage.util import Dictify, ClusterProvider, LocalClusterProvider
 from mirage.calc.batch_runner import BatchRunner
 
 logger = logging.getLogger("mirage_main")
@@ -46,7 +46,7 @@ class MirageMain:
             required=False,
             nargs=1,
             type=str,
-            help="The file to write the results of the simulation_batch to."
+            help="The file to write the results of the experiment to."
             "Ignored if runing in interractive mode.",
         )
         self.parser.add_argument(
@@ -147,31 +147,30 @@ class MirageMain:
         if not os.path.exists(sim_file):
             raise ValueError(f"File not found: {sim_file}")
 
-        logger.info(f"Loading simulation_batch from file: {sim_file}")
+        logger.info(f"Loading experiment from file: {sim_file}")
 
         with open(sim_file) as f:
             yaml_str = f.read()
             logger.debug("Contents:\n" + yaml_str)
 
-            experiment = Experiment.from_yaml(yaml_str)
+        experiment = Experiment.from_yaml(sim_file)
 
-
-            logger.info(
-                f"Constructed Simulation of type: {type(simulation_batch).__name__}"
-            )
-            return experiment
+        logger.info(
+            f"Constructed Simulation of type: {type(experiment).__name__}"
+        )
+        return experiment
 
 
 if __name__ == "__main__":
     main = MirageMain()
 
-    simulation_batch = main.load_experiment()
+    experiment = main.load_experiment()
     run_mode = main.run_mode
 
-    if run_mode == "batch" and simulation_batch and main.output_file:
+    if run_mode == "batch" and experiment and main.output_file:
         logger.info("Running Batch Job")
         batch_runner = BatchRunner(
-            simulation_batch, main.output_file, main.cluster_provider
+            experiment, main.output_file, main.cluster_provider
         )
         batch_runner.start()
         logger.info("Goodbye!")
@@ -179,16 +178,16 @@ if __name__ == "__main__":
     if run_mode == "interractive":
         raise NotImplementedError()
 
-    if run_mode == "viz" and simulation_batch:
+    if run_mode == "viz" and experiment:
         from mirage.viz import VizRunner
 
-        if len(simulation_batch) > 1:
+        if len(experiment) > 1:
             raise ValueError(
                 "Viz tool can only be used with only one loaded Simulation but %d found",
-                len(simulation_batch),
+                len(experiment),
             )
 
         logger.info("Running visualization")
-        viz_runner = VizRunner(simulation_batch.simulations[0])
+        viz_runner = VizRunner(experiment.simulations[0])
         viz_runner.start()
         logger.info("Goodbye!")

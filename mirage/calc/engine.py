@@ -5,7 +5,7 @@ import logging
 
 from mirage.sim import Simulation
 from mirage.calc import Reducer, KdTree
-from mirage.util import DuplexChannel, RepeatLogger, Stopwatch
+from mirage.util import DuplexChannel, RepeatLogger, Stopwatch, VariantKey
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ResultEvent:
     result: object
-    simulation_id: int
+    simulation_key: VariantKey
 
 
 @dataclass
@@ -21,7 +21,7 @@ class Engine:
     event_channel: DuplexChannel
 
     def blocking_run_simulation(
-        self, simulation: Simulation, simulation_id: int
+        self, simulation: Simulation, simulation_key: VariantKey
     ):
         with simulation.special_units():
             logger.info("Starting Simulation. Now ray tracing")
@@ -43,7 +43,7 @@ class Engine:
                 if self.event_channel.sender_closed:
                     return  # Short circuit if event channel is closed
                 reducer.reduce(rays_tree, simulation)
-                self.export_outcome(reducer, simulation_id)
+                self.export_outcome(reducer, simulation_key)
                 stopwatch.start()
                 if r_logger.log(
                     f"Frame time = {stopwatch.avg_elapsed_seconds()} ms"
@@ -57,8 +57,8 @@ class Engine:
         """
         return iter(simulation.get_reducers())
 
-    def export_outcome(self, outcome: object, simulation_id: int):
+    def export_outcome(self, outcome: object, simulation_key: VariantKey):
         """
         Save off a result of this simulation.
         #"""
-        self.event_channel.send_blocking(ResultEvent(outcome, simulation_id))
+        self.event_channel.send_blocking(ResultEvent(outcome, simulation_key))

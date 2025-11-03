@@ -17,7 +17,7 @@ _MACROLENSING_RESOLUTION = Vec2D.unitless(1_200, 1_200)
 
 @DelegateRegistry.register
 @dataclass(kw_only=True)
-class MacrolensingSimulation(Simulation, DictifyMixin):
+class MacrolensingSimulation(Simulation):
     @classmethod
     def from_dict(cls, sim_dict: dict):
         with Simulation.units_from_dict(sim_dict):

@@ -7,7 +7,7 @@ import logging
 from astropy import units as u
 import yaml
 
-from mirage.util import PixelRegion, Dictify, DelegateRegistry, ObjVariants, VariantKey
+from mirage.util import PixelRegion, Dictify, DelegateRegistry, ObjVariants, VariantKey, VariantDictify, DictifyMixin
 from mirage.model import LensingSystem, SourcePlane
 from mirage.calc import Reducer, RayTracer
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class Simulation(ABC):
+class Simulation(DictifyMixin):
     lensing_system: LensingSystem
     reducers: List[Reducer] = field(default_factory=list)
 
@@ -142,5 +142,5 @@ class Experiment(ObjVariants[Simulation]):
                 raise ValueError("Failed to construct an experiement")
             return cls(
                 list(experiment._variants.values()),
-                experiments._objs,
-                experiments._template)
+                experiment._objs,
+                experiment._template)

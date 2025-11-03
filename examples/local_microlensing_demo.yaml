@@ -6,7 +6,7 @@ LensingSystem_MicrolensingLens:
   Cosmology: WMAP7
   Convergence: 0.5
   Shear: 0.2
-  StarryFraction: 1.0
+  StarryFraction: 0.2
 Starfield:
   InitialMassFunction: Kroupa2001
   Seed: 110

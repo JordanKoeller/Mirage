@@ -40,7 +40,7 @@ class DaskEngine(Engine):
         timer.start()
         try:
             for simulation_key, simulation in experiment.simulations():
-                self._run_single_simulation(sim, simulation_key)
+                self._run_single_simulation(simulation, simulation_key)
         except Exception as e:
             logger.error("Encountered Error")
             logger.error(str(e))
@@ -106,7 +106,7 @@ class DaskEngine(Engine):
                     merged_reducer, sync=True
                 )
                 logger.info(f"Has hydrated {type(hydrated_reducer)}")
-                self.export_outcome(hydrated_reducer, simulation_id)
+                self.export_outcome(hydrated_reducer, simulation_key)
 
     def get_reducers(self, simulation: Simulation) -> Iterator[Reducer]:
         """
@@ -114,11 +114,11 @@ class DaskEngine(Engine):
         """
         return iter(simulation.get_reducers())
 
-    def export_outcome(self, outcome: object, simulation_id: int):
+    def export_outcome(self, outcome: object, simulation_key: VariantKey):
         """
         Save off a result of this simulation.
         #"""
-        self.event_channel.send_blocking(ResultEvent(outcome, simulation_id))
+        self.event_channel.send_blocking(ResultEvent(outcome, simulation_key))
 
     # The following are definitions for mapping functions
     @staticmethod

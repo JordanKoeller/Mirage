@@ -16,12 +16,14 @@ dict, with a value type of list[Variant]
 
 from abc import ABC, abstractmethod
 import copy
+import logging
 from collections import namedtuple
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Generic, Type, TypeVar, Iterator
+from typing import Any, Generic, Type, TypeVar, Iterator, Optional
 from uuid import uuid4
 from functools import cached_property
+from frozendict import frozendict
 
 
 import numpy as np
@@ -29,6 +31,7 @@ import numpy as np
 from .delegate_registry import DelegateRegistry
 from .dictify import Dictify
 
+logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 class EndBehavior(Enum):
@@ -38,29 +41,31 @@ class EndBehavior(Enum):
 
 class VariantKey:
     def __init__(self, keys: dict[str, int]) -> None:
-        self._tuple_type = namedtuple("VariantKey", list(keys.keys()))
-        self._keys_tuple = self._tuple_type(**keys)
+        self._keys = frozendict(keys)
 
     def matches(self, key: dict[str, Any]) -> bool:
         for k, v in key.items():
-            if k not in self._keys_tuple:
+            if k not in self._keys:
                 raise ValueError(f"Unrecognized variance name: {k}")
             if callable(v):
-                if not v(self._keys_tuple[k]):
+                if not v(self._keys[k]):
                     return False
             if isinstance(v, slice):
-                value = self._keys_tuple[k]
+                value = self._keys[k]
                 if not (v.start < value and value <= v.stop):
                     return False
-            if self._keys_tuple[k] != v:
+            if self._keys[k] != v:
                 return False
         return True
 
     def __str__(self) -> str:
-        return str(self._keys_tuple)
+        return "VariantKey(" + ",".join(f"{k}={v}" for k, v in self._keys.items()) + ")"
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def __hash__(self) -> int:
-        return hash(self._keys_tuple)
+        return hash(self._keys)
 
 @dataclass(frozen=True, kw_only=True)
 class Variant(ABC):
@@ -149,11 +154,18 @@ class ObjVariants(Generic[T]):
         self._objs = objs
         self._template = template
 
+    @classmethod
+    def from_single_variant(cls, obj: T) -> 'ObjVariants[T]':
+        return ObjVariants([], {VariantKey({}): obj}, Dictify.to_dict(obj))
+
     @property
     def klass(self) -> Type[object]:
         for k in self._objs:
             return type(self._objs[k])
         raise ValueError("Could not infer object type")
+
+    def to_dict(self) -> dict[str, Any]:
+        return self._template
 
     def get(self, key: Any = None, **kwargs) -> T | list[T] | None:
         """
@@ -230,15 +242,17 @@ class VariantDictify:
         klass: Type[T],
         dict_obj: dict[str, Any],
         allow_custom_serializer: bool = True,
-    ) -> dict[VariantKey, T]:
+    ) -> Optional[ObjVariants]:
         if "Variants" not in dict_obj:
+            logger.debug("No Variant. Pass-through to regular Dictify.")
             obj = Dictify.from_dict(klass, dict_obj, allow_custom_serializer)
             if obj:
-                return {VariantKey(): obj}
-            return {}
+                return ObjVariants.from_single_variant(obj)
+            return None
         variants = []
+        logger.debug("Found variants. Parsing.")
         for obj in dict_obj["Variants"]:
-            parsed = Dictify.from_dict(Variant, obj) 
+            parsed = Dictify.from_dict(Variant, obj, allow_custom_serializer) 
             if parsed:
                 variants.append(parsed)
         original_dict_obj = copy.deepcopy(dict_obj)
@@ -249,6 +263,7 @@ class VariantDictify:
             VariantDictify._apply_substitutions(dict_obj_copy, substitutions)
             key = VariantKey(substitutions)
             objs[key] = Dictify.from_dict(klass, dict_obj_copy, allow_custom_serializer)
+            logger.debug(f"Created Variant with {key=}")
         return ObjVariants(variants, objs, dict_obj)
 
     @staticmethod

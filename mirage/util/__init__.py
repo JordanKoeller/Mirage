@@ -5,7 +5,7 @@ from .region import Region, PixelRegion
 from .event_channel import DuplexChannel
 from .stopwatch import Stopwatch
 from .conversions import size_to_bytes, bytes_to_size
-from .variant import ObjVariants, VariantKey
+from .variant import ObjVariants, VariantKey, VariantDictify
 
 from .custom_serializers import register_serializers
 from .logger import RepeatLogger
@@ -38,4 +38,5 @@ __all__ = [
     "RemoteClusterProvider",
     "AwsEphemeralClusterProvider",
     "ObjVariants",
+    "VariantDictify",
 ]

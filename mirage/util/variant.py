@@ -264,7 +264,7 @@ class VariantDictify:
             key = VariantKey(inds)
             objs[key] = Dictify.from_dict(klass, dict_obj_copy, allow_custom_serializer)
             logger.debug(f"Created Variant with {key=}")
-        return ObjVariants(variants, objs, dict_obj)
+        return ObjVariants(variants, objs, original_dict_obj)
 
     @staticmethod
     def _get_substitutions(variants: list[Variant]) -> list[tuple[dict[str, Any], dict[str, int]]]:

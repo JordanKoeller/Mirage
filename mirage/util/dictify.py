@@ -169,7 +169,6 @@ class Dictify:
             return custom_serializer.from_dict(dict_obj)
         if isinstance(klass, DictifyMixin) and allow_custom_serializer:
             return klass.from_dict(dict_obj)
-        print(klass, dict_obj)
         return Dictify._value_from_dict(
             klass, dict_obj, allow_custom_serializer
         )

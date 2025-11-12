@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, fields
-from typing import Optional, List, Type
+from typing import Optional, List, Type, Any
 import copy
 import logging
 
@@ -133,14 +133,18 @@ class Experiment(ObjVariants[Simulation]):
         return list(self._objs.items())
 
     @classmethod
+    def from_dict(cls, dict_obj: dict[str, Any]) -> 'Experiment':
+        experiment = VariantDictify.from_dict(Simulation, dict_obj)
+        if experiment is None:
+            raise ValueError("Failed to construct an experiement")
+        return cls(
+            list(experiment._variants.values()),
+            experiment._objs,
+            experiment._template)
+
+    @classmethod
     def from_yaml(cls, yaml_filename: str) -> 'Experiment':
         with open(yaml_filename) as f:
             yaml_str = f.read()
             dict_obj = yaml.load(yaml_str, yaml.CLoader)
-            experiment = VariantDictify.from_dict(Simulation, dict_obj)
-            if experiment is None:
-                raise ValueError("Failed to construct an experiement")
-            return cls(
-                list(experiment._variants.values()),
-                experiment._objs,
-                experiment._template)
+            return cls.from_dict(dict_obj)

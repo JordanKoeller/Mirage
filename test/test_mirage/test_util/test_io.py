@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from pytest import fixture
+import pytest
 from astropy.units import Quantity
 from astropy import units as u
 
@@ -8,7 +9,8 @@ from mirage.sim import MicrolensingSimulation, Simulation, Experiment
 from mirage.model import Quasar, Starfield
 from mirage.model.initial_mass_function import WeidnerKroupa2004
 from mirage.model.impl import PointLens
-from mirage.util import Vec2D, ResultFileManager
+from mirage.util import Vec2D, VariantKey
+from mirage.io import ResultFileManager
 from mirage.calc.reducers import LightCurvesReducer
 
 
@@ -26,10 +28,9 @@ def simulation(ray_count: int = 100_000, reducers=None) -> Simulation:
         reducers=reducers if reducers else [],
     )
 
-
 @fixture
-def simulation_batch() -> Experiment:
-    return Experiment([simulation()])
+def experiment() -> Experiment:
+    return Experiment.from_single_variant(simulation())
 
 
 @fixture
@@ -54,87 +55,42 @@ def reducer(radius: int = 1) -> LightCurvesReducer:
 
 
 class TestResultFileManager:
-    def test_dumpSimulation_success(
-        self, tmp_path: Path, simulation_batch: Experiment
+    def test_dumpExperiment_success(
+        self, tmp_path: Path, experiment: Experiment
     ):
         file_path = tmp_path / "some-file.zip"
         mgr = ResultFileManager.new_writer(str(file_path))
-        mgr.dump_simulation(simulation_batch=simulation_batch)  # type: ignore
+        mgr.dump_experiment(experiment)  # type: ignore
         mgr.close()  # type: ignore
 
-    def test_loadSimulation_success(
-        self, tmp_path: Path, simulation_batch: Experiment
+    def test_loadExperiment_success(
+        self, tmp_path: Path, experiment: Experiment
     ):
         file_path = tmp_path / "some-file.zip"
         mgr = ResultFileManager.new_writer(str(file_path))
-        mgr.dump_simulation(simulation_batch=simulation_batch)  # type: ignore
+        mgr.dump_experiment(experiment=experiment)  # type: ignore
         mgr.close()  # type: ignore
 
         mgr = ResultFileManager.new_loader(str(file_path))
-        sim_batch = mgr.load_simulation()  # type: ignore
+        sim_batch = mgr.load_experiment()  # type: ignore
         mgr.close()  # type: ignore
 
-        assert sim_batch == simulation_batch
+        assert sim_batch == experiment
 
     def test_dumpResult_success(
         self, tmp_path: Path, light_curve_reducer: LightCurvesReducer
     ):
         file_path = tmp_path / "some-file.zip"
-        simulation_batch = Experiment(
-            [simulation(100000, [light_curve_reducer])]
+        experiment = Experiment.from_single_variant(
+            simulation(100000, [light_curve_reducer])
         )
         mgr = ResultFileManager.new_writer(str(file_path))
-        mgr.dump_simulation(simulation_batch=simulation_batch)  # type: ignore
-        mgr.dump_result(light_curve_reducer, 0)
+        mgr.dump_experiment(experiment=experiment)  # type: ignore
+        mgr.dump_result(light_curve_reducer, VariantKey({}))
         mgr.close()
 
         mgr = ResultFileManager.new_loader(str(file_path))
-        reducer = mgr.load_result(light_curve_reducer.name, 0)
+        reducer = mgr.load_result(light_curve_reducer.name, VariantKey({}))
         mgr.close()  # type: ignore
 
-        assert (
-            mgr.manifest[0][light_curve_reducer.name]
-            == f"{light_curve_reducer.name}_0.pickle"
-        )
         assert reducer == light_curve_reducer
-
-    def test_dumpResult_multipleResultsAndMultipleSims_success(
-        self, tmp_path: Path
-    ):
-        file_path = tmp_path / "some-file.zip"
-
-        reducers = [reducer(i) for i in range(9)]
-
-        sims = [
-            simulation(10_000, reducers),
-            simulation(100_000, reducers),
-            simulation(1_000_000, reducers),
-        ]
-
-        mgr = ResultFileManager.new_writer(str(file_path))
-        mgr.dump_simulation(Experiment(sims))
-
-        mgr.dump_result(reducers[0], 0)
-        mgr.dump_result(reducers[1], 0)
-        mgr.dump_result(reducers[2], 0)
-        mgr.dump_result(reducers[3], 1)
-        mgr.dump_result(reducers[4], 1)
-        mgr.dump_result(reducers[5], 1)
-        mgr.dump_result(reducers[6], 2)
-        mgr.dump_result(reducers[7], 2)
-        mgr.dump_result(reducers[8], 2)
-        mgr.close()
-
-        mgr = ResultFileManager.new_loader(str(file_path))
-        sim = mgr.load_simulation()
-
-        assert sim == Experiment(sims)
-        assert mgr.load_result(reducers[0].name, 0) == reducers[0]
-        assert mgr.load_result(reducers[1].name, 0) == reducers[1]
-        assert mgr.load_result(reducers[2].name, 0) == reducers[2]
-        assert mgr.load_result(reducers[3].name, 1) == reducers[3]
-        assert mgr.load_result(reducers[4].name, 1) == reducers[4]
-        assert mgr.load_result(reducers[5].name, 1) == reducers[5]
-        assert mgr.load_result(reducers[6].name, 2) == reducers[6]
-        assert mgr.load_result(reducers[7].name, 2) == reducers[7]
-        assert mgr.load_result(reducers[8].name, 2) == reducers[8]

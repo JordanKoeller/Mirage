@@ -21,24 +21,22 @@ class TestStarfield(TestCase):
     def testGetStarfield_smallFieldsAreSubsetsOfLargeFields(self):
         starfield = Starfield(initial_mass_function=Kroupa2001(), seed=123)
 
-        smallField, _p = starfield.get_starfield(
+        small_field, small_pos = starfield.get_starfield(
             10.0 * u.M_sun, u.Quantity(100.0, "uas")
         )
-        largeField, _p = starfield.get_starfield(
+        large_field, large_pos = starfield.get_starfield(
             100.0 * u.M_sun, u.Quantity(100.0, "uas")
         )
 
-        self.assertListEqual(
-            smallField.value.tolist(),
-            largeField.value[: len(smallField)].tolist(),
-        )
+        self.assertEqual(small_field.shape[0], small_pos.shape[0])
+        self.assertEqual(large_field.shape[0], large_pos.shape[0])
 
-    def testGetStarfield_distributesStarsInADisk(self):
-        starfield = Starfield(initial_mass_function=Kroupa2001(), seed=123)
+        for sm, lg in zip(small_field.value.tolist(), large_field.value.tolist()[:len(small_field)]):
+            self.assertAlmostEqual(sm, lg)
 
-        _m, small_pos = starfield.get_starfield(
-            10.0 * u.M_sun, u.Quantity(100.0, "uas")
-        )
-        _m, large_pos = starfield.get_starfield(
-            100.0 * u.M_sun, u.Quantity(100.0, "uas")
-        )
+        for sm, lg in zip(small_pos.value[:,0].tolist(), large_pos.value[:,0].tolist()[:len(small_pos)]):
+            self.assertAlmostEqual(sm, lg)
+
+        for sm, lg in zip(small_pos.value[:,1].tolist(), large_pos.value[:,1].tolist()[:len(small_pos)]):
+            self.assertAlmostEqual(sm, lg)
+

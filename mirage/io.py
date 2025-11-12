@@ -81,9 +81,9 @@ class ResultFileManager:
     def dump_experiment(self, experiment: Experiment):
         self._write("experiment.yaml", experiment.to_dict())
 
-    def load_simulation(self) -> Experiment:
+    def load_experiment(self) -> Experiment:
         sim_dict: dict = self._load("experiment.yaml")  # type: ignore
-        return Dictify.from_dict(Experiment, sim_dict)  # type: ignore
+        return Experiment.from_dict(sim_dict)
 
     def close(self):
         if self.mode == "x":
@@ -108,16 +108,16 @@ class ResultFileManager:
             )
         if filename is None:
             raise ValueError(
-                f"'reducer_id' {reducer_name} not present in result manifest "
+                f"{reducer_name=} not present in result manifest "
                 f"for simulation {simulation_key}.\nAvailable ids: "
                 f"{list(sim_dict.keys())}"
             )
 
         output = self._load(filename)  # type: ignore
-        reducers = self.load_simulation()[simulation_key].reducers
-        logger.warning("Has reducers %s" % str(reducers))
+        reducers = self.load_experiment()[simulation_key].reducers
+        logger.debug("Has reducers %s" % str(reducers))
         for reducer in reducers:
-            logger.warning("Has name %s" % reducer.name)
+            logger.debug("Has name %s" % reducer.name)
             if reducer.name == reducer_name:
                 reducer.set_output(output)
                 return reducer
@@ -150,8 +150,9 @@ class ResultFileManager:
         be used to dump the output
         """
         fname = f"{reducer.name.replace('/', '-')}_{simulation_key}.pickle"
-        if simulation_key in self.manifest:
-            self.manifest[str(simulation_key)][reducer.name] = fname
+        simulation_key_str = str(simulation_key)
+        if simulation_key_str in self.manifest:
+            self.manifest[simulation_key_str][reducer.name] = fname
         else:
-            self.manifest[str(simulation_key)] = {reducer.name: fname}
+            self.manifest[simulation_key_str] = {reducer.name: fname}
         return fname

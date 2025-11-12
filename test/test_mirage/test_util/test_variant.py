@@ -9,7 +9,7 @@ from astropy import units as u
 from astropy.cosmology import Cosmology, WMAP7
 
 from mirage.calc.reducers import LightCurvesReducer
-from mirage.util.variant import VariantDictify
+from mirage.util import VariantDictify
 
 class TestVariantDictify(TestCase):
     def testFromDict_singelVariantSuccess(self):

@@ -40,7 +40,9 @@ class EndBehavior(Enum):
     MIRROR = "MIRROR"
 
 class VariantKey:
-    def __init__(self, keys: dict[str, int]) -> None:
+    def __init__(self, keys: dict[str, int] | None = None) -> None:
+        if keys is None:
+            keys = {}
         self._keys = frozendict(keys)
 
     def matches(self, key: dict[str, Any]) -> bool:
@@ -142,6 +144,17 @@ class LogspaceVariant(Variant):
     def get_values(self) -> list:
         return np.logspace(self.start, self.stop, self.num_points, endpoint=True).tolist()
 
+@DelegateRegistry.register
+@dataclass(frozen=True, kw_only=True)
+class ListVariant(Variant):
+    """
+    Variant that returns a list of value literals.
+    """
+    values: list[Any]
+
+    def get_values(self) -> list:
+        return values
+
 
 class ObjVariants(Generic[T]):
     """
@@ -151,12 +164,13 @@ class ObjVariants(Generic[T]):
     
     def __init__(self, variants: list[Variant], objs: dict[VariantKey, T], template: dict[str, Any] | None = None) -> None:
         self._variants = {v.name: v for v in variants}
-        self._objs = objs
+        self._objs = {hash(k): v for k, v in objs.items()}
+        self._keys = {hash(k): k for k in objs}
         self._template = template
 
     @classmethod
     def from_single_variant(cls, obj: T) -> 'ObjVariants[T]':
-        return ObjVariants([], {VariantKey({}): obj}, Dictify.to_dict(obj))
+        return cls([], {VariantKey({}): obj}, Dictify.to_dict(obj))
 
     @property
     def klass(self) -> Type[object]:
@@ -203,7 +217,7 @@ class ObjVariants(Generic[T]):
         if kwargs:
             return self.get(kwargs)
         if isinstance(key, VariantKey):
-            return self._objs.get(key, None)
+            return self._objs.get(hash(key), None)
         ret = {}
         is_multi_response = False
         for variant_key, variant in self._objs:
@@ -224,11 +238,25 @@ class ObjVariants(Generic[T]):
     def variants(self) -> list[T]:
         return [self._objs[k] for k in self._objs]
 
+    @property
+    def variant_keys(self) -> list[VariantKey]:
+        return list(self._keys.values())
+
     def __len__(self) -> int:
         return len(self._objs)
 
-    def __iter__(self) -> Iterator[[VariantKey, T]]:
-        return iter(self._objs)
+    def __iter__(self) -> Iterator[tuple[VariantKey, T]]:
+        return iter(self._objs.items())
+
+    def __getitem__(self, key: object) -> T:
+        if not isinstance(key, VariantKey):
+            raise ValueError(f"key must be of type VariantKey, but got {type(key)}")
+        return self._objs[hash(key)]
+
+    def __eq__(self, other: object) -> bool:
+        if type(self) != type(other):
+            return False
+        return self._template == other._template
 
 
 class VariantDictify:

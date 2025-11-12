@@ -8,9 +8,8 @@ import numpy as np
 from astropy import units as u
 from astropy.cosmology import Cosmology, WMAP7
 
-from mirage.util import Dictify, DelegateRegistry, Vec2D, PolarVec
+from mirage.util import Dictify, DelegateRegistry, Vec2D, PolarVec, VariantDictify
 from mirage.calc.reducers import LightCurvesReducer
-from mirage.util.dictify import VarianceDictify
 
 
 class TestJsonableMixin(TestCase):

@@ -40,9 +40,7 @@ class EndBehavior(Enum):
     MIRROR = "MIRROR"
 
 class VariantKey:
-    def __init__(self, keys: dict[str, int] | None = None) -> None:
-        if keys is None:
-            keys = {}
+    def __init__(self, **keys: dict[str, Any]) -> None:
         self._keys = frozendict(keys)
 
     def matches(self, key: dict[str, Any]) -> bool:
@@ -67,7 +65,13 @@ class VariantKey:
         return str(self)
 
     def __hash__(self) -> int:
-        return hash(self._keys)
+        return hash(str(self))
+
+    def __eq__(self, other: object) -> bool:
+        if type(self) != type(other):
+            return False
+        return self._keys == other._keys
+
 
 @dataclass(frozen=True, kw_only=True)
 class Variant(ABC):
@@ -159,18 +163,17 @@ class ListVariant(Variant):
 class ObjVariants(Generic[T]):
     """
     Encapsulates variants of an object produced by an object template + variance.
-
     """
     
     def __init__(self, variants: list[Variant], objs: dict[VariantKey, T], template: dict[str, Any] | None = None) -> None:
         self._variants = {v.name: v for v in variants}
-        self._objs = {hash(k): v for k, v in objs.items()}
-        self._keys = {hash(k): k for k in objs}
+        self._objs = {str(k): v for k, v in objs.items()}
+        self._keys = {str(k): k for k in objs}
         self._template = template
 
     @classmethod
     def from_single_variant(cls, obj: T) -> 'ObjVariants[T]':
-        return cls([], {VariantKey({}): obj}, Dictify.to_dict(obj))
+        return cls([], {VariantKey(): obj}, Dictify.to_dict(obj))
 
     @property
     def klass(self) -> Type[object]:
@@ -217,7 +220,7 @@ class ObjVariants(Generic[T]):
         if kwargs:
             return self.get(kwargs)
         if isinstance(key, VariantKey):
-            return self._objs.get(hash(key), None)
+            return self._objs.get(str(key), None)
         ret = {}
         is_multi_response = False
         for variant_key, variant in self._objs:
@@ -240,7 +243,7 @@ class ObjVariants(Generic[T]):
 
     @property
     def variant_keys(self) -> list[VariantKey]:
-        return list(self._keys.values())
+        return [self._keys[k] for k in self._keys]
 
     def __len__(self) -> int:
         return len(self._objs)
@@ -251,7 +254,7 @@ class ObjVariants(Generic[T]):
     def __getitem__(self, key: object) -> T:
         if not isinstance(key, VariantKey):
             raise ValueError(f"key must be of type VariantKey, but got {type(key)}")
-        return self._objs[hash(key)]
+        return self._objs[str(key)]
 
     def __eq__(self, other: object) -> bool:
         if type(self) != type(other):
@@ -270,6 +273,7 @@ class VariantDictify:
         klass: Type[T],
         dict_obj: dict[str, Any],
         allow_custom_serializer: bool = True,
+        variant_container = None,
     ) -> Optional[ObjVariants]:
         if "Variants" not in dict_obj:
             logger.debug("No Variant. Pass-through to regular Dictify.")
@@ -289,10 +293,10 @@ class VariantDictify:
         for substitutions, inds in VariantDictify._get_substitutions(variants):
             dict_obj_copy = copy.deepcopy(dict_obj)
             VariantDictify._apply_substitutions(dict_obj_copy, substitutions)
-            key = VariantKey(inds)
+            key = VariantKey(**inds)
             objs[key] = Dictify.from_dict(klass, dict_obj_copy, allow_custom_serializer)
             logger.debug(f"Created Variant with {key=}")
-        return ObjVariants(variants, objs, original_dict_obj)
+        return (variant_container or ObjVariants)(variants, objs, original_dict_obj)
 
     @staticmethod
     def _get_substitutions(variants: list[Variant]) -> list[tuple[dict[str, Any], dict[str, int]]]:

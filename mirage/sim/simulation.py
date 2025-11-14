@@ -137,13 +137,7 @@ class Experiment(ObjVariants[Simulation]):
 
     @classmethod
     def from_dict(cls, dict_obj: dict[str, Any]) -> 'Experiment':
-        experiment = VariantDictify.from_dict(Simulation, dict_obj)
-        if experiment is None:
-            raise ValueError("Failed to construct an experiement")
-        return cls(
-            list(experiment._variants.values()),
-            experiment._objs,
-            experiment._template)
+        return VariantDictify.from_dict(Simulation, dict_obj, variant_container=Experiment)
 
     @classmethod
     def from_yaml(cls, yaml_filename: str) -> 'Experiment':

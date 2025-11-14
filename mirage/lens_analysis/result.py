@@ -38,20 +38,20 @@ class SimulationResult:
 
     @cached_property
     def simulation(self) -> Simulation:
-        return self.experiment.get(variant_key)
+        return self.experiment.get(self.variant_key)
 
     @property
     def reducer_names(self) -> list[str]:
         return [r.name for r in self.simulation.reducers]
 
     def get_reducer(self, name: str) -> Reducer:
-        return self.io_manager.load_result(name, self.simulation_id)
+        return self.io_manager.load_result(name, self.variant_key)
 
     def __len__(self) -> int:
         return len(self.reducer_names)
 
     def __iter__(self) -> Iterator[Reducer]:
-        return [self.get_reducer(name) for name in self.reducer_names]
+        return iter([self.get_reducer(name) for name in self.reducer_names])
 
 
 @dataclass
@@ -67,10 +67,17 @@ class ExperimentResult:
     def experiment(self) -> Experiment:
         return self.io_manager.load_experiment()
 
-    def simulation(self, key: VariantKey) -> Simulation:
+    @property
+    def keys(self) -> list[VariantKey]:
+        return self.experiment.variant_keys
+
+    def simulation(self, key: VariantKey) -> SimulationResult:
         if self.experiment.get(key) is None:
             raise KeyError(f"Unrecognized key: {key}")
         return SimulationResult(self.experiment, self.io_manager, key)
 
     def __len__(self) -> int:
         return len(self.experiment)
+
+    def __iter__(self) -> Iterator[SimulationResult]:
+        return iter([self.simulation(k) for k in self.keys])

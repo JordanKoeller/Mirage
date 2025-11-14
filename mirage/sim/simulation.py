@@ -100,6 +100,9 @@ class Simulation(DictifyMixin):
         """
         If `self` and `other` are similar, indicates that the two simulations
         have the same lensing model and will deflect rays equally.
+
+        Note that parameters that do not factor into ray tracing are ignored (for
+        example, reducers).
         """
         return (
             self.get_ray_tracer() == other.get_ray_tracer()

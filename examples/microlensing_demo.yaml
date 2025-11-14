@@ -18,9 +18,15 @@ Reducers:
       Name: magmap
       Radius: '${radius} uas'
       Resolution: [100, 100, '']
+  - LightCurvesReducer:
+      Name: lightcurves
+      Radius: '${radius} uas'
+      Resolution: 2 1/uas
+      NumCurves: 10
+      Seed: 12
 Variants:
   - LinspaceVariant:
       Name: radius
-      Start: 0.8
-      Stop: 24
-      NumPoints: 10
+      Start: 0.2
+      Stop: 8
+      NumPoints: 8

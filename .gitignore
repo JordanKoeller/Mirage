@@ -22,7 +22,6 @@ a.out
 *.jpg
 *.mp4
 *.fits
-*.zip
 
 #Profiling files, stray results data files
 *.dat

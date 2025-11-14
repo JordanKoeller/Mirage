@@ -19,20 +19,26 @@ on the returned MultiResult.
 """
 from dataclasses import dataclass
 from functools import cached_property
+from typing import Iterator
 
 from mirage.io import ResultFileManager
 from mirage.calc import Reducer
 from mirage.sim import Simulation, Experiment
+from mirage.util import VariantKey
 
 
 @dataclass
 class SimulationResult:
+    """
+    Provides an interface for analyzing the results of one single Simulation.
+    """
+    experiment: Experiment
     io_manager: ResultFileManager
-    simulation_id: int
+    variant_key: VariantKey
 
     @cached_property
     def simulation(self) -> Simulation:
-        return self.io_manager.load_simulation()[self.simulation_id]
+        return self.experiment.get(variant_key)
 
     @property
     def reducer_names(self) -> list[str]:
@@ -41,37 +47,30 @@ class SimulationResult:
     def get_reducer(self, name: str) -> Reducer:
         return self.io_manager.load_result(name, self.simulation_id)
 
+    def __len__(self) -> int:
+        return len(self.reducer_names)
+
+    def __iter__(self) -> Iterator[Reducer]:
+        return [self.get_reducer(name) for name in self.reducer_names]
+
 
 @dataclass
 class ExperimentResult:
+    """
+    Provides an interface for analyzing Experiment results.
+
+    Wraps a ResultFileManager and manages lazily loading results.
+    """
     io_manager: ResultFileManager
 
     @cached_property
-    def simulation_batch(self) -> Experiment:
-        return self.io_manager.load_simulation()
+    def experiment(self) -> Experiment:
+        return self.io_manager.load_experiment()
 
-    def get_result(self, index: int = 0) -> SimulationResult:
-        if index >= len(self):
-            raise ValueError(
-                f"Cannot extract Simulation {index} from file containing "
-                f"{len(self.io_manager)} simulations"
-            )
-        return SimulationResult(self.io_manager, index)
-
-    def simulation(self, index: int = 0) -> Simulation:
-        return self.simulation_batch[index]
-
-    def get_reducers_by_name(self, name: str) -> list[Reducer]:
-        reducers = []
-        for i in range(len(self)):
-            try:
-                reducers.append(self.get_result(i).get_reducer(name))
-            except ValueError:
-                raise ValueError(
-                    f"Could not find Reducer with name '{name}' in Simulation "
-                    f"with index={i}"
-                )
-        return reducers
+    def simulation(self, key: VariantKey) -> Simulation:
+        if self.experiment.get(key) is None:
+            raise KeyError(f"Unrecognized key: {key}")
+        return SimulationResult(self.experiment, self.io_manager, key)
 
     def __len__(self) -> int:
-        return len(self.simulation_batch)
+        return len(self.experiment)

@@ -7,6 +7,7 @@ from matplotlib.backend_bases import MouseEvent, KeyEvent
 from mirage.lens_analysis.result import ExperimentResult, SimulationResult
 from mirage.util import VariantKey, Vec2D
 
+
 @dataclass
 class VizState:
     experiment: ExperimentResult
@@ -19,11 +20,14 @@ class VizState:
 
     @property
     def simulation_result(self) -> SimulationResult:
-        return self.experiment.simulation(self._variant_keys[self.variant_key_index])
+        return self.experiment.simulation(
+            self._variant_keys[self.variant_key_index]
+        )
 
     @property
     def variant_key(self) -> VariantKey:
         return self._variant_keys[self.variant_key_index]
+
 
 class Panel(Enum):
     LINE = "LINE"
@@ -37,5 +41,3 @@ class VizEvent:
     name: str
     mouse_event: MouseEvent | None = None
     key_event: KeyEvent | None = None
-
-

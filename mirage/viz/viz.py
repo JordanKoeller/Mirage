@@ -1,12 +1,9 @@
-from typing import Type, List, Iterable
+from typing import List, Iterable
 import logging
 
-from matplotlib.axes import Axes
 from matplotlib import animation
 from matplotlib.artist import Artist
 
-from mirage.lens_analysis.result import ExperimentResult, SimulationResult
-from mirage.calc import Reducer
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow
 from mirage.viz.controller import Controller
@@ -16,6 +13,7 @@ from mirage.util import Vec2D
 logger = logging.getLogger(__name__)
 
 ANIMATION_FRAMES_PER_SECOND = 20
+
 
 class Viz:
     """
@@ -34,7 +32,7 @@ class Viz:
         self._controllers: dict[str, Controller] = {}
         self._title = None
 
-        for controller in (controllers or []):
+        for controller in controllers or []:
             self.bind_controller(controller)
 
         self._window.next_simulation_button.on_clicked(
@@ -44,16 +42,13 @@ class Viz:
             lambda *args: self.prev_simulation()
         )
         self._window.figure.canvas.mpl_connect(
-            "button_press_event",
-            lambda event: self._on_mouse_event(event)
+            "button_press_event", lambda event: self._on_mouse_event(event)
         )
         self._window.figure.canvas.mpl_connect(
-            "button_release_event",
-            lambda event: self._on_mouse_event(event)
+            "button_release_event", lambda event: self._on_mouse_event(event)
         )
         self._window.figure.canvas.mpl_connect(
-            "motion_notify_event",
-            lambda event: self._on_mouse_event(event)
+            "motion_notify_event", lambda event: self._on_mouse_event(event)
         )
 
         self.show()
@@ -61,7 +56,7 @@ class Viz:
         self._animation = animation.FuncAnimation(
             self._window.figure,
             self.draw,
-            interval = 1000 / ANIMATION_FRAMES_PER_SECOND,
+            interval=1000 / ANIMATION_FRAMES_PER_SECOND,
             blit=True,
             cache_frame_data=False,
         )
@@ -72,7 +67,7 @@ class Viz:
             panel = Panel.IMAGE
         if event.inaxes == self._window.line_axes:
             panel = Panel.LINE
-        if panel == None:
+        if panel is None:
             logger.debug("Had MouseEvent with unmatched Axes.")
             return
         viz_event = VizEvent(
@@ -84,15 +79,17 @@ class Viz:
         for layer_name, enabled in self._model.layers[::-1]:
             if not enabled:
                 continue
-            if self._controllers.get(layer_name).on_event(self._model, viz_event):
+            if self._controllers.get(layer_name).on_event(
+                self._model, viz_event
+            ):
                 break
 
     def _on_key_event(self, event) -> None:
         pass
 
-
-
-    def bind_controller(self, controller: Controller, layer_name: str | None = None) -> None:
+    def bind_controller(
+        self, controller: Controller, layer_name: str | None = None
+    ) -> None:
         """
         Add a new controller to Viz. The new controller is added as the top layer.
         """
@@ -103,7 +100,9 @@ class Viz:
 
     def draw(self, *args, **kwargs) -> Iterable[Artist]:
         if self._title is None:
-            self._title = self._window.figure.suptitle(str(self._model.variant_key))
+            self._title = self._window.figure.suptitle(
+                str(self._model.variant_key)
+            )
         artists = []
         for layer_name, enabled in self._model.layers:
             if not enabled:
@@ -137,4 +136,3 @@ class Viz:
     def show(self) -> None:
         self.draw()
         self._window.figure.show()
-

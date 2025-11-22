@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Iterable
 
-from matplotlib.axes import Axes
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib import colors
@@ -13,8 +12,8 @@ from mirage.viz.window import VizWindow
 from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
 
-class Controller(ABC):
 
+class Controller(ABC):
     @abstractmethod
     def reset(self) -> None:
         """
@@ -55,7 +54,7 @@ class MagMapController(Controller):
         self.reset()
 
     def reset(self) -> None:
-        self._line_state: _LineState | None = None
+        self._line_state: self._LineState | None = None
         self._line: Line2D | None = None
         self._colorbar = None
         self._img = None
@@ -69,16 +68,16 @@ class MagMapController(Controller):
 
         if self._img is None:
             self._img = window.im_axes.pcolormesh(
-                magnitudes,
-                norm=colors.TwoSlopeNorm(vcenter=0.0),
-                cmap=colormap)
+                magnitudes, norm=colors.TwoSlopeNorm(vcenter=0.0), cmap=colormap
+            )
         else:
             self._img.set(array=magnitudes)
         artists.append(self._img)
 
         if self._colorbar is None:
             self._colorbar = window.figure.colorbar(
-                self._img, ax=window.im_axes, pad=0.01, fraction=0.05)
+                self._img, ax=window.im_axes, pad=0.01, fraction=0.05
+            )
             self._colorbar.set_label("Magnitudes")
         else:
             self._colorbar.update_normal()
@@ -99,7 +98,6 @@ class MagMapController(Controller):
             artists.append(self._line)
         return artists
 
-
     def on_event(self, state: VizState, event: VizEvent) -> bool:
         if event.panel != Panel.IMAGE:
             return False
@@ -111,7 +109,11 @@ class MagMapController(Controller):
                 end_x=event.screen_pos.x,
                 end_y=event.screen_pos.y,
             )
-        if event.name == "motion_notify_event" and self._line_state and self._line_state.dragging:
+        if (
+            event.name == "motion_notify_event"
+            and self._line_state
+            and self._line_state.dragging
+        ):
             self._line_state = self._LineState(
                 start_x=self._line_state.start_x,
                 start_y=self._line_state.start_y,
@@ -128,14 +130,14 @@ class MagMapController(Controller):
                 end_y=self._line_state.end_y,
             )
 
-
-
     def _find_reducer(self, state: VizState) -> MagnificationMapReducer:
         if self._reducer_name:
             for reducer in state.simulation_result:
                 if self._reducer_name == reducer.name:
                     return reducer
-            raise ValueError(f"Could not find reducer with name {self._reducer_name}")
+            raise ValueError(
+                f"Could not find reducer with name {self._reducer_name}"
+            )
         reducers = []
         for reducer in state.simulation_result:
             if isinstance(reducer, MagnificationMapReducer):
@@ -143,8 +145,7 @@ class MagMapController(Controller):
         if len(reducers) == 0:
             raise ValueError("Could not find a MagnificationMapReducer")
         if len(reducers) > 1:
-            raise ValueError(f"Ambiguous MagnificationMapReducers: {', '.join(reducer.name for reducer in reducers)}")
+            raise ValueError(
+                f"Ambiguous MagnificationMapReducers: {', '.join(reducer.name for reducer in reducers)}"
+            )
         return reducers[0]
-
-
-

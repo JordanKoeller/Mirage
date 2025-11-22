@@ -25,17 +25,14 @@ not necessary now.
 """
 
 import logging
-from typing import Type
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.widgets import Button
-from matplotlib.colorbar import Colorbar
-
-from mirage.lens_analysis.result import ExperimentResult
 
 logger = logging.getLogger(__name__)
+
 
 class VizWindow:
     def __init__(self):
@@ -54,7 +51,6 @@ class VizWindow:
 
         self.im_axes.set_axis_off()
         self.im_axes.set_frame_on(True)
-
 
     @property
     def figure(self) -> Figure:

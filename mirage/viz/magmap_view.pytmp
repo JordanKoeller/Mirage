@@ -5,11 +5,9 @@ from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
 
 from mirage.calc.reducers import MagnificationMapReducer
-from mirage.viz import Viz
 
 
-@Viz.register
-class MagmapView(Viz):
+class MagmapView:
     """
     Presents a unified view for visualizing and manipulating Magnification
     Maps. Supports overlaying lightcurves onto a Magmap as well.
@@ -27,11 +25,9 @@ class MagmapView(Viz):
     """
 
     def __init__(self):
-        self._reducer: Optional[MagnificationMapReducer] = None
-        self._line: Optional[Line2D] = None
         self._colormap = None
 
-    def draw(self, canvas: Axes, line_graph: Axes) -> None:
+    def draw(self, state: VizState, window: VizWindow) -> None:
         # Draw to main canvas
         canvas.set_axis_off()
         canvas.set_frame_on(True)

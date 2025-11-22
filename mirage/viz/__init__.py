@@ -4,56 +4,33 @@ viz package.
 
 `viz` includes tools for visualizing results from simulations.
 
-Two approaches:
+The `viz` package follows the MVC pattern:
+    + The `Viz` object is a container for the three components and manages binding
+      them, as needed.
+    + The `VizWindow` makes the "View" part of MVC
+    + The `Model` is a `VizState` instance. This is primarily a wrapper of an
+      `ExperimentResult` with some additional control parameters.
+    + The `Controller` is the most complicated part. Generally speaking, there should
+      be a separate controller for each type of Reducer. Each Controller is registered
+      in the `Viz` object, and controllable as a layer in the UI.
 
-1. Modular approach
-2. Superset approach
+## The `VizWindow`
 
-At the core of it there are three main things I need to visualize - then each
-has its own flavor:
+One standard `VizWindow` is provided, consisting of three parts:
+    + An image / heatmap visualizer, that makes up the majority of the window.
+    + A plot for visualizing line graphs.
+    + A panel for input widgets, displaying selected values, etc.
 
-    1. Magnification map / parity maps
-      1. Image-based
-      2. Colorbar-based coloring
-      3. May have a need for animation - evolving starfields.
-    2. Lensed Images
-      1. Image-based.
-      2. Explicit coloring.
-      3. Have a need for animation and interractivity.
-    3. Lightcurves
-      1. Two-dimensional
-      2. Have need to overlay many curves.
+## Controllers
 
-With this in mind, it feels like there are three fundamental views, following
-that pattern. But there is some complexity in that we may want to display
-multiple views in a unified interface. So it would be good to have that
-flexibility.
-
-With that in mind, I'm going to make sure that the render-surface is just an
-Axes as defined in matplotlib. Then can have special builders that build
-to a new figure, an existing figure, etc.
-
-## API Example
-
-We use a simple object-oriented approach, with a `VizWindow` that acts as the
-UI window.
-
-From this window, you can bind an `ExperimentResult` to it. This just associates
-the window with a set of Simulation results. By default, it will inspect what
-reducers exist in the ExperimentResult and bind reducers in a sensible way. If
-there is ambiguity in how the reducers should bind, the user is prompted. Of
-course, this can be changed later via an api. Something like 
-`window.bind_top_pane('reducer_name')`.
-
-The UI includes arrow buttons to step forward or backward through the set of
-simulations in the ExperimentResult.
-
+Controllers are registered in the UI as togglable layers. When a `Viz` object is set up
+a default controller for each reducer in the ExperimentResult is enabled. Additional
+controllers can be added / removed programatically or via the UI.
 
 """
 from .viz import Viz
 from .window import VizWindow
-from .lensed_image_view import LensedImageView
-from .magmap_view import MagmapView
-from .viz_runner import VizRunner
+from .controller import Controller, MagMapController
+from .viz_state import VizState, Panel, VizEvent
 
-__all__ = ["Viz", "LensedImageView", "MagmapView", "VizRunner", "VizWindow"]
+__all__ = ["Viz", "VizState", "VizWindow", "Controller", "MagMapController", "Panel", "VizEvent"]

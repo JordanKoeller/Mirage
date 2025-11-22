@@ -84,8 +84,6 @@ class MagnificationMapReducer(Reducer):
         pixels = pixel_region.to("theta_0").pixels.value
         radius = self.radius.to("theta_0").value
 
-        # self.canvas = reduce_magmap(traced_rays.tree, pixels, radius)
-
         self.canvas = populate_magmap(pixels, radius, traced_rays)
 
     def merge(self, other: Self) -> Self:

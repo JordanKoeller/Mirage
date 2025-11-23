@@ -1,9 +1,10 @@
 from typing import Self, Optional, List
 from dataclasses import dataclass
+from functools import cached_property
 
 from mirage.calc import Reducer, KdTree
 from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve
-from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region
+from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D
 from mirage.sim import MicrolensingSimulation
 from mirage_ext import reduce_lensed_image
 
@@ -100,7 +101,7 @@ class MagnificationMapReducer(Reducer):
             return np.copy(self.canvas)
         return None
 
-    @property
+    @cached_property
     def magnitudes(self) -> np.ndarray:
         if self.output is None:
             raise ValueError("Cannot compute magnitudes for empty reducer")
@@ -108,6 +109,11 @@ class MagnificationMapReducer(Reducer):
 
     def set_output(self, output: object):
         self.canvas = output  # type: ignore
+
+    def slice(self, start: Vec2D | Index2D, end: Vec2D | Index2D) -> np.ndarray:
+        """
+        Sample the MagnificationMap on an arbitrary axis.
+        """
 
 
 @DelegateRegistry.register

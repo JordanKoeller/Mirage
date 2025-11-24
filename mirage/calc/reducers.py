@@ -113,6 +113,10 @@ class MagnificationMapReducer(Reducer):
     def slice(self, start: Vec2D | Index2D, end: Vec2D | Index2D) -> np.ndarray:
         """
         Sample the MagnificationMap on an arbitrary axis.
+
+        Returns a ndarray[np.float64, ndim=1] of all the magnification values
+        under the line connecting `start` to `end` using nearest-neighbor
+        interpolation.
         """
 
 

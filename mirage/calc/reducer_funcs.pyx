@@ -47,6 +47,17 @@ cpdef np.ndarray[np.float64_t, ndim=2] slice_magmap(
     object start, #Vec2D
     object end, #Vec2D
 ):
+  """
+  Algorithm is as follows:
+
+  1. Normalize to values in screen-space [0, resolution]
+  2. Step along x-axis or y-axis by `m`, depending on if `m` <= 1 or `m` >= 1
+    a. special-case vertical or horizontal lines.
+
+  for x in range(x1, x2):
+    y += m
+    points.append(round(x), round(y))
+  """
   cdef int x, y
   cdef np.ndarray[np.float64_t, ndim=2] canvas = magmap.magnitudes
   region = magmap.region

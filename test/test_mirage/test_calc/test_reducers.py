@@ -1,11 +1,16 @@
 from unittest import TestCase
+import pytest
 
 from matplotlib import pyplot as plt
 from astropy import units as u
 import numpy as np
 
-from mirage.calc.reducers import LightCurvesReducer
-from mirage.util import Region, Vec2D
+from mirage.calc.reducers import LightCurvesReducer, MagnificationMapReducer
+from mirage.lens_analysis import ExperimentResult, SimulationResult
+from mirage.util import Region, Vec2D, Index2D, VariantKey
+from mirage.io import ResultFileManager
+
+
 
 
 class TestLightCurvesReducer(TestCase):
@@ -21,6 +26,10 @@ class TestLightCurvesReducer(TestCase):
         self.region = Region(
             dims=Vec2D(10, 10, u.arcsec), center=Vec2D(1.2, -4.0, u.arcsec)
         )
+        fm = ResultFileManager("test/testdata/microlensing_result.zip", "r")
+        experiment = ExperimentResult(fm)
+        simulation = experiment.simulation(VariantKey(radius=0))
+        self.magmap = simulation.get_reducer("magmap")
 
     def testGetQuerySeeds_success(self):
         seeds = self.lcr.get_query_seeds(self.region)
@@ -42,6 +51,38 @@ class TestLightCurvesReducer(TestCase):
             dy = line[1, 1] - line[0, 1]
             r = np.sqrt(dx**2 + dy**2)
             self.assertAlmostEqual(r, 0.1)
+
+    def testSlicePositiveSlopeOnDiagonal(self) -> None:
+        data = self.magmap.slice(Index2D(10, 10), Index2D(90, 90))
+        self.assertEqual(len(data), 80)
+
+    def testSlicePositiveSlopeOffDiagnol(self) -> None:
+        data = self.magmap.slice(Index2D(10, 9), Index2D(90, 91))
+        self.assertEqual(len(data), 159)
+
+    def testSliceSteepSlope(self) -> None:
+        data = self.magmap.slice(Index2D(10, 10), Index2D(50, 90))
+        self.assertEqual(len(data), 79)
+
+    def testSliceLowSlope(self) -> None:
+        data = self.magmap.slice(Index2D(10, 10), Index2D(90, 50))
+        self.assertEqual(len(data), 80)
+
+    def testSliceNegativeSlope(self) -> None:
+        data = self.magmap.slice(Index2D(10, 90), Index2D(90, 50))
+        self.assertEqual(len(data), 80)
+
+    def testSliceRightToLeft(self) -> None:
+        data = self.magmap.slice(Index2D(90, 90), Index2D(10, 50))
+        self.assertEqual(len(data), 80)
+
+    def testSliceHorizontalLine(self) -> None:
+        data = self.magmap.slice(Index2D(10, 10), Index2D(90, 10))
+        self.assertEqual(len(data), 80)
+
+    def testSliceVerticalLine(self) -> None:
+        data = self.magmap.slice(Index2D(10, 10), Index2D(10, 90))
+        self.assertEqual(len(data), 80)
 
     def assertAlmostWithin(self, v, low, high, tol=1e-8):
         self.assertGreaterEqual(v, low - tol)

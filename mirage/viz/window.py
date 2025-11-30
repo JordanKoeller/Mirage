@@ -51,6 +51,7 @@ class VizWindow:
 
         self.im_axes.set_axis_off()
         self.im_axes.set_frame_on(True)
+        self.im_axes.invert_yaxis()
 
     @property
     def figure(self) -> Figure:

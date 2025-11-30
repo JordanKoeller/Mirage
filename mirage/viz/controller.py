@@ -11,6 +11,7 @@ import numpy as np
 from mirage.viz.window import VizWindow
 from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
+from mirage.util import Index2D
 
 
 class Controller(ABC):
@@ -30,14 +31,17 @@ class Controller(ABC):
         is called. The Axes are cleared between each call to draw()
         """
 
-    def on_event(self, state: VizState, event: VizEvent) -> bool:
+    def on_event(self, state: VizState, event: VizEvent) -> tuple[bool, bool]:
         """
         Intercept a UI event.
 
-        If the event should not propagate to other layers, return True. Otherwise,
-        return False (or None).
+
+        Returns a tuple of booleans:
+          + The first boolean indicates if the event should be consumed. Consumed
+            events do not propagate to more layers.
+          + The second boolean indicates if the layer should be redrawn. 
         """
-        return False
+        return False, False
 
 
 class MagMapController(Controller):
@@ -58,6 +62,7 @@ class MagMapController(Controller):
         self._line: Line2D | None = None
         self._colorbar = None
         self._img = None
+        self._lightcurve = None
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
         reducer = self._find_reducer(state)
@@ -82,25 +87,13 @@ class MagMapController(Controller):
         else:
             self._colorbar.update_normal()
 
-        if self._line_state:
-            if self._line is None:
-                self._line = Line2D(
-                    [self._line_state.start_x, self._line_state.end_x],
-                    [self._line_state.start_y, self._line_state.end_y],
-                    linewidth=3,
-                )
-                window.im_axes.add_line(self._line)
-            else:
-                self._line.set(
-                    xdata=[self._line_state.start_x, self._line_state.end_x],
-                    ydata=[self._line_state.start_y, self._line_state.end_y],
-                )
-            artists.append(self._line)
+        artists.extend(self._get_line_artists(reducer, window))
+
         return artists
 
-    def on_event(self, state: VizState, event: VizEvent) -> bool:
+    def on_event(self, state: VizState, event: VizEvent) -> tuple[bool, bool]:
         if event.panel != Panel.IMAGE:
-            return False
+            return False, False
         if event.name == "button_press_event":
             self._line_state = self._LineState(
                 start_x=event.screen_pos.x,
@@ -109,6 +102,7 @@ class MagMapController(Controller):
                 end_x=event.screen_pos.x,
                 end_y=event.screen_pos.y,
             )
+            return True, True
         if (
             event.name == "motion_notify_event"
             and self._line_state
@@ -121,6 +115,7 @@ class MagMapController(Controller):
                 end_x=event.screen_pos.x,
                 end_y=event.screen_pos.y,
             )
+            return True, True
         if event.name == "button_release_event" and self._line_state:
             self._line_state = self._LineState(
                 start_x=self._line_state.start_x,
@@ -129,6 +124,8 @@ class MagMapController(Controller):
                 end_x=self._line_state.end_x,
                 end_y=self._line_state.end_y,
             )
+            return True, True
+        return False, False
 
     def _find_reducer(self, state: VizState) -> MagnificationMapReducer:
         if self._reducer_name:
@@ -149,3 +146,42 @@ class MagMapController(Controller):
                 f"Ambiguous MagnificationMapReducers: {', '.join(reducer.name for reducer in reducers)}"
             )
         return reducers[0]
+    
+    def _get_line_artists(self, reducer: MagnificationMapReducer, window: VizWindow) -> Iterable[Artist]:
+        artists = []
+        if self._line_state is None:
+            return []
+        if self._line is None:
+            self._line = Line2D(
+                [self._line_state.start_x, self._line_state.end_x],
+                [self._line_state.start_y, self._line_state.end_y],
+                linewidth=3,
+            )
+            window.im_axes.add_line(self._line)
+        else:
+            self._line.set(
+                xdata=[self._line_state.start_x, self._line_state.end_x],
+                ydata=[self._line_state.start_y, self._line_state.end_y],
+            )
+        artists.append(self._line)
+
+        slice_data = reducer.slice(
+            Index2D(self._line_state.start_x, self._line_state.start_y),
+            Index2D(self._line_state.end_x, self._line_state.end_y),
+        )
+        if len(slice_data) == 0:
+            return artists
+
+        slice_data_x = np.arange(len(slice_data))
+        if self._lightcurve is None:
+            self._lightcurve = window.line_axes.plot(slice_data_x, slice_data)[0]
+        else:
+            self._lightcurve.set_data(
+                    slice_data_x,
+                    slice_data,
+            )
+            window.line_axes.set_xlim(0, len(slice_data))
+            window.line_axes.set_ylim(np.max(slice_data), np.min(slice_data))
+        artists.append(self._lightcurve)
+        return artists
+

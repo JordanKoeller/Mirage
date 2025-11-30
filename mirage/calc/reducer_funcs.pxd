@@ -13,7 +13,7 @@ cpdef np.ndarray[np.float64_t, ndim=1] populate_lightcurve(
   double query_radius,
   object tree)
 
-cpdef np.ndarray[np.float64_t, ndim=2] slice_magmap(
+cpdef np.ndarray[np.float64_t, ndim=1] slice_magmap(
     object magmap, # MagnificationMapReducer
     object start, #Vec2D
     object end, #Vec2D

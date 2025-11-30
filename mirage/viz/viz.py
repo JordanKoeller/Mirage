@@ -1,5 +1,6 @@
 from typing import List, Iterable
 import logging
+from dataclasses import dataclass
 
 from matplotlib import animation
 from matplotlib.artist import Artist
@@ -12,8 +13,15 @@ from mirage.util import Vec2D
 
 logger = logging.getLogger(__name__)
 
-ANIMATION_FRAMES_PER_SECOND = 20
+ANIMATION_FRAMES_PER_SECOND = 10
 
+
+@dataclass
+class _ControllerState:
+    controller: Controller
+    enabled: bool
+    stale: bool
+    artists: List[Artist]
 
 class Viz:
     """
@@ -29,7 +37,7 @@ class Viz:
     ) -> None:
         self._model = model
         self._window = view
-        self._controllers: dict[str, Controller] = {}
+        self._controllers: dict[str, _ControllerState] = {}
         self._title = None
 
         for controller in controllers or []:
@@ -79,9 +87,12 @@ class Viz:
         for layer_name, enabled in self._model.layers[::-1]:
             if not enabled:
                 continue
-            if self._controllers.get(layer_name).on_event(
+            controller_state = self._controllers.get(layer_name)
+            consumed, stale = controller_state.controller.on_event(
                 self._model, viz_event
-            ):
+            )
+            controller_state.stale = stale
+            if consumed:
                 break
 
     def _on_key_event(self, event) -> None:
@@ -94,7 +105,11 @@ class Viz:
         Add a new controller to Viz. The new controller is added as the top layer.
         """
         layer_name = layer_name or type(controller).__name__
-        self._controllers[layer_name] = controller
+        self._controllers[layer_name] = _ControllerState(
+            controller=controller,
+            enabled=True,
+            stale=True,
+            artists = [])
         self._model.layers.append((layer_name, True))
         controller.reset()
 
@@ -108,8 +123,10 @@ class Viz:
             if not enabled:
                 continue
             controller = self._controllers.get(layer_name)
-            for artist in controller.draw(self._model, self._window):
-                artists.append(artist)
+            if controller.stale:
+                controller.artists = controller.controller.draw(self._model, self._window)
+                controller.stale = False
+            artists.extend(controller.artists)
         return artists
 
     def enable_layer(self, layer_name: str, state: bool) -> bool:
@@ -123,14 +140,16 @@ class Viz:
         if self._model.variant_key_index >= len(self._model._variant_keys) - 1:
             return False
         self._model.variant_key_index += 1
-        self.draw()
+        for k in self._controllers:
+            self._controllers[k].stale = True
         return True
 
     def prev_simulation(self) -> bool:
         if self._model.variant_key_index <= 0:
             return False
         self._model.variant_key_index -= 1
-        self.draw()
+        for k in self._controllers:
+            self._controllers[k].stale = True
         return True
 
     def show(self) -> None:

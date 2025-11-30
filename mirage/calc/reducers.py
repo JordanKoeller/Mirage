@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from mirage.calc import Reducer, KdTree
-from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve
+from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve, slice_magmap
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D
 from mirage.sim import MicrolensingSimulation
 from mirage_ext import reduce_lensed_image
@@ -76,13 +76,8 @@ class MagnificationMapReducer(Reducer):
         self.expected_pixels = unlensed_pixel_count.value
 
     def reduce(self, traced_rays: KdTree):
-        pixel_region = PixelRegion(
-            dims=self.source_region.to("theta_0").dims,
-            center=self.source_region.to("theta_0").center,
-            resolution=self.resolution,
-        )
 
-        pixels = pixel_region.to("theta_0").pixels.value
+        pixels = self.pixel_region.to("theta_0").pixels.value
         radius = self.radius.to("theta_0").value
 
         self.canvas = populate_magmap(pixels, radius, traced_rays)
@@ -94,6 +89,14 @@ class MagnificationMapReducer(Reducer):
         elif other_canvas is not None:
             self.canvas = other_canvas
         return self
+
+    @property
+    def pixel_region(self) -> PixelRegion:
+        return PixelRegion(
+            dims=self.source_region.to("uas").dims,
+            center=self.source_region.to("uas").center,
+            resolution=self.resolution,
+        )
 
     @property
     def output(self) -> Optional[np.ndarray]:
@@ -118,6 +121,11 @@ class MagnificationMapReducer(Reducer):
         under the line connecting `start` to `end` using nearest-neighbor
         interpolation.
         """
+        if isinstance(start, Index2D):
+            start = self.pixel_region[start]
+        if isinstance(end, Index2D):
+            end = self.pixel_region[end]
+        return slice_magmap(self, start, end)
 
 
 @DelegateRegistry.register

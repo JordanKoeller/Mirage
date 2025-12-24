@@ -38,20 +38,30 @@ class VizWindow:
     def __init__(self):
         # General high-level organization
         self._fig: Figure = plt.figure(layout="tight", clear=True)
-        self._gridspec = GridSpec(3, 1, self._fig, height_ratios=[4, 20, 1])
+        self._gridspec = GridSpec(2, 1, self._fig, height_ratios=[4, 20])
         self._top_axes = self._fig.add_subplot(self._gridspec[0, 0])
-        self._bottom_axes = self._fig.add_subplot(self._gridspec[1, 0])
+        self._bottom_gridspec = self._gridspec[1, 0].subgridspec(1, 2, width_ratios=[1, 5])
+        self._bottom_axes = self._fig.add_subplot(self._bottom_gridspec[0, 1])
 
         # UI Input Elements
-        self._ui_grid = self._gridspec[2, 0].subgridspec(1, 2)
-        self._p_button_axes = self._fig.add_subplot(self._ui_grid[0, 0])
-        self._n_button_axes = self._fig.add_subplot(self._ui_grid[0, -1])
+        self._ui_grid = self._bottom_gridspec[0, 0].subgridspec(2, 1, height_ratios=[1,5])
+        self._stock_ui = self._ui_grid[0,0].subgridspec(2, 1)
+        self._buttons_ui = self._stock_ui[1,0].subgridspec(1, 2)
+        self._p_button_axes = self._fig.add_subplot(self._buttons_ui[0, 0])
+        self._n_button_axes = self._fig.add_subplot(self._buttons_ui[0, -1])
         self._p_button = Button(self._p_button_axes, "Previous")
         self._n_button = Button(self._n_button_axes, "Next")
+
+        self._desc_box = self._fig.add_subplot(self._stock_ui[0,0])
+        self._desc_box.set_axis_off()
+        self._desc_box.set_frame_on(True)
 
         self.im_axes.set_axis_off()
         self.im_axes.set_frame_on(True)
         self.im_axes.invert_yaxis()
+
+    def title(self) -> Axes:
+        return self._desc_box
 
     @property
     def figure(self) -> Figure:

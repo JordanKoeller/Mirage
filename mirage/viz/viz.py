@@ -114,10 +114,10 @@ class Viz:
         controller.reset()
 
     def draw(self, *args, **kwargs) -> Iterable[Artist]:
-        if self._title is None:
-            self._title = self._window.figure.suptitle(
-                str(self._model.variant_key)
-            )
+        if self._title:
+            self._title.set(text=str(self._model.variant_key))
+        else:
+            self._title = self._window.title().text(0,0, str(self._model.variant_key))
         artists = []
         for layer_name, enabled in self._model.layers:
             if not enabled:
@@ -127,6 +127,7 @@ class Viz:
                 controller.artists = controller.controller.draw(self._model, self._window)
                 controller.stale = False
             artists.extend(controller.artists)
+        self._window.figure.canvas.draw()
         return artists
 
     def enable_layer(self, layer_name: str, state: bool) -> bool:

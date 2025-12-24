@@ -76,14 +76,14 @@ cpdef np.ndarray[np.float64_t, ndim=1] slice_magmap(
     _Vec2D start_vec = _into_vec2d(((start - tl_vec).div(region.dims)).mul(region.resolution))
     _Vec2D end_vec = _into_vec2d(((end - tl_vec).div(region.dims)).mul(region.resolution))
 
-  if floor(start_vec.x) == floor(end_vec.x):
+  if floor(start_vec.x) == floor(end_vec.x): # Vertical line
     if start_vec.y < end_vec.y:
-      return canvas[int(start_vec.y):int(end_vec.y), int(start_vec.x)]
+      return canvas[int(start_vec.y):int(end_vec.y) + 1, int(start_vec.x)]
     else:
-      return canvas[int(end_vec.y):int(start_vec.y), int(start_vec.x)]
-  if floor(start_vec.y) == floor(end_vec.y):
+      return canvas[int(end_vec.y):int(start_vec.y) + 1, int(start_vec.x)]
+  if floor(start_vec.y) == floor(end_vec.y): # horizontal line
     # start_vec.x is always < end_vec.x so we don't need to flip.
-    return canvas[int(start_vec.y), int(start_vec.x):int(end_vec.x)]
+    return canvas[int(start_vec.y), int(start_vec.x):int(end_vec.x) + 1]
 
   cdef:
     double m = (end_vec.y - start_vec.y) / (end_vec.x - start_vec.x)
@@ -95,16 +95,14 @@ cpdef np.ndarray[np.float64_t, ndim=1] slice_magmap(
     double y1 = start_vec.y
     double x2 = ceil(x1)
     double y2 = m * (x2 - x1) + y1
-    int i, j
-  ret[0] = canvas[
-    max(min(<int>floor(y1), canvas_max_y), 0),
-    min(max(<int>floor(x1), 0), canvas_max_x),
-  ]
+    int i = min(max(<int>floor(x1), 0), canvas_max_x)
+    int j = max(min(<int>floor(y1), canvas_max_y), 0)
+  ret[0] = canvas[j, i]
   x1 = x2
   y1 = y2
   x2 = min(x1 + 1.0, end_vec.x)
   y2 = m * (x2 - x1) + y1
-  while x2 < end_vec.x:
+  while x1 < end_vec.x:
       y = y1
       if m > 0:
         while y < y2:

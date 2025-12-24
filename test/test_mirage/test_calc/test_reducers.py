@@ -53,36 +53,36 @@ class TestLightCurvesReducer(TestCase):
             self.assertAlmostEqual(r, 0.1)
 
     def testSlicePositiveSlopeOnDiagonal(self) -> None:
-        data = self.magmap.slice(Index2D(10, 10), Index2D(90, 90))
-        self.assertEqual(len(data), 80)
+        x, data = self.magmap.slice(Index2D(10, 10), Index2D(90, 90))
+        self.assertEqual(len(data), 81)
 
     def testSlicePositiveSlopeOffDiagnol(self) -> None:
-        data = self.magmap.slice(Index2D(10, 9), Index2D(90, 91))
-        self.assertEqual(len(data), 159)
+        x, data = self.magmap.slice(Index2D(10, 9), Index2D(90, 91))
+        self.assertEqual(len(data), 160)
 
     def testSliceSteepSlope(self) -> None:
-        data = self.magmap.slice(Index2D(10, 10), Index2D(50, 90))
-        self.assertEqual(len(data), 79)
+        x, data = self.magmap.slice(Index2D(10, 10), Index2D(50, 90))
+        self.assertEqual(len(data), 80)
 
     def testSliceLowSlope(self) -> None:
-        data = self.magmap.slice(Index2D(10, 10), Index2D(90, 50))
-        self.assertEqual(len(data), 80)
+        x, data = self.magmap.slice(Index2D(10, 10), Index2D(90, 50))
+        self.assertEqual(len(data), 81)
 
     def testSliceNegativeSlope(self) -> None:
-        data = self.magmap.slice(Index2D(10, 90), Index2D(90, 50))
-        self.assertEqual(len(data), 80)
+        x, data = self.magmap.slice(Index2D(10, 90), Index2D(90, 50))
+        self.assertEqual(len(data), 81)
 
     def testSliceRightToLeft(self) -> None:
-        data = self.magmap.slice(Index2D(90, 90), Index2D(10, 50))
-        self.assertEqual(len(data), 80)
+        x, data = self.magmap.slice(Index2D(90, 90), Index2D(10, 50))
+        self.assertEqual(len(data), 81)
 
     def testSliceHorizontalLine(self) -> None:
-        data = self.magmap.slice(Index2D(10, 10), Index2D(90, 10))
-        self.assertEqual(len(data), 80)
+        x, data = self.magmap.slice(Index2D(10, 10), Index2D(90, 10))
+        self.assertEqual(len(data), 81)
 
     def testSliceVerticalLine(self) -> None:
-        data = self.magmap.slice(Index2D(10, 10), Index2D(10, 90))
-        self.assertEqual(len(data), 80)
+        x, data = self.magmap.slice(Index2D(10, 10), Index2D(10, 90))
+        self.assertEqual(len(data), 81)
 
     def assertAlmostWithin(self, v, low, high, tol=1e-8):
         self.assertGreaterEqual(v, low - tol)

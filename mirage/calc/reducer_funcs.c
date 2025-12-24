@@ -2719,6 +2719,14 @@ static CYTHON_INLINE int __Pyx_IterFinish(void);
 /* UnpackItemEndCheck.proto */
 static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected);
 
+/* PyLongBinop.proto */
+#if !CYTHON_COMPILING_IN_PYPY
+static CYTHON_INLINE PyObject* __Pyx_PyLong_AddObjC(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check);
+#else
+#define __Pyx_PyLong_AddObjC(op1, op2, intval, inplace, zerodivision_check)\
+    (inplace ? PyNumber_InPlaceAdd(op1, op2) : PyNumber_Add(op1, op2))
+#endif
+
 /* GetItemInt.proto */
 #define __Pyx_GetItemInt(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck, has_gil)\
     (__Pyx_fits_Py_ssize_t(i, type, is_signed) ?\
@@ -3331,7 +3339,7 @@ static const char __pyx_k_q_q_Rq_2T_3a_q_Rq_2T_3a[] = "\200\001\360\006\000\003\
 static const char __pyx_k_mirage_calc_reducer_funcs[] = "mirage.calc.reducer_funcs";
 static const char __pyx_k_vQa_r_q_V2Q_e5_L_Qc__AS_A_5[] = "\200\001\360\n\000\003\021\220\017\230v\240Q\240a\330\002/\250r\260\026\260q\270\r\300V\3102\310Q\330\002\006\200e\2105\220\001\220\021\330\004\020\220\004\220L\240\001\330\006\025\220Q\220c\230\024\230_\250A\250S\260\004\260A\330\004\n\210!\2105\220\001\330\002\t\210\021";
 static const char __pyx_k_mirage_calc_reducer_funcs_pyx[] = "mirage/calc/reducer_funcs.pyx";
-static const char __pyx_k_6_s_6_3avQ_A_S_2U_A_a_A_6_fA_V2[] = "\200\001\360 \000\003\014\2106\220\021\330\002\n\210%\210s\220!\2206\230\021\330\002\010\210\003\2103\210a\210v\220Q\330\002\014\210A\330\002\005\200S\210\003\2102\210U\220!\330\006\020\220\001\330\006\014\210A\330\006\016\210a\330\006\014\210A\330\002\n\210)\2206\230\021\360\006\000\005/\250f\260A\330\004\027\220{\240#\240V\2502\250W\260D\270\001\270\026\270w\300d\310!\3106\320QR\330\004\025\220[\240\003\2404\240r\250\027\260\004\260A\260V\2707\300$\300a\300v\310Q\340\002\005\200U\210!\2109\220D\230\003\2305\240\001\240\027\250\001\330\004\007\200y\220\003\2202\220W\230A\330\006\r\210V\2201\220C\220q\230\t\240\025\240c\250\021\250)\2604\260s\270!\2707\300!\340\006\r\210V\2201\220C\220q\230\t\240\025\240c\250\021\250'\260\024\260S\270\001\270\031\300!\330\002\005\200U\210!\2109\220D\230\003\2305\240\001\240\027\250\001\340\004\013\2106\220\021\220#\220Q\220i\230t\2403\240a\240w\250e\2603\260a\260y\300\001\360\006\000\005\021\220\007\220s\230\"\230I\240T\250\023\250G\2603\260b\270\t\300\021\330\004\r\210Q\330\004\027\220v\230V\2401\240A\330\004\027\220v\230V\2401\240A\330\004-\250X\260Q\260c\270\021\270&\300\013\3103\310b\320PV\320Va\320ab\330\004\020\220\t\230\021\330\004\020\220\t\230\021\330\004\020\220\004\220A\220Q\330\004\020\220\002\220#\220S\230\002\230$\230b\240\001\340\002\005\200Q\200e\2106\220\021\330\014\021\220\025\220a\220u\230O\2501\330\014\021\220\025\220a\220u\230D\240\001\340\002\007\200q\330\002\007\200q\330\002\n\210!\2103\210b\220\005\220W\230A\330\002\007\200r\210\023\210C\210r\220\024\220R\220q\330\002\010\210\003\2102\210W\220A\330\006\n\210!\330\006\t\210\022\2102\210Q\330\010\016\210b\220\002\220!\330\n\021\220\025\220e\2305\240\001\240\025\240d\250!\330\n\021\220\025\220e\2305\240\001\240\024\240_\260A\330\n\r\210Q\210f\220F\230!\2303\230a\330\n\020\220\001\330\n\017\210q\340\010\016\210b\220\002\220!\330\n\021\220\025\220e\2305\240\001\240\025\240d\250!\330\n\021\220\025\220e\2305\240\001\240\024\240_\260A\330\n\r\210Q\210f\220F\230!\2303""\230a\330\n\020\220\001\330\n\017\210q\330\006\013\2101\330\006\013\2101\330\006\016\210a\210s\220\"\220E\230\027\240\001\330\006\013\2102\210S\220\003\2202\220T\230\022\2301\330\002\010\210\003\2102\210Q\330\002\005\200Q\330\004\n\210#\210T\220\021\330\002\t\210\021";
+static const char __pyx_k_6_s_6_3avQ_A_S_2U_A_a_A_6_fA_V2[] = "\200\001\360 \000\003\014\2106\220\021\330\002\n\210%\210s\220!\2206\230\021\330\002\010\210\003\2103\210a\210v\220Q\330\002\014\210A\330\002\005\200S\210\003\2102\210U\220!\330\006\020\220\001\330\006\014\210A\330\006\016\210a\330\006\014\210A\330\002\n\210)\2206\230\021\360\006\000\005/\250f\260A\330\004\027\220{\240#\240V\2502\250W\260D\270\001\270\026\270w\300d\310!\3106\320QR\330\004\025\220[\240\003\2404\240r\250\027\260\004\260A\260V\2707\300$\300a\300v\310Q\340\002\005\200U\210!\2109\220D\230\003\2305\240\001\240\027\250\001\330\004\007\200y\220\003\2202\220W\230A\330\006\r\210V\2201\220C\220q\230\t\240\024\240S\250\001\250\027\260\004\260B\260c\270\023\270A\270Y\300a\340\006\r\210V\2201\220C\220q\230\007\230t\2403\240a\240y\260\004\260B\260c\270\023\270A\270Y\300a\330\002\005\200U\210!\2109\220D\230\003\2305\240\001\240\027\250\001\340\004\013\2106\220\021\220#\220Q\220i\230u\240C\240q\250\t\260\024\260S\270\001\270\027\300\004\300B\300a\360\006\000\005\021\220\007\220s\230\"\230I\240T\250\023\250G\2603\260b\270\t\300\021\330\004\r\210Q\330\004\027\220v\230V\2401\240A\330\004\027\220v\230V\2401\240A\330\004-\250X\260Q\260c\270\021\270&\300\013\3103\310b\320PV\320Va\320ab\330\004\020\220\t\230\021\330\004\020\220\t\230\021\330\004\020\220\004\220A\220Q\330\004\020\220\002\220#\220S\230\002\230$\230b\240\001\330\004\024\220E\230\025\230a\230u\240D\250\001\330\004\024\220E\230\025\230a\230u\240O\2601\330\002\005\200Q\200e\2106\220\021\220#\220Q\330\002\007\200q\330\002\007\200q\330\002\n\210!\2103\210b\220\005\220W\230A\330\002\007\200r\210\023\210C\210r\220\024\220R\220q\330\002\010\210\003\2102\210W\220A\330\006\n\210!\330\006\t\210\022\2102\210Q\330\010\016\210b\220\002\220!\330\n\021\220\025\220e\2305\240\001\240\025\240d\250!\330\n\021\220\025\220e\2305\240\001\240\024\240_\260A\330\n\r\210Q\210f\220F\230!\2303\230a\330\n\020\220\001\330\n\017\210q\340\010\016\210b\220\002\220!\330\n\021\220\025\220e\2305\240\001\240\025\240d\250!\330\n\021\220\025\220e""\2305\240\001\240\024\240_\260A\330\n\r\210Q\210f\220F\230!\2303\230a\330\n\020\220\001\330\n\017\210q\330\006\013\2101\330\006\013\2101\330\006\016\210a\210s\220\"\220E\230\027\240\001\330\006\013\2102\210S\220\003\2202\220T\230\022\2301\330\002\010\210\003\2102\210Q\330\002\005\200Q\330\004\n\210#\210T\220\021\330\002\t\210\021";
 static const char __pyx_k_fAQ_fAQ_r_r_U_e5_U_1_l_q_3d_S_A[] = "\200\001\360\n\000\003\010\200\177\220f\230A\230Q\330\002\007\200\177\220f\230A\230Q\330\002/\250r\260\026\260r\270\024\270U\300&\310\002\310!\330\002\006\200e\2105\220\001\220\021\330\004\010\210\005\210U\220!\2201\330\006\022\220$\220l\240!\330\010\027\220q\230\003\2303\230d\240/\260\021\260#\260S\270\004\270A\330\006\014\210A\210S\220\006\220a\330\002\t\210\021";
 static const char __pyx_k_Note_that_Cython_is_deliberately[] = "Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.";
 static const char __pyx_k_numpy__core_multiarray_failed_to[] = "numpy._core.multiarray failed to import";
@@ -3398,6 +3406,7 @@ typedef struct {
   PyObject *__pyx_slice[1];
   PyObject *__pyx_codeobj_tab[5];
   PyObject *__pyx_string_tab[56];
+  PyObject *__pyx_int_1;
   PyObject *__pyx_int_neg_1;
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
@@ -3531,6 +3540,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_slice[i]); }
   for (int i=0; i<5; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
   for (int i=0; i<56; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  Py_CLEAR(clear_module_state->__pyx_int_1);
   Py_CLEAR(clear_module_state->__pyx_int_neg_1);
   return 0;
 }
@@ -3571,6 +3581,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_slice[i]); }
   for (int i=0; i<5; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
   for (int i=0; i<56; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  __Pyx_VISIT_CONST(traverse_module_state->__pyx_int_1);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_int_neg_1);
   return 0;
 }
@@ -6405,19 +6416,18 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
   struct __pyx_t_6mirage_4calc_13reducer_funcs__Vec2D __pyx_t_10;
   double __pyx_t_11;
   double __pyx_t_12;
-  long __pyx_t_13;
-  int __pyx_t_14;
+  int __pyx_t_13;
+  long __pyx_t_14;
   int __pyx_t_15;
-  int __pyx_t_16;
-  long __pyx_t_17;
-  long __pyx_t_18;
+  long __pyx_t_16;
+  int __pyx_t_17;
+  Py_ssize_t __pyx_t_18;
   Py_ssize_t __pyx_t_19;
   Py_ssize_t __pyx_t_20;
-  Py_ssize_t __pyx_t_21;
-  double __pyx_t_22;
+  double __pyx_t_21;
+  PyObject *__pyx_t_22 = NULL;
   PyObject *__pyx_t_23 = NULL;
   PyObject *__pyx_t_24 = NULL;
-  PyObject *__pyx_t_25 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -6699,7 +6709,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
  *     _Vec2D start_vec = _into_vec2d(((start - tl_vec).div(region.dims)).mul(region.resolution))
  *     _Vec2D end_vec = _into_vec2d(((end - tl_vec).div(region.dims)).mul(region.resolution))             # <<<<<<<<<<<<<<
  * 
- *   if floor(start_vec.x) == floor(end_vec.x):
+ *   if floor(start_vec.x) == floor(end_vec.x): # Vertical line
 */
   __pyx_t_9 = PyNumber_Subtract(__pyx_v_end, __pyx_v_tl_vec); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
@@ -6738,164 +6748,173 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
   /* "mirage/calc/reducer_funcs.pyx":79
  *     _Vec2D end_vec = _into_vec2d(((end - tl_vec).div(region.dims)).mul(region.resolution))
  * 
- *   if floor(start_vec.x) == floor(end_vec.x):             # <<<<<<<<<<<<<<
+ *   if floor(start_vec.x) == floor(end_vec.x): # Vertical line             # <<<<<<<<<<<<<<
  *     if start_vec.y < end_vec.y:
- *       return canvas[int(start_vec.x), int(start_vec.y):int(end_vec.y)]
+ *       return canvas[int(start_vec.y):int(end_vec.y) + 1, int(start_vec.x)]
 */
   __pyx_t_5 = (floor(__pyx_v_start_vec.x) == floor(__pyx_v_end_vec.x));
   if (__pyx_t_5) {
 
     /* "mirage/calc/reducer_funcs.pyx":80
  * 
- *   if floor(start_vec.x) == floor(end_vec.x):
+ *   if floor(start_vec.x) == floor(end_vec.x): # Vertical line
  *     if start_vec.y < end_vec.y:             # <<<<<<<<<<<<<<
- *       return canvas[int(start_vec.x), int(start_vec.y):int(end_vec.y)]
+ *       return canvas[int(start_vec.y):int(end_vec.y) + 1, int(start_vec.x)]
  *     else:
 */
     __pyx_t_5 = (__pyx_v_start_vec.y < __pyx_v_end_vec.y);
     if (__pyx_t_5) {
 
       /* "mirage/calc/reducer_funcs.pyx":81
- *   if floor(start_vec.x) == floor(end_vec.x):
+ *   if floor(start_vec.x) == floor(end_vec.x): # Vertical line
  *     if start_vec.y < end_vec.y:
- *       return canvas[int(start_vec.x), int(start_vec.y):int(end_vec.y)]             # <<<<<<<<<<<<<<
+ *       return canvas[int(start_vec.y):int(end_vec.y) + 1, int(start_vec.x)]             # <<<<<<<<<<<<<<
  *     else:
- *       return canvas[int(start_vec.x), int(end_vec.y):int(start_vec.y)]
+ *       return canvas[int(end_vec.y):int(start_vec.y) + 1, int(start_vec.x)]
 */
       __Pyx_XDECREF((PyObject *)__pyx_r);
-      __pyx_t_3 = PyLong_FromDouble(__pyx_v_start_vec.x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_t_3 = PyLong_FromDouble(__pyx_v_start_vec.y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_8 = PyLong_FromDouble(__pyx_v_start_vec.y); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_t_8 = PyLong_FromDouble(__pyx_v_end_vec.y); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_9 = PyLong_FromDouble(__pyx_v_end_vec.y); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyLong_AddObjC(__pyx_t_8, __pyx_mstate_global->__pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
-      __pyx_t_2 = PySlice_New(__pyx_t_8, __pyx_t_9, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __pyx_t_8 = PySlice_New(__pyx_t_3, __pyx_t_9, Py_None); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      __pyx_t_9 = PyTuple_New(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_t_9 = PyLong_FromDouble(__pyx_v_start_vec.x); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
-      __Pyx_GIVEREF(__pyx_t_3);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_3) != (0)) __PYX_ERR(0, 81, __pyx_L1_error);
-      __Pyx_GIVEREF(__pyx_t_2);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_9, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 81, __pyx_L1_error);
-      __pyx_t_3 = 0;
-      __pyx_t_2 = 0;
-      __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_canvas), __pyx_t_9); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 81, __pyx_L1_error)
-      __pyx_r = ((PyArrayObject *)__pyx_t_2);
-      __pyx_t_2 = 0;
+      __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_GIVEREF(__pyx_t_8);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_8) != (0)) __PYX_ERR(0, 81, __pyx_L1_error);
+      __Pyx_GIVEREF(__pyx_t_9);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_9) != (0)) __PYX_ERR(0, 81, __pyx_L1_error);
+      __pyx_t_8 = 0;
+      __pyx_t_9 = 0;
+      __pyx_t_9 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_canvas), __pyx_t_3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (!(likely(((__pyx_t_9) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_9, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_r = ((PyArrayObject *)__pyx_t_9);
+      __pyx_t_9 = 0;
       __Pyx_TraceReturnValue((PyObject *)__pyx_r, 83, 0, __PYX_ERR(0, 81, __pyx_L1_error));
       goto __pyx_L0;
 
       /* "mirage/calc/reducer_funcs.pyx":80
  * 
- *   if floor(start_vec.x) == floor(end_vec.x):
+ *   if floor(start_vec.x) == floor(end_vec.x): # Vertical line
  *     if start_vec.y < end_vec.y:             # <<<<<<<<<<<<<<
- *       return canvas[int(start_vec.x), int(start_vec.y):int(end_vec.y)]
+ *       return canvas[int(start_vec.y):int(end_vec.y) + 1, int(start_vec.x)]
  *     else:
 */
     }
 
     /* "mirage/calc/reducer_funcs.pyx":83
- *       return canvas[int(start_vec.x), int(start_vec.y):int(end_vec.y)]
+ *       return canvas[int(start_vec.y):int(end_vec.y) + 1, int(start_vec.x)]
  *     else:
- *       return canvas[int(start_vec.x), int(end_vec.y):int(start_vec.y)]             # <<<<<<<<<<<<<<
- *   if floor(start_vec.y) == floor(end_vec.y):
+ *       return canvas[int(end_vec.y):int(start_vec.y) + 1, int(start_vec.x)]             # <<<<<<<<<<<<<<
+ *   if floor(start_vec.y) == floor(end_vec.y): # horizontal line
  *     # start_vec.x is always < end_vec.x so we don't need to flip.
 */
     /*else*/ {
       __Pyx_XDECREF((PyObject *)__pyx_r);
-      __pyx_t_2 = PyLong_FromDouble(__pyx_v_start_vec.x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 83, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_9 = PyLong_FromDouble(__pyx_v_end_vec.y); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 83, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __pyx_t_3 = PyLong_FromDouble(__pyx_v_start_vec.y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 83, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_8 = PySlice_New(__pyx_t_9, __pyx_t_3, Py_None); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 83, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyLong_AddObjC(__pyx_t_3, __pyx_mstate_global->__pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 83, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_3 = PySlice_New(__pyx_t_9, __pyx_t_8, Py_None); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 83, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __pyx_t_8 = PyLong_FromDouble(__pyx_v_start_vec.x); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 83, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __pyx_t_9 = PyTuple_New(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 83, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __Pyx_GIVEREF(__pyx_t_3);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_3) != (0)) __PYX_ERR(0, 83, __pyx_L1_error);
+      __Pyx_GIVEREF(__pyx_t_8);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_9, 1, __pyx_t_8) != (0)) __PYX_ERR(0, 83, __pyx_L1_error);
+      __pyx_t_3 = 0;
+      __pyx_t_8 = 0;
+      __pyx_t_8 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_canvas), __pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 83, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 83, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_GIVEREF(__pyx_t_2);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2) != (0)) __PYX_ERR(0, 83, __pyx_L1_error);
-      __Pyx_GIVEREF(__pyx_t_8);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_8) != (0)) __PYX_ERR(0, 83, __pyx_L1_error);
-      __pyx_t_2 = 0;
-      __pyx_t_8 = 0;
-      __pyx_t_8 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_canvas), __pyx_t_3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 83, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       if (!(likely(((__pyx_t_8) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_8, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 83, __pyx_L1_error)
       __pyx_r = ((PyArrayObject *)__pyx_t_8);
       __pyx_t_8 = 0;
-      __Pyx_TraceReturnValue((PyObject *)__pyx_r, 98, 0, __PYX_ERR(0, 83, __pyx_L1_error));
+      __Pyx_TraceReturnValue((PyObject *)__pyx_r, 100, 0, __PYX_ERR(0, 83, __pyx_L1_error));
       goto __pyx_L0;
     }
 
     /* "mirage/calc/reducer_funcs.pyx":79
  *     _Vec2D end_vec = _into_vec2d(((end - tl_vec).div(region.dims)).mul(region.resolution))
  * 
- *   if floor(start_vec.x) == floor(end_vec.x):             # <<<<<<<<<<<<<<
+ *   if floor(start_vec.x) == floor(end_vec.x): # Vertical line             # <<<<<<<<<<<<<<
  *     if start_vec.y < end_vec.y:
- *       return canvas[int(start_vec.x), int(start_vec.y):int(end_vec.y)]
+ *       return canvas[int(start_vec.y):int(end_vec.y) + 1, int(start_vec.x)]
 */
   }
 
   /* "mirage/calc/reducer_funcs.pyx":84
  *     else:
- *       return canvas[int(start_vec.x), int(end_vec.y):int(start_vec.y)]
- *   if floor(start_vec.y) == floor(end_vec.y):             # <<<<<<<<<<<<<<
+ *       return canvas[int(end_vec.y):int(start_vec.y) + 1, int(start_vec.x)]
+ *   if floor(start_vec.y) == floor(end_vec.y): # horizontal line             # <<<<<<<<<<<<<<
  *     # start_vec.x is always < end_vec.x so we don't need to flip.
- *     return canvas[int(start_vec.x):int(end_vec.x), int(start_vec.y)]
+ *     return canvas[int(start_vec.y), int(start_vec.x):int(end_vec.x) + 1]
 */
   __pyx_t_5 = (floor(__pyx_v_start_vec.y) == floor(__pyx_v_end_vec.y));
   if (__pyx_t_5) {
 
     /* "mirage/calc/reducer_funcs.pyx":86
- *   if floor(start_vec.y) == floor(end_vec.y):
+ *   if floor(start_vec.y) == floor(end_vec.y): # horizontal line
  *     # start_vec.x is always < end_vec.x so we don't need to flip.
- *     return canvas[int(start_vec.x):int(end_vec.x), int(start_vec.y)]             # <<<<<<<<<<<<<<
+ *     return canvas[int(start_vec.y), int(start_vec.x):int(end_vec.x) + 1]             # <<<<<<<<<<<<<<
  * 
  *   cdef:
 */
     __Pyx_XDECREF((PyObject *)__pyx_r);
-    __pyx_t_8 = PyLong_FromDouble(__pyx_v_start_vec.x); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 86, __pyx_L1_error)
+    __pyx_t_8 = PyLong_FromDouble(__pyx_v_start_vec.y); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 86, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
+    __pyx_t_9 = PyLong_FromDouble(__pyx_v_start_vec.x); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 86, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
     __pyx_t_3 = PyLong_FromDouble(__pyx_v_end_vec.x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 86, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = PySlice_New(__pyx_t_8, __pyx_t_3, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyLong_AddObjC(__pyx_t_3, __pyx_mstate_global->__pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyLong_FromDouble(__pyx_v_start_vec.y); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 86, __pyx_L1_error)
+    __pyx_t_3 = PySlice_New(__pyx_t_9, __pyx_t_2, Py_None); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 86, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_8 = PyTuple_New(2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 86, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    __Pyx_GIVEREF(__pyx_t_2);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_2) != (0)) __PYX_ERR(0, 86, __pyx_L1_error);
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_GIVEREF(__pyx_t_8);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_8) != (0)) __PYX_ERR(0, 86, __pyx_L1_error);
     __Pyx_GIVEREF(__pyx_t_3);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 1, __pyx_t_3) != (0)) __PYX_ERR(0, 86, __pyx_L1_error);
-    __pyx_t_2 = 0;
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_3) != (0)) __PYX_ERR(0, 86, __pyx_L1_error);
+    __pyx_t_8 = 0;
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_canvas), __pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 86, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_canvas), __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 86, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 86, __pyx_L1_error)
     __pyx_r = ((PyArrayObject *)__pyx_t_3);
     __pyx_t_3 = 0;
-    __Pyx_TraceReturnValue((PyObject *)__pyx_r, 123, 0, __PYX_ERR(0, 86, __pyx_L1_error));
+    __Pyx_TraceReturnValue((PyObject *)__pyx_r, 127, 0, __PYX_ERR(0, 86, __pyx_L1_error));
     goto __pyx_L0;
 
     /* "mirage/calc/reducer_funcs.pyx":84
  *     else:
- *       return canvas[int(start_vec.x), int(end_vec.y):int(start_vec.y)]
- *   if floor(start_vec.y) == floor(end_vec.y):             # <<<<<<<<<<<<<<
+ *       return canvas[int(end_vec.y):int(start_vec.y) + 1, int(start_vec.x)]
+ *   if floor(start_vec.y) == floor(end_vec.y): # horizontal line             # <<<<<<<<<<<<<<
  *     # start_vec.x is always < end_vec.x so we don't need to flip.
- *     return canvas[int(start_vec.x):int(end_vec.x), int(start_vec.y)]
+ *     return canvas[int(start_vec.y), int(start_vec.x):int(end_vec.x) + 1]
 */
   }
 
@@ -6948,9 +6967,9 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
  *     double x1 = start_vec.x
  *     double y1 = start_vec.y
 */
-  __pyx_t_8 = NULL;
+  __pyx_t_2 = NULL;
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_5numpy_ndarray);
-  __pyx_t_2 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_5numpy_ndarray); 
+  __pyx_t_8 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_5numpy_ndarray); 
   __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_region, __pyx_mstate_global->__pyx_n_u_resolution); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_x); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 93, __pyx_L1_error)
@@ -6970,11 +6989,11 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __pyx_t_4 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_t_1};
-    __pyx_t_3 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_1};
+    __pyx_t_3 = __Pyx_PyObject_FastCall(__pyx_t_8, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_3);
   }
@@ -7014,7 +7033,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
  *     double y1 = start_vec.y
  *     double x2 = ceil(x1)             # <<<<<<<<<<<<<<
  *     double y2 = m * (x2 - x1) + y1
- *     int i, j
+ *     int i = min(max(<int>floor(x1), 0), canvas_max_x)
 */
   __pyx_v_x2 = ceil(__pyx_v_x1);
 
@@ -7022,90 +7041,84 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
  *     double y1 = start_vec.y
  *     double x2 = ceil(x1)
  *     double y2 = m * (x2 - x1) + y1             # <<<<<<<<<<<<<<
- *     int i, j
- *   ret[0] = canvas[
+ *     int i = min(max(<int>floor(x1), 0), canvas_max_x)
+ *     int j = max(min(<int>floor(y1), canvas_max_y), 0)
 */
   __pyx_v_y2 = ((__pyx_v_m * (__pyx_v_x2 - __pyx_v_x1)) + __pyx_v_y1);
 
-  /* "mirage/calc/reducer_funcs.pyx":99
+  /* "mirage/calc/reducer_funcs.pyx":98
+ *     double x2 = ceil(x1)
  *     double y2 = m * (x2 - x1) + y1
- *     int i, j
- *   ret[0] = canvas[             # <<<<<<<<<<<<<<
- *     max(min(<int>floor(y1), canvas_max_y), 0),
- *     min(max(<int>floor(x1), 0), canvas_max_x),
+ *     int i = min(max(<int>floor(x1), 0), canvas_max_x)             # <<<<<<<<<<<<<<
+ *     int j = max(min(<int>floor(y1), canvas_max_y), 0)
+ *   ret[0] = canvas[j, i]
 */
-  __pyx_t_13 = 0;
-
-  /* "mirage/calc/reducer_funcs.pyx":100
- *     int i, j
- *   ret[0] = canvas[
- *     max(min(<int>floor(y1), canvas_max_y), 0),             # <<<<<<<<<<<<<<
- *     min(max(<int>floor(x1), 0), canvas_max_x),
- *   ]
-*/
-  __pyx_t_14 = __pyx_v_canvas_max_y;
-  __pyx_t_15 = ((int)floor(__pyx_v_y1));
-  __pyx_t_5 = (__pyx_t_14 < __pyx_t_15);
+  __pyx_t_13 = __pyx_v_canvas_max_x;
+  __pyx_t_14 = 0;
+  __pyx_t_15 = ((int)floor(__pyx_v_x1));
+  __pyx_t_5 = (__pyx_t_14 > __pyx_t_15);
   if (__pyx_t_5) {
     __pyx_t_16 = __pyx_t_14;
   } else {
     __pyx_t_16 = __pyx_t_15;
   }
   __pyx_t_14 = __pyx_t_16;
-  __pyx_t_5 = (__pyx_t_13 > __pyx_t_14);
+  __pyx_t_5 = (__pyx_t_13 < __pyx_t_14);
   if (__pyx_t_5) {
-    __pyx_t_17 = __pyx_t_13;
+    __pyx_t_16 = __pyx_t_13;
   } else {
-    __pyx_t_17 = __pyx_t_14;
+    __pyx_t_16 = __pyx_t_14;
   }
-
-  /* "mirage/calc/reducer_funcs.pyx":101
- *   ret[0] = canvas[
- *     max(min(<int>floor(y1), canvas_max_y), 0),
- *     min(max(<int>floor(x1), 0), canvas_max_x),             # <<<<<<<<<<<<<<
- *   ]
- *   x1 = x2
-*/
-  __pyx_t_14 = __pyx_v_canvas_max_x;
-  __pyx_t_13 = 0;
-  __pyx_t_16 = ((int)floor(__pyx_v_x1));
-  __pyx_t_5 = (__pyx_t_13 > __pyx_t_16);
-  if (__pyx_t_5) {
-    __pyx_t_18 = __pyx_t_13;
-  } else {
-    __pyx_t_18 = __pyx_t_16;
-  }
-  __pyx_t_13 = __pyx_t_18;
-  __pyx_t_5 = (__pyx_t_14 < __pyx_t_13);
-  if (__pyx_t_5) {
-    __pyx_t_18 = __pyx_t_14;
-  } else {
-    __pyx_t_18 = __pyx_t_13;
-  }
+  __pyx_v_i = __pyx_t_16;
 
   /* "mirage/calc/reducer_funcs.pyx":99
  *     double y2 = m * (x2 - x1) + y1
- *     int i, j
- *   ret[0] = canvas[             # <<<<<<<<<<<<<<
- *     max(min(<int>floor(y1), canvas_max_y), 0),
- *     min(max(<int>floor(x1), 0), canvas_max_x),
+ *     int i = min(max(<int>floor(x1), 0), canvas_max_x)
+ *     int j = max(min(<int>floor(y1), canvas_max_y), 0)             # <<<<<<<<<<<<<<
+ *   ret[0] = canvas[j, i]
+ *   x1 = x2
 */
-  __pyx_t_19 = __pyx_t_17;
-  __pyx_t_20 = __pyx_t_18;
-  __pyx_t_21 = 0;
-  *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_ret.diminfo[0].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_canvas.diminfo[1].strides));
+  __pyx_t_16 = 0;
+  __pyx_t_13 = __pyx_v_canvas_max_y;
+  __pyx_t_15 = ((int)floor(__pyx_v_y1));
+  __pyx_t_5 = (__pyx_t_13 < __pyx_t_15);
+  if (__pyx_t_5) {
+    __pyx_t_17 = __pyx_t_13;
+  } else {
+    __pyx_t_17 = __pyx_t_15;
+  }
+  __pyx_t_13 = __pyx_t_17;
+  __pyx_t_5 = (__pyx_t_16 > __pyx_t_13);
+  if (__pyx_t_5) {
+    __pyx_t_14 = __pyx_t_16;
+  } else {
+    __pyx_t_14 = __pyx_t_13;
+  }
+  __pyx_v_j = __pyx_t_14;
 
-  /* "mirage/calc/reducer_funcs.pyx":103
- *     min(max(<int>floor(x1), 0), canvas_max_x),
- *   ]
+  /* "mirage/calc/reducer_funcs.pyx":100
+ *     int i = min(max(<int>floor(x1), 0), canvas_max_x)
+ *     int j = max(min(<int>floor(y1), canvas_max_y), 0)
+ *   ret[0] = canvas[j, i]             # <<<<<<<<<<<<<<
+ *   x1 = x2
+ *   y1 = y2
+*/
+  __pyx_t_18 = __pyx_v_j;
+  __pyx_t_19 = __pyx_v_i;
+  __pyx_t_20 = 0;
+  *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_20, __pyx_pybuffernd_ret.diminfo[0].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_18, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_19, __pyx_pybuffernd_canvas.diminfo[1].strides));
+
+  /* "mirage/calc/reducer_funcs.pyx":101
+ *     int j = max(min(<int>floor(y1), canvas_max_y), 0)
+ *   ret[0] = canvas[j, i]
  *   x1 = x2             # <<<<<<<<<<<<<<
  *   y1 = y2
  *   x2 = min(x1 + 1.0, end_vec.x)
 */
   __pyx_v_x1 = __pyx_v_x2;
 
-  /* "mirage/calc/reducer_funcs.pyx":104
- *   ]
+  /* "mirage/calc/reducer_funcs.pyx":102
+ *   ret[0] = canvas[j, i]
  *   x1 = x2
  *   y1 = y2             # <<<<<<<<<<<<<<
  *   x2 = min(x1 + 1.0, end_vec.x)
@@ -7113,54 +7126,54 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
 */
   __pyx_v_y1 = __pyx_v_y2;
 
-  /* "mirage/calc/reducer_funcs.pyx":105
+  /* "mirage/calc/reducer_funcs.pyx":103
  *   x1 = x2
  *   y1 = y2
  *   x2 = min(x1 + 1.0, end_vec.x)             # <<<<<<<<<<<<<<
  *   y2 = m * (x2 - x1) + y1
- *   while x2 < end_vec.x:
+ *   while x1 < end_vec.x:
 */
   __pyx_t_12 = __pyx_v_end_vec.x;
   __pyx_t_11 = (__pyx_v_x1 + 1.0);
   __pyx_t_5 = (__pyx_t_12 < __pyx_t_11);
   if (__pyx_t_5) {
-    __pyx_t_22 = __pyx_t_12;
+    __pyx_t_21 = __pyx_t_12;
   } else {
-    __pyx_t_22 = __pyx_t_11;
+    __pyx_t_21 = __pyx_t_11;
   }
-  __pyx_v_x2 = __pyx_t_22;
+  __pyx_v_x2 = __pyx_t_21;
 
-  /* "mirage/calc/reducer_funcs.pyx":106
+  /* "mirage/calc/reducer_funcs.pyx":104
  *   y1 = y2
  *   x2 = min(x1 + 1.0, end_vec.x)
  *   y2 = m * (x2 - x1) + y1             # <<<<<<<<<<<<<<
- *   while x2 < end_vec.x:
+ *   while x1 < end_vec.x:
  *       y = y1
 */
   __pyx_v_y2 = ((__pyx_v_m * (__pyx_v_x2 - __pyx_v_x1)) + __pyx_v_y1);
 
-  /* "mirage/calc/reducer_funcs.pyx":107
+  /* "mirage/calc/reducer_funcs.pyx":105
  *   x2 = min(x1 + 1.0, end_vec.x)
  *   y2 = m * (x2 - x1) + y1
- *   while x2 < end_vec.x:             # <<<<<<<<<<<<<<
+ *   while x1 < end_vec.x:             # <<<<<<<<<<<<<<
  *       y = y1
  *       if m > 0:
 */
   while (1) {
-    __pyx_t_5 = (__pyx_v_x2 < __pyx_v_end_vec.x);
+    __pyx_t_5 = (__pyx_v_x1 < __pyx_v_end_vec.x);
     if (!__pyx_t_5) break;
 
-    /* "mirage/calc/reducer_funcs.pyx":108
+    /* "mirage/calc/reducer_funcs.pyx":106
  *   y2 = m * (x2 - x1) + y1
- *   while x2 < end_vec.x:
+ *   while x1 < end_vec.x:
  *       y = y1             # <<<<<<<<<<<<<<
  *       if m > 0:
  *         while y < y2:
 */
     __pyx_v_y = __pyx_v_y1;
 
-    /* "mirage/calc/reducer_funcs.pyx":109
- *   while x2 < end_vec.x:
+    /* "mirage/calc/reducer_funcs.pyx":107
+ *   while x1 < end_vec.x:
  *       y = y1
  *       if m > 0:             # <<<<<<<<<<<<<<
  *         while y < y2:
@@ -7169,7 +7182,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
     __pyx_t_5 = (__pyx_v_m > 0.0);
     if (__pyx_t_5) {
 
-      /* "mirage/calc/reducer_funcs.pyx":110
+      /* "mirage/calc/reducer_funcs.pyx":108
  *       y = y1
  *       if m > 0:
  *         while y < y2:             # <<<<<<<<<<<<<<
@@ -7180,69 +7193,69 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
         __pyx_t_5 = (__pyx_v_y < __pyx_v_y2);
         if (!__pyx_t_5) break;
 
-        /* "mirage/calc/reducer_funcs.pyx":111
+        /* "mirage/calc/reducer_funcs.pyx":109
  *       if m > 0:
  *         while y < y2:
  *           i = min(max(<int>floor(x1), 0), canvas_max_x)             # <<<<<<<<<<<<<<
  *           j = max(min(<int>floor(y), canvas_max_y), 0)
  *           ret[sz] = canvas[j, i]
 */
-        __pyx_t_14 = __pyx_v_canvas_max_x;
-        __pyx_t_18 = 0;
-        __pyx_t_16 = ((int)floor(__pyx_v_x1));
-        __pyx_t_5 = (__pyx_t_18 > __pyx_t_16);
+        __pyx_t_13 = __pyx_v_canvas_max_x;
+        __pyx_t_14 = 0;
+        __pyx_t_17 = ((int)floor(__pyx_v_x1));
+        __pyx_t_5 = (__pyx_t_14 > __pyx_t_17);
         if (__pyx_t_5) {
-          __pyx_t_17 = __pyx_t_18;
+          __pyx_t_16 = __pyx_t_14;
         } else {
-          __pyx_t_17 = __pyx_t_16;
+          __pyx_t_16 = __pyx_t_17;
         }
-        __pyx_t_18 = __pyx_t_17;
-        __pyx_t_5 = (__pyx_t_14 < __pyx_t_18);
+        __pyx_t_14 = __pyx_t_16;
+        __pyx_t_5 = (__pyx_t_13 < __pyx_t_14);
         if (__pyx_t_5) {
-          __pyx_t_17 = __pyx_t_14;
+          __pyx_t_16 = __pyx_t_13;
         } else {
-          __pyx_t_17 = __pyx_t_18;
+          __pyx_t_16 = __pyx_t_14;
         }
-        __pyx_v_i = __pyx_t_17;
+        __pyx_v_i = __pyx_t_16;
 
-        /* "mirage/calc/reducer_funcs.pyx":112
+        /* "mirage/calc/reducer_funcs.pyx":110
  *         while y < y2:
  *           i = min(max(<int>floor(x1), 0), canvas_max_x)
  *           j = max(min(<int>floor(y), canvas_max_y), 0)             # <<<<<<<<<<<<<<
  *           ret[sz] = canvas[j, i]
  *           sz += 1
 */
-        __pyx_t_17 = 0;
-        __pyx_t_14 = __pyx_v_canvas_max_y;
-        __pyx_t_16 = ((int)floor(__pyx_v_y));
-        __pyx_t_5 = (__pyx_t_14 < __pyx_t_16);
+        __pyx_t_16 = 0;
+        __pyx_t_13 = __pyx_v_canvas_max_y;
+        __pyx_t_17 = ((int)floor(__pyx_v_y));
+        __pyx_t_5 = (__pyx_t_13 < __pyx_t_17);
         if (__pyx_t_5) {
-          __pyx_t_15 = __pyx_t_14;
+          __pyx_t_15 = __pyx_t_13;
         } else {
-          __pyx_t_15 = __pyx_t_16;
+          __pyx_t_15 = __pyx_t_17;
         }
-        __pyx_t_14 = __pyx_t_15;
-        __pyx_t_5 = (__pyx_t_17 > __pyx_t_14);
+        __pyx_t_13 = __pyx_t_15;
+        __pyx_t_5 = (__pyx_t_16 > __pyx_t_13);
         if (__pyx_t_5) {
-          __pyx_t_18 = __pyx_t_17;
+          __pyx_t_14 = __pyx_t_16;
         } else {
-          __pyx_t_18 = __pyx_t_14;
+          __pyx_t_14 = __pyx_t_13;
         }
-        __pyx_v_j = __pyx_t_18;
+        __pyx_v_j = __pyx_t_14;
 
-        /* "mirage/calc/reducer_funcs.pyx":113
+        /* "mirage/calc/reducer_funcs.pyx":111
  *           i = min(max(<int>floor(x1), 0), canvas_max_x)
  *           j = max(min(<int>floor(y), canvas_max_y), 0)
  *           ret[sz] = canvas[j, i]             # <<<<<<<<<<<<<<
  *           sz += 1
  *           y += 1.0
 */
-        __pyx_t_20 = __pyx_v_j;
-        __pyx_t_19 = __pyx_v_i;
-        __pyx_t_21 = __pyx_v_sz;
-        *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_ret.diminfo[0].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_20, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_19, __pyx_pybuffernd_canvas.diminfo[1].strides));
+        __pyx_t_19 = __pyx_v_j;
+        __pyx_t_18 = __pyx_v_i;
+        __pyx_t_20 = __pyx_v_sz;
+        *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_20, __pyx_pybuffernd_ret.diminfo[0].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_18, __pyx_pybuffernd_canvas.diminfo[1].strides));
 
-        /* "mirage/calc/reducer_funcs.pyx":114
+        /* "mirage/calc/reducer_funcs.pyx":112
  *           j = max(min(<int>floor(y), canvas_max_y), 0)
  *           ret[sz] = canvas[j, i]
  *           sz += 1             # <<<<<<<<<<<<<<
@@ -7251,7 +7264,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
 */
         __pyx_v_sz = (__pyx_v_sz + 1);
 
-        /* "mirage/calc/reducer_funcs.pyx":115
+        /* "mirage/calc/reducer_funcs.pyx":113
  *           ret[sz] = canvas[j, i]
  *           sz += 1
  *           y += 1.0             # <<<<<<<<<<<<<<
@@ -7261,8 +7274,8 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
         __pyx_v_y = (__pyx_v_y + 1.0);
       }
 
-      /* "mirage/calc/reducer_funcs.pyx":109
- *   while x2 < end_vec.x:
+      /* "mirage/calc/reducer_funcs.pyx":107
+ *   while x1 < end_vec.x:
  *       y = y1
  *       if m > 0:             # <<<<<<<<<<<<<<
  *         while y < y2:
@@ -7271,7 +7284,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
       goto __pyx_L11;
     }
 
-    /* "mirage/calc/reducer_funcs.pyx":117
+    /* "mirage/calc/reducer_funcs.pyx":115
  *           y += 1.0
  *       else:
  *         while y > y2:             # <<<<<<<<<<<<<<
@@ -7283,69 +7296,69 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
         __pyx_t_5 = (__pyx_v_y > __pyx_v_y2);
         if (!__pyx_t_5) break;
 
-        /* "mirage/calc/reducer_funcs.pyx":118
+        /* "mirage/calc/reducer_funcs.pyx":116
  *       else:
  *         while y > y2:
  *           i = min(max(<int>floor(x1), 0), canvas_max_x)             # <<<<<<<<<<<<<<
  *           j = max(min(<int>floor(y), canvas_max_y), 0)
  *           ret[sz] = canvas[j, i]
 */
-        __pyx_t_14 = __pyx_v_canvas_max_x;
-        __pyx_t_18 = 0;
+        __pyx_t_13 = __pyx_v_canvas_max_x;
+        __pyx_t_14 = 0;
         __pyx_t_15 = ((int)floor(__pyx_v_x1));
-        __pyx_t_5 = (__pyx_t_18 > __pyx_t_15);
-        if (__pyx_t_5) {
-          __pyx_t_17 = __pyx_t_18;
-        } else {
-          __pyx_t_17 = __pyx_t_15;
-        }
-        __pyx_t_18 = __pyx_t_17;
-        __pyx_t_5 = (__pyx_t_14 < __pyx_t_18);
-        if (__pyx_t_5) {
-          __pyx_t_17 = __pyx_t_14;
-        } else {
-          __pyx_t_17 = __pyx_t_18;
-        }
-        __pyx_v_i = __pyx_t_17;
-
-        /* "mirage/calc/reducer_funcs.pyx":119
- *         while y > y2:
- *           i = min(max(<int>floor(x1), 0), canvas_max_x)
- *           j = max(min(<int>floor(y), canvas_max_y), 0)             # <<<<<<<<<<<<<<
- *           ret[sz] = canvas[j, i]
- *           sz += 1
-*/
-        __pyx_t_17 = 0;
-        __pyx_t_14 = __pyx_v_canvas_max_y;
-        __pyx_t_15 = ((int)floor(__pyx_v_y));
-        __pyx_t_5 = (__pyx_t_14 < __pyx_t_15);
+        __pyx_t_5 = (__pyx_t_14 > __pyx_t_15);
         if (__pyx_t_5) {
           __pyx_t_16 = __pyx_t_14;
         } else {
           __pyx_t_16 = __pyx_t_15;
         }
         __pyx_t_14 = __pyx_t_16;
-        __pyx_t_5 = (__pyx_t_17 > __pyx_t_14);
+        __pyx_t_5 = (__pyx_t_13 < __pyx_t_14);
         if (__pyx_t_5) {
-          __pyx_t_18 = __pyx_t_17;
+          __pyx_t_16 = __pyx_t_13;
         } else {
-          __pyx_t_18 = __pyx_t_14;
+          __pyx_t_16 = __pyx_t_14;
         }
-        __pyx_v_j = __pyx_t_18;
+        __pyx_v_i = __pyx_t_16;
 
-        /* "mirage/calc/reducer_funcs.pyx":120
+        /* "mirage/calc/reducer_funcs.pyx":117
+ *         while y > y2:
+ *           i = min(max(<int>floor(x1), 0), canvas_max_x)
+ *           j = max(min(<int>floor(y), canvas_max_y), 0)             # <<<<<<<<<<<<<<
+ *           ret[sz] = canvas[j, i]
+ *           sz += 1
+*/
+        __pyx_t_16 = 0;
+        __pyx_t_13 = __pyx_v_canvas_max_y;
+        __pyx_t_15 = ((int)floor(__pyx_v_y));
+        __pyx_t_5 = (__pyx_t_13 < __pyx_t_15);
+        if (__pyx_t_5) {
+          __pyx_t_17 = __pyx_t_13;
+        } else {
+          __pyx_t_17 = __pyx_t_15;
+        }
+        __pyx_t_13 = __pyx_t_17;
+        __pyx_t_5 = (__pyx_t_16 > __pyx_t_13);
+        if (__pyx_t_5) {
+          __pyx_t_14 = __pyx_t_16;
+        } else {
+          __pyx_t_14 = __pyx_t_13;
+        }
+        __pyx_v_j = __pyx_t_14;
+
+        /* "mirage/calc/reducer_funcs.pyx":118
  *           i = min(max(<int>floor(x1), 0), canvas_max_x)
  *           j = max(min(<int>floor(y), canvas_max_y), 0)
  *           ret[sz] = canvas[j, i]             # <<<<<<<<<<<<<<
  *           sz += 1
  *           y -= 1.0
 */
-        __pyx_t_19 = __pyx_v_j;
-        __pyx_t_20 = __pyx_v_i;
-        __pyx_t_21 = __pyx_v_sz;
-        *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_ret.diminfo[0].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_20, __pyx_pybuffernd_canvas.diminfo[1].strides));
+        __pyx_t_18 = __pyx_v_j;
+        __pyx_t_19 = __pyx_v_i;
+        __pyx_t_20 = __pyx_v_sz;
+        *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_20, __pyx_pybuffernd_ret.diminfo[0].strides) = (*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_18, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_19, __pyx_pybuffernd_canvas.diminfo[1].strides));
 
-        /* "mirage/calc/reducer_funcs.pyx":121
+        /* "mirage/calc/reducer_funcs.pyx":119
  *           j = max(min(<int>floor(y), canvas_max_y), 0)
  *           ret[sz] = canvas[j, i]
  *           sz += 1             # <<<<<<<<<<<<<<
@@ -7354,7 +7367,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
 */
         __pyx_v_sz = (__pyx_v_sz + 1);
 
-        /* "mirage/calc/reducer_funcs.pyx":122
+        /* "mirage/calc/reducer_funcs.pyx":120
  *           ret[sz] = canvas[j, i]
  *           sz += 1
  *           y -= 1.0             # <<<<<<<<<<<<<<
@@ -7366,7 +7379,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
     }
     __pyx_L11:;
 
-    /* "mirage/calc/reducer_funcs.pyx":123
+    /* "mirage/calc/reducer_funcs.pyx":121
  *           sz += 1
  *           y -= 1.0
  *       x1 = x2             # <<<<<<<<<<<<<<
@@ -7375,7 +7388,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
 */
     __pyx_v_x1 = __pyx_v_x2;
 
-    /* "mirage/calc/reducer_funcs.pyx":124
+    /* "mirage/calc/reducer_funcs.pyx":122
  *           y -= 1.0
  *       x1 = x2
  *       y1 = y2             # <<<<<<<<<<<<<<
@@ -7384,24 +7397,24 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
 */
     __pyx_v_y1 = __pyx_v_y2;
 
-    /* "mirage/calc/reducer_funcs.pyx":125
+    /* "mirage/calc/reducer_funcs.pyx":123
  *       x1 = x2
  *       y1 = y2
  *       x2 = min(x1 + 1.0, end_vec.x)             # <<<<<<<<<<<<<<
  *       y2 = m * (x2 - x1) + y1
  *   ret = ret[:sz]
 */
-    __pyx_t_22 = __pyx_v_end_vec.x;
+    __pyx_t_21 = __pyx_v_end_vec.x;
     __pyx_t_12 = (__pyx_v_x1 + 1.0);
-    __pyx_t_5 = (__pyx_t_22 < __pyx_t_12);
+    __pyx_t_5 = (__pyx_t_21 < __pyx_t_12);
     if (__pyx_t_5) {
-      __pyx_t_11 = __pyx_t_22;
+      __pyx_t_11 = __pyx_t_21;
     } else {
       __pyx_t_11 = __pyx_t_12;
     }
     __pyx_v_x2 = __pyx_t_11;
 
-    /* "mirage/calc/reducer_funcs.pyx":126
+    /* "mirage/calc/reducer_funcs.pyx":124
  *       y1 = y2
  *       x2 = min(x1 + 1.0, end_vec.x)
  *       y2 = m * (x2 - x1) + y1             # <<<<<<<<<<<<<<
@@ -7411,43 +7424,43 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
     __pyx_v_y2 = ((__pyx_v_m * (__pyx_v_x2 - __pyx_v_x1)) + __pyx_v_y1);
   }
 
-  /* "mirage/calc/reducer_funcs.pyx":127
+  /* "mirage/calc/reducer_funcs.pyx":125
  *       x2 = min(x1 + 1.0, end_vec.x)
  *       y2 = m * (x2 - x1) + y1
  *   ret = ret[:sz]             # <<<<<<<<<<<<<<
  *   if reverse:
  *     ret = ret[::-1]
 */
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_sz); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_sz); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = PySlice_New(Py_None, __pyx_t_3, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_8 = PySlice_New(Py_None, __pyx_t_3, Py_None); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_ret), __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_ret), __pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 127, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 125, __pyx_L1_error)
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_ret.rcbuffer->pybuffer);
-    __pyx_t_14 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_3), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack);
-    if (unlikely(__pyx_t_14 < 0)) {
-      PyErr_Fetch(&__pyx_t_23, &__pyx_t_24, &__pyx_t_25);
+    __pyx_t_13 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_3), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack);
+    if (unlikely(__pyx_t_13 < 0)) {
+      PyErr_Fetch(&__pyx_t_22, &__pyx_t_23, &__pyx_t_24);
       if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)__pyx_v_ret, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
-        Py_XDECREF(__pyx_t_23); Py_XDECREF(__pyx_t_24); Py_XDECREF(__pyx_t_25);
+        Py_XDECREF(__pyx_t_22); Py_XDECREF(__pyx_t_23); Py_XDECREF(__pyx_t_24);
         __Pyx_RaiseBufferFallbackError();
       } else {
-        PyErr_Restore(__pyx_t_23, __pyx_t_24, __pyx_t_25);
+        PyErr_Restore(__pyx_t_22, __pyx_t_23, __pyx_t_24);
       }
-      __pyx_t_23 = __pyx_t_24 = __pyx_t_25 = 0;
+      __pyx_t_22 = __pyx_t_23 = __pyx_t_24 = 0;
     }
     __pyx_pybuffernd_ret.diminfo[0].strides = __pyx_pybuffernd_ret.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_ret.diminfo[0].shape = __pyx_pybuffernd_ret.rcbuffer->pybuffer.shape[0];
-    if (unlikely((__pyx_t_14 < 0))) __PYX_ERR(0, 127, __pyx_L1_error)
+    if (unlikely((__pyx_t_13 < 0))) __PYX_ERR(0, 125, __pyx_L1_error)
   }
   __Pyx_DECREF_SET(__pyx_v_ret, ((PyArrayObject *)__pyx_t_3));
   __pyx_t_3 = 0;
 
-  /* "mirage/calc/reducer_funcs.pyx":128
+  /* "mirage/calc/reducer_funcs.pyx":126
  *       y2 = m * (x2 - x1) + y1
  *   ret = ret[:sz]
  *   if reverse:             # <<<<<<<<<<<<<<
@@ -7456,37 +7469,37 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
 */
   if (__pyx_v_reverse) {
 
-    /* "mirage/calc/reducer_funcs.pyx":129
+    /* "mirage/calc/reducer_funcs.pyx":127
  *   ret = ret[:sz]
  *   if reverse:
  *     ret = ret[::-1]             # <<<<<<<<<<<<<<
  *   return ret
  * 
 */
-    __pyx_t_3 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_ret), __pyx_mstate_global->__pyx_slice[0]); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 129, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_ret), __pyx_mstate_global->__pyx_slice[0]); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 129, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 127, __pyx_L1_error)
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
       __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_ret.rcbuffer->pybuffer);
-      __pyx_t_14 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_3), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack);
-      if (unlikely(__pyx_t_14 < 0)) {
-        PyErr_Fetch(&__pyx_t_25, &__pyx_t_24, &__pyx_t_23);
+      __pyx_t_13 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_3), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack);
+      if (unlikely(__pyx_t_13 < 0)) {
+        PyErr_Fetch(&__pyx_t_24, &__pyx_t_23, &__pyx_t_22);
         if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ret.rcbuffer->pybuffer, (PyObject*)__pyx_v_ret, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
-          Py_XDECREF(__pyx_t_25); Py_XDECREF(__pyx_t_24); Py_XDECREF(__pyx_t_23);
+          Py_XDECREF(__pyx_t_24); Py_XDECREF(__pyx_t_23); Py_XDECREF(__pyx_t_22);
           __Pyx_RaiseBufferFallbackError();
         } else {
-          PyErr_Restore(__pyx_t_25, __pyx_t_24, __pyx_t_23);
+          PyErr_Restore(__pyx_t_24, __pyx_t_23, __pyx_t_22);
         }
-        __pyx_t_25 = __pyx_t_24 = __pyx_t_23 = 0;
+        __pyx_t_24 = __pyx_t_23 = __pyx_t_22 = 0;
       }
       __pyx_pybuffernd_ret.diminfo[0].strides = __pyx_pybuffernd_ret.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_ret.diminfo[0].shape = __pyx_pybuffernd_ret.rcbuffer->pybuffer.shape[0];
-      if (unlikely((__pyx_t_14 < 0))) __PYX_ERR(0, 129, __pyx_L1_error)
+      if (unlikely((__pyx_t_13 < 0))) __PYX_ERR(0, 127, __pyx_L1_error)
     }
     __Pyx_DECREF_SET(__pyx_v_ret, ((PyArrayObject *)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "mirage/calc/reducer_funcs.pyx":128
+    /* "mirage/calc/reducer_funcs.pyx":126
  *       y2 = m * (x2 - x1) + y1
  *   ret = ret[:sz]
  *   if reverse:             # <<<<<<<<<<<<<<
@@ -7495,7 +7508,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
 */
   }
 
-  /* "mirage/calc/reducer_funcs.pyx":130
+  /* "mirage/calc/reducer_funcs.pyx":128
  *   if reverse:
  *     ret = ret[::-1]
  *   return ret             # <<<<<<<<<<<<<<
@@ -7504,7 +7517,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_slice_magmap(PyObjec
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __Pyx_INCREF((PyObject *)__pyx_v_ret);
   __pyx_r = ((PyArrayObject *)__pyx_v_ret);
-  __Pyx_TraceReturnValue((PyObject *)__pyx_r, 330, 0, __PYX_ERR(0, 130, __pyx_L1_error));
+  __Pyx_TraceReturnValue((PyObject *)__pyx_r, 340, 0, __PYX_ERR(0, 128, __pyx_L1_error));
   goto __pyx_L0;
 
   /* "mirage/calc/reducer_funcs.pyx":47
@@ -8428,14 +8441,14 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "mirage/calc/reducer_funcs.pyx":129
+  /* "mirage/calc/reducer_funcs.pyx":127
  *   ret = ret[:sz]
  *   if reverse:
  *     ret = ret[::-1]             # <<<<<<<<<<<<<<
  *   return ret
  * 
 */
-  __pyx_mstate_global->__pyx_slice[0] = PySlice_New(Py_None, Py_None, __pyx_mstate_global->__pyx_int_neg_1); if (unlikely(!__pyx_mstate_global->__pyx_slice[0])) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_slice[0] = PySlice_New(Py_None, Py_None, __pyx_mstate_global->__pyx_int_neg_1); if (unlikely(!__pyx_mstate_global->__pyx_slice[0])) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_slice[0]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_slice[0]);
   __Pyx_RefNannyFinishContext();
@@ -8451,6 +8464,7 @@ static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   __pyx_mstate->__pyx_umethod_PyDict_Type_pop.type = (PyObject*)&PyDict_Type;
   __pyx_mstate->__pyx_umethod_PyDict_Type_pop.method_name = &__pyx_mstate->__pyx_n_u_pop;
   if (__Pyx_InitStrings(__pyx_string_tab, __pyx_mstate->__pyx_string_tab, __pyx_string_tab_encodings) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  __pyx_mstate->__pyx_int_1 = PyLong_FromLong(1); if (unlikely(!__pyx_mstate->__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_mstate->__pyx_int_neg_1 = PyLong_FromLong(-1); if (unlikely(!__pyx_mstate->__pyx_int_neg_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
@@ -8502,7 +8516,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_reducer_funcs_pyx, __pyx_mstate->__pyx_n_u_populate_lightcurve, __pyx_k_vQa_r_q_V2Q_e5_L_Qc__AS_A_5, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 47, 732};
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 47, 752};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_magmap, __pyx_mstate->__pyx_n_u_start, __pyx_mstate->__pyx_n_u_end};
     __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_reducer_funcs_pyx, __pyx_mstate->__pyx_n_u_slice_magmap, __pyx_k_6_s_6_3avQ_A_S_2U_A_a_A_6_fA_V2, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
   }
@@ -10963,6 +10977,135 @@ static int __Pyx_ParseKeywords(
     }
     return __Pyx_IterFinish();
 }
+
+/* PyLongBinop */
+  #if !CYTHON_COMPILING_IN_PYPY
+static PyObject* __Pyx_Fallback___Pyx_PyLong_AddObjC(PyObject *op1, PyObject *op2, int inplace) {
+    return (inplace ? PyNumber_InPlaceAdd : PyNumber_Add)(op1, op2);
+}
+#if CYTHON_USE_PYLONG_INTERNALS
+static PyObject* __Pyx_Unpacked___Pyx_PyLong_AddObjC(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check) {
+    CYTHON_MAYBE_UNUSED_VAR(inplace);
+    CYTHON_UNUSED_VAR(zerodivision_check);
+    const long b = intval;
+    long a, x;
+#ifdef HAVE_LONG_LONG
+    const PY_LONG_LONG llb = intval;
+    PY_LONG_LONG lla, llx;
+#endif
+    if (unlikely(__Pyx_PyLong_IsZero(op1))) {
+        return __Pyx_NewRef(op2);
+    }
+    if (likely(__Pyx_PyLong_IsCompact(op1))) {
+        a = __Pyx_PyLong_CompactValue(op1);
+    } else {
+        const digit* digits = __Pyx_PyLong_Digits(op1);
+        const Py_ssize_t size = __Pyx_PyLong_SignedDigitCount(op1);
+        switch (size) {
+            case -2:
+                if (8 * sizeof(long) - 1 > 2 * PyLong_SHIFT) {
+                    a = -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                    break;
+                #ifdef HAVE_LONG_LONG
+                } else if (8 * sizeof(PY_LONG_LONG) - 1 > 2 * PyLong_SHIFT) {
+                    lla = -(PY_LONG_LONG) (((((unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+                    goto long_long;
+                #endif
+                }
+                CYTHON_FALLTHROUGH;
+            case 2:
+                if (8 * sizeof(long) - 1 > 2 * PyLong_SHIFT) {
+                    a = (long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                    break;
+                #ifdef HAVE_LONG_LONG
+                } else if (8 * sizeof(PY_LONG_LONG) - 1 > 2 * PyLong_SHIFT) {
+                    lla = (PY_LONG_LONG) (((((unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+                    goto long_long;
+                #endif
+                }
+                CYTHON_FALLTHROUGH;
+            case -3:
+                if (8 * sizeof(long) - 1 > 3 * PyLong_SHIFT) {
+                    a = -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                    break;
+                #ifdef HAVE_LONG_LONG
+                } else if (8 * sizeof(PY_LONG_LONG) - 1 > 3 * PyLong_SHIFT) {
+                    lla = -(PY_LONG_LONG) (((((((unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+                    goto long_long;
+                #endif
+                }
+                CYTHON_FALLTHROUGH;
+            case 3:
+                if (8 * sizeof(long) - 1 > 3 * PyLong_SHIFT) {
+                    a = (long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                    break;
+                #ifdef HAVE_LONG_LONG
+                } else if (8 * sizeof(PY_LONG_LONG) - 1 > 3 * PyLong_SHIFT) {
+                    lla = (PY_LONG_LONG) (((((((unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+                    goto long_long;
+                #endif
+                }
+                CYTHON_FALLTHROUGH;
+            case -4:
+                if (8 * sizeof(long) - 1 > 4 * PyLong_SHIFT) {
+                    a = -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                    break;
+                #ifdef HAVE_LONG_LONG
+                } else if (8 * sizeof(PY_LONG_LONG) - 1 > 4 * PyLong_SHIFT) {
+                    lla = -(PY_LONG_LONG) (((((((((unsigned PY_LONG_LONG)digits[3]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+                    goto long_long;
+                #endif
+                }
+                CYTHON_FALLTHROUGH;
+            case 4:
+                if (8 * sizeof(long) - 1 > 4 * PyLong_SHIFT) {
+                    a = (long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                    break;
+                #ifdef HAVE_LONG_LONG
+                } else if (8 * sizeof(PY_LONG_LONG) - 1 > 4 * PyLong_SHIFT) {
+                    lla = (PY_LONG_LONG) (((((((((unsigned PY_LONG_LONG)digits[3]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+                    goto long_long;
+                #endif
+                }
+                CYTHON_FALLTHROUGH;
+            default: return PyLong_Type.tp_as_number->nb_add(op1, op2);
+        }
+    }
+            x = a + b;
+        return PyLong_FromLong(x);
+#ifdef HAVE_LONG_LONG
+    long_long:
+            llx = lla + llb;
+        return PyLong_FromLongLong(llx);
+#endif
+    return __Pyx_Fallback___Pyx_PyLong_AddObjC(op1, op2, inplace);
+    
+    
+}
+#endif
+static PyObject* __Pyx_Float___Pyx_PyLong_AddObjC(PyObject *float_val, long intval, int zerodivision_check) {
+    CYTHON_UNUSED_VAR(zerodivision_check);
+    const long b = intval;
+    double a = __Pyx_PyFloat_AS_DOUBLE(float_val);
+        double result;
+        
+        result = ((double)a) + (double)b;
+        return PyFloat_FromDouble(result);
+}
+static CYTHON_INLINE PyObject* __Pyx_PyLong_AddObjC(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check) {
+    CYTHON_MAYBE_UNUSED_VAR(intval);
+    CYTHON_UNUSED_VAR(zerodivision_check);
+    #if CYTHON_USE_PYLONG_INTERNALS
+    if (likely(PyLong_CheckExact(op1))) {
+        return __Pyx_Unpacked___Pyx_PyLong_AddObjC(op1, op2, intval, inplace, zerodivision_check);
+    }
+    #endif
+    if (PyFloat_CheckExact(op1)) {
+        return __Pyx_Float___Pyx_PyLong_AddObjC(op1, intval, zerodivision_check);
+    }
+    return __Pyx_Fallback___Pyx_PyLong_AddObjC(op1, op2, inplace);
+}
+#endif
 
 /* GetItemInt */
   static PyObject *__Pyx_GetItemInt_Generic(PyObject *o, PyObject* j) {

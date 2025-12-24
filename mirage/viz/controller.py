@@ -165,23 +165,24 @@ class MagMapController(Controller):
             )
         artists.append(self._line)
 
-        slice_data = reducer.slice(
+        slice_x, slice_y = reducer.slice(
             Index2D(self._line_state.start_x, self._line_state.start_y),
             Index2D(self._line_state.end_x, self._line_state.end_y),
         )
-        if len(slice_data) == 0:
+        if len(slice_x) == 0:
             return artists
 
-        slice_data_x = np.arange(len(slice_data))
         if self._lightcurve is None:
-            self._lightcurve = window.line_axes.plot(slice_data_x, slice_data)[0]
+            self._lightcurve = window.line_axes.plot(slice_x.value, slice_y)[0]
+            window.line_axes.set_xlabel(str(slice_x.unit))
+            window.line_axes.set_ylabel("Magnitudes")
         else:
             self._lightcurve.set_data(
-                    slice_data_x,
-                    slice_data,
+                    slice_x.value,
+                    slice_y,
             )
-            window.line_axes.set_xlim(0, len(slice_data))
-            window.line_axes.set_ylim(np.max(slice_data), np.min(slice_data))
+            window.line_axes.set_xlim(0, slice_x.value[-1])
+            window.line_axes.set_ylim(np.max(slice_y), np.min(slice_y))
         artists.append(self._lightcurve)
         return artists
 

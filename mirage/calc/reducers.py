@@ -113,7 +113,7 @@ class MagnificationMapReducer(Reducer):
     def set_output(self, output: object):
         self.canvas = output  # type: ignore
 
-    def slice(self, start: Vec2D | Index2D, end: Vec2D | Index2D) -> np.ndarray:
+    def slice(self, start: Vec2D | Index2D, end: Vec2D | Index2D) -> tuple[u.Quantity, np.ndarray]:
         """
         Sample the MagnificationMap on an arbitrary axis.
 
@@ -125,7 +125,9 @@ class MagnificationMapReducer(Reducer):
             start = self.pixel_region[start]
         if isinstance(end, Index2D):
             end = self.pixel_region[end]
-        return slice_magmap(self, start, end)
+        dist = (end - start).magnitude
+        values = slice_magmap(self, start, end)
+        return u.Quantity(np.linspace(0, dist.value, len(values)), self.source_region.unit), values
 
 
 @DelegateRegistry.register

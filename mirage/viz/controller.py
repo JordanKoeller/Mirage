@@ -6,6 +6,8 @@ from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib import colors
 from matplotlib.artist import Artist
+from matplotlib.axes import Axes
+from matplotlib.widgets import AxesWidget, Button
 import numpy as np
 
 from mirage.viz.window import VizWindow
@@ -43,6 +45,15 @@ class Controller(ABC):
         """
         return False, False
 
+    def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
+        """
+        Create and attach any widgets associate with the Controller to the
+        specified Axes.
+
+        Returns any created axes in a list.
+        """
+        return []
+
 
 class MagMapController(Controller):
     @dataclass
@@ -63,6 +74,7 @@ class MagMapController(Controller):
         self._colorbar = None
         self._img = None
         self._lightcurve = None
+        self._show_all_lines = False
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
         reducer = self._find_reducer(state)
@@ -90,6 +102,13 @@ class MagMapController(Controller):
         artists.extend(self._get_line_artists(reducer, window))
 
         return artists
+
+    def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
+        button = Button(axes, "Show All")
+        button.on_clicked(lambda *args: self._toggle_show_all())
+        return [
+            button,
+        ]
 
     def on_event(self, state: VizState, event: VizEvent) -> tuple[bool, bool]:
         if event.panel != Panel.IMAGE:
@@ -185,4 +204,7 @@ class MagMapController(Controller):
             window.line_axes.set_ylim(np.max(slice_y), np.min(slice_y))
         artists.append(self._lightcurve)
         return artists
+
+    def _toggle_show_all(self) -> None:
+        self._show_all_lines = not self._show_all_lines
 

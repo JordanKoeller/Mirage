@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from matplotlib import animation
 from matplotlib.artist import Artist
+from matplotlib.widgets import AxesWidget
 
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow
@@ -22,6 +23,7 @@ class _ControllerState:
     enabled: bool
     stale: bool
     artists: List[Artist]
+    widgets: List[AxesWidget]
 
 class Viz:
     """
@@ -109,7 +111,12 @@ class Viz:
             controller=controller,
             enabled=True,
             stale=True,
-            artists = [])
+            artists=[],
+            widgets=controller.bind_widgets(
+                self._window.ui_axes(len(self._model.layers)),
+                self._model,
+            ),
+        )
         self._model.layers.append((layer_name, True))
         controller.reset()
 

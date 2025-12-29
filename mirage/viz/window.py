@@ -33,6 +33,8 @@ from matplotlib.widgets import Button
 
 logger = logging.getLogger(__name__)
 
+MAX_LAYERS = 4
+
 
 class VizWindow:
     def __init__(self):
@@ -44,8 +46,8 @@ class VizWindow:
         self._bottom_axes = self._fig.add_subplot(self._bottom_gridspec[0, 1])
 
         # UI Input Elements
-        self._ui_grid = self._bottom_gridspec[0, 0].subgridspec(2, 1, height_ratios=[1,5])
-        self._stock_ui = self._ui_grid[0,0].subgridspec(2, 1)
+        self._stock_ui = self._bottom_gridspec[0,0].subgridspec(MAX_LAYERS + 2, 1) # title, next/prev, and then MAX_LAYERS layer UIs.
+        self._widget_axes = [self._fig.add_subplot(self._stock_ui[i + 2, 0]) for i in range(0, MAX_LAYERS)]
         self._buttons_ui = self._stock_ui[1,0].subgridspec(1, 2)
         self._p_button_axes = self._fig.add_subplot(self._buttons_ui[0, 0])
         self._n_button_axes = self._fig.add_subplot(self._buttons_ui[0, -1])
@@ -74,6 +76,11 @@ class VizWindow:
     @property
     def line_axes(self) -> Axes:
         return self._top_axes
+
+    def ui_axes(self, index: int) -> Axes:
+        if index < MAX_LAYERS:
+            return self._widget_axes[index]
+        raise ValueError(f"Invalid layer index: {index}")
 
     @property
     def next_simulation_button(self) -> Button:

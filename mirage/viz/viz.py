@@ -14,7 +14,7 @@ from mirage.util import Vec2D
 
 logger = logging.getLogger(__name__)
 
-ANIMATION_FRAMES_PER_SECOND = 10
+ANIMATION_FRAMES_PER_SECOND = 20
 
 
 @dataclass
@@ -145,7 +145,7 @@ class Viz:
         """
 
     def next_simulation(self) -> bool:
-        if self._model.variant_key_index >= len(self._model._variant_keys) - 1:
+        if self._model.variant_key_index >= len(self._model.variant_keys) - 1:
             return False
         self._model.variant_key_index += 1
         for k in self._controllers:

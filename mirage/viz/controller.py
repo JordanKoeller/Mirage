@@ -13,7 +13,7 @@ import numpy as np
 from mirage.viz.window import VizWindow
 from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
-from mirage.util import Index2D
+from mirage.util import Index2D, VariantKey
 
 
 class Controller(ABC):
@@ -73,8 +73,9 @@ class MagMapController(Controller):
         self._line: Line2D | None = None
         self._colorbar = None
         self._img = None
-        self._lightcurve = None
+        self._lightcurves = []
         self._show_all_lines = False
+        self._legend = None
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
         reducer = self._find_reducer(state)
@@ -99,11 +100,27 @@ class MagMapController(Controller):
         else:
             self._colorbar.update_normal()
 
-        artists.extend(self._get_line_artists(reducer, window))
+        window.line_axes.set_xlim(0, 0.1)
+        window.line_axes.set_ylim(0.5, -0.5)
+        artists.extend(self._get_line_artist(window))
+        if self._line_state and self._line_state.dragging:
+            return artists
+        if self._show_all_lines:
+            for ind, variant_key in enumerate(state.variant_keys):
+                artists.extend(self._get_lightcurve_artist(
+                    ind, 
+                    variant_key,
+                    ind == state.variant_key_index,
+                    self._find_reducer(state, variant_key),
+                    window))
+        else:
+            artists.extend(self._get_lightcurve_artist(0, state.variant_key, True, reducer, window))
+        self._legend = window.line_axes.legend(loc="upper right")
 
         return artists
 
     def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
+        axes.set_axis_on()
         button = Button(axes, "Show All")
         button.on_clicked(lambda *args: self._toggle_show_all())
         return [
@@ -146,16 +163,17 @@ class MagMapController(Controller):
             return True, True
         return False, False
 
-    def _find_reducer(self, state: VizState) -> MagnificationMapReducer:
+    def _find_reducer(
+        self, state: VizState,
+        variant_key: VariantKey | None = None,
+    ) -> MagnificationMapReducer:
+        simulation = state.simulation_result
+        if variant_key:
+            simulation = state.experiment.simulation(variant_key)
         if self._reducer_name:
-            for reducer in state.simulation_result:
-                if self._reducer_name == reducer.name:
-                    return reducer
-            raise ValueError(
-                f"Could not find reducer with name {self._reducer_name}"
-            )
+            return simulation.get_reducer(self._reducer_name)
         reducers = []
-        for reducer in state.simulation_result:
+        for reducer in simulation:
             if isinstance(reducer, MagnificationMapReducer):
                 reducers.append(reducer)
         if len(reducers) == 0:
@@ -165,11 +183,11 @@ class MagMapController(Controller):
                 f"Ambiguous MagnificationMapReducers: {', '.join(reducer.name for reducer in reducers)}"
             )
         return reducers[0]
-    
-    def _get_line_artists(self, reducer: MagnificationMapReducer, window: VizWindow) -> Iterable[Artist]:
+
+    def _get_line_artist(self, window: VizWindow) -> Iterable[Artist]:
         artists = []
         if self._line_state is None:
-            return []
+            return artists
         if self._line is None:
             self._line = Line2D(
                 [self._line_state.start_x, self._line_state.end_x],
@@ -183,7 +201,12 @@ class MagMapController(Controller):
                 ydata=[self._line_state.start_y, self._line_state.end_y],
             )
         artists.append(self._line)
-
+        return artists
+    
+    def _get_lightcurve_artist(self, ind: int, variant_key: VariantKey, primary: bool, reducer: MagnificationMapReducer, window: VizWindow) -> Iterable[Artist]:
+        artists = []
+        if self._line_state is None:
+            return artists
         slice_x, slice_y = reducer.slice(
             Index2D(self._line_state.start_x, self._line_state.start_y),
             Index2D(self._line_state.end_x, self._line_state.end_y),
@@ -191,18 +214,27 @@ class MagMapController(Controller):
         if len(slice_x) == 0:
             return artists
 
-        if self._lightcurve is None:
-            self._lightcurve = window.line_axes.plot(slice_x.value, slice_y)[0]
+        if len(self._lightcurves) <= ind:
+            self._lightcurves.append(window.line_axes.plot(
+                slice_x.value,
+                slice_y,
+                label=str(variant_key),
+                alpha=1.0 if primary else 0.25)[0])
             window.line_axes.set_xlabel(str(slice_x.unit))
             window.line_axes.set_ylabel("Magnitudes")
         else:
-            self._lightcurve.set_data(
+            self._lightcurves[ind].set_data(
                     slice_x.value,
                     slice_y,
             )
-            window.line_axes.set_xlim(0, slice_x.value[-1])
-            window.line_axes.set_ylim(np.max(slice_y), np.min(slice_y))
-        artists.append(self._lightcurve)
+            self._lightcurves[ind].set_alpha(1.0 if primary else 0.25)
+        window.line_axes.set_xlim(
+            0,
+            max(slice_x.value[-1], window.line_axes.get_xlim()[1]))
+        window.line_axes.set_ylim(
+            max(np.max(slice_y), window.line_axes.get_ylim()[0]),
+            min(np.min(slice_y), window.line_axes.get_ylim()[1]))
+        artists.append(self._lightcurves[ind])
         return artists
 
     def _toggle_show_all(self) -> None:

@@ -34,15 +34,16 @@ from matplotlib.widgets import Button
 logger = logging.getLogger(__name__)
 
 MAX_LAYERS = 4
+PADDING=0.08
 
 
 class VizWindow:
     def __init__(self):
         # General high-level organization
-        self._fig: Figure = plt.figure(layout="tight", clear=True)
-        self._gridspec = GridSpec(2, 1, self._fig, height_ratios=[4, 20])
+        self._fig: Figure = plt.figure(clear=True, layout="constrained")
+        self._gridspec = GridSpec(2, 1, self._fig, height_ratios=[1, 4])
         self._top_axes = self._fig.add_subplot(self._gridspec[0, 0])
-        self._bottom_gridspec = self._gridspec[1, 0].subgridspec(1, 2, width_ratios=[1, 5])
+        self._bottom_gridspec = self._gridspec[1, 0].subgridspec(1, 2, width_ratios=[1, 4])
         self._bottom_axes = self._fig.add_subplot(self._bottom_gridspec[0, 1])
 
         # UI Input Elements

@@ -15,18 +15,18 @@ class VizState:
     layers: list[(str, bool)] = field(default_factory=list)
 
     @cached_property
-    def _variant_keys(self) -> list[VariantKey]:
+    def variant_keys(self) -> list[VariantKey]:
         return self.experiment.keys
 
     @property
     def simulation_result(self) -> SimulationResult:
         return self.experiment.simulation(
-            self._variant_keys[self.variant_key_index]
+            self.variant_keys[self.variant_key_index]
         )
 
     @property
     def variant_key(self) -> VariantKey:
-        return self._variant_keys[self.variant_key_index]
+        return self.variant_keys[self.variant_key_index]
 
 
 class Panel(Enum):

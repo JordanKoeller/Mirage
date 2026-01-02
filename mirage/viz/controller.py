@@ -17,6 +17,38 @@ from mirage.util import Index2D, VariantKey
 
 
 class Controller(ABC):
+
+    def __init__(self) -> None:
+        self.__stale = True
+
+    def request_draw(self) -> None:
+        """
+        Request Viz to redraw the UI for this controller. This method should
+        be called after any state change that means the current rendered UI
+        is stale and needs refreshed. Once called the UI loop will redraw this
+        controller on the next iteration.
+
+        Note that the controller may be drawn even if this method has not been
+        called.
+        """
+        self.__stale = True
+
+    def do_draw(self, state: VizState, window: VizWindow, force: bool=False) -> tuple[bool, Iterable[Artist]]:
+        """
+        Method called by the render loop to draw this controller.
+
+        This method SHOULD NOT be overriden by subclasses. Overrides should happen
+        on the "draw()" method instead.
+
+        Returns:
+          did_draw (bool) - Indicates if a draw happened, or if it was skipped.
+          artists (Iterable[Artist]) - Artists to draw for this controller.
+        """
+        if not force and not self.__stale:
+            return False, []
+        self.__stale = False
+        return True, self.draw(state, window)
+
     @abstractmethod
     def reset(self) -> None:
         """
@@ -33,7 +65,7 @@ class Controller(ABC):
         is called. The Axes are cleared between each call to draw()
         """
 
-    def on_event(self, state: VizState, event: VizEvent) -> tuple[bool, bool]:
+    def on_event(self, state: VizState, event: VizEvent) -> bool:
         """
         Intercept a UI event.
 
@@ -44,6 +76,7 @@ class Controller(ABC):
           + The second boolean indicates if the layer should be redrawn. 
         """
         return False, False
+
 
     def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
         """
@@ -65,6 +98,7 @@ class MagMapController(Controller):
         end_y: int
 
     def __init__(self, reducer_name: str | None = None) -> None:
+        Controller.__init__(self)
         self._reducer_name = reducer_name
         self.reset()
 
@@ -76,6 +110,7 @@ class MagMapController(Controller):
         self._lightcurves = []
         self._show_all_lines = False
         self._legend = None
+        self.request_draw()
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
         reducer = self._find_reducer(state)
@@ -127,9 +162,9 @@ class MagMapController(Controller):
             button,
         ]
 
-    def on_event(self, state: VizState, event: VizEvent) -> tuple[bool, bool]:
+    def on_event(self, state: VizState, event: VizEvent) -> bool:
         if event.panel != Panel.IMAGE:
-            return False, False
+            return False
         if event.name == "button_press_event":
             self._line_state = self._LineState(
                 start_x=event.screen_pos.x,
@@ -138,7 +173,8 @@ class MagMapController(Controller):
                 end_x=event.screen_pos.x,
                 end_y=event.screen_pos.y,
             )
-            return True, True
+            self.request_draw()
+            return True
         if (
             event.name == "motion_notify_event"
             and self._line_state
@@ -151,7 +187,8 @@ class MagMapController(Controller):
                 end_x=event.screen_pos.x,
                 end_y=event.screen_pos.y,
             )
-            return True, True
+            self.request_draw()
+            return True
         if event.name == "button_release_event" and self._line_state:
             self._line_state = self._LineState(
                 start_x=self._line_state.start_x,
@@ -160,7 +197,8 @@ class MagMapController(Controller):
                 end_x=self._line_state.end_x,
                 end_y=self._line_state.end_y,
             )
-            return True, True
+            self.request_draw()
+            return True
         return False, False
 
     def _find_reducer(
@@ -239,4 +277,5 @@ class MagMapController(Controller):
 
     def _toggle_show_all(self) -> None:
         self._show_all_lines = not self._show_all_lines
+        self.request_draw()
 

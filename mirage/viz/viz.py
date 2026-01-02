@@ -21,7 +21,6 @@ ANIMATION_FRAMES_PER_SECOND = 20
 class _ControllerState:
     controller: Controller
     enabled: bool
-    stale: bool
     artists: List[Artist]
     widgets: List[AxesWidget]
 
@@ -40,7 +39,6 @@ class Viz:
         self._model = model
         self._window = view
         self._controllers: dict[str, _ControllerState] = {}
-        self._title = None
 
         for controller in controllers or []:
             self.bind_controller(controller)
@@ -90,10 +88,9 @@ class Viz:
             if not enabled:
                 continue
             controller_state = self._controllers.get(layer_name)
-            consumed, stale = controller_state.controller.on_event(
+            consumed = controller_state.controller.on_event(
                 self._model, viz_event
             )
-            controller_state.stale = stale
             if consumed:
                 break
 
@@ -107,10 +104,10 @@ class Viz:
         Add a new controller to Viz. The new controller is added as the top layer.
         """
         layer_name = layer_name or type(controller).__name__
+        controller.request_draw()
         self._controllers[layer_name] = _ControllerState(
             controller=controller,
             enabled=True,
-            stale=True,
             artists=[],
             widgets=controller.bind_widgets(
                 self._window.ui_axes(len(self._model.layers)),
@@ -120,19 +117,15 @@ class Viz:
         self._model.layers.append((layer_name, True))
         controller.reset()
 
-    def draw(self, *args, **kwargs) -> Iterable[Artist]:
-        if self._title:
-            self._title.set(text=str(self._model.variant_key))
-        else:
-            self._title = self._window.title().text(0,0, str(self._model.variant_key))
+    def draw(self, *args, force: bool=False, **kwargs) -> Iterable[Artist]:
         artists = []
         for layer_name, enabled in self._model.layers:
             if not enabled:
                 continue
             controller = self._controllers.get(layer_name)
-            if controller.stale:
-                controller.artists = controller.controller.draw(self._model, self._window)
-                controller.stale = False
+            did_draw, artists = controller.controller.do_draw(self._model, self._window, force=force)
+            if did_draw:
+                controller.artists = artists
             artists.extend(controller.artists)
         self._window.figure.canvas.draw()
         return artists
@@ -149,7 +142,8 @@ class Viz:
             return False
         self._model.variant_key_index += 1
         for k in self._controllers:
-            self._controllers[k].stale = True
+            self._controllers[k].controller.request_draw()
+        self._window.set_title(str(self._model.variant_key))
         return True
 
     def prev_simulation(self) -> bool:
@@ -157,9 +151,11 @@ class Viz:
             return False
         self._model.variant_key_index -= 1
         for k in self._controllers:
-            self._controllers[k].stale = True
+            self._controllers[k].controller.request_draw()
+        self._window.set_title(str(self._model.variant_key))
         return True
 
     def show(self) -> None:
-        self.draw()
-        self._window.figure.show()
+        self._window.set_title(str(self._model.variant_key))
+        self.draw(force=True)
+        self._window.show()

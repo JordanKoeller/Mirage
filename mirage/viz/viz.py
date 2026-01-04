@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from matplotlib import animation
 from matplotlib.artist import Artist
-from matplotlib.widgets import AxesWidget
+from matplotlib.widgets import AxesWidget, Button
 
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow
@@ -14,13 +14,14 @@ from mirage.util import Vec2D
 
 logger = logging.getLogger(__name__)
 
-ANIMATION_FRAMES_PER_SECOND = 20
+ANIMATION_FRAMES_PER_SECOND = 30
 
 
 @dataclass
 class _ControllerState:
     controller: Controller
     enabled: bool
+    control_button: Button
     artists: List[Artist]
     widgets: List[AxesWidget]
 
@@ -105,20 +106,24 @@ class Viz:
         """
         layer_name = layer_name or type(controller).__name__
         controller.request_draw()
-        self._controllers[layer_name] = _ControllerState(
+        controller_state = _ControllerState(
             controller=controller,
             enabled=True,
+            control_button=Button(self._window.layer_control_axes(len(self._model.layers)), f"Disable {layer_name}"),
             artists=[],
             widgets=controller.bind_widgets(
                 self._window.ui_axes(len(self._model.layers)),
                 self._model,
             ),
         )
+        controller_state.control_button.on_clicked(lambda *args: self.toggle_layer(layer_name))
+        self._controllers[layer_name] = controller_state
         self._model.layers.append((layer_name, True))
         controller.reset()
 
     def draw(self, *args, force: bool=False, **kwargs) -> Iterable[Artist]:
         artists = []
+        artists.extend(self._window.title_artists())
         for layer_name, enabled in self._model.layers:
             if not enabled:
                 continue
@@ -127,15 +132,19 @@ class Viz:
             if did_draw:
                 controller.artists = artists
             artists.extend(controller.artists)
+            artists.append(controller.control_button.label)
         self._window.figure.canvas.draw()
         return artists
 
-    def enable_layer(self, layer_name: str, state: bool) -> bool:
+    def toggle_layer(self, layer_name: str) -> None:
         """
         Toggle a layer enabled or disabled.
-
-        Returns True if a layer state swapped.
         """
+        self._controllers[layer_name].enabled = not self._controllers[layer_name].enabled
+        if self._controllers[layer_name].enabled:
+            self._controllers[layer_name].control_button.label.set(text=f"Disable {layer_name}")
+        else:
+            self._controllers[layer_name].control_button.label.set(text=f"Enable {layer_name}")
 
     def next_simulation(self) -> bool:
         if self._model.variant_key_index >= len(self._model.variant_keys) - 1:

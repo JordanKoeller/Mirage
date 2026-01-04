@@ -30,6 +30,7 @@ from matplotlib.gridspec import GridSpec
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.widgets import Button
+from matplotlib.text import Text
 
 logger = logging.getLogger(__name__)
 
@@ -41,35 +42,49 @@ PADDING=0.08
 class VizWindow:
     def __init__(self):
         # General high-level organization
-        self._plot_fig: Figure = plt.figure(clear=True, layout="constrained", animated=True)
-        self._gridspec = GridSpec(2, 1, self._plot_fig, height_ratios=[1, 4])
-        self._top_axes = self._plot_fig.add_subplot(self._gridspec[0, 0])
-        self._bottom_axes = self._plot_fig.add_subplot(self._gridspec[1, 0])
+        self._plot_fig: Figure = plt.figure(clear=True, layout="constrained")
+        self._plot_axes = self._plot_fig.subplot_mosaic(
+            [
+                ["title"],
+                ["plot"],
+                ["image"],
+            ],
+            height_ratios=[1, 5, 25],
+            per_subplot_kw={
+                "title": {"frame_on": False, "xticks": [], "yticks": []},
+                "image": {"frame_on": True, "xticks": [], "yticks": []},
+            },
+        )
 
         # UI Input Elements
         self._widgets_fig = plt.figure(clear=True, layout="constrained", frameon=False)
-        self._stock_ui= GridSpec(WIDGET_ROWS, 1, self._widgets_fig)
-        self._widget_axes = [self._widgets_fig.add_subplot(self._stock_ui[i + 1, 0]) for i in range(0, MAX_LAYERS)]
-        self._buttons_ui = self._stock_ui[0,0].subgridspec(1, 2)
-        self._p_button_axes = self._widgets_fig.add_subplot(self._buttons_ui[0, 0])
-        self._n_button_axes = self._widgets_fig.add_subplot(self._buttons_ui[0, -1])
-        self._p_button = Button(self._p_button_axes, "Previous")
-        self._n_button = Button(self._n_button_axes, "Next")
+        self._widget_axes = self._widgets_fig.subplot_mosaic(
+            [
+              ["title", "title", "title", "title", "title", "title"],
+              ["previous", "previous", "previous","next","next","next"],
+              *[[f"l{i}", f"l{i}", f"l{i}", f"l{i}", f"control_l{i}",f"control_l{i}",] for i in range(MAX_LAYERS)],
+            ],
+            height_ratios=[1, 2, *[2 for i in range(MAX_LAYERS)]],
+            subplot_kw={"frame_on": True, "xticks": [], "yticks": []},
+            per_subplot_kw={
+                "title": {"frame_on": False, "xticks": [], "yticks": []},
+            },
+        )
+        self._p_button = Button(self._widget_axes["previous"], "Previous")
+        self._n_button = Button(self._widget_axes["next"], "Next")
 
-        self._desc_box = self._widgets_fig.add_subplot(self._stock_ui[0,0])
-        self._desc_box.set_axis_off()
-        self._desc_box.set_frame_on(True)
 
-        self.im_axes.set_axis_off()
-        self.im_axes.set_frame_on(True)
-        self.im_axes.invert_yaxis()
+        self._plot_axes["image"].invert_yaxis()
 
-    def title(self) -> Axes:
-        return self._desc_box
+        self._plot_fig_title = self._plot_axes["title"].text(0, 0, "")
+        self._widgets_fig_title = self._widget_axes["title"].text(0, 0, "")
+
+    def title_artists(self) -> list[Text]:
+        return [self._plot_fig_title, self._widgets_fig_title]
 
     def set_title(self, text: str) -> None:
-        self._plot_fig.suptitle(text)
-        self._widgets_fig.suptitle(text)
+        self._plot_fig_title.set(text=text)
+        self._widgets_fig_title.set(text=text)
 
     @property
     def figure(self) -> Figure:
@@ -77,15 +92,20 @@ class VizWindow:
 
     @property
     def im_axes(self) -> Axes:
-        return self._bottom_axes
+        return self._plot_axes["image"]
 
     @property
     def line_axes(self) -> Axes:
-        return self._top_axes
+        return self._plot_axes["plot"]
 
     def ui_axes(self, index: int) -> Axes:
         if index < MAX_LAYERS:
-            return self._widget_axes[index]
+            return self._widget_axes[f"l{index}"]
+        raise ValueError(f"Invalid layer index: {index}")
+
+    def layer_control_axes(self, index: int) -> Axes:
+        if index < MAX_LAYERS:
+            return self._widget_axes[f"control_l{index}"]
         raise ValueError(f"Invalid layer index: {index}")
 
     @property

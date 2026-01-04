@@ -5,6 +5,7 @@ import io
 import pickle
 from typing import Union, Dict, Any, Literal, Optional
 import logging
+from functools import cache
 
 from mirage.calc import Reducer
 from mirage.util import Dictify, VariantKey
@@ -98,7 +99,18 @@ class ResultFileManager:
     def __len__(self) -> int:
         return len(self.manifest)
 
+    def __hash__(self, *args, **kwargs):
+        return hash((self.filename, self.mode, id(self.manifest), id(self.zip_archive)))
+
+    @cache
     def load_result(self, reducer_name: str, simulation_key: VariantKey) -> Reducer:
+        """
+        Load a Reducer result from file and return the populated reducer.
+
+        NOTE: This function caches the result indefinitely, which will cause issues for Experiment results.
+
+        TODO: Add some cache eviction behavior so we can still load large results.
+        """
         sim_dict: dict[str, str] = self.manifest.get(str(simulation_key), {})
         filename: Optional[str] = sim_dict.get(reducer_name, None)
         if sim_dict is None:

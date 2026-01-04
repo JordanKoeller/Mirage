@@ -107,9 +107,9 @@ class MagMapController(Controller):
         self._line: Line2D | None = None
         self._colorbar = None
         self._img = None
-        self._lightcurves = []
         self._show_all_lines = False
         self._legend = None
+        self._lightcurves: dict[str, Artist] = {}
         self.request_draw()
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
@@ -129,7 +129,8 @@ class MagMapController(Controller):
 
         if self._colorbar is None:
             self._colorbar = window.figure.colorbar(
-                self._img, ax=window.im_axes, pad=0.01, fraction=0.05
+                self._img, ax=window.im_axes, pad=0.01, fraction=0.05,
+                location="bottom",
             )
             self._colorbar.set_label("Magnitudes")
         else:
@@ -138,19 +139,21 @@ class MagMapController(Controller):
         window.line_axes.set_xlim(0, 0.1)
         window.line_axes.set_ylim(0.5, -0.5)
         artists.extend(self._get_line_artist(window))
-        if self._line_state and self._line_state.dragging:
-            return artists
-        if self._show_all_lines:
-            for ind, variant_key in enumerate(state.variant_keys):
-                artists.extend(self._get_lightcurve_artist(
-                    ind, 
-                    variant_key,
-                    ind == state.variant_key_index,
-                    self._find_reducer(state, variant_key),
-                    window))
-        else:
-            artists.extend(self._get_lightcurve_artist(0, state.variant_key, True, reducer, window))
-        self._legend = window.line_axes.legend(loc="upper right")
+        legend_handles = []
+        for ind, variant_key in enumerate(state.variant_keys):
+            if not self._show_all_lines and state.variant_key != variant_key:
+                continue
+            was_drawn = self._get_lightcurve_artist(
+                ind, 
+                variant_key,
+                ind == state.variant_key_index,
+                self._find_reducer(state, variant_key),
+                window)
+            if was_drawn:
+                artists.append(self._lightcurves[variant_key])
+                legend_handles.append(self._lightcurves[variant_key])
+        self._legend = window.line_axes.legend(handles=list(legend_handles), loc="upper right")
+        artists.append(self._legend)
 
         return artists
 
@@ -241,39 +244,50 @@ class MagMapController(Controller):
         artists.append(self._line)
         return artists
     
-    def _get_lightcurve_artist(self, ind: int, variant_key: VariantKey, primary: bool, reducer: MagnificationMapReducer, window: VizWindow) -> Iterable[Artist]:
-        artists = []
-        if self._line_state is None:
-            return artists
-        slice_x, slice_y = reducer.slice(
-            Index2D(self._line_state.start_x, self._line_state.start_y),
-            Index2D(self._line_state.end_x, self._line_state.end_y),
-        )
-        if len(slice_x) == 0:
-            return artists
-
-        if len(self._lightcurves) <= ind:
-            self._lightcurves.append(window.line_axes.plot(
-                slice_x.value,
+    def _get_lightcurve_artist(
+        self,
+        ind: int,
+        variant_key: VariantKey,
+        primary: bool,
+        reducer: MagnificationMapReducer,
+        window: VizWindow
+    ) -> bool:
+        """
+        Renders a lightcurve to the window.line_axes, returning a boolean if a line was drawn or not.
+        """
+        slice_x = []
+        slice_y = []
+        unit = ""
+        if self._line_state and not self._line_state.dragging:
+            slice_x, slice_y = reducer.slice(
+                Index2D(self._line_state.start_x, self._line_state.start_y),
+                Index2D(self._line_state.end_x, self._line_state.end_y),
+            )
+            unit = str(slice_x.unit)
+            slice_x = slice_x.value
+        if variant_key not in self._lightcurves:
+            self._lightcurves[variant_key] = window.line_axes.plot(
+                slice_x,
                 slice_y,
                 label=str(variant_key),
-                alpha=1.0 if primary else 0.25)[0])
-            window.line_axes.set_xlabel(str(slice_x.unit))
+                alpha=1.0 if primary else 0.25)[0]
+            window.line_axes.set_xlabel(unit)
             window.line_axes.set_ylabel("Magnitudes")
         else:
-            self._lightcurves[ind].set_data(
-                    slice_x.value,
+            self._lightcurves[variant_key].set_data(
+                    slice_x,
                     slice_y,
             )
-            self._lightcurves[ind].set_alpha(1.0 if primary else 0.25)
+            self._lightcurves[variant_key].set_alpha(1.0 if primary else 0.25)
+        if len(slice_x) == 0:
+            return False
         window.line_axes.set_xlim(
             0,
-            max(slice_x.value[-1], window.line_axes.get_xlim()[1]))
+            max(slice_x[-1], window.line_axes.get_xlim()[1]))
         window.line_axes.set_ylim(
             max(np.max(slice_y), window.line_axes.get_ylim()[0]),
             min(np.min(slice_y), window.line_axes.get_ylim()[1]))
-        artists.append(self._lightcurves[ind])
-        return artists
+        return True
 
     def _toggle_show_all(self) -> None:
         self._show_all_lines = not self._show_all_lines

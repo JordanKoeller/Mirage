@@ -12,7 +12,7 @@ from mirage.util import VariantKey, Vec2D
 class VizState:
     experiment: ExperimentResult
     variant_key_index: int = 0
-    layers: list[(str, bool)] = field(default_factory=list)
+    layers: list[str] = field(default_factory=list)
 
     @cached_property
     def variant_keys(self) -> list[VariantKey]:

@@ -85,10 +85,10 @@ class Viz:
             name=event.name,
             mouse_event=event,
         )
-        for layer_name, enabled in self._model.layers[::-1]:
-            if not enabled:
-                continue
+        for layer_name in self._model.layers[::-1]:
             controller_state = self._controllers.get(layer_name)
+            if not controller_state.enabled:
+                continue
             consumed = controller_state.controller.on_event(
                 self._model, viz_event
             )
@@ -118,21 +118,21 @@ class Viz:
         )
         controller_state.control_button.on_clicked(lambda *args: self.toggle_layer(layer_name))
         self._controllers[layer_name] = controller_state
-        self._model.layers.append((layer_name, True))
+        self._model.layers.append(layer_name)
         controller.reset()
 
     def draw(self, *args, force: bool=False, **kwargs) -> Iterable[Artist]:
         artists = []
         artists.extend(self._window.title_artists())
-        for layer_name, enabled in self._model.layers:
-            if not enabled:
-                continue
+        for layer_name in self._model.layers:
             controller = self._controllers.get(layer_name)
+            artists.append(controller.control_button.label)
+            if not controller.enabled:
+                continue
             did_draw, artists = controller.controller.do_draw(self._model, self._window, force=force)
             if did_draw:
                 controller.artists = artists
             artists.extend(controller.artists)
-            artists.append(controller.control_button.label)
         self._window.figure.canvas.draw()
         return artists
 
@@ -140,11 +140,16 @@ class Viz:
         """
         Toggle a layer enabled or disabled.
         """
-        self._controllers[layer_name].enabled = not self._controllers[layer_name].enabled
         if self._controllers[layer_name].enabled:
-            self._controllers[layer_name].control_button.label.set(text=f"Disable {layer_name}")
-        else:
             self._controllers[layer_name].control_button.label.set(text=f"Enable {layer_name}")
+            self._controllers[layer_name].enabled = False
+            for widget in self._controllers[layer_name].widgets:
+                widget.set_active(False)
+        else:
+            self._controllers[layer_name].control_button.label.set(text=f"Disable {layer_name}")
+            self._controllers[layer_name].enabled = True
+            for widget in self._controllers[layer_name].widgets:
+                widget.set_active(True)
 
     def next_simulation(self) -> bool:
         if self._model.variant_key_index >= len(self._model.variant_keys) - 1:

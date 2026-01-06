@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from matplotlib import animation
 from matplotlib.artist import Artist
-from matplotlib.widgets import AxesWidget, Button
+from matplotlib.widgets import AxesWidget, Button, CheckButtons
 
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow
@@ -109,7 +109,11 @@ class Viz:
         controller_state = _ControllerState(
             controller=controller,
             enabled=True,
-            control_button=Button(self._window.layer_control_axes(len(self._model.layers)), f"Disable {layer_name}"),
+            control_button=CheckButtons(
+                self._window.layer_control_axes(len(self._model.layers)),
+                labels=[f"Enable {layer_name}"],
+                actives=[True],
+            ),
             artists=[],
             widgets=controller.bind_widgets(
                 self._window.ui_axes(len(self._model.layers)),
@@ -141,12 +145,12 @@ class Viz:
         Toggle a layer enabled or disabled.
         """
         if self._controllers[layer_name].enabled:
-            self._controllers[layer_name].control_button.label.set(text=f"Enable {layer_name}")
+            # self._controllers[layer_name].control_button.label.set(text=f"Enable {layer_name}")
             self._controllers[layer_name].enabled = False
             for widget in self._controllers[layer_name].widgets:
                 widget.set_active(False)
         else:
-            self._controllers[layer_name].control_button.label.set(text=f"Disable {layer_name}")
+            # self._controllers[layer_name].control_button.label.set(text=f"Disable {layer_name}")
             self._controllers[layer_name].enabled = True
             for widget in self._controllers[layer_name].widgets:
                 widget.set_active(True)

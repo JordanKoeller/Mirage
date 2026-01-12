@@ -76,8 +76,8 @@ class MagMapController(Controller):
         else:
             self._colorbar.update_normal()
 
-        window.line_axes.set_xlim(0, 0.1)
-        window.line_axes.set_ylim(0.5, -0.5)
+        # window.line_axes.set_xlim(0, 0.1)
+        # window.line_axes.set_ylim(0.5, -0.5)
         artists.extend(self._get_line_artist(window))
         legend_handles = []
         for ind, variant_key in enumerate(state.variant_keys):
@@ -154,15 +154,15 @@ class MagMapController(Controller):
             return artists
         if self._line is None:
             self._line = Line2D(
-                [self._line_state.start_x, self._line_state.end_x],
-                [self._line_state.start_y, self._line_state.end_y],
+                [self._line_state.start_x.value, self._line_state.end_x.value],
+                [self._line_state.start_y.value, self._line_state.end_y.value],
                 linewidth=3,
             )
             window.im_axes.add_line(self._line)
         else:
             self._line.set(
-                xdata=[self._line_state.start_x, self._line_state.end_x],
-                ydata=[self._line_state.start_y, self._line_state.end_y],
+                xdata=[self._line_state.start_x.value, self._line_state.end_x.value],
+                ydata=[self._line_state.start_y.value, self._line_state.end_y.value],
             )
         artists.append(self._line)
         return artists
@@ -182,7 +182,6 @@ class MagMapController(Controller):
         slice_y = []
         unit = ""
         if self._line_state and not self._line_state.dragging:
-            print("###################", self._line_state)
             slice_x, slice_y = reducer.slice(
                 Vec2D(self._line_state.start_x.value, self._line_state.start_y.value, self._line_state.unit),
                 Vec2D(self._line_state.end_x.value, self._line_state.end_y.value, self._line_state.unit),

@@ -109,10 +109,12 @@ class Controller(ABC):
         for reducer in simulation:
             if isinstance(reducer, reducer_type):
                 reducers.append(reducer)
+            else:
+                print("Failed comparison", reducer, reducer_type)
         if len(reducers) == 0:
-            raise ValueError("Could not find a MagnificationMapReducer")
+            raise ValueError(f"Could not find a reducer with type {reducer_type.__name__}")
         if len(reducers) > 1:
             raise ValueError(
-                f"Ambiguous MagnificationMapReducers: {', '.join(reducer.name for reducer in reducers)}"
+                f"Ambiguous {reducer_type.__name__}'s: {', '.join(reducer.name for reducer in reducers)}"
             )
         return reducers[0]

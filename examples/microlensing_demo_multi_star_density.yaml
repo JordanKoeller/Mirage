@@ -21,6 +21,6 @@ Reducers:
 Variants:
   - LinspaceVariant:
       Name: star_faction
-      Start: 0.2
+      Start: 0.20
       Stop: 0.25
-      NumPoints: 5 
+      NumPoints: 10 

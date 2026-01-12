@@ -33,7 +33,6 @@ class LightcurvesController(Controller):
             window.im_axes.set_xlim(-5, 5)
             window.im_axes.set_ylim(-5, 5)
             for lightcurve in reducer.lightcurves:
-                print(f"LC: s={lightcurve.start_pos} e={lightcurve.end_pos}")
                 line = Line2D(
                     [lightcurve.start_pos.x.value, lightcurve.end_pos.x.value],
                     [lightcurve.start_pos.y.value, lightcurve.end_pos.y.value],
@@ -68,7 +67,6 @@ class LightcurvesController(Controller):
             if was_drawn:
                 artists.append(self._lightcurves[variant_key])
                 legend_handles.append(self._lightcurves[variant_key])
-        print(list(legend_handles))
         self._legend = window.line_axes.legend(handles=list(legend_handles), loc="upper right")
         artists.append(self._legend)
         return artists
@@ -105,7 +103,8 @@ class LightcurvesController(Controller):
                                variant_key: VariantKey,
                                primary: bool,
                                lightcurve: Lightcurve,
-                               window: VizWindow) -> bool:
+                               window: VizWindow,
+    ) -> bool:
         x = np.linspace(
             0,
             (lightcurve.end_pos - lightcurve.start_pos).magnitude.value,

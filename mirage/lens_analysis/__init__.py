@@ -15,6 +15,7 @@ def load(filename: str) -> ExperimentResult | SimulationResult:
 
 def visualize(
     file_or_result: Union[str, ExperimentResult],
+    layers: list[str] | None = None,
 ) -> Viz:
     result: ExperimentResult = file_or_result  # type: ignore
     if isinstance(file_or_result, str):

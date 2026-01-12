@@ -13,6 +13,32 @@ from astropy import units as u
 
 HIT_COLOR = np.array([120, 120, 255], dtype=np.uint8)
 
+def unlensed_pixel_count(simulation: MicrolensingSimulation, quasar_radius: u.Quantity) -> int:
+    source_region = simulation.source_plane.source_region
+    pixel_region = simulation.get_ray_bundle().to("uas")
+    apparent_quasar_area = (
+        quasar_radius.to("uas") ** 2
+        * simulation.lensing_system.magnification_coefficient(
+            source_region.center
+        )
+        * np.pi
+    )
+    return apparent_quasar_area / (
+        pixel_region.delta.x * pixel_region.delta.y
+    ).to("uas2")
+
+@dataclass(frozen=True)
+class Lightcurve:
+    data: np.ndarray # 1-dimensional array of QSO proportional to brightness of the QSO without microlensing.
+    start_pos: Vec2D # Starting position of the lightcurve.
+    end_pos: Vec2D # ending point of the lightcurve (inclusive).
+
+    @property
+    def magnitudes(self) -> np.ndarray:
+        return -2.5 * np.log10(self.data)
+
+
+
 
 @DelegateRegistry.register
 @dataclass(kw_only=True)
@@ -60,20 +86,7 @@ class MagnificationMapReducer(Reducer):
 
     def initialize(self, simulation: MicrolensingSimulation):
         self.source_region = simulation.source_plane.source_region
-        pixel_region = simulation.get_ray_bundle().to("uas")
-        apparent_quasar_area = (
-            self.radius.to("uas") ** 2
-            * simulation.lensing_system.magnification_coefficient(
-                self.source_region.center
-            )
-            * np.pi
-        )
-        unlensed_pixel_count = apparent_quasar_area / (
-            pixel_region.delta.x * pixel_region.delta.y
-        ).to("uas2")
-        # Number of pixels expected for the quasar, based on large-scale
-        # magnification only.
-        self.expected_pixels = unlensed_pixel_count.value
+        self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
 
     def reduce(self, traced_rays: KdTree):
 
@@ -108,7 +121,7 @@ class MagnificationMapReducer(Reducer):
     def magnitudes(self) -> np.ndarray:
         if self.output is None:
             raise ValueError("Cannot compute magnitudes for empty reducer")
-        return -2.5 * np.log10(self.output / self.expected_pixels)
+        return -2.5 * np.log10(self.output / self.unlensed_pixel_count)
 
     def set_output(self, output: object):
         self.canvas = output  # type: ignore
@@ -139,28 +152,39 @@ class LightCurvesReducer(Reducer):
     seed: Optional[int]
 
     def initialize(self, simulation: MicrolensingSimulation):
-        self._curves: List[np.ndarray] = [
-            np.array([]) for _ in range(self.num_curves)
-        ]
+        self._curves: List[np.ndarray] = [None for i in range(self.num_curves)]
         self.source_region = simulation.source_plane.source_region
+        self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
 
     def reduce(self, traced_rays: KdTree):
         query_points = self.get_query_points(self.source_region)
         radius = self.radius.to("theta_0").value
         for i in range(self.num_curves):
-            queries = query_points[i].to("theta_0").value
-            self._curves[i] = populate_lightcurve(queries, radius, traced_rays)
+            queries = query_points[i].to("theta_0")
+            self._curves[i] = Lightcurve(
+                data=populate_lightcurve(queries.value, radius, traced_rays) / self.unlensed_pixel_count,
+                start_pos=Vec2D(queries[0][0], queries[0][1]), # Might need to swap 2nd indices
+                end_pos=Vec2D(queries[-1][0], queries[-1][1]),
+            )
 
     def merge(self, other: Self) -> Self:
         for i in range(self.num_curves):
             if self._curves[i] is not None and other._curves[i] is not None:
-                self._curves[i] = self._curves[i] + other._curves[i]
+                self._curves[i] = Lightcurve(
+                    data=self._curves[i].data + other._curves[i].data,
+                    start_pos=self._curves[i].start_pos,
+                    end_pos=self._curves[i].end_pos,
+                )
             elif other._curves[i] is not None:
                 self._curves[i] = other._curves[i]
         return self
 
     @property
     def output(self):
+        return self._curves
+
+    @property
+    def lightcurves(self):
         return self._curves
 
     def set_output(self, output: object):

@@ -28,6 +28,10 @@ class VizState:
     def variant_key(self) -> VariantKey:
         return self.variant_keys[self.variant_key_index]
 
+    @property
+    def source_region(self) -> Region:
+        return self.simulation_result.simulation.source_region_dimensions
+
 
 class Panel(Enum):
     LINE = "LINE"

@@ -30,7 +30,10 @@ controllers can be added / removed programatically or via the UI.
 """
 from .viz import Viz
 from .window import VizWindow
-from .controller import Controller, MagMapController
+from .controller import Controller, MagMapController, LightcurvesController
 from .viz_state import VizState, Panel, VizEvent
 
-__all__ = ["Viz", "VizState", "VizWindow", "Controller", "MagMapController", "Panel", "VizEvent"]
+__all__ = [
+    "Viz", "VizState", "VizWindow", "Controller", "MagMapController", "Panel", "VizEvent",
+    "LightcurvesController",
+]

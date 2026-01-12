@@ -23,6 +23,7 @@ dependencies = [
   "hurry.filesize",
   "pandas",
   "ruamel.yaml",
+  "frozendict"
 ]
 
 [project.optional-dependencies]

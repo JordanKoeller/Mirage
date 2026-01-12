@@ -130,7 +130,7 @@ class Viz:
         artists.extend(self._window.title_artists())
         for layer_name in self._model.layers:
             controller = self._controllers.get(layer_name)
-            artists.append(controller.control_button.label)
+            artists.append(controller.control_button)
             if not controller.enabled:
                 continue
             did_draw, artists = controller.controller.do_draw(self._model, self._window, force=force)

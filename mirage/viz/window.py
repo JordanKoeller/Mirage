@@ -52,7 +52,7 @@ class VizWindow:
             height_ratios=[1, 5, 25],
             per_subplot_kw={
                 "title": {"frame_on": False, "xticks": [], "yticks": []},
-                "image": {"frame_on": True, "xticks": [], "yticks": []},
+                "image": {"frame_on": True},
             },
         )
 

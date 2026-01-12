@@ -137,7 +137,7 @@ class Viz:
             if did_draw:
                 controller.artists = artists
             artists.extend(controller.artists)
-        self._window.figure.canvas.draw()
+        self._window.draw()
         return artists
 
     def toggle_layer(self, layer_name: str) -> None:

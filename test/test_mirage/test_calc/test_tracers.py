@@ -8,6 +8,7 @@ from mirage.util import PixelRegion, Vec2D
 from mirage.model import Quasar
 from mirage.model.impl import PointLens
 from mirage.calc.tracers.micro_tracer_helper import micro_ray_trace
+from mirage.calc.tracers.tracers import trace_rays
 
 
 class TestPointLensTracer(TestCase):
@@ -37,11 +38,22 @@ class TestMicroTracer(TestCase):
             resolution=Vec2D.unitless(500, 500),
         )
         tracer = point_lens.get_ray_tracer()
-        sample_ray = region.pixels
-        micro_traced = micro_ray_trace(
-            sample_ray, 0.0, 0.0, np.array([1e12]), np.array([[0.0, 0.0]]), 1
+        sample_ray = region.pixels.value
+        micro_traced = trace_rays(
+            sample_ray, 0.0, 0.0, np.array([1e12]), np.array([[0.0, 0.0]])
         )
         macro_traced = tracer.trace(region)
-        self.assertAlmostEqual(
-            micro_traced.value.tolist(), macro_traced.value.tolist()
+        for a, b in zip(micro_traced.flatten().tolist(), macro_traced.value.flatten().tolist()):
+             # less than 1e-7 fractional difference
+            self.assertLess(abs(a-b) / (a + b) / 2, 1e-7)
+
+    def testTrace_stressTest(self):
+        region = PixelRegion(
+            dims=Vec2D(5, 55, "arcsec"),
+            center=Vec2D.zero_vector("arcsec"),
+            resolution=Vec2D.unitless(1000, 1000),
+        )
+        sample_ray = region.pixels.value
+        micro_traced = trace_rays(
+            sample_ray, 0.3, 0.2, np.array([1e6, 2e6, 3e6] * 300), np.array([[0.0, 0.0], [-0.1, 0.2], [1.0, 2.3]] * 300)
         )

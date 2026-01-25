@@ -1,0 +1,71 @@
+#include <experimental/simd>
+#include <stdfloat>
+
+namespace stdx = std::experimental;
+
+using Float = double;
+
+using FV = stdx::native_simd<Float>;
+
+inline void trace_stars(
+    Float ray_x,
+    Float ray_y,
+    Float* stars_x,
+    Float* stars_y,
+    Float* stars_m,
+    size_t num_stars,
+    Float* out_x,
+    Float* out_y
+) {
+    FV* stars_v_x = (FV*) stars_x;
+    FV* stars_v_y = (FV*) stars_y;
+    FV* stars_v_m = (FV*) stars_m;
+
+    // Accumulate delta from individual stars on a per-element basis.
+    FV ray_x_v(ray_x);
+    FV ray_y_v(ray_y);
+    FV out_x_v(0.0);
+    FV out_y_v(0.0);
+
+    // Trace all rays  around stars (vectorized)
+    for (size_t s=0; s < num_stars / FV::size(); s++) {
+      FV dx = ray_x_v - stars_v_x[s];
+      FV dy = ray_y_v - stars_v_y[s];
+      FV r = dx * dx + dy * dy;
+      out_x_v += stars_v_m[s] * dx / r;
+      out_y_v += stars_v_m[s] * dy / r;
+    }
+    // reduce the out vector.
+    for (size_t j=0; j< FV::size(); j++) {
+      *out_x -= out_x_v[j];
+      *out_y -= out_y_v[j];
+    }
+    // Catch any leftover stars.
+    for (size_t s = (num_stars / FV::size()) * FV::size(); s < num_stars; s++) {
+      Float dx = ray_x - stars_x[s];
+      Float dy = ray_y - stars_y[s];
+      Float r = dx * dx + dy * dy;
+      *out_x -= stars_m[s] * dx / r;
+      *out_y -= stars_m[s] * dy / r;
+    }
+}
+
+// Trace the provided rays. The input rays_x and rays_y are out parameters. The traced rays
+// are written back to these buffers.
+void trace(Float* rays_x, Float* rays_y, size_t num_rays, Float kap, Float gam,
+          Float* stars_m, Float* stars_x, Float* stars_y, size_t num_stars) {
+  Float g_min = 1.0 - gam;
+  Float g_max = 1.0 + gam;
+
+  for (size_t i=0; i < num_rays; i++) {
+    Float ray_x = rays_x[i];
+    Float ray_y = rays_y[i];
+
+    // Macrolensing effects
+    rays_x[i] = g_min * ray_x - kap * ray_x;
+    rays_y[i] = g_max * ray_y - kap * ray_y;
+
+    trace_stars(ray_x, ray_y, stars_x, stars_y, stars_m, num_stars, &rays_x[i], &rays_y[i]);
+  }
+}
+

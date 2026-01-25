@@ -27,12 +27,14 @@ class CKDTree {
    // Args:
    //   buf: Pointer to the front of the buffer containing coordinates in columnar order.
    //   sz: Number of elements in buf.
-   //   has_magnification: If true, each element of buf includes a magnification coefficient.
+   //   elem_sz: The number of floats per element (in columnar order).
    //   leaf_size: The number of elements to include in each leaf node.
-   CKDTree(double* buf, size_t sz, bool has_magnification, size_t leaf_size)
-     : buf_(buf), elem_sz_(has_magnification ? 3 : 2), sz_(sz), leaf_size_(leaf_size) {
+   CKDTree(double* buf, size_t sz, size_t elem_sz, size_t leaf_size)
+     : buf_(buf), elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
        init_tree();
      }
+
+   CKDTree() {}
 
    // Return the number of elements in the tree that are within the circle of
    // radius r at location (cx, cy).
@@ -60,6 +62,29 @@ class CKDTree {
      Reduce(cx, cy, r, &reducer);
      return mag;
    }
+
+   // Returns the number of elements in the buffer.
+   size_t size() {
+     return sz_;
+   }
+
+   // Returns the number of floats in the buffer (sz_ * elem_sz_)
+   size_t buf_size() {
+     return sz_ * elem_sz_;
+   }
+
+   size_t tree_size() {
+     return splits_.size();
+   }
+
+   size_t queried_nodes_count() {
+     return queried_nodes_count_;
+   }
+
+   size_t queried_points_count() {
+     return queried_points_count_;
+   }
+
  private:
 
    // Swap elements i, j in buf_;
@@ -96,6 +121,9 @@ class CKDTree {
 
    // Min number of elements to includes per leaf.
    size_t leaf_size_;
+
+   size_t queried_nodes_count_;
+   size_t queried_points_count_;
 
    // Array of splits in heap-ordering.
    std::vector<double> splits_;
@@ -182,23 +210,28 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
 }
 
 inline void CKDTree::init_tree() {
+  if (sz_ == 0 || elem_sz_ == 0) {
+    return;
+  }
   // queue up tuples of (start_i, end_i, dimension)
   std::queue<std::tuple<size_t, size_t, size_t>> q({std::make_tuple(0, sz_, 0)});
   while (!q.empty()) {
     auto [start, end, dim] = q.front();
     q.pop();
 
-    size_t midpt = (start + end) / 2;
-    splits_.push_back(partition(start, end, dim));
-    if ((end-start) / 2 <= leaf_size_) {
+    if (end-start <= leaf_size_) {
       continue;
     }
+    size_t midpt = (start + end) / 2;
+    splits_.push_back(partition(start, end, dim));
     q.push(std::make_tuple(start, midpt, (dim + 1) % 2));
     q.push(std::make_tuple(midpt, end, (dim + 1) % 2));
   }
 }
 
 inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(size_t)>* reducer) {
+  queried_nodes_count_ = 0;
+  queried_points_count_ = 0;
   double r2 = r * r;
   double center[]{cx, cy};
   // queue of tuples of (start_i, end_i, split_index, dimension)
@@ -207,7 +240,8 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
     auto [start, end, split, dimension]= q.front();
     q.pop();
 
-    if (split * 2 >= splits_.size()) {
+    if (end - start <= leaf_size_) {
+      queried_nodes_count_++;
       // We're at a leaf, so apply reducer.
       // TODO: SIMD this. It's tricky because you have to use aligned pointers
       // and start for both x and y may not be aligned.
@@ -215,6 +249,7 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
       // If I want to SIMD this I might need to create a copy of the data
       // so that the x and y buffers are guaranteed aligned.
       for (size_t i = start; i < end; i++) {
+        queried_points_count_++;
         double dx = buf_[i] - cx;
         double dy = buf_[sz_ + i] - cy;
         if (dx * dx + dy * dy < r2) {

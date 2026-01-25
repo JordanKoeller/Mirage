@@ -1,4 +1,4 @@
-from .kd_tree import PyKdTree as KdTree, PyKdTree, RustKdTree
+from .kd_tree import FastKdTree as KdTree, PyKdTree, RustKdTree, FastKdTree
 
 # from .kd_tree import RustKdTree as KdTree
 from .ray_tracer import RayTracer
@@ -11,6 +11,7 @@ __all__ = [
     "KdTree",
     "PyKdTree",
     "RustKdTree",
+    "FastKdTree",
     "RayTracer",
     "Reducer",
     "Engine",

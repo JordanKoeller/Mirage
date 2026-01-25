@@ -5,6 +5,7 @@ import numpy as np
 from astropy import units as u
 
 from mirage.util import Vec2D
+from mirage.calc.fast_tree import FastTree
 
 from mirage_ext import KiddoTree
 
@@ -74,6 +75,33 @@ class RustKdTree:
     def query_indicies(
         self, query_pos: Vec2D, radius: u.Quantity
     ) -> np.ndarray:
+        query_pos = query_pos.to(self.unit)
+        radius = radius.to(self.unit)
+        return self.tree.query_indices(
+            query_pos.x.value, query_pos.y.value, radius.value
+        )
+
+class FastKdTree:
+    def __init__(self, data: u.Quantity, leaf_size: int = 256):
+        self.unit = data.unit
+        self.tree = FastTree(data.value, leaf_size)
+
+    def query_rays(self, query_pos: Vec2D, radius: u.Quantity) -> u.Quantity:
+        raise NotImplementedError("Yat")
+        query_pos = query_pos.to(self.unit)
+        radius = radius.to(self.unit)
+        rays = self.tree.points_in_circle(
+            query_pos.x.value, query_pos.y.value, radius.value
+        )
+        return u.Quantity(rays, self.unit)
+
+    def query_count(self, x, y, radius) -> int:
+        return self.tree.points_in_circle(x, y, radius)
+
+    def query_indicies(
+        self, query_pos: Vec2D, radius: u.Quantity
+    ) -> np.ndarray:
+        raise NotImplementedError("Yat")
         query_pos = query_pos.to(self.unit)
         radius = radius.to(self.unit)
         return self.tree.query_indices(

@@ -6,7 +6,6 @@
 #include "ckd_tree.h"
 
 using ::std::cout;
-using ::std::float64_t;
 
 template<typename Numeric, typename Generator = std::mt19937>
 Numeric random(Numeric from, Numeric to)
@@ -25,23 +24,23 @@ Numeric random(Numeric from, Numeric to)
     return dist(gen, typename dist_type::param_type{from, to});
 }
 
-std::vector<float64_t> CreatePoints(size_t num_points, size_t num_dims) {
-  std::vector<float64_t> arr;
+std::vector<double> CreatePoints(size_t num_points, size_t num_dims) {
+  std::vector<double> arr;
   for (size_t i=0; i < num_points * num_dims; i++) {
-    arr.push_back(random<float64_t>(-10.0, 10.0));
+    arr.push_back(random<double>(-10.0, 10.0));
   }
   return arr;
 }
 
 size_t BruteForceCount(
-    const std::vector<float64_t> arr, size_t sz,
-    float64_t cx, float64_t cy, float64_t r
+    const std::vector<double> arr, size_t sz,
+    double cx, double cy, double r
 ) {
   size_t count = 0;
-  float64_t r2 = r * r;
+  double r2 = r * r;
   for (int i=0; i < sz; i++) {
-    float64_t dx = arr[i] - cx;
-    float64_t dy = arr[i + sz] - cy;
+    double dx = arr[i] - cx;
+    double dy = arr[i + sz] - cy;
     if (dx * dx + dy * dy < r2) {
       count++;
     }
@@ -49,15 +48,15 @@ size_t BruteForceCount(
   return count;
 }
 
-float64_t BruteForceMag(
-    const std::vector<float64_t> arr, size_t sz,
-    float64_t cx, float64_t cy, float64_t r
+double BruteForceMag(
+    const std::vector<double> arr, size_t sz,
+    double cx, double cy, double r
 ) {
-  float64_t mag;
-  float64_t r2 = r * r;
+  double mag;
+  double r2 = r * r;
   for (int i=0; i < sz; i++) {
-    float64_t dx = arr[i] - cx;
-    float64_t dy = arr[i + sz] - cy;
+    double dx = arr[i] - cx;
+    double dy = arr[i + sz] - cy;
     if (dx * dx + dy * dy < r2) {
       mag += arr[i + sz * 2];
     }
@@ -65,7 +64,7 @@ float64_t BruteForceMag(
   return mag;
 }
 
-void Print(const std::vector<float64_t>& arr, size_t sz) {
+void Print(const std::vector<double>& arr, size_t sz) {
   cout << "[";
   for (int i=0; i < sz; i++) {
     cout << "(" << arr[i] << ", " << arr[i + sz] << "), ";
@@ -75,6 +74,8 @@ void Print(const std::vector<float64_t>& arr, size_t sz) {
 
 void TestWithoutMags() {
   std::vector<size_t> sizes{
+    0,
+      512,
     100, 500, 1000, 1001, 5003, 1024, 2049, 7919, 5297, 5298, 7723, 10000, 10023, 10240,
       50023, 50763,
       100023, 100452, 100421,
@@ -89,7 +90,7 @@ void TestWithoutMags() {
   for (auto sz : sizes) {
     auto arr = CreatePoints(sz, 2);
     auto arrCopy = arr;
-    CKDTree tree(arr.data(), sz, false, 128);
+    CKDTree tree(arr.data(), sz, 2, 128);
     size_t tree_val = tree.PointsInCircle(-2.0, 3.4, 2.4);
     size_t bf_val =  BruteForceCount(arrCopy, sz, -2.0, 3.4, 2.4);
     if (tree_val != bf_val) {
@@ -102,6 +103,8 @@ void TestWithoutMags() {
 
 void TestWithMags() {
   std::vector<size_t> sizes{
+    0,
+      512,
     100, 500, 1000, 1001, 5003, 1024, 2049, 7919, 5297, 5298, 7723, 10000, 10023, 10240,
       50023, 50763,
       100023, 100452, 100421,
@@ -118,9 +121,9 @@ void TestWithMags() {
   for (auto sz : sizes) {
     auto arr = CreatePoints(sz, 3);
     auto arrCopy = arr;
-    CKDTree tree(arr.data(), sz, true, 64);
-    float64_t tree_val = tree.MagnificationCoefficient(-2.0, 3.4, 2.4);
-    float64_t bf_val =  BruteForceMag(arrCopy, sz, -2.0, 3.4, 2.4);
+    CKDTree tree(arr.data(), sz, 3, 128);
+    double tree_val = tree.MagnificationCoefficient(-2.0, 3.4, 2.4);
+    double bf_val =  BruteForceMag(arrCopy, sz, -2.0, 3.4, 2.4);
     // Allow for floating point differences.
       if ((tree_val - bf_val) / (tree_val + bf_val) / 2 > 1e-7) {
       cout << "[" << sz << "]: " << tree_val << " != " << bf_val << "\n";

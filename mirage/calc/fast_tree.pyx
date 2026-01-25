@@ -5,18 +5,23 @@ cimport numpy as cnp
 
 import numpy as np
 
-cdef class KDTree:
-    cdef ckd_tree.CKDTree* c_tree_
+cdef class FastTree:
+    cdef ckd_tree.CKDTree _tree
+    cdef object _data
 
-    def __cinit__(self, cnp.float64_t[::1] data, unsigned long leaf_size):
+    def __init__(self, cnp.ndarray[cnp.float64_t, ndim=3] data, unsigned long leaf_size):
         cdef unsigned long sz = data.shape[0] * data.shape[1]
-        self.c_tree_ = new ckd_tree.CKDTree(&data[0], sz, data.shape[2] > 2, leaf_size)
+        if not np.isfortran(data):
+            data = np.asfortranarray(data)
+        self._data = data
+        cdef cnp.float64_t[:, :, :] data_view = self._data
+        self._tree = ckd_tree.CKDTree(&data_view[0, 0, 0], sz, data.shape[2], leaf_size)
+        print("Created tree with ", self._tree.tree_size(), " nodes")
 
-    def __dealloc__(self):
-        del self.c_tree_
+    def points_in_circle(self, double cx, double cy, double r):
+        ret = self._tree.PointsInCircle(cx, cy, r)
+        print("Queried", self._tree.queried_nodes_count(), " nodes,", self._tree.queried_points_count(), "points")
+        return ret
 
-    cdef unsigned long points_in_circle(self, double cx, double cy, double r):
-        return self.c_tree_.PointsInCircle(cx, cy, r)
-
-    cdef double magnification_coefficient(self, double cx, double cy, double r):
-        return self.c_tree_.MagnificationCoefficient(cx, cy, r)
+    def magnification_coefficient(self, double cx, double cy, double r):
+        return self._tree.MagnificationCoefficient(cx, cy, r)

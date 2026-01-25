@@ -247,7 +247,7 @@ class PixelRegion(Region):
         )
 
         x, y = np.meshgrid(x_ax, y_ax)
-        grid = np.stack([x, y], 2)
+        grid = np.asfortranarray(np.stack([x, y], 2))
         return u.Quantity(grid, self.unit)
 
     @property

@@ -5,7 +5,7 @@ from functools import cached_property
 from matplotlib.backend_bases import MouseEvent, KeyEvent
 
 from mirage.lens_analysis.result import ExperimentResult, SimulationResult
-from mirage.util import VariantKey, Vec2D
+from mirage.util import VariantKey, Vec2D, Region
 
 
 @dataclass
@@ -30,7 +30,12 @@ class VizState:
 
     @property
     def source_region(self) -> Region:
-        return self.simulation_result.simulation.source_region_dimensions
+        return Region(
+            dims=self.simulation_result.simulation.source_region_dimensions)
+
+    @property
+    def lens_region(self) -> Region:
+        return self.simulation_result.simulation.get_ray_bundle()
 
 
 class Panel(Enum):

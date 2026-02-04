@@ -82,7 +82,7 @@ class RustKdTree:
         )
 
 class FastKdTree:
-    def __init__(self, data: u.Quantity, leaf_size: int = 256):
+    def __init__(self, data: u.Quantity, leaf_size: int = 64):
         self.unit = data.unit
         self.tree = FastTree(data.value, leaf_size)
 
@@ -97,6 +97,12 @@ class FastKdTree:
 
     def query_count(self, x, y, radius) -> int:
         return self.tree.points_in_circle(x, y, radius)
+
+    def batch_query_count(self, query_points: u.Quantity, radius: u.Quantity) -> np.ndarray:
+        return self.tree.batch_points_in_circle(
+            query_points.to(self.unit).value,
+            radius.to(self.unit).value
+        )
 
     def query_indicies(
         self, query_pos: Vec2D, radius: u.Quantity

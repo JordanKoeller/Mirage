@@ -1,7 +1,7 @@
 from typing import Union, Optional
 
 from .result import ExperimentResult, SimulationResult
-from mirage.viz import Viz, VizWindow, VizState, MagMapController, LightcurvesController
+from mirage.viz import Viz, VizWindow, VizState, MagMapController, LightcurvesController, DebugController
 from mirage.io import ResultFileManager
 
 def load(filename: str) -> ExperimentResult | SimulationResult:
@@ -23,7 +23,7 @@ def visualize(
     viz_obj = Viz(
         model=VizState(result, 0),
         view=VizWindow(),
-        controllers=[MagMapController()])
+        controllers=[DebugController()])
     viz_obj.show()
     return viz_obj
 

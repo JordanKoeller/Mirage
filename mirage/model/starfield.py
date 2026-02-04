@@ -43,7 +43,7 @@ class Starfield:
         num_stars = len(masses)
 
         positions: np.ndarray = np.ndarray(
-            (num_stars, 2), dtype=np.float64
+            (num_stars, 2), dtype=np.float64, order='F'
         )  # Buffer where each row is [x, y]
 
         self._reset_rng(self.seed + 1)

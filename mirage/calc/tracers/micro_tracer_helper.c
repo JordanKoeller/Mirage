@@ -11,10 +11,12 @@
             "/home/jkoeller/Tools/miniconda3/envs/mirage/lib/python3.14/site-packages/numpy/_core/include/numpy/ufuncobject.h"
         ],
         "extra_compile_args": [
-            "-O3"
+            "-O3",
+            "-fopenmp"
         ],
         "extra_link_args": [
-            "-O3"
+            "-O3",
+            "-fopenmp"
         ],
         "include_dirs": [
             "/home/jkoeller/Tools/miniconda3/envs/mirage/lib/python3.14/site-packages/numpy/_core/include"
@@ -2980,13 +2982,13 @@ static int __Pyx_ValidateAndInit_memviewslice(
                 PyObject *original_obj);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_float64_t(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsdsds_nn___pyx_t_5numpy_float64_t(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_5numpy_float64_t(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_5numpy_float64_t(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float64_t(PyObject *, int writable_flag);
 
 /* MemviewDtypeToObject.proto */
 static CYTHON_INLINE PyObject *__pyx_memview_get_nn___pyx_t_5numpy_float64_t(const char *itemp);
@@ -18809,7 +18811,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_micro
   __pyx_pybuffernd_ret.rcbuffer = &__pyx_pybuffer_ret;
 
   /* "mirage/calc/tracers/micro_tracer_helper.pyx":35
- *       cnp.float64_t[:, ::1] star_pos,
+ *       cnp.float64_t[:, :] star_pos,
  *       int thread_count):
  *   cdef cnp.ndarray[cnp.float64_t, ndim=3] ret = np.copy(rays)             # <<<<<<<<<<<<<<
  *   cdef int i,j
@@ -18941,7 +18943,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_micro
       __pyx_t_18 = __pyx_v_i;
       __pyx_t_19 = __pyx_v_j;
       __pyx_t_20 = 0;
-      *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_18, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_19, __pyx_pybuffernd_ret.diminfo[1].strides, __pyx_t_20, __pyx_pybuffernd_ret.diminfo[2].strides) = ((__pyx_v_gMin * (*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_12 * __pyx_v_rays.strides[0]) ) + __pyx_t_13 * __pyx_v_rays.strides[1]) )) + __pyx_t_14)) )))) - (__pyx_v_kap * (*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_15 * __pyx_v_rays.strides[0]) ) + __pyx_t_16 * __pyx_v_rays.strides[1]) )) + __pyx_t_17)) )))));
+      *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_18, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_19, __pyx_pybuffernd_ret.diminfo[1].strides, __pyx_t_20, __pyx_pybuffernd_ret.diminfo[2].strides) = ((__pyx_v_gMin * (*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_12 * __pyx_v_rays.strides[0]) ) + __pyx_t_13 * __pyx_v_rays.strides[1]) ) + __pyx_t_14 * __pyx_v_rays.strides[2]) )))) - (__pyx_v_kap * (*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_15 * __pyx_v_rays.strides[0]) ) + __pyx_t_16 * __pyx_v_rays.strides[1]) ) + __pyx_t_17 * __pyx_v_rays.strides[2]) )))));
 
       /* "mirage/calc/tracers/micro_tracer_helper.pyx":47
  *     for j in range(0,height):
@@ -18959,7 +18961,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_micro
       __pyx_t_20 = __pyx_v_i;
       __pyx_t_19 = __pyx_v_j;
       __pyx_t_18 = 1;
-      *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_20, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_19, __pyx_pybuffernd_ret.diminfo[1].strides, __pyx_t_18, __pyx_pybuffernd_ret.diminfo[2].strides) = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_17 * __pyx_v_rays.strides[0]) ) + __pyx_t_16 * __pyx_v_rays.strides[1]) )) + __pyx_t_15)) ))) * __pyx_v_gMax) - (__pyx_v_kap * (*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_14 * __pyx_v_rays.strides[0]) ) + __pyx_t_13 * __pyx_v_rays.strides[1]) )) + __pyx_t_12)) )))));
+      *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_20, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_19, __pyx_pybuffernd_ret.diminfo[1].strides, __pyx_t_18, __pyx_pybuffernd_ret.diminfo[2].strides) = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_17 * __pyx_v_rays.strides[0]) ) + __pyx_t_16 * __pyx_v_rays.strides[1]) ) + __pyx_t_15 * __pyx_v_rays.strides[2]) ))) * __pyx_v_gMax) - (__pyx_v_kap * (*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_14 * __pyx_v_rays.strides[0]) ) + __pyx_t_13 * __pyx_v_rays.strides[1]) ) + __pyx_t_12 * __pyx_v_rays.strides[2]) )))));
 
       /* "mirage/calc/tracers/micro_tracer_helper.pyx":48
  *       ret[i,j,0] = gMin*rays[i,j,0] - kap*rays[i,j,0]
@@ -18985,7 +18987,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_micro
         __pyx_t_14 = 0;
         __pyx_t_15 = __pyx_v_s;
         __pyx_t_16 = 0;
-        __pyx_v_dx = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_12 * __pyx_v_rays.strides[0]) ) + __pyx_t_13 * __pyx_v_rays.strides[1]) )) + __pyx_t_14)) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_star_pos.data + __pyx_t_15 * __pyx_v_star_pos.strides[0]) )) + __pyx_t_16)) ))));
+        __pyx_v_dx = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_12 * __pyx_v_rays.strides[0]) ) + __pyx_t_13 * __pyx_v_rays.strides[1]) ) + __pyx_t_14 * __pyx_v_rays.strides[2]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_star_pos.data + __pyx_t_15 * __pyx_v_star_pos.strides[0]) ) + __pyx_t_16 * __pyx_v_star_pos.strides[1]) ))));
 
         /* "mirage/calc/tracers/micro_tracer_helper.pyx":50
  *       for s in range(num_stars):
@@ -18999,7 +19001,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_micro
         __pyx_t_14 = 1;
         __pyx_t_13 = __pyx_v_s;
         __pyx_t_12 = 1;
-        __pyx_v_dy = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_16 * __pyx_v_rays.strides[0]) ) + __pyx_t_15 * __pyx_v_rays.strides[1]) )) + __pyx_t_14)) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_star_pos.data + __pyx_t_13 * __pyx_v_star_pos.strides[0]) )) + __pyx_t_12)) ))));
+        __pyx_v_dy = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_rays.data + __pyx_t_16 * __pyx_v_rays.strides[0]) ) + __pyx_t_15 * __pyx_v_rays.strides[1]) ) + __pyx_t_14 * __pyx_v_rays.strides[2]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_star_pos.data + __pyx_t_13 * __pyx_v_star_pos.strides[0]) ) + __pyx_t_12 * __pyx_v_star_pos.strides[1]) ))));
 
         /* "mirage/calc/tracers/micro_tracer_helper.pyx":51
  *         dx = rays[i,j,0] - star_pos[s,0]
@@ -19021,7 +19023,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_micro
         __pyx_t_13 = __pyx_v_i;
         __pyx_t_14 = __pyx_v_j;
         __pyx_t_15 = 0;
-        *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_ret.diminfo[1].strides, __pyx_t_15, __pyx_pybuffernd_ret.diminfo[2].strides) -= (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ ((char *) (((__pyx_t_5numpy_float64_t *) __pyx_v_star_mass.data) + __pyx_t_12)) ))) * __pyx_v_dx) / ((__pyx_t_5numpy_float64_t)__pyx_v_r));
+        *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_ret.diminfo[1].strides, __pyx_t_15, __pyx_pybuffernd_ret.diminfo[2].strides) -= (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_star_mass.data + __pyx_t_12 * __pyx_v_star_mass.strides[0]) ))) * __pyx_v_dx) / ((__pyx_t_5numpy_float64_t)__pyx_v_r));
 
         /* "mirage/calc/tracers/micro_tracer_helper.pyx":53
  *         r = dx*dx + dy*dy
@@ -19033,7 +19035,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_micro
         __pyx_t_15 = __pyx_v_i;
         __pyx_t_14 = __pyx_v_j;
         __pyx_t_13 = 1;
-        *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_ret.diminfo[1].strides, __pyx_t_13, __pyx_pybuffernd_ret.diminfo[2].strides) -= (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ ((char *) (((__pyx_t_5numpy_float64_t *) __pyx_v_star_mass.data) + __pyx_t_12)) ))) * __pyx_v_dy) / ((__pyx_t_5numpy_float64_t)__pyx_v_r));
+        *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_ret.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_ret.diminfo[0].strides, __pyx_t_14, __pyx_pybuffernd_ret.diminfo[1].strides, __pyx_t_13, __pyx_pybuffernd_ret.diminfo[2].strides) -= (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_star_mass.data + __pyx_t_12 * __pyx_v_star_mass.strides[0]) ))) * __pyx_v_dy) / ((__pyx_t_5numpy_float64_t)__pyx_v_r));
       }
     }
   }
@@ -19175,11 +19177,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       values[5] = __Pyx_ArgRef_FASTCALL(__pyx_args, 5);
       if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 26, __pyx_L3_error)
     }
-    __pyx_v_rays = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_float64_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_rays.memview)) __PYX_ERR(0, 29, __pyx_L3_error)
+    __pyx_v_rays = __Pyx_PyObject_to_MemoryviewSlice_dsdsds_nn___pyx_t_5numpy_float64_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_rays.memview)) __PYX_ERR(0, 29, __pyx_L3_error)
     __pyx_v_kap = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_kap == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 30, __pyx_L3_error)
     __pyx_v_gam = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_gam == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 31, __pyx_L3_error)
-    __pyx_v_star_mass = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_5numpy_float64_t(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_star_mass.memview)) __PYX_ERR(0, 32, __pyx_L3_error)
-    __pyx_v_star_pos = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_5numpy_float64_t(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_star_pos.memview)) __PYX_ERR(0, 33, __pyx_L3_error)
+    __pyx_v_star_mass = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_star_mass.memview)) __PYX_ERR(0, 32, __pyx_L3_error)
+    __pyx_v_star_pos = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float64_t(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_star_pos.memview)) __PYX_ERR(0, 33, __pyx_L3_error)
     __pyx_v_thread_count = __Pyx_PyLong_As_int(values[5]); if (unlikely((__pyx_v_thread_count == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
@@ -27881,17 +27883,17 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
   }
   
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_float64_t(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsdsds_nn___pyx_t_5numpy_float64_t(PyObject *obj, int writable_flag) {
       __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
       __Pyx_BufFmt_StackElem stack[1];
-      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
+      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
       int retcode;
       if (obj == Py_None) {
           result.memview = (struct __pyx_memoryview_obj *) Py_None;
           return result;
       }
-      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
-                                                   (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 3,
+      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
+                                                   PyBUF_RECORDS_RO | writable_flag, 3,
                                                    &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, stack,
                                                    &result, obj);
       if (unlikely(retcode == -1))
@@ -27904,17 +27906,17 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
   }
   
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_5numpy_float64_t(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(PyObject *obj, int writable_flag) {
       __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
       __Pyx_BufFmt_StackElem stack[1];
-      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
+      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
       int retcode;
       if (obj == Py_None) {
           result.memview = (struct __pyx_memoryview_obj *) Py_None;
           return result;
       }
-      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
-                                                   (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 1,
+      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
+                                                   PyBUF_RECORDS_RO | writable_flag, 1,
                                                    &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, stack,
                                                    &result, obj);
       if (unlikely(retcode == -1))
@@ -27927,17 +27929,17 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
   }
   
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_5numpy_float64_t(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float64_t(PyObject *obj, int writable_flag) {
       __Pyx_memviewslice result = __Pyx_MEMSLICE_INIT;
       __Pyx_BufFmt_StackElem stack[1];
-      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
+      int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
       int retcode;
       if (obj == Py_None) {
           result.memview = (struct __pyx_memoryview_obj *) Py_None;
           return result;
       }
-      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
-                                                   (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 2,
+      retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
+                                                   PyBUF_RECORDS_RO | writable_flag, 2,
                                                    &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, stack,
                                                    &result, obj);
       if (unlikely(retcode == -1))

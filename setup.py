@@ -31,8 +31,8 @@ def get_ext_modules() -> Optional[List[Extension]]:
             ],
             # define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
             include_dirs=[numpy.get_include()],
-            extra_compile_args=["-O3"],
-            extra_link_args=["-O3"],
+            extra_compile_args=["-O3", "-fopenmp"],
+            extra_link_args=["-O3", "-fopenmp"],
         ),
         Extension(
             "mirage.calc.tracers.tracers",
@@ -53,8 +53,8 @@ def get_ext_modules() -> Optional[List[Extension]]:
                 )
             ],
             include_dirs=[numpy.get_include(), path.join("mirage", "calc")],
-            extra_compile_args=["--std=c++23", "-g"],
-            extra_link_args=["--std=c++23", "-g"],
+            extra_compile_args=["--std=c++23"],
+            extra_link_args=["--std=c++23"],
         ),
         Extension(
             "mirage.calc.reducer_funcs",

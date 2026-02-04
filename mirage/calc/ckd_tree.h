@@ -30,7 +30,12 @@ class CKDTree {
    //   elem_sz: The number of floats per element (in columnar order).
    //   leaf_size: The number of elements to include in each leaf node.
    CKDTree(double* buf, size_t sz, size_t elem_sz, size_t leaf_size)
-     : buf_(buf), elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
+     : elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
+       buf_.reserve(sz * elem_sz);
+       for (size_t i=0; i < sz * elem_sz; i++) {
+         buf_[i] = buf[i];
+
+       }
        init_tree();
      }
 
@@ -47,6 +52,14 @@ class CKDTree {
      return count;
    }
 
+   // batch version of PointsInCircle. Queries sz many circles, with centers
+   // specified in row-order.
+   void PointsInCircle(double* centers, size_t sz, double r, double* out) {
+     for (size_t i=0; i < sz; i++) {
+       out[i] = (double) PointsInCircle(centers[2*i], centers[2*i + 1], r);
+     }
+   }
+
    // Return the magnification coefficient for the specified circle of radius
    // r at location (cx, cy).
    //
@@ -61,6 +74,14 @@ class CKDTree {
      });
      Reduce(cx, cy, r, &reducer);
      return mag;
+   }
+
+   // batch version of MagnificationCoefficient. Queries sz many circles, with centers
+   // specified in row-order.
+   void MagnificationCoefficient(double* centers, size_t sz, double r, double* out) {
+     for (size_t i=0; i < sz; i++) {
+       out[i] = MagnificationCoefficient(centers[2*i], centers[2*i + 1], r);
+     }
    }
 
    // Returns the number of elements in the buffer.
@@ -111,7 +132,8 @@ class CKDTree {
    void init_tree();
 
    // Pointer to a contiguous buffer of coordinates, in columnar order.
-   double* buf_;
+   std::vector<double> buf_;
+   // double* buf_;
   
    // Number of double's per element, laid out in columnar order.
    size_t elem_sz_;

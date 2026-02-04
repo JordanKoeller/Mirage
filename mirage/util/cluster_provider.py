@@ -3,6 +3,7 @@ from typing import Optional
 import logging
 import multiprocessing
 from dataclasses import dataclass, field
+import time
 
 from dask.distributed import Client, LocalCluster
 from dask_cloudprovider.aws import FargateCluster
@@ -65,6 +66,7 @@ class LocalClusterProvider(ClusterProvider):
             threads_per_worker=2,
         )
         self._client = Client(self._cluster)
+        print(f"Connected to Dask Cluster {self.dashboard}")
 
     def close(self):
         if self._client:

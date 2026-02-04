@@ -66,7 +66,7 @@ class Viz:
             self._window.figure,
             self.draw,
             interval=1000 / ANIMATION_FRAMES_PER_SECOND,
-            blit=True,
+            # blit=True,
             cache_frame_data=False,
         )
 
@@ -137,7 +137,7 @@ class Viz:
             if did_draw:
                 controller.artists = artists
             artists.extend(controller.artists)
-        self._window.draw()
+        # self._window.draw()
         return artists
 
     def toggle_layer(self, layer_name: str) -> None:

@@ -4,6 +4,6 @@
 #  PartitionSize: 50M
 
 LocalClusterProvider:
-  NumWorkers: 8
+  NumWorkers: 12
   WorkerMem: 1GiB
-  RaysPerChunk: 128000
+  RaysPerChunk: 640000

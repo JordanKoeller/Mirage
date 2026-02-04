@@ -5,6 +5,7 @@ namespace stdx = std::experimental;
 
 using Float = double;
 
+// using FV = stdx::simd<Float, stdx::simd_abi::fixed_size<16>>;
 using FV = stdx::native_simd<Float>;
 
 inline void trace_stars(
@@ -57,6 +58,31 @@ void trace(Float* rays_x, Float* rays_y, size_t num_rays, Float kap, Float gam,
   Float g_min = 1.0 - gam;
   Float g_max = 1.0 + gam;
 
+  Float* stars_v_x = static_cast<Float*>(
+    std::aligned_alloc(stdx::memory_alignment_v<FV>,
+    (num_stars / FV::size() + 1) * stdx::memory_alignment_v<FV>)
+  );
+  Float* stars_v_y = static_cast<Float*>(
+    std::aligned_alloc(stdx::memory_alignment_v<FV>,
+    (num_stars / FV::size() + 1) * stdx::memory_alignment_v<FV>)
+  );
+  Float* stars_v_m = static_cast<Float*>(
+    std::aligned_alloc(stdx::memory_alignment_v<FV>,
+    (num_stars / FV::size() + 1) * stdx::memory_alignment_v<FV>)
+  );
+  std::memcpy(
+    static_cast<void*>(stars_v_x),
+    static_cast<void*>(stars_x),
+    sizeof(Float) * num_stars);
+  std::memcpy(
+    static_cast<void*>(stars_v_y),
+    static_cast<void*>(stars_y),
+    sizeof(Float) * num_stars);
+  std::memcpy(
+    static_cast<void*>(stars_v_m),
+    static_cast<void*>(stars_m),
+    sizeof(Float) * num_stars);
+
   for (size_t i=0; i < num_rays; i++) {
     Float ray_x = rays_x[i];
     Float ray_y = rays_y[i];
@@ -65,7 +91,16 @@ void trace(Float* rays_x, Float* rays_y, size_t num_rays, Float kap, Float gam,
     rays_x[i] = g_min * ray_x - kap * ray_x;
     rays_y[i] = g_max * ray_y - kap * ray_y;
 
-    trace_stars(ray_x, ray_y, stars_x, stars_y, stars_m, num_stars, &rays_x[i], &rays_y[i]);
+
+    trace_stars(
+      ray_x,
+      ray_y,
+      stars_v_x,
+      stars_v_y,
+      stars_v_m,
+      num_stars,
+      &rays_x[i],
+      &rays_y[i]);
   }
 }
 

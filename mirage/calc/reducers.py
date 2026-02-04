@@ -90,10 +90,10 @@ class MagnificationMapReducer(Reducer):
 
     def reduce(self, traced_rays: KdTree):
 
-        pixels = self.pixel_region.to("theta_0").pixels.value
-        radius = self.radius.to("theta_0").value
+        pixels = u.Quantity(np.ascontiguousarray(self.pixel_region.to("theta_0").pixels.value), "theta_0")
+        radius = self.radius.to("theta_0")
 
-        self.canvas = populate_magmap(pixels, radius, traced_rays)
+        self.canvas = np.array(traced_rays.batch_query_count(pixels, radius))
 
     def merge(self, other: Self) -> Self:
         other_canvas = other.canvas

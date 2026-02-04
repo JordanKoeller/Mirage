@@ -51,7 +51,7 @@ class TestMicroTracer(TestCase):
         region = PixelRegion(
             dims=Vec2D(5, 55, "arcsec"),
             center=Vec2D.zero_vector("arcsec"),
-            resolution=Vec2D.unitless(1000, 1000),
+            resolution=Vec2D.unitless(2000, 2000),
         )
         sample_ray = region.pixels.value
         micro_traced = trace_rays(

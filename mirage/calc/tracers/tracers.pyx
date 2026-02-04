@@ -25,6 +25,6 @@ cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace_rays(
   ctracers.trace(
       &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
       width * height, kap, gam,
-      &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], len(star_mass))
+      &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0])
   return rays
 

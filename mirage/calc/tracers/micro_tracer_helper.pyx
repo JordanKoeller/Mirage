@@ -26,11 +26,11 @@ cimport cython
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cpdef cnp.ndarray[cnp.float64_t, ndim=3] micro_ray_trace(
-      cnp.float64_t[:, :, ::1] rays,
+      cnp.float64_t[:, :, :] rays,
       double kap,
       double gam,
-      cnp.float64_t[::1] star_mass,
-      cnp.float64_t[:, ::1] star_pos,
+      cnp.float64_t[:] star_mass,
+      cnp.float64_t[:, :] star_pos,
       int thread_count):
   cdef cnp.ndarray[cnp.float64_t, ndim=3] ret = np.copy(rays)
   cdef int i,j

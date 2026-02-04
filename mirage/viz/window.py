@@ -117,8 +117,8 @@ class VizWindow:
         return self._p_button
 
     def show(self) -> None:
-        self._plot_fig.show()
         self._widgets_fig.show()
+        self._plot_fig.show()
 
     def draw(self) -> None:
         self._plot_fig.canvas.draw_idle()

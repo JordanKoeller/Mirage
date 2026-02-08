@@ -31,11 +31,12 @@ class CKDTree {
    //   leaf_size: The number of elements to include in each leaf node.
    CKDTree(double* buf, size_t sz, size_t elem_sz, size_t leaf_size)
      : elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
-       buf_.reserve(sz * elem_sz);
-       for (size_t i=0; i < sz * elem_sz; i++) {
-         buf_[i] = buf[i];
-
-       }
+       buf_ = buf;
+       // buf_.reserve(sz * elem_sz);
+       // for (size_t i=0; i < sz * elem_sz; i++) {
+       //   buf_[i] = buf[i];
+       //
+       // }
        init_tree();
      }
 
@@ -132,8 +133,8 @@ class CKDTree {
    void init_tree();
 
    // Pointer to a contiguous buffer of coordinates, in columnar order.
-   std::vector<double> buf_;
-   // double* buf_;
+   // std::vector<double> buf_;
+   double* buf_;
   
    // Number of double's per element, laid out in columnar order.
    size_t elem_sz_;

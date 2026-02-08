@@ -23,7 +23,7 @@ class DebugController(Controller):
         self._render_controls = {
             _RENDER_SOURCE_PLANE: True,
             _RENDER_LENS_PLANE: True,
-            _RENDER_STARS: True,
+            _RENDER_STARS: False,
         }
         self._artists = {
             _RENDER_SOURCE_PLANE: None,
@@ -33,11 +33,9 @@ class DebugController(Controller):
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
         for k in self._render_controls:
-            if not self._render_controls[k]:
-                self._artists[k] = None
-                continue
+            if self._artists[k]:
+                self._artists[k].set(visible=self._render_controls[k])
             if k == _RENDER_SOURCE_PLANE:
-                print("Render source plane")
                 bounds = state.source_region.outline.to("uas")
                 if self._artists[k]:
                     self._artists[k].set_data(bounds[:, 0], bounds[:, 1])
@@ -45,7 +43,6 @@ class DebugController(Controller):
                     self._artists[k] = window.im_axes.plot(
                         bounds[:, 0], bounds[:, 1], label="Source Region")[0]
             if k == _RENDER_LENS_PLANE:
-                print("Render lens plane")
                 bounds = state.lens_region.outline.to("uas")
                 if self._artists[k]:
                     self._artists[k].set_data(bounds[:, 0], bounds[:, 1])
@@ -53,7 +50,6 @@ class DebugController(Controller):
                     self._artists[k] = window.im_axes.plot(
                         bounds[:, 0], bounds[:, 1], label="Lense Region")[0]
             if k == _RENDER_STARS:
-                print("Render stars")
                 ray_tracer = state.simulation_result.simulation.get_ray_tracer()
                 stars_mass, stars_positions = ray_tracer.starfield.get_starfield(
                     ray_tracer.star_mass, ray_tracer.starfield_angular_radius
@@ -64,7 +60,7 @@ class DebugController(Controller):
                         stars_positions,
                     )
                     self._artists[k].set(
-                        sizes=stars_mass.to("solMass").value
+                        sizes=stars_mass.to("solMass").value,
                     )
                 else:
                     self._artists[k] = window.im_axes.scatter(
@@ -72,7 +68,6 @@ class DebugController(Controller):
                         stars_positions[:, 1],
                         s=stars_mass.to("solMass").value, label="Stars")
         ret = [self._artists[k] for k in self._artists if self._artists[k]]
-        print(ret)
         return ret
 
 

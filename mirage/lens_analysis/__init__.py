@@ -23,9 +23,9 @@ def visualize(
     viz_obj = Viz(
         model=VizState(result, 0),
         view=VizWindow(),
-        controllers=[DebugController()])
+        controllers=[MagMapController()])
     viz_obj.show()
-    return viz_obj
+    return viz_obj, result
 
 
 __all__ = ["load", "visualize"]

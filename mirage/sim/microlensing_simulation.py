@@ -24,8 +24,8 @@ from mirage.calc.tracers import MicrolensingRayTracer
 
 # Multiplied by the largest dimension of the ray bundle to get
 # the radius of the starry region that should be populated.
-STAR_REGION_FACTOR = 2
-RAY_REGION_FACTOR = 1.8
+STAR_REGION_FACTOR = 1.4
+RAY_REGION_FACTOR = 1.4
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class MicrolensingSimulation(Simulation):
             self.get_ray_bundle().dims.x * STAR_REGION_FACTOR
         )  # Units of rad
         radius_dist = (
-            starfield_radius.value * self.lensing_system.lens_distance.to("lyr")
+            starfield_radius.to("rad").value * self.lensing_system.lens_distance.to("lyr")
         )  # Units in rad
         starfield_area = np.pi * radius_dist * radius_dist
         starry_mass = (

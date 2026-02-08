@@ -206,5 +206,6 @@ config/
 out/
 logs/
 results/
+cython_debug/
 
 .vscode

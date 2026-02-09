@@ -9,7 +9,7 @@ from matplotlib.widgets import AxesWidget, Button, CheckButtons
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow
 from mirage.viz.controller import Controller
-from mirage.util import Vec2D
+from mirage.util import Vec2D, Dictify
 
 
 logger = logging.getLogger(__name__)
@@ -162,6 +162,7 @@ class Viz:
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
         self._window.set_title(str(self._model.variant_key))
+        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result.simulation))
         return True
 
     def prev_simulation(self) -> bool:
@@ -171,9 +172,11 @@ class Viz:
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
         self._window.set_title(str(self._model.variant_key))
+        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result.simulation))
         return True
 
     def show(self) -> None:
         self._window.set_title(str(self._model.variant_key))
+        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result.simulation))
         self.draw(force=True)
         self._window.show()

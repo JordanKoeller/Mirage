@@ -42,7 +42,7 @@ PADDING=0.08
 class VizWindow:
     def __init__(self):
         # General high-level organization
-        self._plot_fig: Figure = plt.figure(clear=True, layout="constrained")
+        self._plot_fig: Figure = plt.figure(clear=True, layout="constrained", figsize=[6.0, 6.0])
         self._plot_axes = self._plot_fig.subplot_mosaic(
             [
                 ["title"],
@@ -57,21 +57,23 @@ class VizWindow:
         )
 
         # UI Input Elements
-        self._widgets_fig = plt.figure(clear=True, layout="constrained", frameon=False)
+        self._widgets_fig = plt.figure(clear=True, layout="constrained", frameon=False, figsize=[6.4, 8.0])
         self._widget_axes = self._widgets_fig.subplot_mosaic(
             [
-              ["title", "title", "title", "title", "title", "title"],
+              ["title"] * 6,
               ["previous", "previous", "previous","next","next","next"],
               *[[f"l{i}", f"l{i}", f"l{i}", f"l{i}", f"control_l{i}",f"control_l{i}",] for i in range(MAX_LAYERS)],
+              ["text"] * 6
             ],
-            height_ratios=[1, 2, *[2 for i in range(MAX_LAYERS)]],
             subplot_kw={"frame_on": True, "xticks": [], "yticks": []},
+            height_ratios=[1, 3, *([3] * MAX_LAYERS), 1],
             per_subplot_kw={
                 "title": {"frame_on": False, "xticks": [], "yticks": []},
             },
         )
         self._p_button = Button(self._widget_axes["previous"], "Previous")
         self._n_button = Button(self._widget_axes["next"], "Next")
+        self._text_box = self._widget_axes["text"].text(0, 1, "")
 
 
         self._plot_axes["image"].invert_yaxis()
@@ -115,6 +117,10 @@ class VizWindow:
     @property
     def previous_simulation_button(self) -> Button:
         return self._p_button
+
+    @property
+    def text_box(self) -> Axes:
+        return self._text_box
 
     def show(self) -> None:
         self._widgets_fig.show()

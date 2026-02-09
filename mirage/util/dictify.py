@@ -214,6 +214,10 @@ class Dictify:
         return json.loads(json.dumps(value))
 
     @staticmethod
+    def to_yaml(value: T) -> str:
+        return yaml.dump(Dictify._sanitize(Dictify.to_dict(value)), default_flow_style=False)
+
+    @staticmethod
     def _value_from_dict(
         klass: Type[T],
         dictable_value: Any,

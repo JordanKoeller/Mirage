@@ -43,6 +43,24 @@ class TestVariantDictify(TestCase):
         actual = VariantDictify.from_dict(LightCurvesReducer, dict_repr)
         self.assertEqual(expected, actual.variants())
 
+    def testFromDict_PassThroughToDictifyIfNoVariants(self):
+        dict_repr = {
+            "Radius": ["123", "uas"],
+            "Resolution": [10, "1/uas"],
+            "NumCurves": 10,
+            "Seed": 12,
+            "Name": "lightcurve",
+        }
+        expected = [LightCurvesReducer(
+            radius=123 * u.uas,
+            resolution=10 / u.uas,
+            num_curves=10,
+            seed=12,
+            name="lightcurve",
+        )]
+        actual = VariantDictify.from_dict(LightCurvesReducer, dict_repr)
+        self.assertEqual(expected, actual.variants())
+
     def testFromDict_tagsMoveTogether(self):
         dict_repr = {
             "Radius": ["${radius}", "uas"],

@@ -30,7 +30,7 @@ import numpy as np
 class Imf:
     def __init__(
         self,
-        massLimits=np.array([0.1, 150]),
+        mass_limits=np.array([0.1, 150]),
         multiplicity=None,
         rng_seed: Optional[int] = None,
     ):
@@ -39,7 +39,7 @@ class Imf:
         """
         self._random_number_generator = np.random.RandomState(rng_seed)
         self._multi_props = multiplicity
-        self._mass_limits = massLimits
+        self._mass_limits = mass_limits
         self._rng_seed = rng_seed
 
         if multiplicity is None:
@@ -65,7 +65,7 @@ class Imf:
     def random_number_generator(self):
         return self._random_number_generator
 
-    def generate_cluster(self, totalMass) -> np.ndarray:
+    def generate_cluster(self, total_mass) -> np.ndarray:
         """
           Generate a cluster of stellar systems with the specified IMF.
 
@@ -81,7 +81,7 @@ class Imf:
 
           Parameters:
 
-        - totalMass (`float`) : The total mass of the cluster (including companions) in solar masses.
+        - total_mass (`float`) : The total mass of the cluster (including companions) in solar masses.
 
           Return:
 
@@ -91,11 +91,11 @@ class Imf:
 
         """
 
-        if self._mass_limits[-1] > totalMass:
-            self._mass_limits[-1] = totalMass
+        if self._mass_limits[-1] > total_mass:
+            self._mass_limits[-1] = total_mass
 
         # Estimate the mean number of stars expected.
-        self.normalize(totalMass)  # type: ignore
+        self.normalize(total_mass)  # type: ignore
         mean_number = self.int_xi(self._mass_limits[0], self._mass_limits[-1])  # type: ignore
         newStarCount = np.round(mean_number)
         if self._multi_props is None:
@@ -109,10 +109,10 @@ class Imf:
 
         # Loop through and add stars to the cluster until we get to
         # the desired total cluster mass.
-        totalMassTally = 0
+        total_massTally = 0
         loopCnt = 0
 
-        while totalMassTally < totalMass:
+        while total_massTally < total_mass:
             # Generate a random number array.
             uniX = self.random_number_generator.rand(int(newStarCount))
 
@@ -203,7 +203,7 @@ class Imf:
             # Append to our primary masses array
             masses = np.append(masses, newMasses)
 
-            totalMassTally += newTotalMassTally
+            total_massTally += newTotalMassTally
             newStarCount = mean_number * 0.1  # increase by 20% each pass
             loopCnt += 1
 
@@ -215,7 +215,7 @@ class Imf:
 
         # Find the index where we are closest to the desired
         # total mass.
-        idx = np.abs(massCumSum - totalMass).argmin()
+        idx = np.abs(massCumSum - total_mass).argmin()
 
         masses = masses[: idx + 1]
 
@@ -316,7 +316,7 @@ class ImfBrokenPowerlaw(Imf):
         if len(mass_limits) != len(powers) + 1:
             msg = "Incorrect specification of multi-part powerlaw.\n"
             msg += "    len(massLimts) != len(powers)+1\n"
-            msg += "    len(massLimits) = \n" + str(len(mass_limits))
+            msg += "    len(mass_limits) = \n" + str(len(mass_limits))
             msg += "    len(powers) = \n" + str(len(powers))
 
         mass_limits = np.array(mass_limits)
@@ -631,6 +631,80 @@ class ImfBrokenPowerlaw(Imf):
         else:
             return y * z
 
+class AgedIMFBrokenPowerLaw(ImfBrokenPowerlaw):
+    def __init__(
+        self,
+        distro: ImfBrokenPowerlaw,
+        conversions: dict[float, float],
+    ) -> None:
+        """
+        Generates masses based on the provided IMF, then provides conversions to simulate an aging galaxy like large-mass stars replaced with masses of back holes, neutron stars, etc.
+        
+        Parameters:
+          - distro: IMF Mass Distribution to start with. Can swap in an instance of another IMF to start with a different model.
+          - Conversions: dict, where the key is the lower limit of the star mass, value is what those masses get converted to.
+        """
+        ImfBrokenPowerlaw.__init__(
+            self,
+            distro._mass_limits,
+            distro._powers,
+            distro._multi_props,
+        )
+        self.__conversions = []
+        for k,v in conversions.items():
+            if isinstance(k,str):
+                k = float(k)
+            self.__conversions.append([k,v])
+        self.__conversions = np.array(self.__conversions)
+
+    @property
+    def conversions(self):
+        return self.__conversions
+    
+
+
+    def generate_cluster(self, total_mass: float):
+        """
+        Generate a cluster of stellar systems with the specified IMF.
+        
+        Randomly sample from an IMF with specified mass
+        limits until the desired total mass is reached. The maximum
+        stellar mass is not allowed to exceed the total cluster mass.
+        The simulated total mass will not be exactly equivalent to the
+        desired total mass; but we will take one star above or below
+        (whichever brings us closer to the desired total) the desired
+        total cluster mass break point.
+        Primary stars are sampled from the IMF, companions are generated
+        based on the multiplicity properties provided.
+
+        Parameters:
+        
+    - total_mass (`float`) : The total mass of the cluster (including companions) in solar masses.
+
+        Return:
+        
+    - masses (:class:`np.ndarray`) : List of primary star masses.
+        - format : string so return type matches other generators as a tuple.
+        
+        """
+        ret_arr = []
+        mass_counter = 0.0
+        tolerance = 3.0
+        while (total_mass - mass_counter > tolerance):
+            raw_masses = ImfBrokenPowerlaw.generate_cluster(self, total_mass - mass_counter)
+            for mass in raw_masses:
+                if mass < self.__conversions[0][0]:
+                    ret_arr.append(mass)
+                    mass_counter += mass
+                else:
+                    index = 0
+                    while (index < len(self.__conversions) and self.__conversions[index][0] < mass):
+                        index += 1
+                    ret_arr.append(self.__conversions[max(index-1,0)][1])
+                    mass_counter += self.__conversions[max(index-1,0)][1]
+        ret = np.ascontiguousarray(ret_arr)
+        return ret
+
 
 class IMFSalpeter1955(ImfBrokenPowerlaw):
     def __init__(self, rng_seed: Optional[int] = None):
@@ -676,6 +750,19 @@ class WeidnerKroupa2004(ImfBrokenPowerlaw):
             mass_limits=[0.01, 0.08, 0.5, 1.0, np.inf],
             powers=[-0.3, -1.3, -2.3, -2.35],
             rng_seed=rng_seed,
+        )
+
+class Pooley2012(AgedIMFBrokenPowerLaw):
+    """"
+    Modified version of the IMF described by Kroupa_2001. Has the cutoffs described in Pooley_2012.
+    """
+    def __init__(self, rng_seed: Optional[int] = None, multiplicity=None):
+        mass_limits = np.array([0.08,0.5,1.5])
+        powers = np.array([-1.3,-2.7])
+        AgedIMFBrokenPowerLaw.__init__(
+            self,
+            distro=ImfBrokenPowerlaw(mass_limits, powers, rng_seed, multiplicity),
+            conversions={0.8:0.6,8:1.4,30:10},
         )
 
 

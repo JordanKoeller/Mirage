@@ -279,7 +279,7 @@ class VariantDictify:
             logger.debug("No Variant. Pass-through to regular Dictify.")
             obj = Dictify.from_dict(klass, dict_obj, allow_custom_serializer)
             if obj:
-                return ObjVariants.from_single_variant(obj)
+                return (variant_container or ObjVariants).from_single_variant(obj)
             return None
         variants = []
         logger.debug("Found variants. Parsing.")
@@ -287,6 +287,8 @@ class VariantDictify:
             parsed = Dictify.from_dict(Variant, obj, allow_custom_serializer) 
             if parsed:
                 variants.append(parsed)
+        if len(variants) == 0:
+            return None
         original_dict_obj = copy.deepcopy(dict_obj)
         del dict_obj["Variants"]
         objs = {}

@@ -5,7 +5,7 @@ from matplotlib.widgets import AxesWidget, Button
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 
-from mirage.viz.window import VizWindow
+from mirage.viz.window import VizWindow, MirageAxes
 from mirage.calc.reducers import LightCurvesReducer
 from mirage.viz.controller import Controller
 from mirage.viz.viz_state import VizState, VizEvent, Panel
@@ -20,6 +20,10 @@ class LightcurvesController(Controller):
         self._reducer_name = reducer_name
         self.reset()
 
+    @property
+    def supported_reducers(self) -> list[type[Reducer]]:
+        return [LightCurvesReducer]
+
     def reset(self) -> None:
         self._lines: list[Line2D] = []
         self._lightcurves: dict[str, Artist] = {}
@@ -29,9 +33,9 @@ class LightcurvesController(Controller):
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
         reducer = self.find_reducer(state, LightCurvesReducer, self._reducer_name)
         artists = []
+        tl, br = state.source_region.to("uas").span
+        self.request_bounds(MirageAxes.IMAGE, tl.x.value, br.x.value, br.y.value, tl.y.value)
         if len(self._lines) == 0:
-            window.im_axes.set_xlim(-5, 5)
-            window.im_axes.set_ylim(-5, 5)
             for lightcurve in reducer.lightcurves:
                 line = Line2D(
                     [lightcurve.start_pos.x.value, lightcurve.end_pos.x.value],
@@ -52,8 +56,6 @@ class LightcurvesController(Controller):
         if self._selected_line == -1:
             return artists
 
-        window.line_axes.set_xlim(0, 0.1)
-        window.line_axes.set_ylim(0.5, -0.5)
         legend_handles = []
         for ind, variant_key in enumerate(state.variant_keys):
             if not self._show_all_lines and state.variant_key != variant_key:
@@ -125,11 +127,6 @@ class LightcurvesController(Controller):
             self._lightcurves[variant_key].set_alpha(1.0 if primary else 0.25)
         if len(x) == 0:
             return False
-        window.line_axes.set_xlim(
-            0,
-            max(x[-1], window.line_axes.get_xlim()[1]))
-        window.line_axes.set_ylim(
-            max(np.max(lightcurve.magnitudes), window.line_axes.get_ylim()[0]),
-            min(np.min(lightcurve.magnitudes), window.line_axes.get_ylim()[1]))
+        self.request_bounds(MirageAxes.LINE, 0, x[-1], np.min(lightcurve.magnitudes), np.max(lightcurve.magnitudes))
         return True
 

@@ -10,15 +10,32 @@ from matplotlib.axes import Axes
 from matplotlib.widgets import AxesWidget, Button
 import numpy as np
 
-from mirage.viz.window import VizWindow
+from mirage.viz.window import VizWindow, MirageAxes
 from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
 from mirage.util import Index2D, VariantKey
+
+@dataclass
+class AxesBounds:
+    x_min: float
+    x_max: float
+    y_min: float
+    y_max: float
+
+    def update(self, x_min: float, x_max: float, y_min: float, y_max: float) -> None:
+        self.x_min = min(self.x_min, x_min)
+        self.x_max = max(self.x_max, x_max)
+        self.y_min = min(self.y_min, y_min)
+        self.y_max = max(self.y_max, y_max)
+
+    def merge(self, other: 'AxesBounds') -> None:
+        self.update(other.x_min, other.x_max, other.y_min, other.y_max)
 
 class Controller(ABC):
 
     def __init__(self) -> None:
         self.__stale = True
+        self.__bounds = {axis: None for axis in MirageAxes}
 
     def request_draw(self) -> None:
         """
@@ -46,7 +63,18 @@ class Controller(ABC):
         if not force and not self.__stale:
             return False, []
         self.__stale = False
+        self.__bounds = {axis: None for axis in MirageAxes}
         return True, self.draw(state, window)
+
+    @property
+    @abstractmethod
+    def supported_reducers(self) -> list[type[Reducer]]:
+        """
+        Return the types of Reducers that this Controller can visualize.
+
+        If the Controller supports all reducers, an empty list should be
+        returned.
+        """
 
     @abstractmethod
     def reset(self) -> None:
@@ -84,6 +112,21 @@ class Controller(ABC):
         """
         return []
 
+    def request_bounds(self, axis: MirageAxes,
+        x_min: float, x_max: float, y_min: float, y_max: float
+    ) -> None:
+        """
+        Request the specified MirageAxes have its bounds set to the provided
+        values.
+
+        Note that the requested bounds may not be respected if other Controllers
+        require a larger bounds.
+        """
+        if self.__bounds[axis] is None:
+            self.__bounds[axis] = AxesBounds(x_min, x_max, y_min, y_max)
+        else:
+            self.__bounds[axis].update(x_min, x_max, y_min, y_max)
+
     def find_reducer(
         self,
         state: VizState,
@@ -118,3 +161,7 @@ class Controller(ABC):
                 f"Ambiguous {reducer_type.__name__}'s: {', '.join(reducer.name for reducer in reducers)}"
             )
         return reducers[0]
+
+    @property
+    def _bounds(self) -> dict[MirageAxes, AxesBounds]:
+        return self.__bounds

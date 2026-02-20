@@ -23,7 +23,7 @@ def visualize(
     viz_obj = Viz(
         model=VizState(result, 0),
         view=VizWindow(),
-        controllers=[MagMapController()])
+        controllers=[DebugController(), MagMapController(), LightcurvesController()])
     viz_obj.show()
     return viz_obj, result
 

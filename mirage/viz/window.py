@@ -23,8 +23,10 @@ presents a secondary view on what is shown in the 2d canvas.
 We can explore decoupling them in the future if there is a usecase, but it is
 not necessary now.
 """
-
 import logging
+import dataclasses
+import enum
+
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from matplotlib import pyplot as plt
@@ -38,6 +40,9 @@ MAX_LAYERS = 4
 WIDGET_ROWS = MAX_LAYERS + 1
 PADDING=0.08
 
+class MirageAxes(enum.Enum):
+    IMAGE = "IMAGE"
+    LINE = "LINE"
 
 class VizWindow:
     def __init__(self):

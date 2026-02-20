@@ -12,7 +12,7 @@ from matplotlib.axes import Axes
 from matplotlib.widgets import AxesWidget, Button
 import numpy as np
 
-from mirage.viz.window import VizWindow
+from mirage.viz.window import VizWindow, MirageAxes
 from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
 from mirage.viz.controller import Controller
@@ -33,6 +33,10 @@ class MagMapController(Controller):
         self._reducer_name = reducer_name
         self.reset()
 
+    @property
+    def supported_reducers(self) -> list[type[Reducer]]:
+        return [MagnificationMapReducer]
+
     def reset(self) -> None:
         self._line_state: self._LineState | None = None
         self._line: Line2D | None = None
@@ -50,8 +54,8 @@ class MagMapController(Controller):
 
         colormap = plt.get_cmap("RdBu")
 
+        tl, br = reducer.source_region.to("uas").span
         if self._img is None:
-            tl, br = reducer.source_region.to("uas").span
             self._img = window.im_axes.imshow(
                 magnitudes,
                 norm=colors.TwoSlopeNorm(vcenter=0.0),
@@ -65,6 +69,7 @@ class MagMapController(Controller):
             )
         else:
             self._img.set(array=magnitudes)
+        self.request_bounds(MirageAxes.IMAGE, tl.x.value, br.x.value, br.y.value, tl.y.value)
         artists.append(self._img)
 
         if self._colorbar is None:
@@ -76,14 +81,15 @@ class MagMapController(Controller):
         else:
             self._colorbar.update_normal()
 
-        # window.line_axes.set_xlim(0, 0.1)
-        # window.line_axes.set_ylim(0.5, -0.5)
         artists.extend(self._get_line_artist(window))
         legend_handles = []
         for ind, variant_key in enumerate(state.variant_keys):
             if not self._show_all_lines and state.variant_key != variant_key:
+                lightcurve = self._hide_lightcurve_artist(variant_key)
+                if lightcurve:
+                    artists.append(lightcurve)
                 continue
-            was_drawn = self._get_lightcurve_artist(
+            was_drawn = self._draw_lightcurve_artist(
                 ind, 
                 variant_key,
                 ind == state.variant_key_index,
@@ -166,8 +172,19 @@ class MagMapController(Controller):
             )
         artists.append(self._line)
         return artists
+
+    def _hide_lightcurve_artist(
+        self,
+        variant_key: VariantKey,
+    ) -> Artist | None:
+        """Hide the specified lightcurve from the plot."""
+        if variant_key not in self._lightcurves:
+            return None
+        artist = self._lightcurves[variant_key]
+        artist.set_visible(False)
+        return artist
     
-    def _get_lightcurve_artist(
+    def _draw_lightcurve_artist(
         self,
         ind: int,
         variant_key: VariantKey,
@@ -201,15 +218,11 @@ class MagMapController(Controller):
                     slice_x,
                     slice_y,
             )
+            self._lightcurves[variant_key].set_visible(True)
             self._lightcurves[variant_key].set_alpha(1.0 if primary else 0.25)
         if len(slice_x) == 0:
             return False
-        window.line_axes.set_xlim(
-            0,
-            max(slice_x[-1], window.line_axes.get_xlim()[1]))
-        window.line_axes.set_ylim(
-            max(np.max(slice_y), window.line_axes.get_ylim()[0]),
-            min(np.min(slice_y), window.line_axes.get_ylim()[1]))
+        self.request_bounds(MirageAxes.LINE, 0, slice_x[-1], np.min(slice_y), np.max(slice_y))
         return True
 
     def _toggle_show_all(self) -> None:

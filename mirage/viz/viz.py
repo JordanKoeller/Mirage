@@ -7,14 +7,29 @@ from matplotlib.artist import Artist
 from matplotlib.widgets import AxesWidget, Button, CheckButtons
 
 from mirage.viz.viz_state import VizState, Panel, VizEvent
-from mirage.viz.window import VizWindow
-from mirage.viz.controller import Controller
+from mirage.viz.window import VizWindow, MirageAxes
+from mirage.viz.controller import Controller, AxesBounds
 from mirage.util import Vec2D, Dictify
 
 
 logger = logging.getLogger(__name__)
 
 ANIMATION_FRAMES_PER_SECOND = 30
+
+def _merge_bounds(
+    merge_into: dict[MirageAxes, AxesBounds],
+    merge_from: dict[MirageAxes, AxesBounds],
+) -> None:
+    """
+    Merge two AxesBounds dictionaries, updating merge_into inplace.
+    """
+    for axis in MirageAxes:
+        if merge_from[axis] is None:
+            continue
+        if merge_into[axis] is None:
+            merge_into[axis] = merge_from[axis]
+            continue
+        merge_into[axis].merge(merge_from[axis])
 
 
 @dataclass
@@ -104,6 +119,16 @@ class Viz:
         """
         Add a new controller to Viz. The new controller is added as the top layer.
         """
+        supported = len(controller.supported_reducers) == 0
+        for reducer in controller.supported_reducers:
+            for available_reducer in self._model.simulation_result:
+                if isinstance(available_reducer, reducer):
+                    supported = True
+                    break
+        if not supported:
+            logger.info(f"No compatible reducer found for controller {controller}. Disabling the controller.")
+            return
+        logger.info(f"Activating Controller {controller}.")
         layer_name = layer_name or type(controller).__name__
         controller.request_draw()
         controller_state = _ControllerState(
@@ -128,6 +153,7 @@ class Viz:
     def draw(self, *args, force: bool=False, **kwargs) -> Iterable[Artist]:
         artists = []
         artists.extend(self._window.title_artists())
+        bounds = None
         for layer_name in self._model.layers:
             controller = self._controllers.get(layer_name)
             artists.append(controller.control_button)
@@ -137,6 +163,11 @@ class Viz:
             if did_draw:
                 controller.artists = artists
             artists.extend(controller.artists)
+            if bounds is None:
+                bounds = controller.controller._bounds
+            else:
+                _merge_bounds(bounds, controller.controller._bounds)
+        self._update_axes_bounds(bounds)
         self._window.draw()
         return artists
 
@@ -145,12 +176,10 @@ class Viz:
         Toggle a layer enabled or disabled.
         """
         if self._controllers[layer_name].enabled:
-            # self._controllers[layer_name].control_button.label.set(text=f"Enable {layer_name}")
             self._controllers[layer_name].enabled = False
             for widget in self._controllers[layer_name].widgets:
                 widget.set_active(False)
         else:
-            # self._controllers[layer_name].control_button.label.set(text=f"Disable {layer_name}")
             self._controllers[layer_name].enabled = True
             for widget in self._controllers[layer_name].widgets:
                 widget.set_active(True)
@@ -180,3 +209,22 @@ class Viz:
         self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result.simulation))
         self.draw(force=True)
         self._window.show()
+
+    def _update_axes_bounds(self, bounds: dict[MirageAxes, AxesBounds] | None) -> None:
+        if bounds is None:
+            return
+        for axis in MirageAxes:
+            if bounds[axis] is None:
+                continue
+            cx = (bounds[axis].x_min + bounds[axis].x_max) / 2
+            dx = abs(cx - bounds[axis].x_min) * 1.05
+            cy = (bounds[axis].y_min + bounds[axis].y_max) / 2
+            dy = abs(cy - bounds[axis].y_min) * 1.05
+            match axis:
+                case MirageAxes.IMAGE:
+                    self._window.im_axes.set_xlim(cx - dx, cx + dx)
+                    self._window.im_axes.set_ylim(cy + dy, cy - dy)
+                case MirageAxes.LINE:
+                    self._window.line_axes.set_xlim(cx - dx, cx + dx)
+                    self._window.line_axes.set_ylim(cy - dy, cy + dy)
+

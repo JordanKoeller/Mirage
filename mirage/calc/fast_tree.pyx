@@ -2,6 +2,7 @@
 
 from mirage.calc cimport ckd_tree
 cimport numpy as cnp
+from libcpp.vector cimport vector
 
 import numpy as np
 
@@ -36,6 +37,15 @@ cdef class FastTree:
         cdef cnp.float64_t[::1] ret = np.ndarray(centers.shape[0], dtype=np.float64_t)
         cdef cnp.float64_t[:, ::1] centers_view = centers
         self._tree.MagnificationCoefficient(&centers_view[0,0], centers.shape[0], r, &ret[0])
+        return ret
+
+    def query_rays(self, double cx, double cy, double r):
+        cdef vector[int] indices = self._tree.LensPlaneCoordinates(cx, cy, r)
+        cdef cnp.int64_t[:, ::1] ret = np.ndarray((indices.size(), 2), dtype=np.int64)
+        cdef int i = 0
+        for i in range(0, indices.size()):
+            ret[i,0] = i // self._data.shape[1] # TODO: These might be swapped
+            ret[i,1] = i % self._data.shape[1]
         return ret
 
     def __reduce__(self):

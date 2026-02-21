@@ -107,9 +107,5 @@ class FastKdTree:
     def query_indicies(
         self, query_pos: Vec2D, radius: u.Quantity
     ) -> np.ndarray:
-        raise NotImplementedError("Yat")
-        query_pos = query_pos.to(self.unit)
-        radius = radius.to(self.unit)
-        return self.tree.query_indices(
-            query_pos.x.value, query_pos.y.value, radius.value
-        )
+        x, y, radius = self._query_primatives(query_pos, radius)
+        return self.tree.query_rays(x, y, radius)

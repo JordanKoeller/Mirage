@@ -4,17 +4,17 @@ LensingSystem_MicrolensingLens:
     Mass: 1e9 solMass
   Redshift: 0.04
   Cosmology: WMAP7
-  Convergence: 0.6
+  Convergence: 0.5
   Shear: 0.2
-  StarryFraction: 0.1
+  StarryFraction: 0.25
 Starfield:
   InitialMassFunction: Pooley2012
-  Seed: 112
+  Seed: 10
 LensedImageCenter: [0.0, 0.0, 'uas']
-RayCount: 5_000_000
+RayCount: 20_000_000
 SourceRegionDimensions: [60, 60, 'uas']
 Reducers:
   - MagnificationMapReducer:
       Name: magmap
-      Radius: 2.5 r_g
-      Resolution: [1025, 1024, '']
+      Radius: 0.5 uas
+      Resolution: [800, 800, '']

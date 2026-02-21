@@ -1,4 +1,6 @@
 # distutils: language = c++
+from libcpp.vector cimport vector
+
 
 cdef extern from "ckd_tree.h":
   cdef cppclass CKDTree:
@@ -8,6 +10,7 @@ cdef extern from "ckd_tree.h":
       void PointsInCircle(double*, unsigned long, double, double*)
       double MagnificationCoefficient(double, double, double)
       void MagnificationCoefficient(double*, unsigned long, double, double*)
+      vector[int] LensPlaneCoordinates(double, double, double)
       unsigned long size()
       unsigned long buf_size()
       unsigned long tree_size()

@@ -32,11 +32,10 @@ class CKDTree {
    CKDTree(double* buf, size_t sz, size_t elem_sz, size_t leaf_size)
      : elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
        buf_ = buf;
-       // buf_.reserve(sz * elem_sz);
-       // for (size_t i=0; i < sz * elem_sz; i++) {
-       //   buf_[i] = buf[i];
-       //
-       // }
+       indices_.reserve(sz_);
+       for (size_t i=0; i < sz_; i++) {
+         indices_.push_back(static_cast<int>(i));
+       }
        init_tree();
      }
 
@@ -85,6 +84,18 @@ class CKDTree {
      }
    }
 
+   // Returns the indices of the rays within the specified circle.
+   //
+   // Indices are returned as a flattened value.
+   std::vector<int> LensPlaneCoordinates(double cx, double cy, double r) {
+     std::vector<int> inds;
+     std::function<void(size_t)> reducer([&](size_t i) -> void {
+         inds.push_back(indices_[i]);
+     });
+     Reduce(cx, cy, r, &reducer);
+     return inds;
+   }
+
    // Returns the number of elements in the buffer.
    size_t size() {
      return sz_;
@@ -118,7 +129,7 @@ class CKDTree {
    void get(size_t i, double* out);
 
    // Set the i-th element with the values in elem, accounting for columnar order.
-   void set(size_t i, double* elem);
+   void set(size_t i, double* elem, size_t j);
 
    // Reorder buf_ such that all elements left of the median between [start, end)
    // are less than all elements right of the mediant between [start, end) along
@@ -133,8 +144,11 @@ class CKDTree {
    void init_tree();
 
    // Pointer to a contiguous buffer of coordinates, in columnar order.
-   // std::vector<double> buf_;
    double* buf_;
+
+   // Lookup array mapping from ordered index to the index of that point
+   // in the original buffer before sorting.
+   std::vector<int> indices_;
   
    // Number of double's per element, laid out in columnar order.
    size_t elem_sz_;
@@ -153,10 +167,11 @@ class CKDTree {
 
 };
 
-inline void CKDTree::set(size_t i, double* elem) {
+inline void CKDTree::set(size_t i, double* elem, size_t j) {
   for (size_t d=0; d < elem_sz_; d++) {
     buf_[d * sz_ + i] = elem[d];
   }
+  indices_[i] = static_cast<int>(j);
 }
 
 inline void CKDTree::get(size_t i, double* out) {
@@ -169,10 +184,12 @@ inline void CKDTree::get(size_t i, double* out) {
 inline void CKDTree::swap(size_t i, size_t j) {
   double i_vals[elem_sz_];
   double j_vals[elem_sz_];
+  int i_idx = indices_[i];
+  int j_idx = indices_[j];
   get(i, i_vals);
   get(j, j_vals);
-  set(i, j_vals);
-  set(j, i_vals);
+  set(i, j_vals, j_idx);
+  set(j, i_vals, i_idx);
 }
 
 
@@ -180,7 +197,7 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
   size_t k = (start + end) / 2;
   size_t l = start;
   size_t ir = end - 1;
-  size_t i, j, mid;
+  size_t i, j, mid, a_j_idx, a_idx;
   double a[elem_sz_];
   double a_j[elem_sz_];
 
@@ -206,7 +223,8 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
     }
     i = l + 1;
     j = ir;
-    get(l + 1, a);
+    a_idx = indices_[i];
+    get(i, a);
     for (;;) {
       do {
         i++;
@@ -221,8 +239,9 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
     }
 
     get(j, a_j);
-    set(l + 1, a_j);
-    set(j, a);
+    a_j_idx = indices_[j];
+    set(l + 1, a_j, a_j_idx);
+    set(j, a, a_idx);
     if (j >= k) {
       ir = j - 1;
     }

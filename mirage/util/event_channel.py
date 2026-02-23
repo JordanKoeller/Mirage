@@ -1,13 +1,17 @@
 from dataclasses import dataclass
-from typing import Any, Optional, Tuple, Self
+from typing import Any, Optional, Tuple, Self, TypeVar, Generic
 from multiprocessing import Queue
+import queue
 from enum import IntEnum
 import logging
 import time
+import threading
 
 logger = logging.getLogger(__name__)
 
 MAX_TIMEOUT = 300  # seconds
+
+T = TypeVar("T")
 
 
 class StructuredEventType(IntEnum):
@@ -49,6 +53,124 @@ class StructuredEvent:
             self.value is not None
             and self.event_type == StructuredEventType.PAYLOAD
         )
+
+
+class StreamState(IntEnum):
+    OPEN = 0
+    SHUTDOWN_STARTING = 1
+    SHUTDOWN_COMPLETE = 2
+
+
+@dataclass
+class Message(Generic[T]):
+    data: T | None # None on half_close message.
+    half_close: bool = False # True on the half-close message
+
+
+class BidiStream(Generic[T]):
+    """
+    Bidirectional stream for IPC.
+
+    This does NOT support message-passing between machines and is not
+    multi-producer / multi-consumer. Only one thread should read from the queue
+    or write to the queue at a time.
+    """
+    def __init__(self, forward_queue: Queue, reverse_queue: Queue) -> None:
+        self._forward_queue = forward_queue
+        self._reverse_queue = reverse_queue
+        self._forward_queue_state = StreamState.OPEN
+        self._reverse_queue_state = StreamState.OPEN
+        self._shutdown_thread = None
+
+    @classmethod
+    def create(cls, max_size: int = 0) -> tuple[Self, Self]:
+        forward_queue: Queue = Queue(maxsize=max_size)
+        reverse_queue: Queue = Queue(maxsize=max_size)
+        return (
+            cls(forward_queue, reverse_queue),
+            cls(reverse_queue, forward_queue),
+        )
+
+    def send(self, message: T, blocking: bool = True) -> bool:
+        """
+        Send a message over the stream.
+
+        This method blocks until the message can be enqueued in the stream, unless
+        the optional kwarg `blocking` is set to False.
+
+        Returns a boolean, indicating if the message was successfully sent or not.
+
+        Throws a EOFError if the stream has been closed.
+        """
+        if self._forward_queue_state != StreamState.OPEN:
+            raise EOFError("Forward queue is closing")
+        try:
+            self._forward_queue.put(
+                Message(data=message, half_close=False), blocking)
+            return True
+        except queue.Full:
+            return False
+        except (ValueError, OSError):
+            self._forward_queue_state = StreamState.SHUTDOWN_COMPLETE
+            raise EOFError("Forward queue is closed")
+
+
+    def recv(self, blocking: bool = True) -> T | None:
+        """
+        Receive a message over the queue.
+
+        By default this is a blocking call and waits for a message to arrive.
+
+        If the kwarg `blocking` is set to False, this method does not block and
+        will return None if no message is waiting to be consumed.
+
+        Throws a EOFError if the stream has been closed.
+        """
+        if self._reverse_queue_state == StreamState.SHUTDOWN_COMPLETE:
+            raise EOFError("Receiving stream is closed")
+        try:
+            msg = self._reverse_queue.get(block=blocking)
+        except queue.Empty:
+            return None
+        except (ValueError, OSError):
+            self._reverse_queue_state = StreamState.SHUTDOWN_COMPLETE
+            raise EOFError("Forward queue is closed")
+        if msg.half_close:
+            self._reverse_queue_state = StreamState.SHUTDOWN_COMPLETE
+            self._reverse_queue.close()
+            self.close()
+            raise EOFError("Receiving stream is closed")
+        return msg.data
+
+
+    def close(self) -> None:
+        """
+        Half-closes the bidirectional stream.
+
+        Once called, no more messages can be sent from this side of the stream,
+        and a message is sent to the other side of the stream to begin shutting
+        down the remote.
+
+        Messages may still be received, until the remote side finishes its
+        shutdown routine.
+        """
+        if self._forward_queue_state != StreamState.OPEN:
+            return
+        self._forward_queue_state = StreamState.SHUTDOWN_STARTING
+        self._shutdown_thread = threading.Thread(target=self._shutdown)
+        self._shutdown_thread.start()
+
+    def _shutdown(self) -> None:
+        try:
+            self._forward_queue.put(
+                Message(data=None, half_close=True), block=True)
+        except (ValueError, OSError):
+            logging.error(
+                "Encountered a shutdown forward-queue while trying to close.")
+        self._forward_queue_state = StreamState.SHUTDOWN_COMPLETE
+        self._reverse_queue_state = StreamState.SHUTDOWN_STARTING
+
+
 
 
 @dataclass

@@ -4,7 +4,7 @@ from functools import cached_property
 
 from mirage.calc import Reducer, KdTree
 from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve, slice_magmap
-from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D
+from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D, DuplexChannel
 from mirage.sim import MicrolensingSimulation
 from mirage_ext import reduce_lensed_image
 

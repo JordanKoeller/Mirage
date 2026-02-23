@@ -2,7 +2,7 @@ from .vector import Vec2D, PolarVec, Index2D
 from .dictify import Dictify, DictifyMixin, CustomSerializer
 from .delegate_registry import DelegateRegistry
 from .region import Region, PixelRegion
-from .event_channel import DuplexChannel
+from .event_channel import DuplexChannel, BidiStream
 from .stopwatch import Stopwatch
 from .conversions import size_to_bytes, bytes_to_size
 from .variant import ObjVariants, VariantKey, VariantDictify
@@ -39,4 +39,5 @@ __all__ = [
     "AwsEphemeralClusterProvider",
     "ObjVariants",
     "VariantDictify",
+    "BidiStream"
 ]

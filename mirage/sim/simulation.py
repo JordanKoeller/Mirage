@@ -132,7 +132,7 @@ class Simulation(DictifyMixin):
 
 class Experiment(ObjVariants[Simulation]):
 
-    def simulations(self) -> iter[tuple[VariantKey, Simulation]]:
+    def simulations(self) -> list[tuple[VariantKey, Simulation]]:
         return list(self._objs.items())
 
     @classmethod

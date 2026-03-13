@@ -5,7 +5,7 @@ import logging
 from mirage.calc.dask_engine import DaskEngine
 from mirage.sim import Experiment
 from mirage.util import (
-    DuplexChannel,
+    BidiStream,
     ClusterProvider,
     Stopwatch,
 )
@@ -28,24 +28,24 @@ class BatchRunner:
     @staticmethod
     def _engine_main(
         experiment: Experiment,
-        channel: DuplexChannel,
+        bidi_stream: BidiStream,
         cluster_provider: ClusterProvider,
     ):
         try:
             engine = DaskEngine(
-                event_channel=channel, cluster_provider=cluster_provider
+                bidi_stream=bidi_stream, cluster_provider=cluster_provider
             )
             engine.blocking_run_simulation(experiment)
             logger.info("Terminating Engine")
         except Exception as e:
-            channel.close()
+            bidi_stream.close()
             logger.error("Engine Encountered an error: ")
             raise e
 
     def start(self):
         timer = Stopwatch()
         timer.start()
-        send, recv = DuplexChannel.create(10)
+        send, recv = BidiStream.create(10)
 
         engine_process = Process(
             name="EngineProcess",
@@ -59,15 +59,15 @@ class BatchRunner:
         flag = True
         try:
             while flag:
-                evt = recv.recv_blocking()
-                if evt.closed or evt.empty:
+                try:
+                    result_event = recv.recv(blocking=True)
+                except EOFError:
                     logger.info("EngineProcess Closed. Saving and quiting")
                     flag = False
-                else:
-                    result_event = evt.value
-                    serializer.dump_result(
-                        result_event.result, result_event.simulation_key
-                    )
+                    break
+                serializer.dump_result(
+                    result_event.result, result_event.simulation_key
+                )
         except Exception as e:
             logger.error("Encountered Error!")
             logger.error(str(e))

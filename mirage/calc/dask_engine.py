@@ -11,7 +11,7 @@ from dask.distributed import Client as DaskClient
 from mirage.sim import Simulation, Experiment
 from mirage.calc import Reducer, KdTree, RayTracer, Engine, ResultEvent
 from mirage.util import (
-    DuplexChannel,
+    BidiStream,
     Stopwatch,
     PixelRegion,
     ClusterProvider,
@@ -116,7 +116,7 @@ class _TreeCalculator:
 
 @dataclass
 class DaskEngine(Engine):
-    event_channel: DuplexChannel
+    bidi_stream: BidiStream
     cluster_provider: ClusterProvider
 
     def blocking_run_simulation(self, experiment: Experiment):
@@ -137,8 +137,8 @@ class DaskEngine(Engine):
             logger.info(
                 "Total Engine Elapsed Time: %ss", timer.total_elapsed_seconds()
             )
+            self.bidi_stream.close()
             self.cluster_provider.close()
-            self.event_channel.close()
 
     def _run_single_simulation(
             self, simulation: Simulation, simulation_key: VariantKey, tree_calculator: _TreeCalculator
@@ -153,9 +153,12 @@ class DaskEngine(Engine):
             trees = tree_calculator.calculate(simulation, self.cluster_provider)
 
             for reducer in self.get_reducers(simulation):
-                self.event_channel.recv()
-                if self.event_channel.sender_closed:
-                    return  # Short circuit if event channel is closed
+                try:
+                    # Check if the channel has been closed. In which case, 
+                    # early exit.
+                    self.bidi_stream.recv(blocking=False)
+                except EOFError:
+                    return
                 mapped_reducers = trees.map(
                     DaskEngine._reduce_map(simulation, reducer)
                 )
@@ -176,7 +179,7 @@ class DaskEngine(Engine):
         """
         Save off a result of this simulation.
         #"""
-        self.event_channel.send_blocking(ResultEvent(outcome, simulation_key))
+        self.bidi_stream.send(ResultEvent(outcome, simulation_key), blocking=True)
 
     @staticmethod
     def _reduce_map(

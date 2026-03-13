@@ -5,7 +5,7 @@ import logging
 
 from mirage.sim import Simulation
 from mirage.calc import Reducer, KdTree
-from mirage.util import DuplexChannel, RepeatLogger, Stopwatch, VariantKey
+from mirage.util import BidiStream, RepeatLogger, Stopwatch, VariantKey
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class ResultEvent:
 
 @dataclass
 class Engine:
-    event_channel: DuplexChannel
+    bidi_stream: BidiStream
 
     def blocking_run_simulation(
         self, simulation: Simulation, simulation_key: VariantKey
@@ -39,8 +39,9 @@ class Engine:
             stopwatch = Stopwatch()
             r_logger = RepeatLogger(10, logger)
             for reducer in self.get_reducers(simulation):
-                self.event_channel.recv()
-                if self.event_channel.sender_closed:
+                try:
+                    self.bidi_stream.recv()
+                except EOFError:
                     return  # Short circuit if event channel is closed
                 reducer.reduce(rays_tree, simulation)
                 self.export_outcome(reducer, simulation_key)
@@ -49,7 +50,7 @@ class Engine:
                     f"Frame time = {stopwatch.avg_elapsed_seconds()} ms"
                 ):
                     stopwatch.reset()
-            self.event_channel.close()
+            self.bidi_stream.close()
 
     def get_reducers(self, simulation: Simulation) -> Iterator[Reducer]:
         """
@@ -61,4 +62,4 @@ class Engine:
         """
         Save off a result of this simulation.
         #"""
-        self.event_channel.send_blocking(ResultEvent(outcome, simulation_key))
+        self.bidi_stream.send(ResultEvent(outcome, simulation_key), blocking=True)

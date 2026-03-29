@@ -127,3 +127,42 @@ cpdef np.ndarray[np.float64_t, ndim=1] slice_magmap(
     ret = ret[::-1]
   return ret
 
+cpdef np.ndarray[np.int64_t, ndim=1] merge_index_lists(
+    np.ndarray[np.int64_t, ndim=1] a,
+    np.ndarray[np.int64_t, ndim=1] b
+):
+  np.sort(a)
+  np.sort(b)
+  cdef:
+    int a_i = 0
+    int b_i = 0
+    int r_i = 0
+    np.ndarray[np.int64_t, ndim=1] ret = np.ndarray(len(a) + len(b), dtype=np.int64)
+  while a_i < len(a) or b_i < len(b):
+    if a_i == len(a):
+      ret[r_i] = b[b_i]
+      r_i += 1
+      b_i += 1
+      continue
+    if b_i == len(b):
+      ret[r_i] = a[a_i]
+      r_i += 1
+      a_i += 1
+      continue
+    if a[a_i] < b[b_i]:
+      ret[r_i] = a[a_i]
+      a_i += 1
+      r_i += 1
+    elif b[b_i] < a[a_i]:
+      ret[r_i] = b[b_i]
+      b_i += 1
+      r_i += 1
+    elif a[a_i] == b[b_i]:
+      ret[r_i] = b[b_i]
+      b_i += 1
+      a_i += 1
+      r_i += 1
+  return ret[:r_i]
+
+
+

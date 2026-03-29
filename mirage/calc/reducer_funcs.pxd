@@ -19,6 +19,11 @@ cpdef np.ndarray[np.float64_t, ndim=1] slice_magmap(
     object end, #Vec2D
 )
 
+cpdef np.ndarray[np.int64_t, ndim=1] merge_index_lists(
+    np.ndarray[np.int64_t, ndim=1] a,
+    np.ndarray[np.int64_t, ndim=1] b,
+)
+
 cdef struct _Vec2D:
     double x
     double y

@@ -40,12 +40,10 @@ cdef class FastTree:
         return ret
 
     def query_rays(self, double cx, double cy, double r):
-        cdef vector[int] indices = self._tree.LensPlaneCoordinates(cx, cy, r)
-        cdef cnp.int64_t[:, ::1] ret = np.ndarray((indices.size(), 2), dtype=np.int64)
-        cdef int i = 0
+        cdef vector[long] indices = self._tree.LensPlaneCoordinates(cx, cy, r)
+        cdef cnp.int64_t[::1] ret = np.ndarray((indices.size(),), dtype=np.int64)
         for i in range(0, indices.size()):
-            ret[i,0] = i // self._data.shape[1] # TODO: These might be swapped
-            ret[i,1] = i % self._data.shape[1]
+            ret[i] = indices[i]
         return ret
 
     def __reduce__(self):

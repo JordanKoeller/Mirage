@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from mirage.calc import Reducer, KdTree
-from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve, slice_magmap
+from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve, slice_magmap, merge_index_lists
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D
 from mirage.sim import MicrolensingSimulation
 from mirage_ext import reduce_lensed_image
@@ -43,38 +43,42 @@ class Lightcurve:
 @DelegateRegistry.register
 @dataclass(kw_only=True)
 class LensedImageReducer(Reducer):
-    query: Vec2D
-    radius: u.Quantity
+    query: Vec2D # Location to query
+    radius: u.Quantity # Radius of the QSO
 
-    def __post_init__(self) -> None:
-        self.canvas: Optional[np.ndarray] = None
+    def initialize(self, simulation: MicrolensingSimulation):
+        self._active_indices = None # linear list of active pixel incides (flattened)
+        self._canvas = None
+        self.resolution = simulation.get_ray_bundle().resolution
 
     def reduce(self, traced_rays: KdTree):
-        inds = traced_rays.query_indices(
+        self._active_indices = np.array(traced_rays.query_indices(
             self.query.to("theta_0"), self.radius.to("theta_0")
-        )
-        canvas_shape = np.array(
-            [traced_rays.data_shape[0], traced_rays.data_shape[1], 3],
-            dtype=np.uint64,
-        )
-        self.canvas = reduce_lensed_image(inds, canvas_shape, HIT_COLOR)
+        ))
 
     def merge(self, other: Self) -> Self:
-        other_canvas = other.canvas
-        if self.canvas is not None and other_canvas is not None:
-            self.canvas = np.bitwise_or(self.canvas, other_canvas)
-        elif other_canvas is not None:
-            self.canvas = other_canvas
+        if other._active_indices is None:
+            return self
+        if self._active_indices is None:
+            self._active_indices = other._active_indices
+            return self
+        self._active_indices = merge_index_lists(self._active_indices, other._active_indices)
         return self
 
     @property
     def output(self) -> Optional[np.ndarray]:
-        if self.canvas is not None:
-            return np.copy(self.canvas)
-        return None
+        if self._active_indices is None:
+            return None
+        if self._canvas is None:
+            self._canvas = np.ndarray((int(self.resolution.x), int(self.resolution.y)),
+                                      dtype=np.int64)
+            self._canvas[:, 0] = self._active_indices % int(self.resolution.y)
+            self._canvas[:, 1] = self._active_indices // int(self.resolution.y)
+        return self._canvas
 
     def set_output(self, output: object):
-        self.canvas = output  # type: ignore
+        self._canvas = output
+        self._active_indices = self._canvas[:, 1] * len(self.resolution.y)  + self._canvas[:, 0]
 
 
 @DelegateRegistry.register

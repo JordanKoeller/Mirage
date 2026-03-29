@@ -64,6 +64,22 @@ double BruteForceMag(
   return mag;
 }
 
+std::vector<long> BruteForceIndices(
+    const std::vector<double>& arr, size_t sz,
+    double cx, double cy, double r
+    ) {
+  std::vector<long> ret;
+  double r2 = r * r;
+  for (long i=0; i < sz; i++) {
+    double dx = arr[i] - cx;
+    double dy = arr[i + sz] - cy;
+    if (dx * dx + dy * dy < r2) {
+      ret.push_back(i);
+    }
+  }
+  return ret;
+}
+
 void Print(const std::vector<double>& arr, size_t sz) {
   cout << "[";
   for (int i=0; i < sz; i++) {
@@ -131,10 +147,54 @@ void TestWithMags() {
       cout << "[" << sz << "]: PASS (" << tree_val << ")\n";
     }
   }
+}
+
+void TestIndices() {
+  std::vector<size_t> sizes{
+    0,
+      512,
+    100, 500, 1000, 1001, 5003, 1024, 2049, 7919, 5297, 5298, 7723, 10000, 10023, 10240,
+      50023, 50763,
+      100023, 100452, 100421,
+      500000,
+      1000000,
+      5429457,
+      500237,
+      765324,
+  };
+  std::sort(sizes.begin(), sizes.end());
+
+  for (auto sz : sizes) {
+    auto arr = CreatePoints(sz, 3);
+    auto arrCopy = arr;
+    CKDTree tree(arr.data(), sz, 3, 128);
+    std::vector<long> tree_val = tree.LensPlaneCoordinates(-2.0, 3.4, 2.4);
+    std::vector<long> bf_val =  BruteForceIndices(arrCopy, sz, -2.0, 3.4, 2.4);
+    std::sort(tree_val.begin(), tree_val.end());
+    std::sort(bf_val.begin(), bf_val.end());
+    bool passed = true;
+    if (tree_val.size() != bf_val.size()) {
+      cout << "[" << sz << "]: TreeIndices(" << tree_val.size() << ") != BFIndices(" << bf_val.size() << ")\n";
+      continue;
+    }
+    for (int i=0; i < tree_val.size(); i++) {
+      if (tree_val[i] != bf_val[i]) {
+        passed = false;
+        break;
+      }
+    }
+    if (passed) {
+    cout << "TestIndices[" << sz << "]: PASS (" << tree_val.size() << ")\n";
+    } else {
+    cout << "TestIndices[" << sz << "]: FAIL\n";
+
+    }
+  }
 
 }
 
 int main(void) {
-  TestWithoutMags();
-  TestWithMags();
+  TestIndices();
+  // TestWithoutMags();
+  // TestWithMags();
 }

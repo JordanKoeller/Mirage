@@ -37,6 +37,9 @@ class PyKdTree:
         return self.tree.query_ball_point([x, y], radius, return_length=True)
 
     def query_indices(self, query_pos: Vec2D, radius: u.Quantity) -> np.ndarray:
+        """
+        Returns flattened indices of active points in the circle.
+        """
         x, y, radius = self._query_primatives(query_pos, radius)
         flat_indices = np.array(
             self.tree.query_ball_point([x, y], radius), dtype=np.uint64
@@ -104,8 +107,9 @@ class FastKdTree:
             radius.to(self.unit).value
         )
 
-    def query_indicies(
+    def query_indices(
         self, query_pos: Vec2D, radius: u.Quantity
     ) -> np.ndarray:
-        x, y, radius = self._query_primatives(query_pos, radius)
-        return self.tree.query_rays(x, y, radius)
+        query_pos = query_pos.to(self.unit)
+        radius = radius.to(self.unit)
+        return self.tree.query_rays(query_pos.x.value, query_pos.y.value, radius.value)

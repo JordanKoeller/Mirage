@@ -87,8 +87,8 @@ class CKDTree {
    // Returns the indices of the rays within the specified circle.
    //
    // Indices are returned as a flattened value.
-   std::vector<int> LensPlaneCoordinates(double cx, double cy, double r) {
-     std::vector<int> inds;
+   std::vector<long> LensPlaneCoordinates(double cx, double cy, double r) {
+     std::vector<long> inds;
      std::function<void(size_t)> reducer([&](size_t i) -> void {
          inds.push_back(indices_[i]);
      });
@@ -148,7 +148,7 @@ class CKDTree {
 
    // Lookup array mapping from ordered index to the index of that point
    // in the original buffer before sorting.
-   std::vector<int> indices_;
+   std::vector<long> indices_;
   
    // Number of double's per element, laid out in columnar order.
    size_t elem_sz_;
@@ -171,7 +171,7 @@ inline void CKDTree::set(size_t i, double* elem, size_t j) {
   for (size_t d=0; d < elem_sz_; d++) {
     buf_[d * sz_ + i] = elem[d];
   }
-  indices_[i] = static_cast<int>(j);
+  indices_[i] = static_cast<long>(j);
 }
 
 inline void CKDTree::get(size_t i, double* out) {

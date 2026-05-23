@@ -185,9 +185,8 @@ class Viz:
                 widget.set_active(True)
 
     def next_simulation(self) -> bool:
-        if self._model.variant_key_index >= len(self._model.variant_keys) - 1:
+        if not self._model.next_variant():
             return False
-        self._model.variant_key_index += 1
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
         self._window.set_title(str(self._model.variant_key))
@@ -195,9 +194,8 @@ class Viz:
         return True
 
     def prev_simulation(self) -> bool:
-        if self._model.variant_key_index <= 0:
+        if not self._model.prev_variant():
             return False
-        self._model.variant_key_index -= 1
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
         self._window.set_title(str(self._model.variant_key))

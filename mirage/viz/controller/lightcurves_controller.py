@@ -63,7 +63,7 @@ class LightcurvesController(Controller):
             was_drawn = self._get_lightcurve_artist(
                 ind, 
                 variant_key,
-                ind == state.variant_key_index,
+                variant_key == state.variant_key,
                 self.find_reducer(state, LightCurvesReducer, variant_key=variant_key).lightcurves[self._selected_line],
                 window)
             if was_drawn:

@@ -92,7 +92,7 @@ class MagMapController(Controller):
             was_drawn = self._draw_lightcurve_artist(
                 ind, 
                 variant_key,
-                ind == state.variant_key_index,
+                variant_key == state.variant_key,
                 self.find_reducer(state, MagnificationMapReducer, variant_key=variant_key),
                 window)
             if was_drawn:

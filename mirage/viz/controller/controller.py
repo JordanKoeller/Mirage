@@ -142,10 +142,12 @@ class Controller(ABC):
         + Is a reducer of the specified reducer_type.
 
         If no such reducer exists (or multiple matches are found), a ValueError is raised.
+
+        TODO: Refactor this to support RealtimeVizState.
         """
         simulation = state.simulation_result
         if variant_key:
-            simulation = state.experiment.simulation(variant_key)
+            simulation = state._experiment.simulation(variant_key)
         if reducer_name:
             return simulation.get_reducer(reducer_name)
         reducers = []

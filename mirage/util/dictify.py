@@ -326,6 +326,8 @@ class Dictify:
             type_def in (list, dict)
             or str(type_def).startswith("typing.Dict")
             or str(type_def).startswith("typing.List")
+            or str(type_def).startswith("dict[")
+            or str(type_def).startswith("list[")
         )
 
     @staticmethod

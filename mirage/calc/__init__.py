@@ -1,11 +1,10 @@
 from .kd_tree import FastKdTree as KdTree, PyKdTree, RustKdTree, FastKdTree
 
-# from .kd_tree import RustKdTree as KdTree
 from .ray_tracer import RayTracer
 from .reducer import Reducer
 from .reducers import *
 
-from .engine import Engine, ResultEvent
+from .engine import Engine, ResultEvent, ResultCalculator
 
 __all__ = [
     "KdTree",

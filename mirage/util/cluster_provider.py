@@ -48,6 +48,10 @@ class ClusterProvider(ABC):
         Returns the url of the Dask dashboard.
         """
 
+    def __del__(self) -> None:
+        self.close()
+
+
 
 @dataclass(kw_only=True)
 @DelegateRegistry.register
@@ -56,7 +60,7 @@ class LocalClusterProvider(ClusterProvider):
     worker_mem: str = field(default_factory=lambda: "1.5GiB")
     rays_per_chunk: int = field(default_factory=lambda: 1e6)
 
-    def __pre_init__(self):
+    def __post_init__(self):
         self._cluster: Optional[LocalCluster] = None
         self._client: Optional[Client] = None
 
@@ -99,7 +103,7 @@ class RemoteClusterProvider(ClusterProvider):
     scheduler_uri: str
     partition_size: str
 
-    def __pre_init__(self):
+    def __post_init__(self):
         self._client: Optional[Client] = None
 
     def initialize(self):
@@ -136,7 +140,7 @@ class AwsEphemeralClusterProvider(ClusterProvider):
     partition_size: str
     docker_image: str = "jkoeller12/mirage:latest"
 
-    def __pre_init__(self):
+    def __post_init__(self):
         self._client: Optional[Client] = None
         self._cluster: Optional[FargateCluster] = None
 

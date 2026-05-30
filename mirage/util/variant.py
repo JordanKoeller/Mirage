@@ -154,10 +154,10 @@ class ListVariant(Variant):
     """
     Variant that returns a list of value literals.
     """
-    values: list[Any]
+    values: list[float]
 
-    def get_values(self) -> list:
-        return values
+    def get_values(self) -> list[float]:
+        return self.values
 
 
 class ObjVariants(Generic[T]):

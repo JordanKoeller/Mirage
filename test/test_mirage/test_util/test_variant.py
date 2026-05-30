@@ -12,6 +12,35 @@ from mirage.calc.reducers import LightCurvesReducer
 from mirage.util import VariantDictify
 
 class TestVariantDictify(TestCase):
+    def testFromDict_singelVariantListSuccess(self):
+        dict_repr = {
+            "Radius": ["${sub}", "uas"],
+            "Resolution": [10, "1/uas"],
+            "NumCurves": "${sub}",
+            "Seed": 12,
+            "Name": "lightcurve",
+            "Variants": [
+                {
+                    "ListVariant": {
+                        "Name": "sub",
+                        "Values": [1, 2, 3]
+                    },
+                },
+            ],
+        }
+        expected = [
+            LightCurvesReducer(
+                radius=s * u.uas,
+                resolution=10 / u.uas,
+                num_curves=s,
+                seed=12,
+                name="lightcurve",
+            )
+            for s in [1, 2, 3]
+        ]
+        actual = VariantDictify.from_dict(LightCurvesReducer, dict_repr)
+        self.assertEqual(expected, actual.variants())
+
     def testFromDict_singelVariantSuccess(self):
         dict_repr = {
             "Radius": ["${sub}", "uas"],

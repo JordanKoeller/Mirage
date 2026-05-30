@@ -6,21 +6,20 @@ LensingSystem_MicrolensingLens:
   Cosmology: WMAP7
   Convergence: 0.3
   Shear: 0.0
-  StarryFraction: 0.9
+  StarryFraction: ${star_fraction}
 Starfield:
   InitialMassFunction: Kroupa2001
   Seed: 110
 LensedImageCenter: [0.0, 0.0, 'uas']
-RayCount: 16_000_000
+RayCount: 1_000
 SourceRegionDimensions: [60, 60, 'uas']
 Reducers:
   - MagnificationMapReducer:
       Name: magmap
       Radius: 0.2 uas
       Resolution: [100, 100, '']
+
 Variants:
-  - LinspaceVariant:
-      Name: star_faction
-      Start: 0.20
-      Stop: 0.25
-      NumPoints: 2
+  - ListVariant:
+      Name: star_fraction
+      Values: [0.2, 0.2, 0.3, 0.4, 0.2, 0.35]

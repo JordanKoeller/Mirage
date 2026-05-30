@@ -7,8 +7,10 @@ from typing import Literal, Optional
 from functools import cached_property
 
 from mirage.sim import Experiment
-from mirage.util import Dictify, ClusterProvider, LocalClusterProvider
-from mirage.calc.batch_runner import BatchRunner
+from mirage.util import Dictify, ClusterProvider, LocalClusterProvider, Stopwatch
+from mirage.calc.engine import Engine
+from mirage.calc.dask_result_calculator import DaskResultCalculator
+from mirage.io import ResultFileManager
 
 logger = logging.getLogger("mirage_main")
 
@@ -160,19 +162,47 @@ class MirageMain:
         )
         return experiment
 
+    def run_batch_mode(self):
+        if not main.output_file:
+            raise ValueError("Cannot run batch-mode without an output file specified.")
+        experiment = self.load_experiment()
+        if experiment is None:
+            raise ValueError("Cannot run batch-mode without an experiment specified.")
+
+        calculator = DaskResultCalculator(
+            cluster_provider=self.cluster_provider,
+        )
+
+        timer = Stopwatch()
+        timer.start()
+
+        engine = Engine.create_and_start(calculator)
+
+        serializer = ResultFileManager(self.output_file, "x")
+        serializer.dump_experiment(experiment)
+        try:
+            for _ in range(engine.start_run_experiment(experiment)):
+                result = engine.get_result(blocking=True) 
+                serializer.dump_result(result.result, result.simulation_key)
+        except Exception as e:
+            logger.error("Encountered Error!")
+            logger.error(str(e))
+        finally:
+            serializer.close()
+            logger.info("Result saved to %s", self.output_file)
+            timer.stop()
+            logger.info("Total Runtime: %ss", timer.total_elapsed_seconds())
+
+
 
 if __name__ == "__main__":
     main = MirageMain()
 
-    experiment = main.load_experiment()
     run_mode = main.run_mode
 
-    if run_mode == "batch" and experiment and main.output_file:
+    if run_mode == "batch":
         logger.info("Running Batch Job")
-        batch_runner = BatchRunner(
-            experiment, main.output_file, main.cluster_provider
-        )
-        batch_runner.start()
+        main.run_batch_mode()
         logger.info("Goodbye!")
 
     if run_mode == "interractive":

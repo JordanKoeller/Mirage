@@ -81,3 +81,27 @@ class ExperimentResult:
 
     def __iter__(self) -> Iterator[SimulationResult]:
         return iter([self.simulation(k) for k in self.keys])
+
+@dataclass
+class InMemorySimulationResult:
+    """
+    Implements the SimulationResult interface without any underlying File I/O,
+    reading from in-memory datastructures.
+    """
+
+    simulation: Simulation
+    reducers: dict[str, Reducer]
+
+    @property
+    def reducer_names(self) -> list[str]:
+        return list(self.reducers.keys())
+
+    def get_reducer(self, name: str) -> Reducer:
+        return self.reducers[name]
+
+    def __len__(self) -> int:
+        return len(self.reducers)
+
+    def __iter__(self) -> Iterator[Reducer]:
+        return iter(self.reducers.values())
+

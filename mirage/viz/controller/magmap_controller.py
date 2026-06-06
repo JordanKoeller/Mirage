@@ -48,9 +48,12 @@ class MagMapController(Controller):
         self.request_draw()
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
-        reducer = self.find_reducer(state, MagnificationMapReducer, reducer_name = self._reducer_name)
-        magnitudes = reducer.magnitudes
         artists = []
+        try:
+            reducer = self.find_reducer(state, MagnificationMapReducer, reducer_name = self._reducer_name)
+        except ValueError:
+            return artists
+        magnitudes = reducer.magnitudes
 
         colormap = plt.get_cmap("RdBu")
 

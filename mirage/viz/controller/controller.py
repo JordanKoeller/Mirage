@@ -145,9 +145,7 @@ class Controller(ABC):
 
         TODO: Refactor this to support RealtimeVizState.
         """
-        simulation = state.simulation_result
-        if variant_key:
-            simulation = state._experiment.simulation(variant_key)
+        simulation = state.simulation_result(variant_key)
         if reducer_name:
             return simulation.get_reducer(reducer_name)
         reducers = []

@@ -21,49 +21,62 @@ class Starfield:
     initial_mass_function: ImfBrokenPowerlaw
     seed: int
 
-    @cache
     def get_starfield(
         self, total_mass: u.Quantity, region_radius: u.Quantity
-    ) -> Tuple[u.Quantity, u.Quantity]:
+    ) -> tuple[u.Quantity, u.Quantity]:
         """
         Generate and return description of the specified starfield.
 
         Returns:
           (masses, positions)
         """
-        self._reset_rng(self.seed)
+        return _get_starfield(self.initial_mass_function, self.seed, total_mass, region_radius)
 
-        num_stars = total_mass / 0.5
-        masses = u.Quantity(
-            self.initial_mass_function.generate_cluster(
-                total_mass.to("solMass").value
-            ),
-            "solMass",
-        )
-        num_stars = len(masses)
+def _reset_rng(self, seed: Optional[int] = None):
+    self.initial_mass_function.set_seed(seed)
 
-        positions: np.ndarray = np.ndarray(
-            (num_stars, 2), dtype=np.float64, order='F'
-        )  # Buffer where each row is [x, y]
+@cache
+def _get_starfield(
+    initial_mass_function: ImfBrokenPowerlaw, seed: int,
+    total_mass: u.Quantity, region_radius: u.Quantity,
+) -> tuple[u.Quantity, u.Quantity]:
+    """
+    Helper function in calling get_starfield.
 
-        self._reset_rng(self.seed + 1)
-        random_radii = region_radius * np.sqrt(
-            self.initial_mass_function.random_number_generator.rand(num_stars)
-        )
+    This allows us to pass members of `Starfield` into the function so that the @cache
+    decorator can listen for them changing.
+    """
+    initial_mass_function.set_seed(seed)
 
-        self._reset_rng(self.seed + 2)
-        random_thetas = (
-            2
-            * pi
-            * self.initial_mass_function.random_number_generator.rand(num_stars)
-        )
+    num_stars = total_mass / 0.5
+    masses = u.Quantity(
+        initial_mass_function.generate_cluster(
+            total_mass.to("solMass").value
+        ),
+        "solMass",
+    )
+    num_stars = len(masses)
 
-        positions[:, 0] = random_radii * np.cos(random_thetas)
-        positions[:, 1] = random_radii * np.sin(random_thetas)
+    positions: np.ndarray = np.ndarray(
+        (num_stars, 2), dtype=np.float64, order='F'
+    )  # Buffer where each row is [x, y]
 
-        logger.info(f"Generated {num_stars} ({masses.sum()})")
+    initial_mass_function.set_seed(seed + 1)
+    random_radii = region_radius * np.sqrt(
+        initial_mass_function.random_number_generator.rand(num_stars)
+    )
 
-        return masses, u.Quantity(positions, region_radius.unit)
+    initial_mass_function.set_seed(seed + 2)
+    random_thetas = (
+        2
+        * pi
+        * initial_mass_function.random_number_generator.rand(num_stars)
+    )
 
-    def _reset_rng(self, seed: Optional[int] = None):
-        self.initial_mass_function.set_seed(seed)
+    positions[:, 0] = random_radii * np.cos(random_thetas)
+    positions[:, 1] = random_radii * np.sin(random_thetas)
+
+    logger.info(f"Generated {num_stars} ({masses.sum()})")
+
+    return masses, u.Quantity(positions, region_radius.unit)
+

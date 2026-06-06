@@ -31,9 +31,32 @@ controllers can be added / removed programatically or via the UI.
 from .viz import Viz
 from .window import VizWindow, MirageAxes
 from .controller import Controller, MagMapController, LightcurvesController, DebugController
-from .viz_state import VizState, Panel, VizEvent
+from .viz_state import VizState, Panel, VizEvent, RealtimeParameters, RealTimeVizState
+
+_CONTROLLERS = {
+    "MagMapController": MagMapController,
+    "LightcurvesController": LightcurvesController,
+    "DebugController": DebugController,
+    "MagMap": MagMapController,
+    "Magmap": MagMapController,
+    "Lightcurves": LightcurvesController,
+    "Debug": DebugController,
+}
+
+def create_layers(*layers: list[str | Controller]) -> list[Controller]:
+    ret = []
+    for layer in layers:
+        if isinstance(layer, Controller):
+            ret.append(layer)
+            continue
+        ret.append(_CONTROLLERS[layer]())
+    print("layers", ret)
+    return ret
+
+
+
 
 __all__ = [
     "Viz", "VizState", "VizWindow", "Controller", "MagMapController", "Panel", "VizEvent",
-    "LightcurvesController", "DebugController", "MirageAxes",
+    "LightcurvesController", "DebugController", "MirageAxes", "RealTimeVizState", "create_layers"
 ]

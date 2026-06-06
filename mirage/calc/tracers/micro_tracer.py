@@ -32,11 +32,11 @@ class MicrolensingRayTracer(RayTracer):
 
         pixels = rays.pixels.value
 
-        print(
+        logger.info(
             "Running with %d starts, M_tot=%.2f M_sun"
             % (stars_mass.shape[0], np.sum(stars_mass.value))
         )
-        print(
+        logger.info(
             f"Running with {pixels.shape} "
             f"(Total={pixels.shape[0]*pixels.shape[1]}) pixels"
         )

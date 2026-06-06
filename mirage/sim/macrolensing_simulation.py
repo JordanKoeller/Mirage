@@ -40,6 +40,4 @@ class MacrolensingSimulation(Simulation):
         return ret.to("theta_0")
 
     def get_reducers(self) -> List[Reducer]:  # type: ignore
-        while True:
-            for reducer in self.reducers:
-                yield reducer
+        return self.reducers

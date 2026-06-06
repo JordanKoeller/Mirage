@@ -7,9 +7,8 @@ from typing import Literal, Optional
 from functools import cached_property
 
 from mirage.sim import Experiment
-from mirage.util import Dictify, ClusterProvider, LocalClusterProvider, Stopwatch
-from mirage.calc.engine import Engine
-from mirage.calc.dask_result_calculator import DaskResultCalculator
+from mirage.util import Dictify, ClusterProvider, LocalClusterProvider, Stopwatch, install_mp_handler
+from mirage.calc import get_or_create_engine
 from mirage.io import ResultFileManager
 
 logger = logging.getLogger("mirage_main")
@@ -124,20 +123,6 @@ class MirageMain:
         return None
 
     @property
-    def cluster_provider(self) -> ClusterProvider:
-        try:
-            cluster = Dictify.from_yaml(ClusterProvider, self.args.cluster[0])  # type: ignore
-            logger.info(
-                f"Constructed {type(cluster).__name__} cluster from file {self.args.cluster[0]}"
-            )
-            return cluster
-        except FileNotFoundError:
-            logger.info(
-                "No cluster config file found. Using default local cluster"
-            )
-            return LocalClusterProvider()
-
-    @property
     def overwrite(self) -> bool:
         return bool(self.args.force)
 
@@ -169,14 +154,10 @@ class MirageMain:
         if experiment is None:
             raise ValueError("Cannot run batch-mode without an experiment specified.")
 
-        calculator = DaskResultCalculator(
-            cluster_provider=self.cluster_provider,
-        )
-
         timer = Stopwatch()
         timer.start()
 
-        engine = Engine.create_and_start(calculator)
+        engine = get_or_create_engine(self.args.cluster[0])
 
         serializer = ResultFileManager(self.output_file, "x")
         serializer.dump_experiment(experiment)
@@ -192,6 +173,7 @@ class MirageMain:
             logger.info("Result saved to %s", self.output_file)
             timer.stop()
             logger.info("Total Runtime: %ss", timer.total_elapsed_seconds())
+            engine.stop()
 
 
 

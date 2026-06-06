@@ -8,7 +8,7 @@ from .conversions import size_to_bytes, bytes_to_size
 from .variant import ObjVariants, VariantKey, VariantDictify
 
 from .custom_serializers import register_serializers
-from .logger import RepeatLogger
+from .logger import RepeatLogger, install_mp_handler
 from .cluster_provider import (
     ClusterProvider,
     RemoteClusterProvider,
@@ -39,5 +39,6 @@ __all__ = [
     "AwsEphemeralClusterProvider",
     "ObjVariants",
     "VariantDictify",
-    "BidiStream"
+    "BidiStream",
+    "install_mp_handler",
 ]

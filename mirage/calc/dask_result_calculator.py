@@ -61,7 +61,6 @@ class DaskResultCalculator(ResultCalculator):
         logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
 
     def __del__(self, *args, **kwargs) -> None:
-        print("Closing cluster")
         self.cluster_provider.close()
 
     def raytrace(self, simulation: Simulation) -> None:
@@ -82,7 +81,7 @@ class DaskResultCalculator(ResultCalculator):
         num_partitions = int(math.ceil(num_rays / partition_size))
         partition_mem_size = bytes_to_size(partition_size * 16)
 
-        logger.info(
+        logger.warning(
             f"Subdividing into {num_partitions} ({partition_mem_size}) partitions"
         )
         self.trees = self.cluster_provider.client.persist(

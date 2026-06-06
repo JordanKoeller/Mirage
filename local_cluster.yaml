@@ -6,4 +6,4 @@
 LocalClusterProvider:
   NumWorkers: 10
   WorkerMem: 1GiB
-  RaysPerChunk: 640000
+  RaysPerChunk: 64000

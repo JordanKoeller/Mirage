@@ -121,23 +121,22 @@ class Viz:
         """
         supported = len(controller.supported_reducers) == 0
         for reducer in controller.supported_reducers:
-            for available_reducer in self._model.simulation_result:
+            for available_reducer in self._model.simulation_result():
                 if isinstance(available_reducer, reducer):
                     supported = True
                     break
         if not supported:
-            logger.info(f"No compatible reducer found for controller {controller}. Disabling the controller.")
-            return
+            logger.info(f"No compatible reducer found for controller {controller}. Binding as Disabled.")
         logger.info(f"Activating Controller {controller}.")
         layer_name = layer_name or type(controller).__name__
         controller.request_draw()
         controller_state = _ControllerState(
             controller=controller,
-            enabled=True,
+            enabled=supported,
             control_button=CheckButtons(
                 self._window.layer_control_axes(len(self._model.layers)),
                 labels=[f"Enable {layer_name}"],
-                actives=[True],
+                actives=[supported],
             ),
             artists=[],
             widgets=controller.bind_widgets(
@@ -154,12 +153,14 @@ class Viz:
         artists = []
         artists.extend(self._window.title_artists())
         bounds = None
+        new_realtime_result = self._model.realtime and self._model.ingest_results()
         for layer_name in self._model.layers:
             controller = self._controllers.get(layer_name)
             artists.append(controller.control_button)
             if not controller.enabled:
                 continue
-            did_draw, artists = controller.controller.do_draw(self._model, self._window, force=force)
+            did_draw, artists = controller.controller.do_draw(
+                self._model, self._window, force=force or new_realtime_result)
             if did_draw:
                 controller.artists = artists
             artists.extend(controller.artists)
@@ -190,7 +191,7 @@ class Viz:
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
         self._window.set_title(str(self._model.variant_key))
-        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result.simulation))
+        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result().simulation))
         return True
 
     def prev_simulation(self) -> bool:
@@ -199,12 +200,12 @@ class Viz:
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
         self._window.set_title(str(self._model.variant_key))
-        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result.simulation))
+        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result().simulation))
         return True
 
     def show(self) -> None:
         self._window.set_title(str(self._model.variant_key))
-        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result.simulation))
+        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result().simulation))
         self.draw(force=True)
         self._window.show()
 

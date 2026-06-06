@@ -31,8 +31,11 @@ class LightcurvesController(Controller):
         self._show_all_lines = False
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
-        reducer = self.find_reducer(state, LightCurvesReducer, self._reducer_name)
         artists = []
+        try:
+            reducer = self.find_reducer(state, LightCurvesReducer, self._reducer_name)
+        except ValueError:
+            return artists
         tl, br = state.source_region.to("uas").span
         self.request_bounds(MirageAxes.IMAGE, tl.x.value, br.x.value, br.y.value, tl.y.value)
         if len(self._lines) == 0:

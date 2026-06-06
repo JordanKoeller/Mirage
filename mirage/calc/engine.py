@@ -135,7 +135,6 @@ class Engine:
         """
         if not self._stream.send((simulation, key or VariantKey()), blocking=False):
             return 0
-        counter = 0
         return len(simulation.get_reducers())
 
     def get_result(self, blocking: bool = False) -> ResultEvent | None:
@@ -145,9 +144,12 @@ class Engine:
         """
         return self._stream.recv(blocking)
 
-    def __del__(self) -> None:
+    def stop(self) -> None:
         self._stream.close()
         self._engine_process.join()
+
+    def __del__(self) -> None:
+        self.stop()
 
 
     @staticmethod
@@ -169,7 +171,7 @@ class Engine:
                 logger.info("Received EOF. Ending EngineProcess")
                 return
             except BaseException as e:
-                logger.error(f"Encountered an exception: %s.", s)
+                logger.error(f"Encountered an exception: %s.", e)
                 stream.send(e)
                 return
             finally:
@@ -213,6 +215,7 @@ class Engine:
         simulation: Simulation,
         key: VariantKey,
     ):
+        calculator.raytrace(simulation)
         for reducer in simulation.get_reducers():
             result = calculator.apply_reducer(simulation, reducer)
             stream.send(ResultEvent(result, key), blocking=True)

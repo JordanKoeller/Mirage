@@ -66,7 +66,7 @@ class DebugController(Controller):
                     self._artists[k] = window.im_axes.plot(
                         bounds[:, 0], bounds[:, 1], label="Lense Region")[0]
             if k == _RENDER_STARS:
-                ray_tracer = state.simulation_result.simulation.get_ray_tracer()
+                ray_tracer = state.simulation_result().simulation.get_ray_tracer()
                 stars_mass, stars_positions = ray_tracer.starfield.get_starfield(
                     ray_tracer.star_mass, ray_tracer.starfield_angular_radius
                 )

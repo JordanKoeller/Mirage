@@ -7,12 +7,9 @@ from typing import Literal, Optional
 from functools import cached_property
 
 from mirage.sim import Experiment
-from mirage.util import Dictify, ClusterProvider, LocalClusterProvider, Stopwatch, install_mp_handler
+from mirage.util import Dictify, ClusterProvider, LocalClusterProvider, Stopwatch, init_multiprocessing_logger
 from mirage.calc import get_or_create_engine
 from mirage.io import ResultFileManager
-
-logger = logging.getLogger("mirage_main")
-
 
 class MirageMain:
     def __init__(self):
@@ -90,15 +87,10 @@ class MirageMain:
         return os.path.join(directory, f"debug_{len(existing_files)}.log")
 
     def configure_logger(self):
-        logging.basicConfig(
-            level=logging.DEBUG if self.args.debug else logging.INFO,
-            format="%(asctime)s [%(processName)15s] %(levelname)5s - %(name)s | %(message)s",
-            handlers=[
-                logging.FileHandler(self.logfile),
-                logging.StreamHandler(sys.stdout),
-            ],
-        )
-        logger.info("Writing logs to " + self.logfile)
+        level = logging.DEBUG if self.args.debug else logging.INFO
+        self.queue_handler = init_multiprocessing_logger(self.logfile, level)
+        self.logger = logging.getLogger("mirage_main")
+        self.logger.info("Writing logs to " + self.logfile)
 
     @property
     def run_mode(self) -> Literal["batch", "interractive", "viz"]:
@@ -134,15 +126,15 @@ class MirageMain:
         if not os.path.exists(sim_file):
             raise ValueError(f"File not found: {sim_file}")
 
-        logger.info(f"Loading experiment from file: {sim_file}")
+        self.logger.info(f"Loading experiment from file: {sim_file}")
 
         with open(sim_file) as f:
             yaml_str = f.read()
-            logger.debug("Contents:\n" + yaml_str)
+            self.logger.debug("Contents:\n" + yaml_str)
 
         experiment = Experiment.from_yaml(sim_file)
 
-        logger.info(
+        self.logger.info(
             f"Constructed Simulation of type: {type(experiment).__name__}"
         )
         return experiment
@@ -166,14 +158,16 @@ class MirageMain:
                 result = engine.get_result(blocking=True) 
                 serializer.dump_result(result.result, result.simulation_key)
         except Exception as e:
-            logger.error("Encountered Error!")
-            logger.error(str(e))
+            self.logger.error("Encountered Error!")
+            self.logger.error(str(e))
         finally:
             serializer.close()
-            logger.info("Result saved to %s", self.output_file)
+            self.logger.info("Result saved to %s", self.output_file)
             timer.stop()
-            logger.info("Total Runtime: %ss", timer.total_elapsed_seconds())
+            self.logger.info("Total Runtime: %ss", timer.total_elapsed_seconds())
             engine.stop()
+            self.queue_handler.listener.stop()
+
 
 
 
@@ -183,9 +177,9 @@ if __name__ == "__main__":
     run_mode = main.run_mode
 
     if run_mode == "batch":
-        logger.info("Running Batch Job")
+        main.logger.info("Running Batch Job")
         main.run_batch_mode()
-        logger.info("Goodbye!")
+        main.logger.info("Goodbye!")
 
     if run_mode == "interractive":
         raise NotImplementedError()
@@ -199,7 +193,7 @@ if __name__ == "__main__":
                 len(experiment),
             )
 
-        logger.info("Running visualization")
+        main.logger.info("Running visualization")
         viz_runner = VizRunner(experiment.simulations[0])
         viz_runner.start()
-        logger.info("Goodbye!")
+        main.logger.info("Goodbye!")

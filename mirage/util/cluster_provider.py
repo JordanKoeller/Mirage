@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
-import logging
 import multiprocessing
+import logging
 from dataclasses import dataclass, field
 import time
 
@@ -70,7 +70,6 @@ class LocalClusterProvider(ClusterProvider):
             threads_per_worker=2,
         )
         self._client = Client(self._cluster)
-        print(f"Connected to Dask Cluster {self.dashboard}")
 
     def close(self):
         if self._client:
@@ -108,7 +107,6 @@ class RemoteClusterProvider(ClusterProvider):
 
     def initialize(self):
         self._client = Client(self.scheduler_uri)
-        logger.info(f"Connected to Dask Cluster {self.scheduler_uri}")
 
     def close(self):
         pass
@@ -159,7 +157,6 @@ class AwsEphemeralClusterProvider(ClusterProvider):
             ),
         )
         self._client = self._cluster.get_client()
-        logger.info(f"Connected to Dask Cluster {self._client.dashboard_link}")
 
     def close(self):
         self._client.close()

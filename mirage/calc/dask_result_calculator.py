@@ -81,7 +81,7 @@ class DaskResultCalculator(ResultCalculator):
         num_partitions = int(math.ceil(num_rays / partition_size))
         partition_mem_size = bytes_to_size(partition_size * 16)
 
-        logger.warning(
+        logger.info(
             f"Subdividing into {num_partitions} ({partition_mem_size}) partitions"
         )
         self.trees = self.cluster_provider.client.persist(

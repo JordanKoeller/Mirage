@@ -2,16 +2,17 @@ from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from typing import Iterator
 import logging
+import logging.handlers
 from multiprocessing import Process
+import multiprocessing
 
 from mirage.sim import Simulation, Experiment
 from mirage.calc import Reducer, KdTree
-from mirage.util import BidiStream, RepeatLogger, Stopwatch, VariantKey
+from mirage.util import BidiStream, RepeatLogger, Stopwatch, VariantKey, bind_logging_to_queue
 
 logger = logging.getLogger(__name__)
 
 _STREAM_BUFFER_SZ = 4
-
 
 
 @dataclass
@@ -101,10 +102,11 @@ class Engine:
     @classmethod
     def create_and_start(cls, calculator: ResultCalculator) -> Self:
         send, recv = BidiStream.create(_STREAM_BUFFER_SZ)
+        queue_logger = logging.getHandlerByName("queue_handler")
         engine_process = Process(
             name="EngineProcess",
             target=Engine._engine_process_main,
-            args=(calculator, recv)
+            args=(calculator, recv, queue_logger.queue)
         )
         engine_process.start()
         return cls(send, engine_process)
@@ -153,7 +155,11 @@ class Engine:
 
 
     @staticmethod
-    def _engine_process_main(calculator: ResultCalculator, stream: BidiStream) -> None:
+    def _engine_process_main(calculator: ResultCalculator, stream: BidiStream, logging_queue: multiprocessing.Queue) -> None:
+        # Fix logging
+        bind_logging_to_queue(logging_queue)
+        
+        # Start the calculation
         logger.info(f"Initializing Calculator: %s", calculator)
         calculator.initialize()
         while True:
@@ -194,7 +200,7 @@ class Engine:
                 if needs_traced:
                     cache_misses += 1
                     calculator.raytrace(simulation)
-                Engine._blocking_run_simulation(calculator, stream, simulation, key)
+                Engine._blocking_run_simulation(calculator, stream, simulation, key, needs_raytrace=False)
         except Exception as e:
             logger.error("Encountered Error")
             logger.error(str(e))
@@ -214,8 +220,10 @@ class Engine:
         stream: BidiStream,
         simulation: Simulation,
         key: VariantKey,
+        needs_raytrace: bool = False,
     ):
-        calculator.raytrace(simulation)
+        if needs_raytrace:
+            calculator.raytrace(simulation)
         for reducer in simulation.get_reducers():
             result = calculator.apply_reducer(simulation, reducer)
             stream.send(ResultEvent(result, key), blocking=True)

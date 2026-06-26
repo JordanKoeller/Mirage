@@ -133,7 +133,7 @@ class Controller(ABC):
         reducer_type: object,
         variant_key: VariantKey | None = None,
         reducer_name: str | None = None,
-    ) -> Reducer:
+    ) -> Reducer | None:
         """
         Returns the first reducer that:
         + Comes from the Simulation matching the variant_key. If not provided,
@@ -141,7 +141,7 @@ class Controller(ABC):
         + Matches the reducer_name (if specified).
         + Is a reducer of the specified reducer_type.
 
-        If no such reducer exists (or multiple matches are found), a ValueError is raised.
+        If no such reducer exists (or multiple matches are found), None is returned
 
         TODO: Refactor this to support RealtimeVizState.
         """
@@ -152,14 +152,14 @@ class Controller(ABC):
         for reducer in simulation:
             if isinstance(reducer, reducer_type):
                 reducers.append(reducer)
-            else:
-                print("Failed comparison", reducer, reducer_type)
         if len(reducers) == 0:
-            raise ValueError(f"Could not find a reducer with type {reducer_type.__name__}")
+            # raise ValueError(f"Could not find a reducer with type {reducer_type.__name__}")
+            return None
         if len(reducers) > 1:
-            raise ValueError(
-                f"Ambiguous {reducer_type.__name__}'s: {', '.join(reducer.name for reducer in reducers)}"
-            )
+            return None
+            # raise ValueError(
+            #     f"Ambiguous {reducer_type.__name__}'s: {', '.join(reducer.name for reducer in reducers)}"
+            # )
         return reducers[0]
 
     @property

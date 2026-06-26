@@ -6,7 +6,7 @@ from matplotlib.backend_bases import MouseEvent, KeyEvent
 
 from mirage.calc import Engine
 from mirage.lens_analysis.result import ExperimentResult, SimulationResult, InMemorySimulationResult
-from mirage.util import VariantKey, Vec2D, Region
+from mirage.util import VariantKey, Vec2D, Region, PixelRegion
 
 
 @dataclass
@@ -28,7 +28,7 @@ class VizState:
 
     def simulation_result(self, variant_key: VariantKey | None = None) -> SimulationResult:
         return self._experiment.simulation(
-            self.variant_keys[variant_key or self._variant_key_index]
+            variant_key or self.variant_keys[self._variant_key_index]
         )
 
     @property
@@ -41,7 +41,7 @@ class VizState:
             dims=self.simulation_result().simulation.source_region_dimensions)
 
     @property
-    def lens_region(self) -> Region:
+    def lens_region(self) -> PixelRegion:
         return self.simulation_result().simulation.get_ray_bundle()
 
     def next_variant(self) -> bool:
@@ -111,7 +111,7 @@ class RealTimeVizState:
         return self.variant_keys[0]
 
     @property
-    def source_region(self) -> Reegion:
+    def source_region(self) -> Region:
         return Region(
             dims=self.simulation.source_region_dimensions)
 

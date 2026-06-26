@@ -13,6 +13,12 @@ cpdef np.ndarray[np.float64_t, ndim=1] populate_lightcurve(
   double query_radius,
   object tree)
 
+cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
+    np.ndarray[np.int64_t, ndim=1] source_indices,
+    object lens_region, # Pixel Region
+    object canvas_resolution # Vec2D
+)
+
 cpdef np.ndarray[np.float64_t, ndim=1] slice_magmap(
     object magmap, # MagnificationMapReducer
     object start, #Vec2D
@@ -22,6 +28,13 @@ cpdef np.ndarray[np.float64_t, ndim=1] slice_magmap(
 cpdef np.ndarray[np.int64_t, ndim=1] merge_index_lists(
     np.ndarray[np.int64_t, ndim=1] a,
     np.ndarray[np.int64_t, ndim=1] b,
+)
+
+cpdef void draw_lensed_image(
+    np.ndarray[np.uint8_t, ndim=3] canvas,
+    np.ndarray[np.int32_t, ndim=2] brightness,
+    object colormap,
+    double normalization_factor,
 )
 
 cdef struct _Vec2D:

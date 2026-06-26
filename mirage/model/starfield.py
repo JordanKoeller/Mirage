@@ -12,7 +12,7 @@ from .initial_mass_function import ImfBrokenPowerlaw
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Starfield:
     """
     Describes the parameters used to generate stars in a region.

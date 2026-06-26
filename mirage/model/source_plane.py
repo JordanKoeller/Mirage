@@ -4,7 +4,7 @@ from mirage.model import Quasar
 from mirage.util import Region
 
 
-@dataclass(frozen=True)
+@dataclass
 class SourcePlane:
     quasar: Quasar
     source_region: Region

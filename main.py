@@ -74,7 +74,7 @@ class MirageMain:
             "-f",
             "--force",
             action="store_true",
-            help="If specified, overwirtes output file if it already exists",
+            help="If specified, overwrites output file if it already exists",
         )
 
     @cached_property

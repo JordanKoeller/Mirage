@@ -4,7 +4,7 @@ from scipy.spatial import cKDTree
 import numpy as np
 from astropy import units as u
 
-from mirage.util import Vec2D
+from mirage.util import Vec2D, PixelRegion
 from mirage.calc.fast_tree import FastTree
 
 from mirage_ext import KiddoTree
@@ -85,9 +85,10 @@ class RustKdTree:
         )
 
 class FastKdTree:
-    def __init__(self, data: u.Quantity, leaf_size: int = 64):
+    def __init__(self, data: u.Quantity, region: PixelRegion, leaf_size: int = 64):
         self.unit = data.unit
         self.tree = FastTree(data.value, leaf_size)
+        self.region = region
 
     def query_rays(self, query_pos: Vec2D, radius: u.Quantity) -> u.Quantity:
         raise NotImplementedError("Yat")
@@ -112,4 +113,7 @@ class FastKdTree:
     ) -> np.ndarray:
         query_pos = query_pos.to(self.unit)
         radius = radius.to(self.unit)
-        return self.tree.query_rays(query_pos.x.value, query_pos.y.value, radius.value)
+        tree_local_inds = self.tree.query_rays(query_pos.x.value, query_pos.y.value, radius.value)
+        tree_local_inds_x = (tree_local_inds // self.region.resolution.y) + int(self.region.parent_region_location.x)
+        tree_local_inds_y = (tree_local_inds % self.region.resolution.y) + int(self.region.parent_region_location.y)
+        return (tree_local_inds_x * int(self.region.parent_region.resolution.x) + tree_local_inds_y).astype(int)

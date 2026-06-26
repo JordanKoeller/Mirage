@@ -29,7 +29,7 @@ Refactorings:
 """
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True)
 class LensingSystem(ABC):
     """
     Represents the full gravitatially lensed system (observer, lensing galaxy, plus quasar).

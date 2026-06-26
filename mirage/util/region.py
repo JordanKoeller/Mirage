@@ -81,13 +81,18 @@ class PixelRegion(Region):
       + dims (Vec2D): The (height, width) of the region.
       + center (Vec2D): The position vector for the center of the region. Default (0, 0).
       + resolution (Vec2D): The resolution of the pixel region (h x w).
+      + parent_region (PixelRegion): If this is a subregion, populated with a copy of the parent region.
+      + parent_region_location (Index2D): The index of the top-left pixel in the parent region. 
     """
 
     resolution: Vec2D
+    parent_region: Self | None = None
+    parent_region_location: Index2D | None = None
 
     @classmethod
     def from_span(
-        cls, min_corner: Vec2D, max_corner: Vec2D, resolution: Vec2D
+        cls, min_corner: Vec2D, max_corner: Vec2D, resolution: Vec2D,
+        parent_region: Self | None = None, parent_region_location: Index2D | None = None,
     ) -> Self:
         """
         Constructs a PixelRegion given the top left corner, bottom right corner, and
@@ -109,13 +114,15 @@ class PixelRegion(Region):
         dims = max_corner - min_corner + delta
 
         # type: ignore
-        return cls(dims=dims, center=center, resolution=resolution)
+        return cls(dims=dims, center=center, resolution=resolution, parent_region=parent_region, parent_region_location=parent_region_location)
 
     def to(self, unit: Union[str, u.Unit]) -> Self:
         return PixelRegion(  # type: ignore
             dims=self.dims.to(unit),
             center=self.center.to(unit) if self.center else None,
             resolution=self.resolution,
+            parent_region=self.parent_region,
+            parent_region_location=self.parent_region_location,
         )
 
     def subdivide(self, region_count: int) -> List[Self]:
@@ -185,6 +192,8 @@ class PixelRegion(Region):
                         subgrid_min_corner,
                         subgrid_max_corner,
                         subgrid_resolution,
+                        self,
+                        Index2D(s_x, s_y),
                     )
                 )
 

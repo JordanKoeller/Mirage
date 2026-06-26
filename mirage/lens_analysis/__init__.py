@@ -4,7 +4,7 @@ import os
 from mirage.sim import Simulation, Experiment
 from mirage.calc import get_or_create_engine
 from .result import ExperimentResult, SimulationResult
-from mirage.viz import Viz, VizWindow, VizState, MagMapController, LightcurvesController, DebugController, RealtimeParameters, Controller, create_layers, RealTimeVizState
+from mirage.viz import Viz, VizWindow, VizState, MagMapController, LightcurvesController, DebugController, RealtimeParameters, Controller, create_layers, RealTimeVizState, LensedImageController
 from mirage.io import ResultFileManager
 
 def load(filename: str) -> ExperimentResult | Experiment:

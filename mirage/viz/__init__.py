@@ -30,7 +30,7 @@ controllers can be added / removed programatically or via the UI.
 """
 from .viz import Viz
 from .window import VizWindow, MirageAxes
-from .controller import Controller, MagMapController, LightcurvesController, DebugController
+from .controller import Controller, MagMapController, LightcurvesController, DebugController, LensedImageController
 from .viz_state import VizState, Panel, VizEvent, RealtimeParameters, RealTimeVizState
 
 _CONTROLLERS = {
@@ -41,6 +41,7 @@ _CONTROLLERS = {
     "Magmap": MagMapController,
     "Lightcurves": LightcurvesController,
     "Debug": DebugController,
+    "LensedImageController": LensedImageController,
 }
 
 def create_layers(*layers: list[str | Controller]) -> list[Controller]:

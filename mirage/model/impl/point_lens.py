@@ -10,7 +10,7 @@ from mirage.calc import RayTracer
 from mirage.calc.tracers import PointLensTracer
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True)
 @DelegateRegistry.register
 class PointLens(LensingSystem):
     mass: u.Quantity

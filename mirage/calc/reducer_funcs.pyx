@@ -16,6 +16,13 @@ cdef _Int2D _sample_grid(_Vec2D tl, _Vec2D dxy, _Vec2D q):
     int(round((q.y-tl.y) / dxy.y))
   )
 
+cdef clip(int v, int mn, int mx):
+  return max(min(v, mx), mn)
+
+cdef lerp(double a, double b, double x):
+    return b * x + a * (1 - x) 
+
+
 cpdef np.ndarray[np.float64_t, ndim=2] populate_magmap(
     np.ndarray[np.float64_t, ndim=3] query_locations,
     double query_radius,
@@ -163,6 +170,63 @@ cpdef np.ndarray[np.int64_t, ndim=1] merge_index_lists(
       a_i += 1
       r_i += 1
   return ret[:r_i]
+
+cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
+    np.ndarray[np.int64_t, ndim=1] source_indices,
+    object lens_region, # Pixel Region
+    object canvas_resolution # Vec2D
+):
+  cdef:
+    int canvas_width = int(canvas_resolution.x)
+    int canvas_height = int(canvas_resolution.y)
+    np.ndarray[np.int32_t, ndim=2] canvas = np.zeros((canvas_width, canvas_height), dtype=np.int32)
+    double canvas_x = float(canvas_resolution.x)
+    double canvas_y = float(canvas_resolution.y)
+    int i, n = source_indices.shape[0]
+    double x, y
+    int xx, yy
+    int source_width = int(lens_region.resolution.x)
+    int source_height = int(lens_region.resolution.y)
+    double source_width_d = float(lens_region.resolution.x)
+    double source_height_d = float(lens_region.resolution.y)
+  for i in range(n):
+    if source_indices[i] == -1:
+      break
+    x = float(source_indices[i] // source_height)
+    y = float(source_indices[i] % source_height)
+    xx = clip(int(round(x / source_width_d * (canvas_width))), 0, int(canvas_width -1))
+    yy = clip(int(round(y / source_height_d * (canvas_height))), 0, int(canvas_height -1))
+    canvas[xx, yy] += 1
+  return canvas
+
+
+cpdef void draw_lensed_image(
+    np.ndarray[np.uint8_t, ndim=3] canvas,
+    np.ndarray[np.int32_t, ndim=2] brightness,
+    object colormap,
+    double normalization_factor,
+):
+    # Reset back to baseline
+    canvas[:, :] = colormap["BACKGROUND"]
+    cdef:
+        int i, j, n = canvas.shape[0], m = canvas.shape[1]
+        double a, b, x
+        np.ndarray[np.float64_t, ndim=1] pos_start = colormap["POS_PARITY_START"]
+        np.ndarray[np.float64_t, ndim=1] pos_stop = colormap["POS_PARITY_STOP"]
+        np.ndarray[np.float64_t, ndim=1] neg_start = colormap["NEG_PARITY_START"]
+        np.ndarray[np.float64_t, ndim=1] neg_stop = colormap["NEG_PARITY_STOP"]
+    for i in range(n):
+        for j in range(m):
+            x = float(brightness[i, j])
+            if x > 0.0:
+                canvas[i, j, 0] = int(lerp(pos_start[0], pos_stop[0], x / normalization_factor))
+                canvas[i, j, 1] = int(lerp(pos_start[1], pos_stop[1], x / normalization_factor))
+                canvas[i, j, 2] = int(lerp(pos_start[2], pos_stop[2], x / normalization_factor))
+            if brightness[i, j] < 0.0:
+                canvas[i, j, 0] = int(lerp(neg_start[0], neg_stop[0], -x / normalization_factor))
+                canvas[i, j, 1] = int(lerp(neg_start[1], neg_stop[1], -x / normalization_factor))
+                canvas[i, j, 2] = int(lerp(neg_start[2], neg_stop[2], -x / normalization_factor))
+
 
 
 

@@ -22,19 +22,24 @@ RAYS_PER_PARTITION = list(
     map(lambda s: size_to_bytes(s) / 16, PARTITION_SIZE_RANGE)
 )
 
+@dataclass 
+class _RaysWithRegion:
+    region: PixelRegion
+    rays: np.ndarray
+
 def _ray_trace(simulation: Simulation, ray_tracer: RayTracer, region: PixelRegion):
     """
     Applies a RayTracer to a PixelRegion, returning the traced rays numpy array.
     """
     with simulation.special_units():
-        return ray_tracer.trace(region)
+        return _RaysWithRegion(region, ray_tracer.trace(region))
 
-def _to_kd_tree(simulation: Simulation, rays: object):
+def _to_kd_tree(simulation: Simulation, rays_with_region: _RaysWithRegion):
     """
     Packs a numy array or rays into a KdTree.
     """
     with simulation.special_units():
-        return KdTree(rays)
+        return KdTree(rays_with_region.rays, rays_with_region.region)
 
 def _apply_reducer(simulation: Simulation, reducer: Reducer, kd_tree: KdTree) -> Reducer:
     """Reduce the specified KdTree with a reducer."""

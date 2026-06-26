@@ -10,7 +10,7 @@ from mirage.model import LensingSystem, TracingParameters
 from mirage.util import PolarVec, Vec2D, DelegateRegistry
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True)
 @DelegateRegistry.register
 class SingularIsothermalSphereLens(LensingSystem):
     redshift: float

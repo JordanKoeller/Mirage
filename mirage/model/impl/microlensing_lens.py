@@ -9,7 +9,7 @@ from mirage.util import Vec2D, DelegateRegistry
 logger = logging.getLogger(__name__)
 
 
-@dataclass(kw_only=True, frozen=True)
+@dataclass(kw_only=True)
 @DelegateRegistry.register
 class MicrolensingLens(LensingSystem):
     convergence: float

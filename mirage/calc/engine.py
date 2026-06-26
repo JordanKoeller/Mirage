@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 _STREAM_BUFFER_SZ = 4
 
-
 @dataclass
 class ResultEvent:
     result: object
@@ -50,6 +49,29 @@ class ResultCalculator(ABC):
         Apply the specified reducer and return a reference to the hydrated
         version. This may or mahy not be the same instance as what was passed in.
         """
+
+
+class _CachingResultCalculator(ResultCalculator):
+    def __init__(self, result_calculator: ResultCalculator):
+        self.result_calculator = result_calculator
+        self.ray_traced_simulation = None
+        self.cache_misses = -1
+
+    def initialize(self) -> None:
+        self.result_calculator.initialize()
+        self.cache_misses = -1
+
+    def raytrace(self, simulation: Simulation) -> None:
+        if self.ray_traced_simulation is not None and self.ray_traced_simulation.is_similar(simulation):
+            return
+        self.ray_traced_simulation = simulation
+        self.result_calculator.raytrace(simulation)
+        self.cache_misses += 1
+
+    def apply_reducer(self, simulation: Simulation, reducer: Reducer) -> Reducer:
+        return self.result_calculator.apply_reducer(simulation, reducer)
+
+
 
 class Engine:
     """
@@ -103,10 +125,11 @@ class Engine:
     def create_and_start(cls, calculator: ResultCalculator) -> Self:
         send, recv = BidiStream.create(_STREAM_BUFFER_SZ)
         queue_logger = logging.getHandlerByName("queue_handler")
+        caching_calculator = _CachingResultCalculator(calculator)
         engine_process = Process(
             name="EngineProcess",
             target=Engine._engine_process_main,
-            args=(calculator, recv, queue_logger.queue)
+            args=(caching_calculator, recv, queue_logger.queue)
         )
         engine_process.start()
         return cls(send, engine_process)
@@ -155,12 +178,12 @@ class Engine:
 
 
     @staticmethod
-    def _engine_process_main(calculator: ResultCalculator, stream: BidiStream, logging_queue: multiprocessing.Queue) -> None:
+    def _engine_process_main(calculator: _CachingResultCalculator, stream: BidiStream, logging_queue: multiprocessing.Queue) -> None:
         # Fix logging
         bind_logging_to_queue(logging_queue)
         
         # Start the calculation
-        logger.info(f"Initializing Calculator: %s", calculator)
+        logger.info(f"Initializing Calculator: %s", type(calculator.result_calculator).__name__)
         calculator.initialize()
         while True:
             try:
@@ -186,7 +209,7 @@ class Engine:
 
     @staticmethod
     def _blocking_run_experiment(
-        calculator: ResultCalculator,
+        calculator: _CachingResultCalculator,
         stream: BidiStream,
         experiment: Experiment
     ) -> None:
@@ -195,19 +218,16 @@ class Engine:
         num_simulations = 0
         cache_misses =  -1 # We don't call the first simulation a cache miss.
         try:
-            for key, simulation, needs_traced in Engine._get_simulations_grouped(experiment):
+            for key, simulation in Engine._get_simulations_grouped(experiment):
                 num_simulations += 1
-                if needs_traced:
-                    cache_misses += 1
-                    calculator.raytrace(simulation)
-                Engine._blocking_run_simulation(calculator, stream, simulation, key, needs_raytrace=False)
+                Engine._blocking_run_simulation(calculator, stream, simulation, key)
         except Exception as e:
             logger.error("Encountered Error")
             logger.error(str(e))
         finally:
             timer.stop()
             logger.info(
-                "Computed %d simulations (%d cache misses)", num_simulations, cache_misses
+                "Computed %d simulations (%d cache misses)", num_simulations, calculator.cache_misses
             )
             logger.info(
                 "Total Engine Elapsed Time: %ss", timer.total_elapsed_seconds()
@@ -216,20 +236,18 @@ class Engine:
 
     @staticmethod
     def _blocking_run_simulation(
-        calculator: ResultCalculator,
+        calculator: _CachingResultCalculator,
         stream: BidiStream,
         simulation: Simulation,
         key: VariantKey,
-        needs_raytrace: bool = False,
     ):
-        if needs_raytrace:
-            calculator.raytrace(simulation)
+        calculator.raytrace(simulation)
         for reducer in simulation.get_reducers():
             result = calculator.apply_reducer(simulation, reducer)
             stream.send(ResultEvent(result, key), blocking=True)
         
     @staticmethod
-    def _get_simulations_grouped(experiment: Experiment) -> Iterator[tuple[VariantKey, Simulation, bool]]:
+    def _get_simulations_grouped(experiment: Experiment) -> Iterator[tuple[VariantKey, Simulation]]:
         """
         Returns an iterator of Simulations, grouped by similarity such that
         similar simulations are always adjacent.
@@ -250,7 +268,5 @@ class Engine:
             if not found_match:
                 buckets.append([simulation])
         for bucket in buckets:
-            first_in_bucket = True
             for simulation in bucket:
-                yield (*simulation, first_in_bucket)
-                first_in_bucket = False
+                yield simulation

@@ -57,6 +57,8 @@ class Viz:
         self._controllers: dict[str, _ControllerState] = {}
         self._animate = False
 
+        self._bounds = {axis: None for axis in MirageAxes}
+
         for controller in controllers or []:
             self.bind_controller(controller)
 
@@ -233,6 +235,8 @@ class Viz:
         for axis in MirageAxes:
             if bounds[axis] is None:
                 continue
+            if self._bounds[axis] == bounds[axis]:
+                continue
             cx = (bounds[axis].x_min + bounds[axis].x_max) / 2
             dx = abs(cx - bounds[axis].x_min) * 1.05
             cy = (bounds[axis].y_min + bounds[axis].y_max) / 2
@@ -244,4 +248,5 @@ class Viz:
                 case MirageAxes.LINE:
                     self._window.line_axes.set_xlim(cx - dx, cx + dx)
                     self._window.line_axes.set_ylim(cy - dy, cy + dy)
+            self._bounds[axis] = bounds[axis]
 

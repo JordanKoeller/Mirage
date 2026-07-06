@@ -66,7 +66,7 @@ class VizWindow:
         self._widget_axes = self._widgets_fig.subplot_mosaic(
             [
               ["title"] * 6,
-              ["previous", "previous", "previous","next","next","next"],
+              ["previous", "previous", "animate","animate","next","next"],
               *[[f"l{i}", f"l{i}", f"l{i}", f"l{i}", f"control_l{i}",f"control_l{i}",] for i in range(MAX_LAYERS)],
               ["text"] * 6
             ],
@@ -78,6 +78,7 @@ class VizWindow:
         )
         self._p_button = Button(self._widget_axes["previous"], "Previous")
         self._n_button = Button(self._widget_axes["next"], "Next")
+        self._a_button = Button(self._widget_axes["animate"], "Animate")
         self._text_box = self._widget_axes["text"].text(0, 1, "")
 
 
@@ -122,6 +123,10 @@ class VizWindow:
     @property
     def previous_simulation_button(self) -> Button:
         return self._p_button
+
+    @property
+    def animate_simulation_button(self) -> Button:
+        return self._a_button
 
     @property
     def text_box(self) -> Axes:

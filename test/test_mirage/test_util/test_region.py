@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from mirage.util import Region, PixelRegion, Vec2D
+from mirage.util import Region, PixelRegion, Vec2D, Index2D
 
 
 class TestPixelRegion(TestCase):
@@ -72,6 +72,46 @@ class TestPixelRegion(TestCase):
         region.pixels
         subgrids = region.subdivide(20)  # 4 regions of 4 points each
         self.assertSubregionEqual(subgrids, region)
+
+    def testUnravelRegion(self):
+        region = PixelRegion(
+            dims=Vec2D(4, 4, "m"), resolution=Vec2D.unitless(100, 100)
+        )
+        pixels = region.pixels
+        for i in range(0, 100):
+            for j in range(0, 100):
+                coord = region.unravel(np.array([i * 100 + j])) 
+                vec = region[Index2D(coord[0, 1], coord[0, 0])]
+                expected = pixels[i, j]
+                self.assertEqual(vec.x.value, expected[0].value)
+                self.assertEqual(vec.y.value, expected[1].value)
+
+    def testUnravelSubRegion(self):
+        region = PixelRegion(
+            dims=Vec2D(4, 4, "m"), resolution=Vec2D.unitless(2000, 2000)
+        )
+        subgrids = region.subdivide(400)
+        pixels = region.pixels
+        all_indices = []
+        expected_indices = []
+        for i in range(2000):
+            for j in range(2000):
+                expected_indices.append((i, j))
+        for subgrid in subgrids:
+            indices = []
+            for i in range(int(subgrid.resolution.x * subgrid.resolution.y)):
+                inds = subgrid.unravel(np.array([i]))
+                indices.append((int(inds[0,0]), int(inds[0, 1])))
+            indices.sort(key=lambda k: k[0] * 2000 + k[1])
+            # print(f"tl=<{int(subgrid.parent_region_location.x)}, {int(subgrid.parent_region_location.y)}> dims=<{int(subgrid.resolution.x)}, {int(subgrid.resolution.y)}>")
+            # if (12, 12) in indices:
+            #     print("Has (12, 12)")
+            # print(indices)
+            # print("")
+            all_indices.extend(indices)
+        self.assertEqual(len(all_indices), len(expected_indices))
+        self.assertEqual(set(all_indices), set(expected_indices))
+
 
     def assertSubregionEqual(self, subregions, expected_region):
         subregion_coords = []

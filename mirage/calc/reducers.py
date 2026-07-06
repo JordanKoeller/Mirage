@@ -54,12 +54,10 @@ class LensedImageReducer(Reducer):
         active_indices = np.array(traced_rays.query_indices(
             self.query.to("theta_0"), self.radius.to("theta_0")
         ))
+        if active_indices is None or len(active_indices) == 0:
+            return
         self._canvas = populate_lensed_image(active_indices, self._lens_plane, self.resolution)
 
-    # TODO: This merge logic is wrong because it merges indices within the space
-    # of each tree, not within the space of the entire lens_plane. I need to give
-    # each sub-region a field that says what its first index offset should be. and
-    # how to map to indices within the global region.
     def merge(self, other: Self) -> Self:
         if other._canvas is None:
             return self
@@ -75,63 +73,6 @@ class LensedImageReducer(Reducer):
 
     def set_output(self, output: object):
         self._canvas = output
-
-
-@DelegateRegistry.register
-@dataclass(kw_only=True)
-class LensedImageAnimationReducer(Reducer):
-    radius: u.Quantity # Radius of the QSO
-    start_pos: Vec2D # starting point of the quasar
-    end_pos: Vec2D # ending point of the quasar
-    frames: int # Number of frames to use in the animation
-    resolution: Vec2D
-
-    def query_points(self) -> list[Vec2D]:
-        return [
-          Vec2D(x, y, self.start_pos.unit) for x, y in zip(
-            np.linspace(self.start_pos.x.value, self.end_pos.x.value, self.frames),
-            np.linspace(self.start_pos.y.value, self.end_pos.y.value, self.frames)
-          )
-        ]
-
-    def initialize(self, simulation: MicrolensingSimulation):
-        self._lens_plane = simulation.get_ray_bundle()
-        self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
-        self._canvases = []
-
-    def reduce(self, traced_rays: KdTree):
-        if self._canvases:
-            return # Already reduced
-
-        indices = []
-        for query_pos in self.query_points():
-            active_indices = np.array(traced_rays.query_indices(
-                query_pos.to("theta_0"), self.radius.to("theta_0")
-            ))
-            self._canvases.append(
-                populate_lensed_image(
-                    active_indices, self._lens_plane, self.resolution)
-            )
-
-
-    def merge(self, other: Self) -> Self:
-        if not other._canvases:
-            return self
-        if not self._canvases:
-            self._canvases = other._canvases
-            return self
-        for i, (a, b) in enumerate(zip(self._canvases, other._canvases)):
-            self._canvases[i] = np.minimum(a + b, np.ones_like(a) * 127)
-        return self
-
-    @property
-    def output(self) -> Optional[np.ndarray]:
-        if self._canvases:
-            return self._canvases
-        return None
-
-    def set_output(self, output: object):
-        self._canvases = output
 
 
 @DelegateRegistry.register

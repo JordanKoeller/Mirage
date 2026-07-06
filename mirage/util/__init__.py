@@ -3,7 +3,7 @@ from .dictify import Dictify, DictifyMixin, CustomSerializer
 from .delegate_registry import DelegateRegistry
 from .region import Region, PixelRegion
 from .event_channel import DuplexChannel, BidiStream
-from .stopwatch import Stopwatch
+from .stopwatch import Stopwatch, LabeledStopwatch
 from .conversions import size_to_bytes, bytes_to_size
 from .variant import ObjVariants, VariantKey, VariantDictify
 
@@ -42,4 +42,5 @@ __all__ = [
     "BidiStream",
     "init_multiprocessing_logger",
     "bind_logging_to_queue",
+    "LabeledStopwatch",
 ]

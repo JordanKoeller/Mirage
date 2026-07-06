@@ -78,7 +78,6 @@ class MicrolensingSimulation(Simulation):
             1 - self._tracing_parameters.starry_fraction
         )
 
-        logger.info(f"Total Starry Mass {starry_mass}")
         return MicrolensingRayTracer(
             self.starfield,
             starry_mass,

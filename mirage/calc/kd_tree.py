@@ -111,9 +111,10 @@ class FastKdTree:
     def query_indices(
         self, query_pos: Vec2D, radius: u.Quantity
     ) -> np.ndarray:
+        """
+        Returns the indices of active rays in (x, y) coordinate pairs.
+        """
         query_pos = query_pos.to(self.unit)
         radius = radius.to(self.unit)
         tree_local_inds = self.tree.query_rays(query_pos.x.value, query_pos.y.value, radius.value)
-        tree_local_inds_x = (tree_local_inds // self.region.resolution.y) + int(self.region.parent_region_location.x)
-        tree_local_inds_y = (tree_local_inds % self.region.resolution.y) + int(self.region.parent_region_location.y)
-        return (tree_local_inds_x * int(self.region.parent_region.resolution.x) + tree_local_inds_y).astype(int)
+        return self.region.unravel(tree_local_inds)

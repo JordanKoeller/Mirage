@@ -44,21 +44,28 @@ class VizState:
     def lens_region(self) -> PixelRegion:
         return self.simulation_result().simulation.get_ray_bundle()
 
-    def next_variant(self) -> bool:
+    def next_variant(self, rollover: bool=False) -> bool:
         """
         Advance to the next variant. Returns False if there are no more variants
         to advance to, in which case this method does nothing.
         """
+        if rollover:
+            self._variant_key_index = (self._variant_key_index + 1) % len(self.variant_keys)
+            return True
         if self.variant_key == self.variant_keys[-1]:
             return False
         self._variant_key_index += 1
         return True
 
-    def prev_variant(self) -> bool:
+    def prev_variant(self, rollover: bool=False) -> bool:
         """
         Move to the previous variant. Returns False if already on the first
         variant, in which case this method does nothing.
         """
+        if rollover:
+            if self._variant_key_index == 0:
+                self._variant_key_index = len(self.variant_keys) - 1
+                return True
         if self.variant_key == self.variant_keys[0]:
             return False
         self._variant_key_index -= 1

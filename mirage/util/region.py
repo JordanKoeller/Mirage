@@ -199,6 +199,23 @@ class PixelRegion(Region):
 
         return subgrids  # type: ignore
 
+    def unravel(self,  indexes: np.ndarray) -> np.ndarray:
+        """
+        Convertes a single-dimensional index into two-dimensional index.
+
+        If the PixelRegion is a subregion, this function unravels to the
+        indices in the parent space.
+
+        Assumes fortran-ordering (columnar).
+        """
+        subregion_inds = np.ndarray((len(indexes), 2), dtype=np.int64)
+        subregion_inds[:, 0] = (indexes // int(self.resolution.y))
+        subregion_inds[:, 1] = (indexes % int(self.resolution.y))
+        if self.parent_region_location:
+            subregion_inds[:, 0] += int(self.parent_region_location.x)
+            subregion_inds[:, 1] += int(self.parent_region_location.y)
+        return subregion_inds
+
     def __getitem__(self, index: Index2D):
         if (
             index.x > self.resolution.x.value

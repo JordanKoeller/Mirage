@@ -9,7 +9,7 @@ from matplotlib.widgets import AxesWidget, Button, CheckButtons
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.viz.controller import Controller, AxesBounds
-from mirage.util import Vec2D, Dictify
+from mirage.util import Vec2D, Dictify, LabeledStopwatch
 
 
 logger = logging.getLogger(__name__)
@@ -55,6 +55,7 @@ class Viz:
         self._model = model
         self._window = view
         self._controllers: dict[str, _ControllerState] = {}
+        self._animate = False
 
         for controller in controllers or []:
             self.bind_controller(controller)
@@ -64,6 +65,9 @@ class Viz:
         )
         self._window.previous_simulation_button.on_clicked(
             lambda *args: self.prev_simulation()
+        )
+        self._window.animate_simulation_button.on_clicked(
+            lambda *args: self.animate_simulation()
         )
         self._window.figure.canvas.mpl_connect(
             "button_press_event", lambda event: self._on_mouse_event(event)
@@ -160,7 +164,7 @@ class Viz:
             if not controller.enabled:
                 continue
             did_draw, artists = controller.controller.do_draw(
-                self._model, self._window, force=force or new_realtime_result)
+                self._model, self._window, force=force or new_realtime_result or self._animate)
             if did_draw:
                 controller.artists = artists
             artists.extend(controller.artists)
@@ -170,6 +174,8 @@ class Viz:
                 _merge_bounds(bounds, controller.controller._bounds)
         self._update_axes_bounds(bounds)
         self._window.draw()
+        if self._animate:
+            self.next_simulation(rollover=True)
         return artists
 
     def toggle_layer(self, layer_name: str) -> None:
@@ -185,8 +191,8 @@ class Viz:
             for widget in self._controllers[layer_name].widgets:
                 widget.set_active(True)
 
-    def next_simulation(self) -> bool:
-        if not self._model.next_variant():
+    def next_simulation(self, rollover: bool=False) -> bool:
+        if not self._model.next_variant(rollover):
             return False
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
@@ -202,6 +208,18 @@ class Viz:
         self._window.set_title(str(self._model.variant_key))
         self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result().simulation))
         return True
+
+    def animate_simulation(self) -> bool:
+        self._animate = not self._animate
+        if self._animate:
+            # self._window.animate_simulation_button.set_text("Stop Animation")
+            self._window.next_simulation_button.set_active(False)
+            self._window.previous_simulation_button.set_active(False)
+        else:
+            # self._window.animate_simulation_button.set_text("Animation")
+            self._window.next_simulation_button.set_active(True)
+            self._window.previous_simulation_button.set_active(True)
+
 
     def show(self) -> None:
         self._window.set_title(str(self._model.variant_key))

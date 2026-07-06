@@ -42,6 +42,7 @@ _CONTROLLERS = {
     "Lightcurves": LightcurvesController,
     "Debug": DebugController,
     "LensedImageController": LensedImageController,
+    "LensedImage": LensedImageController,
 }
 
 def create_layers(*layers: list[str | Controller]) -> list[Controller]:

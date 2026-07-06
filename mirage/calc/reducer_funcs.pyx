@@ -172,7 +172,7 @@ cpdef np.ndarray[np.int64_t, ndim=1] merge_index_lists(
   return ret[:r_i]
 
 cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
-    np.ndarray[np.int64_t, ndim=1] source_indices,
+    np.ndarray[np.int64_t, ndim=2] source_indices,
     object lens_region, # Pixel Region
     object canvas_resolution # Vec2D
 ):
@@ -180,9 +180,7 @@ cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
     int canvas_width = int(canvas_resolution.x)
     int canvas_height = int(canvas_resolution.y)
     np.ndarray[np.int32_t, ndim=2] canvas = np.zeros((canvas_width, canvas_height), dtype=np.int32)
-    double canvas_x = float(canvas_resolution.x)
-    double canvas_y = float(canvas_resolution.y)
-    int i, n = source_indices.shape[0]
+    int i, j, n = source_indices.shape[0]
     double x, y
     int xx, yy
     int source_width = int(lens_region.resolution.x)
@@ -190,12 +188,10 @@ cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
     double source_width_d = float(lens_region.resolution.x)
     double source_height_d = float(lens_region.resolution.y)
   for i in range(n):
-    if source_indices[i] == -1:
-      break
-    x = float(source_indices[i] // source_height)
-    y = float(source_indices[i] % source_height)
-    xx = clip(int(round(x / source_width_d * (canvas_width))), 0, int(canvas_width -1))
-    yy = clip(int(round(y / source_height_d * (canvas_height))), 0, int(canvas_height -1))
+    y = float(source_indices[i, 0]) / source_width_d
+    x = float(source_indices[i, 1]) / source_height_d
+    xx = int(round(x * (canvas_width - 1)))
+    yy = int(round(y * (canvas_height - 1)))
     canvas[xx, yy] += 1
   return canvas
 

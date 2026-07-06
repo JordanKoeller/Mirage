@@ -34,7 +34,7 @@ def visualize(
     viz_obj = Viz(
         model=VizState(result, 0),
         view=VizWindow(),
-        controllers=create_layers(*(layers or ["Debug", "Magmap"])),
+        controllers=create_layers(*(layers or ["Debug", "Magmap", "LensedImageController"])),
     )
     viz_obj.show()
     return viz_obj, result
@@ -54,7 +54,7 @@ def visualize_realtime(
             engine=get_or_create_engine()
         ),
         view=VizWindow(),
-        controllers=create_layers(*(layers or ["Debug", "Magmap"])),
+        controllers=create_layers(*(layers or ["Debug", "LensedImageController"])),
     )
 
 

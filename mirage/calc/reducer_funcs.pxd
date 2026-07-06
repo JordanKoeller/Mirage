@@ -14,7 +14,7 @@ cpdef np.ndarray[np.float64_t, ndim=1] populate_lightcurve(
   object tree)
 
 cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
-    np.ndarray[np.int64_t, ndim=1] source_indices,
+    np.ndarray[np.int64_t, ndim=2] source_indices,
     object lens_region, # Pixel Region
     object canvas_resolution # Vec2D
 )

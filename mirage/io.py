@@ -1,4 +1,5 @@
 import os
+import tempfile
 import yaml  # type: ignore
 import zipfile
 import io
@@ -68,7 +69,10 @@ class ResultFileManager:
                 raise FileNotFoundError(self.filename)
         self.zip_archive = zipfile.ZipFile(self.filename, mode=mode)
         self.manifest: Dict[int, Dict[str, str]] = {}
+        self.extracted_dir = None
         if mode == "r":
+            self.extracted_dir = tempfile.TemporaryDirectory()
+            self.zip_archive.extractall(path=self.extracted_dir.name)
             self.manifest = self._load("manifest.yaml")  # type: ignore
 
     @classmethod
@@ -82,6 +86,7 @@ class ResultFileManager:
     def dump_experiment(self, experiment: Experiment):
         self._write("experiment.yaml", experiment.to_dict())
 
+    @cache
     def load_experiment(self) -> Experiment:
         sim_dict: dict = self._load("experiment.yaml")  # type: ignore
         return Experiment.from_dict(sim_dict)
@@ -90,6 +95,8 @@ class ResultFileManager:
         if self.mode == "x":
             self._write("manifest.yaml", self.manifest)
         self.zip_archive.close()
+        if self.extracted_dir:
+            self.extracted_dir.cleanup()
 
     def dump_result(self, reducer: Reducer, simulation_key: VariantKey):
         filename = self._insert_manifest_entry(reducer, simulation_key)
@@ -148,6 +155,13 @@ class ResultFileManager:
                 pickle.dump(data, f)
 
     def _load(self, filename: str) -> Union[dict, object]:
+        if self.extracted_dir:
+            filename = os.path.join(self.extracted_dir.name, filename)
+            if filename.endswith("yaml"):
+                with open(filename, "r") as f:
+                    return yaml.load(f.read(), yaml.CLoader)
+            with open(filename, "rb") as f:
+                return pickle.load(f)
         with self.zip_archive.open(filename, mode="r") as f:
             if filename.endswith("yaml"):
                 return yaml.load(f.read(), yaml.CLoader)

@@ -190,10 +190,11 @@ cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
   for i in range(n):
     y = float(source_indices[i, 0]) / source_width_d
     x = float(source_indices[i, 1]) / source_height_d
-    xx = int(round(x * (canvas_width - 1)))
-    yy = int(round(y * (canvas_height - 1)))
+    xx = int(floor(x * (canvas_width - 1)))
+    yy = int(floor(y * (canvas_height - 1)))
     canvas[xx, yy] += 1
   return canvas
+      # Query: [-2.857142857142854, -5.142857142857146, 'uas']
 
 
 cpdef void draw_lensed_image(

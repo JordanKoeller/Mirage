@@ -43,7 +43,6 @@ class LensedImageController(Controller):
 
     def reset(self) -> None:
         self._frame = 0
-        self._draw_qso = False
         self._canvas = None
         self._img = None
         self._lightcurve = None
@@ -51,6 +50,7 @@ class LensedImageController(Controller):
         self._lightcurve_marker = None
         self._normalization_factor = 0
         self._active_ind = 0
+        self._qso_circle = None
         self._render_controls = {
             _RENDER_QSO: False,
         }
@@ -69,6 +69,16 @@ class LensedImageController(Controller):
         artists.append(self._draw_lensed_image(reducer.output, state, window))
         artists.extend(self._draw_light_curve(data, reducer.unlensed_pixel_count, window))
         artists.extend(self._draw_light_curve_marker(window))
+        if self._render_controls[_RENDER_QSO]:
+            if self._qso_circle:
+                self._qso_circle.set(center=(reducer.query.x.value, reducer.query.y.value))
+            else:
+                self._qso_circle = Ellipse((reducer.query.x.value, reducer.query.y.value), width=4, height=4, color=_COLOR_PALETTE["QSO"] / 256)
+                window.im_axes.add_artist(self._qso_circle)
+            artists.append(self._qso_circle)
+        elif self._qso_circle:
+            self._qso_circle.remove()
+            self._qso_circle = None
         return artists
 
     def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
@@ -89,6 +99,7 @@ class LensedImageController(Controller):
         pass
 
     def _draw_lensed_image(self, img: np.ndarray, state: VizState, window: VizWindow) -> list[Artist]:
+        # self._canvas = img
         if self._canvas is None:
             self._canvas = np.ndarray((*img.shape, 3), dtype=np.uint8)
         draw_lensed_image(self._canvas, img, _COLOR_PALETTE, self._normalization_factor - 1)

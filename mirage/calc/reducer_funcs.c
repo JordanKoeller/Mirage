@@ -9108,7 +9108,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_populate_lensed_imag
  *   for i in range(n):
  *     y = float(source_indices[i, 0]) / source_width_d             # <<<<<<<<<<<<<<
  *     x = float(source_indices[i, 1]) / source_height_d
- *     xx = int(round(x * (canvas_width - 1)))
+ *     xx = int(floor(x * (canvas_width - 1)))
 */
     __pyx_t_12 = __pyx_v_i;
     __pyx_t_13 = 0;
@@ -9122,8 +9122,8 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_populate_lensed_imag
  *   for i in range(n):
  *     y = float(source_indices[i, 0]) / source_width_d
  *     x = float(source_indices[i, 1]) / source_height_d             # <<<<<<<<<<<<<<
- *     xx = int(round(x * (canvas_width - 1)))
- *     yy = int(round(y * (canvas_height - 1)))
+ *     xx = int(floor(x * (canvas_width - 1)))
+ *     yy = int(floor(y * (canvas_height - 1)))
 */
     __pyx_t_13 = __pyx_v_i;
     __pyx_t_12 = 1;
@@ -9136,27 +9136,27 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_populate_lensed_imag
     /* "mirage/calc/reducer_funcs.pyx":193
  *     y = float(source_indices[i, 0]) / source_width_d
  *     x = float(source_indices[i, 1]) / source_height_d
- *     xx = int(round(x * (canvas_width - 1)))             # <<<<<<<<<<<<<<
- *     yy = int(round(y * (canvas_height - 1)))
+ *     xx = int(floor(x * (canvas_width - 1)))             # <<<<<<<<<<<<<<
+ *     yy = int(floor(y * (canvas_height - 1)))
  *     canvas[xx, yy] += 1
 */
-    __pyx_v_xx = ((int)round((__pyx_v_x * (__pyx_v_canvas_width - 1))));
+    __pyx_v_xx = ((int)floor((__pyx_v_x * (__pyx_v_canvas_width - 1))));
 
     /* "mirage/calc/reducer_funcs.pyx":194
  *     x = float(source_indices[i, 1]) / source_height_d
- *     xx = int(round(x * (canvas_width - 1)))
- *     yy = int(round(y * (canvas_height - 1)))             # <<<<<<<<<<<<<<
+ *     xx = int(floor(x * (canvas_width - 1)))
+ *     yy = int(floor(y * (canvas_height - 1)))             # <<<<<<<<<<<<<<
  *     canvas[xx, yy] += 1
  *   return canvas
 */
-    __pyx_v_yy = ((int)round((__pyx_v_y * (__pyx_v_canvas_height - 1))));
+    __pyx_v_yy = ((int)floor((__pyx_v_y * (__pyx_v_canvas_height - 1))));
 
     /* "mirage/calc/reducer_funcs.pyx":195
- *     xx = int(round(x * (canvas_width - 1)))
- *     yy = int(round(y * (canvas_height - 1)))
+ *     xx = int(floor(x * (canvas_width - 1)))
+ *     yy = int(floor(y * (canvas_height - 1)))
  *     canvas[xx, yy] += 1             # <<<<<<<<<<<<<<
  *   return canvas
- * 
+ *       # Query: [-2.857142857142854, -5.142857142857146, 'uas']
 */
     __pyx_t_12 = __pyx_v_xx;
     __pyx_t_13 = __pyx_v_yy;
@@ -9164,10 +9164,10 @@ static PyArrayObject *__pyx_f_6mirage_4calc_13reducer_funcs_populate_lensed_imag
   }
 
   /* "mirage/calc/reducer_funcs.pyx":196
- *     yy = int(round(y * (canvas_height - 1)))
+ *     yy = int(floor(y * (canvas_height - 1)))
  *     canvas[xx, yy] += 1
  *   return canvas             # <<<<<<<<<<<<<<
- * 
+ *       # Query: [-2.857142857142854, -5.142857142857146, 'uas']
  * 
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
@@ -9387,7 +9387,7 @@ static PyObject *__pyx_pf_6mirage_4calc_13reducer_funcs_8populate_lensed_image(C
   return __pyx_r;
 }
 
-/* "mirage/calc/reducer_funcs.pyx":199
+/* "mirage/calc/reducer_funcs.pyx":200
  * 
  * 
  * cpdef void draw_lensed_image(             # <<<<<<<<<<<<<<
@@ -9445,7 +9445,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9]))
   __Pyx_RefNannySetupContext("draw_lensed_image", 0);
-  __Pyx_TraceStartFunc("draw_lensed_image", __pyx_f[0], 199, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 199, __pyx_L1_error));
+  __Pyx_TraceStartFunc("draw_lensed_image", __pyx_f[0], 200, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 200, __pyx_L1_error));
   __pyx_pybuffer_pos_start.pybuffer.buf = NULL;
   __pyx_pybuffer_pos_start.refcount = 0;
   __pyx_pybuffernd_pos_start.data = NULL;
@@ -9472,28 +9472,28 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
   __pyx_pybuffernd_brightness.rcbuffer = &__pyx_pybuffer_brightness;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_canvas.rcbuffer->pybuffer, (PyObject*)__pyx_v_canvas, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 199, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_canvas.rcbuffer->pybuffer, (PyObject*)__pyx_v_canvas, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 200, __pyx_L1_error)
   }
   __pyx_pybuffernd_canvas.diminfo[0].strides = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_canvas.diminfo[0].shape = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_canvas.diminfo[1].strides = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_canvas.diminfo[1].shape = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_canvas.diminfo[2].strides = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_canvas.diminfo[2].shape = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.shape[2];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_brightness.rcbuffer->pybuffer, (PyObject*)__pyx_v_brightness, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 199, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_brightness.rcbuffer->pybuffer, (PyObject*)__pyx_v_brightness, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 200, __pyx_L1_error)
   }
   __pyx_pybuffernd_brightness.diminfo[0].strides = __pyx_pybuffernd_brightness.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_brightness.diminfo[0].shape = __pyx_pybuffernd_brightness.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_brightness.diminfo[1].strides = __pyx_pybuffernd_brightness.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_brightness.diminfo[1].shape = __pyx_pybuffernd_brightness.rcbuffer->pybuffer.shape[1];
 
-  /* "mirage/calc/reducer_funcs.pyx":206
+  /* "mirage/calc/reducer_funcs.pyx":207
  * ):
  *     # Reset back to baseline
  *     canvas[:, :] = colormap["BACKGROUND"]             # <<<<<<<<<<<<<<
  *     cdef:
  *         int i, j, n = canvas.shape[0], m = canvas.shape[1]
 */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_BACKGROUND); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_BACKGROUND); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (unlikely((PyObject_SetItem(((PyObject *)__pyx_v_canvas), __pyx_mstate_global->__pyx_tuple[0], __pyx_t_1) < 0))) __PYX_ERR(0, 206, __pyx_L1_error)
+  if (unlikely((PyObject_SetItem(((PyObject *)__pyx_v_canvas), __pyx_mstate_global->__pyx_tuple[0], __pyx_t_1) < 0))) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "mirage/calc/reducer_funcs.pyx":208
+  /* "mirage/calc/reducer_funcs.pyx":209
  *     canvas[:, :] = colormap["BACKGROUND"]
  *     cdef:
  *         int i, j, n = canvas.shape[0], m = canvas.shape[1]             # <<<<<<<<<<<<<<
@@ -9503,91 +9503,91 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
   __pyx_v_n = (__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_canvas))[0]);
   __pyx_v_m = (__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_canvas))[1]);
 
-  /* "mirage/calc/reducer_funcs.pyx":210
+  /* "mirage/calc/reducer_funcs.pyx":211
  *         int i, j, n = canvas.shape[0], m = canvas.shape[1]
  *         double a, b, x
  *         np.ndarray[np.float64_t, ndim=1] pos_start = colormap["POS_PARITY_START"]             # <<<<<<<<<<<<<<
  *         np.ndarray[np.float64_t, ndim=1] pos_stop = colormap["POS_PARITY_STOP"]
  *         np.ndarray[np.float64_t, ndim=1] neg_start = colormap["NEG_PARITY_START"]
 */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_POS_PARITY_START); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_POS_PARITY_START); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 210, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 211, __pyx_L1_error)
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_pos_start.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_pos_start = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 210, __pyx_L1_error)
+      __PYX_ERR(0, 211, __pyx_L1_error)
     } else {__pyx_pybuffernd_pos_start.diminfo[0].strides = __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_pos_start.diminfo[0].shape = __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_pos_start = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "mirage/calc/reducer_funcs.pyx":211
+  /* "mirage/calc/reducer_funcs.pyx":212
  *         double a, b, x
  *         np.ndarray[np.float64_t, ndim=1] pos_start = colormap["POS_PARITY_START"]
  *         np.ndarray[np.float64_t, ndim=1] pos_stop = colormap["POS_PARITY_STOP"]             # <<<<<<<<<<<<<<
  *         np.ndarray[np.float64_t, ndim=1] neg_start = colormap["NEG_PARITY_START"]
  *         np.ndarray[np.float64_t, ndim=1] neg_stop = colormap["NEG_PARITY_STOP"]
 */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_POS_PARITY_STOP); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 211, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_POS_PARITY_STOP); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 211, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 212, __pyx_L1_error)
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_pos_stop.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_pos_stop = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 211, __pyx_L1_error)
+      __PYX_ERR(0, 212, __pyx_L1_error)
     } else {__pyx_pybuffernd_pos_stop.diminfo[0].strides = __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_pos_stop.diminfo[0].shape = __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_pos_stop = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "mirage/calc/reducer_funcs.pyx":212
+  /* "mirage/calc/reducer_funcs.pyx":213
  *         np.ndarray[np.float64_t, ndim=1] pos_start = colormap["POS_PARITY_START"]
  *         np.ndarray[np.float64_t, ndim=1] pos_stop = colormap["POS_PARITY_STOP"]
  *         np.ndarray[np.float64_t, ndim=1] neg_start = colormap["NEG_PARITY_START"]             # <<<<<<<<<<<<<<
  *         np.ndarray[np.float64_t, ndim=1] neg_stop = colormap["NEG_PARITY_STOP"]
  *     for i in range(n):
 */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_NEG_PARITY_START); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_NEG_PARITY_START); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 212, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 213, __pyx_L1_error)
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_neg_start.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_neg_start = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 212, __pyx_L1_error)
+      __PYX_ERR(0, 213, __pyx_L1_error)
     } else {__pyx_pybuffernd_neg_start.diminfo[0].strides = __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_neg_start.diminfo[0].shape = __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_neg_start = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "mirage/calc/reducer_funcs.pyx":213
+  /* "mirage/calc/reducer_funcs.pyx":214
  *         np.ndarray[np.float64_t, ndim=1] pos_stop = colormap["POS_PARITY_STOP"]
  *         np.ndarray[np.float64_t, ndim=1] neg_start = colormap["NEG_PARITY_START"]
  *         np.ndarray[np.float64_t, ndim=1] neg_stop = colormap["NEG_PARITY_STOP"]             # <<<<<<<<<<<<<<
  *     for i in range(n):
  *         for j in range(m):
 */
-  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_NEG_PARITY_STOP); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Dict_GetItem(__pyx_v_colormap, __pyx_mstate_global->__pyx_n_u_NEG_PARITY_STOP); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 213, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 214, __pyx_L1_error)
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_neg_stop.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_neg_stop = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 213, __pyx_L1_error)
+      __PYX_ERR(0, 214, __pyx_L1_error)
     } else {__pyx_pybuffernd_neg_stop.diminfo[0].strides = __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_neg_stop.diminfo[0].shape = __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_neg_stop = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "mirage/calc/reducer_funcs.pyx":214
+  /* "mirage/calc/reducer_funcs.pyx":215
  *         np.ndarray[np.float64_t, ndim=1] neg_start = colormap["NEG_PARITY_START"]
  *         np.ndarray[np.float64_t, ndim=1] neg_stop = colormap["NEG_PARITY_STOP"]
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -9599,7 +9599,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
   for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
     __pyx_v_i = __pyx_t_4;
 
-    /* "mirage/calc/reducer_funcs.pyx":215
+    /* "mirage/calc/reducer_funcs.pyx":216
  *         np.ndarray[np.float64_t, ndim=1] neg_stop = colormap["NEG_PARITY_STOP"]
  *     for i in range(n):
  *         for j in range(m):             # <<<<<<<<<<<<<<
@@ -9611,7 +9611,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
     for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
       __pyx_v_j = __pyx_t_7;
 
-      /* "mirage/calc/reducer_funcs.pyx":216
+      /* "mirage/calc/reducer_funcs.pyx":217
  *     for i in range(n):
  *         for j in range(m):
  *             x = float(brightness[i, j])             # <<<<<<<<<<<<<<
@@ -9622,7 +9622,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
       __pyx_t_9 = __pyx_v_j;
       __pyx_v_x = ((double)(*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_int32_t *, __pyx_pybuffernd_brightness.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_brightness.diminfo[0].strides, __pyx_t_9, __pyx_pybuffernd_brightness.diminfo[1].strides)));
 
-      /* "mirage/calc/reducer_funcs.pyx":217
+      /* "mirage/calc/reducer_funcs.pyx":218
  *         for j in range(m):
  *             x = float(brightness[i, j])
  *             if x > 0.0:             # <<<<<<<<<<<<<<
@@ -9632,7 +9632,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
       __pyx_t_10 = (__pyx_v_x > 0.0);
       if (__pyx_t_10) {
 
-        /* "mirage/calc/reducer_funcs.pyx":218
+        /* "mirage/calc/reducer_funcs.pyx":219
  *             x = float(brightness[i, j])
  *             if x > 0.0:
  *                 canvas[i, j, 0] = int(lerp(pos_start[0], pos_stop[0], x / normalization_factor))             # <<<<<<<<<<<<<<
@@ -9643,21 +9643,21 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
         __pyx_t_8 = 0;
         if (unlikely(__pyx_v_normalization_factor == 0)) {
           PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-          __PYX_ERR(0, 218, __pyx_L1_error)
+          __PYX_ERR(0, 219, __pyx_L1_error)
         }
-        __pyx_t_1 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_pos_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_pos_stop.diminfo[0].strides)), (__pyx_v_x / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
+        __pyx_t_1 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_pos_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_pos_stop.diminfo[0].strides)), (__pyx_v_x / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_11 = __Pyx_PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 218, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 219, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_11); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 218, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_11); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 219, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         __pyx_t_8 = __pyx_v_i;
         __pyx_t_9 = __pyx_v_j;
         __pyx_t_13 = 0;
         *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_9, __pyx_pybuffernd_canvas.diminfo[1].strides, __pyx_t_13, __pyx_pybuffernd_canvas.diminfo[2].strides) = __pyx_t_12;
 
-        /* "mirage/calc/reducer_funcs.pyx":219
+        /* "mirage/calc/reducer_funcs.pyx":220
  *             if x > 0.0:
  *                 canvas[i, j, 0] = int(lerp(pos_start[0], pos_stop[0], x / normalization_factor))
  *                 canvas[i, j, 1] = int(lerp(pos_start[1], pos_stop[1], x / normalization_factor))             # <<<<<<<<<<<<<<
@@ -9668,21 +9668,21 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
         __pyx_t_9 = 1;
         if (unlikely(__pyx_v_normalization_factor == 0)) {
           PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-          __PYX_ERR(0, 219, __pyx_L1_error)
+          __PYX_ERR(0, 220, __pyx_L1_error)
         }
-        __pyx_t_11 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_pos_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_pos_stop.diminfo[0].strides)), (__pyx_v_x / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 219, __pyx_L1_error)
+        __pyx_t_11 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_pos_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_pos_stop.diminfo[0].strides)), (__pyx_v_x / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 220, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
-        __pyx_t_1 = __Pyx_PyNumber_Int(__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyNumber_Int(__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_1); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 219, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_1); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_9 = __pyx_v_i;
         __pyx_t_13 = __pyx_v_j;
         __pyx_t_8 = 1;
         *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_13, __pyx_pybuffernd_canvas.diminfo[1].strides, __pyx_t_8, __pyx_pybuffernd_canvas.diminfo[2].strides) = __pyx_t_12;
 
-        /* "mirage/calc/reducer_funcs.pyx":220
+        /* "mirage/calc/reducer_funcs.pyx":221
  *                 canvas[i, j, 0] = int(lerp(pos_start[0], pos_stop[0], x / normalization_factor))
  *                 canvas[i, j, 1] = int(lerp(pos_start[1], pos_stop[1], x / normalization_factor))
  *                 canvas[i, j, 2] = int(lerp(pos_start[2], pos_stop[2], x / normalization_factor))             # <<<<<<<<<<<<<<
@@ -9693,21 +9693,21 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
         __pyx_t_13 = 2;
         if (unlikely(__pyx_v_normalization_factor == 0)) {
           PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-          __PYX_ERR(0, 220, __pyx_L1_error)
+          __PYX_ERR(0, 221, __pyx_L1_error)
         }
-        __pyx_t_1 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_pos_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_pos_stop.diminfo[0].strides)), (__pyx_v_x / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
+        __pyx_t_1 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_start.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_pos_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_pos_stop.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_pos_stop.diminfo[0].strides)), (__pyx_v_x / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_11 = __Pyx_PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 220, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 221, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_11); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_11); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 221, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         __pyx_t_13 = __pyx_v_i;
         __pyx_t_8 = __pyx_v_j;
         __pyx_t_9 = 2;
         *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_canvas.diminfo[1].strides, __pyx_t_9, __pyx_pybuffernd_canvas.diminfo[2].strides) = __pyx_t_12;
 
-        /* "mirage/calc/reducer_funcs.pyx":217
+        /* "mirage/calc/reducer_funcs.pyx":218
  *         for j in range(m):
  *             x = float(brightness[i, j])
  *             if x > 0.0:             # <<<<<<<<<<<<<<
@@ -9716,7 +9716,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
 */
       }
 
-      /* "mirage/calc/reducer_funcs.pyx":221
+      /* "mirage/calc/reducer_funcs.pyx":222
  *                 canvas[i, j, 1] = int(lerp(pos_start[1], pos_stop[1], x / normalization_factor))
  *                 canvas[i, j, 2] = int(lerp(pos_start[2], pos_stop[2], x / normalization_factor))
  *             if brightness[i, j] < 0.0:             # <<<<<<<<<<<<<<
@@ -9728,7 +9728,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
       __pyx_t_10 = ((*__Pyx_BufPtrStrided2d(__pyx_t_5numpy_int32_t *, __pyx_pybuffernd_brightness.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_brightness.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_brightness.diminfo[1].strides)) < 0.0);
       if (__pyx_t_10) {
 
-        /* "mirage/calc/reducer_funcs.pyx":222
+        /* "mirage/calc/reducer_funcs.pyx":223
  *                 canvas[i, j, 2] = int(lerp(pos_start[2], pos_stop[2], x / normalization_factor))
  *             if brightness[i, j] < 0.0:
  *                 canvas[i, j, 0] = int(lerp(neg_start[0], neg_stop[0], -x / normalization_factor))             # <<<<<<<<<<<<<<
@@ -9740,21 +9740,21 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
         __pyx_t_14 = (-__pyx_v_x);
         if (unlikely(__pyx_v_normalization_factor == 0)) {
           PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-          __PYX_ERR(0, 222, __pyx_L1_error)
+          __PYX_ERR(0, 223, __pyx_L1_error)
         }
-        __pyx_t_11 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_neg_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_neg_stop.diminfo[0].strides)), (__pyx_t_14 / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 222, __pyx_L1_error)
+        __pyx_t_11 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_neg_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_neg_stop.diminfo[0].strides)), (__pyx_t_14 / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 223, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
-        __pyx_t_1 = __Pyx_PyNumber_Int(__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyNumber_Int(__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_1); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 222, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_1); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 223, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_9 = __pyx_v_i;
         __pyx_t_8 = __pyx_v_j;
         __pyx_t_13 = 0;
         *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_8, __pyx_pybuffernd_canvas.diminfo[1].strides, __pyx_t_13, __pyx_pybuffernd_canvas.diminfo[2].strides) = __pyx_t_12;
 
-        /* "mirage/calc/reducer_funcs.pyx":223
+        /* "mirage/calc/reducer_funcs.pyx":224
  *             if brightness[i, j] < 0.0:
  *                 canvas[i, j, 0] = int(lerp(neg_start[0], neg_stop[0], -x / normalization_factor))
  *                 canvas[i, j, 1] = int(lerp(neg_start[1], neg_stop[1], -x / normalization_factor))             # <<<<<<<<<<<<<<
@@ -9766,21 +9766,21 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
         __pyx_t_14 = (-__pyx_v_x);
         if (unlikely(__pyx_v_normalization_factor == 0)) {
           PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-          __PYX_ERR(0, 223, __pyx_L1_error)
+          __PYX_ERR(0, 224, __pyx_L1_error)
         }
-        __pyx_t_1 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_neg_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_neg_stop.diminfo[0].strides)), (__pyx_t_14 / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
+        __pyx_t_1 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_neg_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_neg_stop.diminfo[0].strides)), (__pyx_t_14 / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 224, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_11 = __Pyx_PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 223, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyNumber_Int(__pyx_t_1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 224, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_11); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 223, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_11); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 224, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         __pyx_t_8 = __pyx_v_i;
         __pyx_t_13 = __pyx_v_j;
         __pyx_t_9 = 1;
         *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_8, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_13, __pyx_pybuffernd_canvas.diminfo[1].strides, __pyx_t_9, __pyx_pybuffernd_canvas.diminfo[2].strides) = __pyx_t_12;
 
-        /* "mirage/calc/reducer_funcs.pyx":224
+        /* "mirage/calc/reducer_funcs.pyx":225
  *                 canvas[i, j, 0] = int(lerp(neg_start[0], neg_stop[0], -x / normalization_factor))
  *                 canvas[i, j, 1] = int(lerp(neg_start[1], neg_stop[1], -x / normalization_factor))
  *                 canvas[i, j, 2] = int(lerp(neg_start[2], neg_stop[2], -x / normalization_factor))             # <<<<<<<<<<<<<<
@@ -9792,21 +9792,21 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
         __pyx_t_14 = (-__pyx_v_x);
         if (unlikely(__pyx_v_normalization_factor == 0)) {
           PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-          __PYX_ERR(0, 224, __pyx_L1_error)
+          __PYX_ERR(0, 225, __pyx_L1_error)
         }
-        __pyx_t_11 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_neg_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_neg_stop.diminfo[0].strides)), (__pyx_t_14 / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 224, __pyx_L1_error)
+        __pyx_t_11 = __pyx_f_6mirage_4calc_13reducer_funcs_lerp((*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_start.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_neg_start.diminfo[0].strides)), (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float64_t *, __pyx_pybuffernd_neg_stop.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_neg_stop.diminfo[0].strides)), (__pyx_t_14 / __pyx_v_normalization_factor)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 225, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
-        __pyx_t_1 = __Pyx_PyNumber_Int(__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 224, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyNumber_Int(__pyx_t_11); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 225, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_1); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 224, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyLong_As_npy_uint8(__pyx_t_1); if (unlikely((__pyx_t_12 == ((npy_uint8)-1)) && PyErr_Occurred())) __PYX_ERR(0, 225, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_13 = __pyx_v_i;
         __pyx_t_9 = __pyx_v_j;
         __pyx_t_8 = 2;
         *__Pyx_BufPtrStrided3d(__pyx_t_5numpy_uint8_t *, __pyx_pybuffernd_canvas.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_canvas.diminfo[0].strides, __pyx_t_9, __pyx_pybuffernd_canvas.diminfo[1].strides, __pyx_t_8, __pyx_pybuffernd_canvas.diminfo[2].strides) = __pyx_t_12;
 
-        /* "mirage/calc/reducer_funcs.pyx":221
+        /* "mirage/calc/reducer_funcs.pyx":222
  *                 canvas[i, j, 1] = int(lerp(pos_start[1], pos_stop[1], x / normalization_factor))
  *                 canvas[i, j, 2] = int(lerp(pos_start[2], pos_stop[2], x / normalization_factor))
  *             if brightness[i, j] < 0.0:             # <<<<<<<<<<<<<<
@@ -9817,7 +9817,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
     }
   }
 
-  /* "mirage/calc/reducer_funcs.pyx":199
+  /* "mirage/calc/reducer_funcs.pyx":200
  * 
  * 
  * cpdef void draw_lensed_image(             # <<<<<<<<<<<<<<
@@ -9826,7 +9826,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
 */
 
   /* function exit code */
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 199, __pyx_L1_error));
+  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 200, __pyx_L1_error));
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
@@ -9846,7 +9846,7 @@ static void __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(PyArrayObjec
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 199, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 200, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("mirage.calc.reducer_funcs.draw_lensed_image", __pyx_clineno, __pyx_lineno, __pyx_filename);
   goto __pyx_L2;
@@ -9909,53 +9909,53 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_canvas,&__pyx_mstate_global->__pyx_n_u_brightness,&__pyx_mstate_global->__pyx_n_u_colormap,&__pyx_mstate_global->__pyx_n_u_normalization_factor,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 199, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 200, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  4:
         values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 199, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 200, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 199, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 200, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 199, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 200, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 199, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 200, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "draw_lensed_image", 0) < (0)) __PYX_ERR(0, 199, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "draw_lensed_image", 0) < (0)) __PYX_ERR(0, 200, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 4; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("draw_lensed_image", 1, 4, 4, i); __PYX_ERR(0, 199, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("draw_lensed_image", 1, 4, 4, i); __PYX_ERR(0, 200, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 4)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 199, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 200, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 199, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 200, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 199, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 200, __pyx_L3_error)
       values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 199, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 200, __pyx_L3_error)
     }
     __pyx_v_canvas = ((PyArrayObject *)values[0]);
     __pyx_v_brightness = ((PyArrayObject *)values[1]);
     __pyx_v_colormap = values[2];
-    __pyx_v_normalization_factor = __Pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_normalization_factor == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 203, __pyx_L3_error)
+    __pyx_v_normalization_factor = __Pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_normalization_factor == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 204, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("draw_lensed_image", 1, 4, 4, __pyx_nargs); __PYX_ERR(0, 199, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("draw_lensed_image", 1, 4, 4, __pyx_nargs); __PYX_ERR(0, 200, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9966,8 +9966,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_canvas), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "canvas", 0))) __PYX_ERR(0, 200, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_brightness), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "brightness", 0))) __PYX_ERR(0, 201, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_canvas), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "canvas", 0))) __PYX_ERR(0, 201, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_brightness), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "brightness", 0))) __PYX_ERR(0, 202, __pyx_L1_error)
   __pyx_r = __pyx_pf_6mirage_4calc_13reducer_funcs_10draw_lensed_image(__pyx_self, __pyx_v_canvas, __pyx_v_brightness, __pyx_v_colormap, __pyx_v_normalization_factor);
 
   /* function exit code */
@@ -10001,7 +10001,7 @@ static PyObject *__pyx_pf_6mirage_4calc_13reducer_funcs_10draw_lensed_image(CYTH
   int __pyx_clineno = 0;
   __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9]))
   __Pyx_RefNannySetupContext("draw_lensed_image", 0);
-  __Pyx_TraceStartFunc("draw_lensed_image (wrapper)", __pyx_f[0], 199, 0, 0, 0, __PYX_ERR(0, 199, __pyx_L1_error));
+  __Pyx_TraceStartFunc("draw_lensed_image (wrapper)", __pyx_f[0], 200, 0, 0, 0, __PYX_ERR(0, 200, __pyx_L1_error));
   __pyx_pybuffer_canvas.pybuffer.buf = NULL;
   __pyx_pybuffer_canvas.refcount = 0;
   __pyx_pybuffernd_canvas.data = NULL;
@@ -10012,17 +10012,17 @@ static PyObject *__pyx_pf_6mirage_4calc_13reducer_funcs_10draw_lensed_image(CYTH
   __pyx_pybuffernd_brightness.rcbuffer = &__pyx_pybuffer_brightness;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_canvas.rcbuffer->pybuffer, (PyObject*)__pyx_v_canvas, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 199, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_canvas.rcbuffer->pybuffer, (PyObject*)__pyx_v_canvas, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint8_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 200, __pyx_L1_error)
   }
   __pyx_pybuffernd_canvas.diminfo[0].strides = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_canvas.diminfo[0].shape = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_canvas.diminfo[1].strides = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_canvas.diminfo[1].shape = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_canvas.diminfo[2].strides = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_canvas.diminfo[2].shape = __pyx_pybuffernd_canvas.rcbuffer->pybuffer.shape[2];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_brightness.rcbuffer->pybuffer, (PyObject*)__pyx_v_brightness, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 199, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_brightness.rcbuffer->pybuffer, (PyObject*)__pyx_v_brightness, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 200, __pyx_L1_error)
   }
   __pyx_pybuffernd_brightness.diminfo[0].strides = __pyx_pybuffernd_brightness.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_brightness.diminfo[0].shape = __pyx_pybuffernd_brightness.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_brightness.diminfo[1].strides = __pyx_pybuffernd_brightness.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_brightness.diminfo[1].shape = __pyx_pybuffernd_brightness.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(((PyArrayObject *)__pyx_v_canvas), ((PyArrayObject *)__pyx_v_brightness), __pyx_v_colormap, __pyx_v_normalization_factor, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 199, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __pyx_f_6mirage_4calc_13reducer_funcs_draw_lensed_image(((PyArrayObject *)__pyx_v_canvas), ((PyArrayObject *)__pyx_v_brightness), __pyx_v_colormap, __pyx_v_normalization_factor, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 200, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10042,7 +10042,7 @@ static PyObject *__pyx_pf_6mirage_4calc_13reducer_funcs_10draw_lensed_image(CYTH
   #if CYTHON_USE_SYS_MONITORING
   __Pyx_TraceExceptionUnwind(0, 0);
   #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 199, __pyx_L1_error));
+  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 200, __pyx_L1_error));
   #endif
   __Pyx_AddTraceback("mirage.calc.reducer_funcs.draw_lensed_image", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
@@ -10681,19 +10681,19 @@ __Pyx_RefNannySetupContext("PyInit_reducer_funcs", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_populate_lensed_image, __pyx_t_2) < (0)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "mirage/calc/reducer_funcs.pyx":199
+  /* "mirage/calc/reducer_funcs.pyx":200
  * 
  * 
  * cpdef void draw_lensed_image(             # <<<<<<<<<<<<<<
  *     np.ndarray[np.uint8_t, ndim=3] canvas,
  *     np.ndarray[np.int32_t, ndim=2] brightness,
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_6mirage_4calc_13reducer_funcs_11draw_lensed_image, 0, __pyx_mstate_global->__pyx_n_u_draw_lensed_image, NULL, __pyx_mstate_global->__pyx_n_u_mirage_calc_reducer_funcs, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_6mirage_4calc_13reducer_funcs_11draw_lensed_image, 0, __pyx_mstate_global->__pyx_n_u_draw_lensed_image, NULL, __pyx_mstate_global->__pyx_n_u_mirage_calc_reducer_funcs, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_draw_lensed_image, __pyx_t_2) < (0)) __PYX_ERR(0, 199, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_draw_lensed_image, __pyx_t_2) < (0)) __PYX_ERR(0, 200, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "mirage/calc/reducer_funcs.pyx":1
@@ -10774,17 +10774,17 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_slice[0]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_slice[0]);
 
-  /* "mirage/calc/reducer_funcs.pyx":206
+  /* "mirage/calc/reducer_funcs.pyx":207
  * ):
  *     # Reset back to baseline
  *     canvas[:, :] = colormap["BACKGROUND"]             # <<<<<<<<<<<<<<
  *     cdef:
  *         int i, j, n = canvas.shape[0], m = canvas.shape[1]
 */
-  __pyx_mstate_global->__pyx_slice[1] = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_mstate_global->__pyx_slice[1])) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_slice[1] = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_mstate_global->__pyx_slice[1])) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_slice[1]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_slice[1]);
-  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_slice[1], __pyx_mstate_global->__pyx_slice[1]); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_slice[1], __pyx_mstate_global->__pyx_slice[1]); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
   #if CYTHON_IMMORTAL_CONSTANTS
@@ -11015,7 +11015,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_reducer_funcs_pyx, __pyx_mstate->__pyx_n_u_populate_lensed_image, __pyx_mstate->__pyx_kp_b_iso88591_s_A_1_Q_BfBnDTTZZ_aq_s_k_1K_E_U, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 199};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 200};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_canvas, __pyx_mstate->__pyx_n_u_brightness, __pyx_mstate->__pyx_n_u_colormap, __pyx_mstate->__pyx_n_u_normalization_factor};
     __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_reducer_funcs_pyx, __pyx_mstate->__pyx_n_u_draw_lensed_image, __pyx_mstate->__pyx_kp_b_iso88591_81A_fF_86_q_5XQa_4HAQ_5XQa_4HAQ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
   }

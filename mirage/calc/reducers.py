@@ -49,10 +49,11 @@ class LensedImageReducer(Reducer):
         self._lens_plane = simulation.get_ray_bundle()
         self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
         self._canvas = None
+        self.theta_0 = simulation.lensing_system.theta_0
 
     def reduce(self, traced_rays: KdTree):
         active_indices = np.array(traced_rays.query_indices(
-            self.query.to("theta_0"), self.radius.to("theta_0")
+            self.query.to(self.theta_0), self.radius.to(self.theta_0)
         ))
         if active_indices is None or len(active_indices) == 0:
             return
@@ -85,11 +86,11 @@ class MagnificationMapReducer(Reducer):
     def initialize(self, simulation: MicrolensingSimulation):
         self.source_region = simulation.source_plane.source_region
         self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
+        self.theta_0 = simulation.lensing_system.theta_0
 
     def reduce(self, traced_rays: KdTree):
-
-        pixels = u.Quantity(np.ascontiguousarray(self.pixel_region.to("theta_0").pixels.value), "theta_0")
-        radius = self.radius.to("theta_0")
+        pixels = u.Quantity(np.ascontiguousarray(self.pixel_region.to(self.theta_0).pixels.value), self.theta_0)
+        radius = self.radius.to(self.theta_0)
 
         self.canvas = np.array(traced_rays.batch_query_count(pixels, radius))
 
@@ -153,12 +154,13 @@ class LightCurvesReducer(Reducer):
         self._curves: List[np.ndarray] = [None for i in range(self.num_curves)]
         self.source_region = simulation.source_plane.source_region
         self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
+        self.theta_0 = simulation.lensing_system.theta_0
 
     def reduce(self, traced_rays: KdTree):
         query_points = self.get_query_points(self.source_region)
-        radius = self.radius.to("theta_0").value
+        radius = self.radius.to(self.theta_0).value
         for i in range(self.num_curves):
-            queries = query_points[i].to("theta_0")
+            queries = query_points[i].to(self.theta_0)
             self._curves[i] = Lightcurve(
                 data=populate_lightcurve(queries.value, radius, traced_rays) / self.unlensed_pixel_count,
                 start_pos=Vec2D(queries[0][0], queries[0][1]), # Might need to swap 2nd indices

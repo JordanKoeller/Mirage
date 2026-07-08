@@ -156,7 +156,8 @@ class MirageMain:
         try:
             for _ in range(engine.start_run_experiment(experiment)):
                 result = engine.get_result(blocking=True) 
-                serializer.dump_result(result.result, result.simulation_key)
+                reporter = serializer.result_reporter(result.result.name, result.simulation_key)
+                result.result.save(reporter)
         except Exception as e:
             self.logger.error("Encountered Error!")
             self.logger.error(str(e))

@@ -1,4 +1,5 @@
 import os
+import copy
 import tempfile
 import yaml  # type: ignore
 import zipfile
@@ -7,6 +8,7 @@ import pickle
 from typing import Union, Dict, Any, Literal, Optional
 import logging
 from functools import cache
+import contextlib
 
 from mirage.calc import Reducer
 from mirage.util import Dictify, VariantKey
@@ -14,6 +16,7 @@ from mirage.sim import Experiment
 
 
 logger = logging.getLogger(__name__)
+
 
 
 class ResultFileManager:
@@ -98,10 +101,10 @@ class ResultFileManager:
         if self.extracted_dir:
             self.extracted_dir.cleanup()
 
-    def dump_result(self, reducer: Reducer, simulation_key: VariantKey):
-        filename = self._insert_manifest_entry(reducer, simulation_key)
-        self._write(filename, reducer.output)
-        logger.debug(f"Simulation {simulation_key} Reducer {reducer.name} written to file.")
+    # def dump_result(self, reducer: Reducer, simulation_key: VariantKey):
+    #     filename = self._insert_manifest_entry(reducer, simulation_key)
+    #     self._write(filename, reducer.output)
+    #     logger.debug(f"Simulation {simulation_key} Reducer {reducer.name} written to file.")
 
     def __len__(self) -> int:
         return len(self.manifest)
@@ -118,32 +121,50 @@ class ResultFileManager:
 
         TODO: Add some cache eviction behavior so we can still load large results.
         """
-        sim_dict: dict[str, str] = self.manifest.get(str(simulation_key), {})
-        filename: Optional[str] = sim_dict.get(reducer_name, None)
-        if sim_dict is None:
-            raise ValueError(
-                f"Simulation of {simulation_key=} not recognized.\n Available "
-                f"sims: {list(self.manifest.keys())}"
-            )
-        if filename is None:
-            raise ValueError(
-                f"{reducer_name=} not present in result manifest "
-                f"for simulation {simulation_key}.\nAvailable ids: "
-                f"{list(sim_dict.keys())}"
-            )
+        # sim_dict: dict[str, str] = self.manifest.get(str(simulation_key), {})
+        # filename: Optional[str] = sim_dict.get(reducer_name, None)
+        # if sim_dict is None:
+        #     raise ValueError(
+        #         f"Simulation of {simulation_key=} not recognized.\n Available "
+        #         f"sims: {list(self.manifest.keys())}"
+        #     )
+        # if filename is None:
+        #     raise ValueError(
+        #         f"{reducer_name=} not present in result manifest "
+        #         f"for simulation {simulation_key}.\nAvailable ids: "
+        #         f"{list(sim_dict.keys())}"
+        #     )
 
-        output = self._load(filename)  # type: ignore
         reducers = self.load_experiment()[simulation_key].reducers
         logger.debug("Has reducers %s" % str(reducers))
         for reducer in reducers:
             logger.debug("Has name %s" % reducer.name)
             if reducer.name == reducer_name:
-                reducer.set_output(output)
+                reducer = copy.copy(reducer)
+                reporter = self.result_reporter(reducer.name, simulation_key)
+                reducer.load(reporter)
                 return reducer
         raise ValueError(
             f"Could not find reducer with "
             f"name={reducer_name} in Simulation {simulation_key}"
         )
+
+    def writer(
+        self, reducer_name: str, variant_key: VariantKey, fragment: str
+    ) -> io.IO:
+        filename = self._insert_manifest_entry(reducer_name, variant_key, fragment)
+        return self.zip_archive.open(filename, mode="w")
+
+    def reader(
+        self, reducer_name: str, variant_key: VariantKey, fragment: str
+    ) -> io.IO:
+        filename = self.manifest.get(str(variant_key), {}).get(reducer_name, {}).get(fragment, None)
+        if filename is None:
+            return ValueError(f"Fragment {fragment} does not exist.")
+        return self.zip_archive.open(filename, mode="r")
+
+    def result_reporter(self, reducer_name: str, variant_key: VariantKey) -> 'ReducerReporter':
+        return ReducerReporter(reducer_name, variant_key, self)
 
     def _write(self, filename: str, data: Any):
         with self.zip_archive.open(filename, mode="w") as f:
@@ -153,7 +174,7 @@ class ResultFileManager:
                 f.write(bytes(string_io.getvalue(), "utf-8"))
             else:
                 pickle.dump(data, f)
-
+    #
     def _load(self, filename: str) -> Union[dict, object]:
         if self.extracted_dir:
             filename = os.path.join(self.extracted_dir.name, filename)
@@ -169,16 +190,38 @@ class ResultFileManager:
                 return pickle.load(f)
 
     def _insert_manifest_entry(
-        self, reducer: Reducer, simulation_key: VariantKey
+            self, reducer_name: str, simulation_key: VariantKey, fragment: str
     ) -> str:
         """
         Inserts a record into the manifest and returns the filename that should
         be used to dump the output
         """
-        fname = f"{reducer.name.replace('/', '-')}_{simulation_key}.pickle"
+        fname = os.path.join(str(simulation_key), reducer_name.replace("/", "-"), fragment)
         simulation_key_str = str(simulation_key)
         if simulation_key_str in self.manifest:
-            self.manifest[simulation_key_str][reducer.name] = fname
+            if reducer_name in self.manifest[simulation_key_str]:
+                if fragment in self.manifest[simulation_key_str][reducer_name]:
+                    raise ValueError(f"Fragment {fragment} already exists")
+                self.manifest[simulation_key_str][reducer_name][fragment] = fname
+            else:
+                self.manifest[simulation_key_str][reducer_name] = {fragment: fname}
         else:
-            self.manifest[simulation_key_str] = {reducer.name: fname}
+            self.manifest[simulation_key_str] = {reducer_name: {fragment: fname}}
         return fname
+
+class ReducerReporter:
+    """
+
+    """
+    def __init__(self, reducer_name: str, variant_key: VariantKey, result_file_manager: ResultFileManager) -> None:
+        self._reducer_name = reducer_name
+        self._variant_key = variant_key
+        self._result_file_manager = result_file_manager
+
+    def writer(self, filename: str) -> io.IO:
+        return self._result_file_manager.writer(
+            self._reducer_name, self._variant_key, filename)
+
+    def reader(self, filename: str) -> io.IO:
+        return self._result_file_manager.reader(
+            self._reducer_name, self._variant_key, filename)

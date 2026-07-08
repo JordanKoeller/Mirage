@@ -1,12 +1,14 @@
 from typing import Self, Optional, List
 from dataclasses import dataclass
 from functools import cached_property, cache
+from astropy.io import fits
 
 from mirage.calc import Reducer, KdTree
 from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve, slice_magmap, merge_index_lists, populate_lensed_image
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D
 from mirage.sim import MicrolensingSimulation
 from mirage_ext import reduce_lensed_image
+from mirage.io import ReducerReporter
 
 import numpy as np
 from astropy import units as u
@@ -69,11 +71,20 @@ class LensedImageReducer(Reducer):
         return self
 
     @property
-    def output(self) -> Optional[np.ndarray]:
+    def output(self) -> np.ndarray | None:
         return self._canvas
+
 
     def set_output(self, output: object):
         self._canvas = output
+
+    def save(self, reporter: ReducerReporter) -> None:
+        with reporter.writer("canvas.npy") as f:
+            np.save(f, self._canvas)
+
+    def load(self, reporter: ReducerReporter) -> None:
+        with reporter.reader("canvas.npy") as f:
+            self._canvas = np.load(f)
 
 
 @DelegateRegistry.register
@@ -115,6 +126,19 @@ class MagnificationMapReducer(Reducer):
         if self.canvas is not None:
             return np.copy(self.canvas)
         return None
+
+    def save(self, reporter: ReducerReporter) -> None:
+        with reporter.writer("canvas.npy") as f:
+            np.save(f, self.canvas)
+        with reporter.writer("magmap.fits") as f:
+            # header = fits.Header(headerFields)
+            hdu = fits.PrimaryHDU(self.magnitudes) #, header=header)
+            hdulist = fits.HDUList([hdu])
+            hdulist.writeto(f)
+
+    def load(self, reporter: ReducerReporter) -> None:
+        with reporter.reader("canvas.npy") as f:
+            self.canvas = np.load(f)
 
     @cached_property
     def magnitudes(self) -> np.ndarray:
@@ -189,6 +213,14 @@ class LightCurvesReducer(Reducer):
 
     def set_output(self, output: object):
         self._curves = output  # type: ignore
+
+    def save(self, reporter: ReducerReporter) -> None:
+        with reporter.writer("lightcurves.pickle") as f:
+            pickle.dump(self._curves, f)
+
+    def load(self, reporter: ReducerReporter) -> None:
+        with reporter.reader("lightcurves.pickle") as f:
+            self._curves = pickle.load(f)
 
     def get_query_points(self, region: Region) -> List[u.Quantity]:
         """

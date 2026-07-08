@@ -73,7 +73,7 @@ class DaskResultCalculator(ResultCalculator):
         with simulation.special_units():
             ray_tracer = simulation.get_ray_tracer()
             rays: PixelRegion = simulation.get_ray_bundle().to(
-                    self.lensing_system.theta_0)
+                    simulation.lensing_system.theta_0)
         if (
             partition_size < RAYS_PER_PARTITION[0]
             or partition_size > RAYS_PER_PARTITION[1]

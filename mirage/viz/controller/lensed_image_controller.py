@@ -48,7 +48,7 @@ class LensedImageController(Controller):
         self._lightcurve = None
         self._lightcurve_plot = None
         self._lightcurve_marker = None
-        self._normalization_factor = 0
+        self._normalization_factor = 1
         self._active_ind = 0
         self._qso_circle = None
         self._render_controls = {
@@ -102,7 +102,7 @@ class LensedImageController(Controller):
         # self._canvas = img
         if self._canvas is None:
             self._canvas = np.ndarray((*img.shape, 3), dtype=np.uint8)
-        draw_lensed_image(self._canvas, img, _COLOR_PALETTE, self._normalization_factor - 1)
+        draw_lensed_image(self._canvas, img, _COLOR_PALETTE, self._normalization_factor)
 
         tl, br = state.lens_region.to("uas").span
         if self._img is None:

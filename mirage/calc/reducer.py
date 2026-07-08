@@ -35,9 +35,18 @@ class Reducer(ABC):
         Return the outcome of this reduction.
         """
 
-    @property
-    def has_output(self) -> bool:
-        return self.output is not None
+    @abstractmethod
+    def save(self, reporter: 'mirage.io.ReducerReporter') -> None:
+        """
+        Save the result of this reducer to file.
+        """
+
+
+    @abstractmethod
+    def load(self, reporter: 'mirage.io.ReducerReporter') -> None:
+        """
+        Load the result into self from file.
+        """
 
     @abstractmethod
     def set_output(self, output: object):

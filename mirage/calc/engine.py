@@ -1,16 +1,15 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from typing import Iterator
+from typing import Iterator, Self
 import logging
 import logging.handlers
 from multiprocessing import Process
 import multiprocessing
 
 from mirage.sim import Simulation, Experiment
-from mirage.calc import Reducer, KdTree
+from mirage.calc import Reducer
 from mirage.util import (
     BidiStream,
-    RepeatLogger,
     Stopwatch,
     VariantKey,
     bind_logging_to_queue,

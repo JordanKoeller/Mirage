@@ -16,9 +16,6 @@ cdef _Int2D _sample_grid(_Vec2D tl, _Vec2D dxy, _Vec2D q):
     int(round((q.y-tl.y) / dxy.y))
   )
 
-cdef clip(int v, int mn, int mx):
-  return max(min(v, mx), mn)
-
 cdef lerp(double a, double b, double x):
     return b * x + a * (1 - x) 
 

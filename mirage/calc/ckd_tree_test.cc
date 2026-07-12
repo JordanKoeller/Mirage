@@ -1,3 +1,5 @@
+#define TESTONLY
+
 #include <iostream>
 #include <random>
 #include <stdfloat>
@@ -52,16 +54,21 @@ double BruteForceMag(
     const std::vector<double> arr, size_t sz,
     double cx, double cy, double r
 ) {
-  double mag;
+  double sum, c, y, t;
+  sum = 0.0;
+  c = 0.0;
   double r2 = r * r;
   for (int i=0; i < sz; i++) {
     double dx = arr[i] - cx;
     double dy = arr[i + sz] - cy;
     if (dx * dx + dy * dy < r2) {
-      mag += arr[i + sz * 2];
+      y = arr[i + sz * 2] - c;
+      t = sum + y;
+      c = (t - sum) - y;
+      sum = t;
     }
   }
-  return mag;
+  return sum;
 }
 
 std::vector<long> BruteForceIndices(
@@ -110,9 +117,9 @@ void TestWithoutMags() {
     size_t tree_val = tree.PointsInCircle(-2.0, 3.4, 2.4);
     size_t bf_val =  BruteForceCount(arrCopy, sz, -2.0, 3.4, 2.4);
     if (tree_val != bf_val) {
-      cout << "[" << sz << "]: " << tree_val << " != " << bf_val << "\n";
+      cout << "TestWithoutMags[" << sz << "]: " << tree_val << " != " << bf_val << "\n";
     } else {
-      cout << "[" << sz << "]: PASS (" << tree_val << ")\n";
+      cout << "TestWithoutMags[" << sz << "]: PASS (" << tree_val << ")\n";
     }
   }
 }
@@ -142,9 +149,9 @@ void TestWithMags() {
     double bf_val =  BruteForceMag(arrCopy, sz, -2.0, 3.4, 2.4);
     // Allow for floating point differences.
       if ((tree_val - bf_val) / (tree_val + bf_val) / 2 > 1e-7) {
-      cout << "[" << sz << "]: " << tree_val << " != " << bf_val << "\n";
+      cout << "TestWithmags[" << sz << "]: " << tree_val << " != " << bf_val << "\n";
     } else {
-      cout << "[" << sz << "]: PASS (" << tree_val << ")\n";
+      cout << "TestWithmags[" << sz << "]: PASS (" << tree_val << ")\n";
     }
   }
 }
@@ -195,6 +202,6 @@ void TestIndices() {
 
 int main(void) {
   TestIndices();
-  // TestWithoutMags();
-  // TestWithMags();
+  TestWithoutMags();
+  TestWithMags();
 }

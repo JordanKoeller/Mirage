@@ -1,13 +1,13 @@
 import functools
 import logging
 
-from .kd_tree import FastKdTree as KdTree, PyKdTree, RustKdTree, FastKdTree
+from .kd_tree import FastKdTree as KdTree, PyKdTree, FastKdTree
 
 from .ray_tracer import RayTracer
 from .reducer import Reducer
 from .reducers import *
 
-from .engine import Engine, ResultEvent, ResultCalculator
+from .engine import Engine, ResultCalculator, ResultEvent
 from .dask_result_calculator import DaskResultCalculator
 
 from mirage.util import ClusterProvider, Dictify, LocalClusterProvider
@@ -41,10 +41,10 @@ def get_or_create_engine(cluster_config: str | None = None) -> Engine:
 __all__ = [
     "KdTree",
     "PyKdTree",
-    "RustKdTree",
     "FastKdTree",
     "RayTracer",
     "Reducer",
     "Engine",
     "ResultEvent",
+    "ResultCalculator",
 ]

@@ -68,12 +68,19 @@ class CKDTree {
      if (elem_sz_ == 2) {
        return 0.0;
      }
-     double mag = 0.0;
+     // Using Kahan summation algorithm to avoid numerical instability
+     // https://en.wikipedia.org/wiki/Kahan_summation_algorithm
+     double sum, c, y, t;
+     sum = 0.0;
+     c = 0.0;
      std::function<void(size_t)> reducer([&](size_t i) -> void {
-       mag += buf_[sz_ * 2 + i];
+       y = buf_[sz_ * 2 + i] - c;
+       t = sum + y;
+       c = (t - sum) - y;
+       sum = t;
      });
      Reduce(cx, cy, r, &reducer);
-     return mag;
+     return sum;
    }
 
    // batch version of MagnificationCoefficient. Queries sz many circles, with centers
@@ -110,6 +117,7 @@ class CKDTree {
      return splits_.size();
    }
 
+#ifndef TESTONLY
    size_t queried_nodes_count() {
      return queried_nodes_count_;
    }
@@ -117,6 +125,7 @@ class CKDTree {
    size_t queried_points_count() {
      return queried_points_count_;
    }
+#endif
 
  private:
 
@@ -159,8 +168,10 @@ class CKDTree {
    // Min number of elements to includes per leaf.
    size_t leaf_size_;
 
+#ifndef TESTONLY
    size_t queried_nodes_count_;
    size_t queried_points_count_;
+#endif
 
    // Array of splits in heap-ordering.
    std::vector<double> splits_;
@@ -272,8 +283,10 @@ inline void CKDTree::init_tree() {
 }
 
 inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(size_t)>* reducer) {
+#ifndef TESTONLY
   queried_nodes_count_ = 0;
   queried_points_count_ = 0;
+#endif
   double r2 = r * r;
   double center[]{cx, cy};
   // queue of tuples of (start_i, end_i, split_index, dimension)
@@ -283,7 +296,9 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
     q.pop();
 
     if (end - start <= leaf_size_) {
+#ifndef TESTONLY
       queried_nodes_count_++;
+#endif
       // We're at a leaf, so apply reducer.
       // TODO: SIMD this. It's tricky because you have to use aligned pointers
       // and start for both x and y may not be aligned.
@@ -291,7 +306,9 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
       // If I want to SIMD this I might need to create a copy of the data
       // so that the x and y buffers are guaranteed aligned.
       for (size_t i = start; i < end; i++) {
+#ifndef TESTONLY
         queried_points_count_++;
+#endif
         double dx = buf_[i] - cx;
         double dy = buf_[sz_ + i] - cy;
         if (dx * dx + dy * dy < r2) {
@@ -307,7 +324,7 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
       q.push(std::make_tuple(start, midpt, split*2 + 1, (dimension + 1) % 2));
     }
     if (center[dimension] + r > split_pt) {
-      // Recurse rigth
+      // Recurse right
       q.push(std::make_tuple(midpt, end, split*2 + 2, (dimension + 1) % 2));
     }
   }

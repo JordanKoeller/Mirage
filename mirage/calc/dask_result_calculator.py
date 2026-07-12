@@ -5,9 +5,10 @@ from dataclasses import dataclass
 import copy
 
 import dask.bag as dask_bag
+import numpy as np
 
-from mirage.sim import Simulation, Experiment
-from mirage.calc import Reducer, KdTree, RayTracer, ResultEvent, ResultCalculator
+from mirage.sim import Simulation
+from mirage.calc import Reducer, KdTree, RayTracer, ResultCalculator
 from mirage.util import (
     PixelRegion,
     ClusterProvider,

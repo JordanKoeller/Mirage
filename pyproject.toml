@@ -37,5 +37,5 @@ Repo = "https://github.com/jordankoeller/mirage"
 
 [tool.ruff]
 line-length = 88
-indent-width = 4
+indent-width = 2
 lint.ignore = [ 'F403' ]

@@ -5,10 +5,10 @@ from .debug_controller import DebugController
 from .lensed_image_controller import LensedImageController
 
 __all__ = [
-    "Controller",
-    "MagMapController",
-    "LightcurvesController",
-    "DebugController",
-    "AxesBounds",
-    "LensedImageController",
+  "Controller",
+  "MagMapController",
+  "LightcurvesController",
+  "DebugController",
+  "AxesBounds",
+  "LensedImageController",
 ]

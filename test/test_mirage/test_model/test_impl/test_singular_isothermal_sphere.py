@@ -8,21 +8,21 @@ from mirage.util import Vec2D, PolarVec
 
 
 class TestPointLens(TestCase):
-    def get_lens(self):
-        return SingularIsothermalSphereLens(
-            quasar=Quasar(1.2, mass=u.Quantity(1e9, "solMass")),
-            redshift=0.7,
-            velocity_dispersion=u.Quantity(300, "km/s"),
-            star_fraction=0.8,
-            shear=PolarVec(u.Quantity(0.1, "rad"), u.Quantity(0.2, "rad")),
-            ellipticity=PolarVec(u.Quantity(0.1, "rad"), u.Quantity(0.3, "rad")),
-        )
+  def get_lens(self):
+    return SingularIsothermalSphereLens(
+      quasar=Quasar(1.2, mass=u.Quantity(1e9, "solMass")),
+      redshift=0.7,
+      velocity_dispersion=u.Quantity(300, "km/s"),
+      star_fraction=0.8,
+      shear=PolarVec(u.Quantity(0.1, "rad"), u.Quantity(0.2, "rad")),
+      ellipticity=PolarVec(u.Quantity(0.1, "rad"), u.Quantity(0.3, "rad")),
+    )
 
-    def testEinsteinRadius_success(self):
-        lens = self.get_lens()
-        er = lens.einstein_radius
-        self.assertEqual(er.unit, u.arcsec)
+  def testEinsteinRadius_success(self):
+    lens = self.get_lens()
+    er = lens.einstein_radius
+    self.assertEqual(er.unit, u.arcsec)
 
-    def testMicrotracingParameters_success(self):
-        lens = self.get_lens()
-        lens.microtracing_parameters(Vec2D(2, 3, "arcsec"))
+  def testMicrotracingParameters_success(self):
+    lens = self.get_lens()
+    lens.microtracing_parameters(Vec2D(2, 3, "arcsec"))

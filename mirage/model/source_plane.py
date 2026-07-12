@@ -6,5 +6,5 @@ from mirage.util import Region
 
 @dataclass
 class SourcePlane:
-    quasar: Quasar
-    source_region: Region
+  quasar: Quasar
+  source_region: Region

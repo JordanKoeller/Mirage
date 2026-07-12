@@ -16,6 +16,6 @@ logger = logging.getLogger(__name__)
 register_serializers()
 
 try:
-    from mirage.viz import *
+  from mirage.viz import *
 except ImportError:
-    logger.info("Matplotlib not installed. Skipping mirage.viz module")
+  logger.info("Matplotlib not installed. Skipping mirage.viz module")

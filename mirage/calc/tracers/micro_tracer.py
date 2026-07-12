@@ -15,45 +15,44 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class MicrolensingRayTracer(RayTracer):
-    starfield: Starfield
-    star_mass: u.Quantity
-    starfield_angular_radius: u.Quantity
-    convergence: float
-    shear: float
+  starfield: Starfield
+  star_mass: u.Quantity
+  starfield_angular_radius: u.Quantity
+  convergence: float
+  shear: float
 
-    def trace(self, rays: PixelRegion) -> u.Quantity:
-        rays = rays.to("theta_0")
+  def trace(self, rays: PixelRegion) -> u.Quantity:
+    rays = rays.to("theta_0")
 
-        stars_mass, stars_positions = self.starfield.get_starfield(
-            self.star_mass, self.starfield_angular_radius
-        )
+    stars_mass, stars_positions = self.starfield.get_starfield(
+      self.star_mass, self.starfield_angular_radius
+    )
 
-        stars_positions = stars_positions.to("theta_0")
+    stars_positions = stars_positions.to("theta_0")
 
-        pixels = rays.pixels.value
+    pixels = rays.pixels.value
 
-        logger.info(
-            f"Running with {pixels.shape} "
-            f"(Total={pixels.shape[0] * pixels.shape[1]}) pixels"
-        )
+    logger.info(
+      f"Running with {pixels.shape} (Total={pixels.shape[0] * pixels.shape[1]}) pixels"
+    )
 
-        traced_values = trace_rays(
-            pixels,
-            self.convergence,
-            self.shear,
-            stars_mass.to("solMass").value,
-            stars_positions.to("theta_0").value,
-        )
+    traced_values = trace_rays(
+      pixels,
+      self.convergence,
+      self.shear,
+      stars_mass.to("solMass").value,
+      stars_positions.to("theta_0").value,
+    )
 
-        return u.Quantity(traced_values, rays.unit)
+    return u.Quantity(traced_values, rays.unit)
 
-    def __eq__(self, other: object) -> bool:
-        if type(self) is not type(other):
-            return False
-        my_other: MicrolensingRayTracer = other  # type: ignore
+  def __eq__(self, other: object) -> bool:
+    if type(self) is not type(other):
+      return False
+    my_other: MicrolensingRayTracer = other  # type: ignore
 
-        return (
-            self.convergence == my_other.convergence
-            and self.shear == my_other.shear
-            and self.starfield == my_other.starfield
-        )
+    return (
+      self.convergence == my_other.convergence
+      and self.shear == my_other.shear
+      and self.starfield == my_other.starfield
+    )

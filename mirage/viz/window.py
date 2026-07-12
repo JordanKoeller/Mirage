@@ -43,115 +43,115 @@ PADDING = 0.08
 
 
 class MirageAxes(enum.Enum):
-    IMAGE = "IMAGE"
-    LINE = "LINE"
+  IMAGE = "IMAGE"
+  LINE = "LINE"
 
 
 class VizWindow:
-    def __init__(self):
-        # General high-level organization
-        self._plot_fig: Figure = plt.figure(
-            clear=True, layout="constrained", figsize=[6.0, 6.0]
-        )
-        self._plot_axes = self._plot_fig.subplot_mosaic(
-            [
-                ["title"],
-                ["plot"],
-                ["image"],
-            ],
-            height_ratios=[1, 5, 25],
-            per_subplot_kw={
-                "title": {"frame_on": False, "xticks": [], "yticks": []},
-                "image": {"frame_on": True},
-            },
-        )
+  def __init__(self):
+    # General high-level organization
+    self._plot_fig: Figure = plt.figure(
+      clear=True, layout="constrained", figsize=[6.0, 6.0]
+    )
+    self._plot_axes = self._plot_fig.subplot_mosaic(
+      [
+        ["title"],
+        ["plot"],
+        ["image"],
+      ],
+      height_ratios=[1, 5, 25],
+      per_subplot_kw={
+        "title": {"frame_on": False, "xticks": [], "yticks": []},
+        "image": {"frame_on": True},
+      },
+    )
 
-        # UI Input Elements
-        self._widgets_fig = plt.figure(
-            clear=True, layout="constrained", frameon=False, figsize=[6.4, 8.0]
-        )
-        self._widget_axes = self._widgets_fig.subplot_mosaic(
-            [
-                ["title"] * 6,
-                ["previous", "previous", "animate", "animate", "next", "next"],
-                *[
-                    [
-                        f"l{i}",
-                        f"l{i}",
-                        f"l{i}",
-                        f"l{i}",
-                        f"control_l{i}",
-                        f"control_l{i}",
-                    ]
-                    for i in range(MAX_LAYERS)
-                ],
-                ["text"] * 6,
-            ],
-            subplot_kw={"frame_on": True, "xticks": [], "yticks": []},
-            height_ratios=[1, 3, *([3] * MAX_LAYERS), 1],
-            per_subplot_kw={
-                "title": {"frame_on": False, "xticks": [], "yticks": []},
-            },
-        )
-        self._p_button = Button(self._widget_axes["previous"], "Previous")
-        self._n_button = Button(self._widget_axes["next"], "Next")
-        self._a_button = Button(self._widget_axes["animate"], "Animate")
-        self._text_box = self._widget_axes["text"].text(0, 1, "")
+    # UI Input Elements
+    self._widgets_fig = plt.figure(
+      clear=True, layout="constrained", frameon=False, figsize=[6.4, 8.0]
+    )
+    self._widget_axes = self._widgets_fig.subplot_mosaic(
+      [
+        ["title"] * 6,
+        ["previous", "previous", "animate", "animate", "next", "next"],
+        *[
+          [
+            f"l{i}",
+            f"l{i}",
+            f"l{i}",
+            f"l{i}",
+            f"control_l{i}",
+            f"control_l{i}",
+          ]
+          for i in range(MAX_LAYERS)
+        ],
+        ["text"] * 6,
+      ],
+      subplot_kw={"frame_on": True, "xticks": [], "yticks": []},
+      height_ratios=[1, 3, *([3] * MAX_LAYERS), 1],
+      per_subplot_kw={
+        "title": {"frame_on": False, "xticks": [], "yticks": []},
+      },
+    )
+    self._p_button = Button(self._widget_axes["previous"], "Previous")
+    self._n_button = Button(self._widget_axes["next"], "Next")
+    self._a_button = Button(self._widget_axes["animate"], "Animate")
+    self._text_box = self._widget_axes["text"].text(0, 1, "")
 
-        self._plot_axes["image"].invert_yaxis()
+    self._plot_axes["image"].invert_yaxis()
 
-        self._plot_fig_title = self._plot_axes["title"].text(0, 0, "")
-        self._widgets_fig_title = self._widget_axes["title"].text(0, 0, "")
+    self._plot_fig_title = self._plot_axes["title"].text(0, 0, "")
+    self._widgets_fig_title = self._widget_axes["title"].text(0, 0, "")
 
-    def title_artists(self) -> list[Text]:
-        return [self._plot_fig_title, self._widgets_fig_title]
+  def title_artists(self) -> list[Text]:
+    return [self._plot_fig_title, self._widgets_fig_title]
 
-    def set_title(self, text: str) -> None:
-        self._plot_fig_title.set(text=text)
-        self._widgets_fig_title.set(text=text)
+  def set_title(self, text: str) -> None:
+    self._plot_fig_title.set(text=text)
+    self._widgets_fig_title.set(text=text)
 
-    @property
-    def figure(self) -> Figure:
-        return self._plot_fig
+  @property
+  def figure(self) -> Figure:
+    return self._plot_fig
 
-    @property
-    def im_axes(self) -> Axes:
-        return self._plot_axes["image"]
+  @property
+  def im_axes(self) -> Axes:
+    return self._plot_axes["image"]
 
-    @property
-    def line_axes(self) -> Axes:
-        return self._plot_axes["plot"]
+  @property
+  def line_axes(self) -> Axes:
+    return self._plot_axes["plot"]
 
-    def ui_axes(self, index: int) -> Axes:
-        if index < MAX_LAYERS:
-            return self._widget_axes[f"l{index}"]
-        raise ValueError(f"Invalid layer index: {index}")
+  def ui_axes(self, index: int) -> Axes:
+    if index < MAX_LAYERS:
+      return self._widget_axes[f"l{index}"]
+    raise ValueError(f"Invalid layer index: {index}")
 
-    def layer_control_axes(self, index: int) -> Axes:
-        if index < MAX_LAYERS:
-            return self._widget_axes[f"control_l{index}"]
-        raise ValueError(f"Invalid layer index: {index}")
+  def layer_control_axes(self, index: int) -> Axes:
+    if index < MAX_LAYERS:
+      return self._widget_axes[f"control_l{index}"]
+    raise ValueError(f"Invalid layer index: {index}")
 
-    @property
-    def next_simulation_button(self) -> Button:
-        return self._n_button
+  @property
+  def next_simulation_button(self) -> Button:
+    return self._n_button
 
-    @property
-    def previous_simulation_button(self) -> Button:
-        return self._p_button
+  @property
+  def previous_simulation_button(self) -> Button:
+    return self._p_button
 
-    @property
-    def animate_simulation_button(self) -> Button:
-        return self._a_button
+  @property
+  def animate_simulation_button(self) -> Button:
+    return self._a_button
 
-    @property
-    def text_box(self) -> Axes:
-        return self._text_box
+  @property
+  def text_box(self) -> Axes:
+    return self._text_box
 
-    def show(self) -> None:
-        self._widgets_fig.show()
-        self._plot_fig.show()
+  def show(self) -> None:
+    self._widgets_fig.show()
+    self._plot_fig.show()
 
-    def draw(self) -> None:
-        self._plot_fig.canvas.draw_idle()
-        self._widgets_fig.canvas.draw_idle()
+  def draw(self) -> None:
+    self._plot_fig.canvas.draw_idle()
+    self._widgets_fig.canvas.draw_idle()

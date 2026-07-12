@@ -48,12 +48,12 @@ class Reducer(ABC):
         Load the result into self from file.
         """
 
-    @abstractmethod
-    def set_output(self, output: object):
-        """
-        Explicitly sets the output of this reducer. Used to reconstruct the
-        populated reducer while deserializing.
-        """
+    # @abstractmethod
+    # def set_output(self, output: object):
+    #     """
+    #     Explicitly sets the output of this reducer. Used to reconstruct the
+    #     populated reducer while deserializing.
+    #     """
 
     def initialize(self, simulation: ".sim.Simulation"):
         """

@@ -130,6 +130,11 @@ class LightcurvesController(Controller):
             self._lightcurves[variant_key].set_alpha(1.0 if primary else 0.25)
         if len(x) == 0:
             return False
-        self.request_bounds(MirageAxes.LINE, 0, x[-1], np.min(lightcurve.magnitudes), np.max(lightcurve.magnitudes))
+        self.request_bounds(
+            MirageAxes.LINE,
+            0,
+            x[-1],
+            np.min(np.nan_to_num(lightcurve.magnitudes, nan=0, posinf=0, neginf=0)),
+            np.max(np.nan_to_num(lightcurve.magnitudes, nan=0, posinf=0, neginf=0)))
         return True
 

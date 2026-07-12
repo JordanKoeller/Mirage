@@ -101,10 +101,6 @@ class ResultFileManager:
         if self.extracted_dir:
             self.extracted_dir.cleanup()
 
-    # def dump_result(self, reducer: Reducer, simulation_key: VariantKey):
-    #     filename = self._insert_manifest_entry(reducer, simulation_key)
-    #     self._write(filename, reducer.output)
-    #     logger.debug(f"Simulation {simulation_key} Reducer {reducer.name} written to file.")
 
     def __len__(self) -> int:
         return len(self.manifest)
@@ -121,24 +117,8 @@ class ResultFileManager:
 
         TODO: Add some cache eviction behavior so we can still load large results.
         """
-        # sim_dict: dict[str, str] = self.manifest.get(str(simulation_key), {})
-        # filename: Optional[str] = sim_dict.get(reducer_name, None)
-        # if sim_dict is None:
-        #     raise ValueError(
-        #         f"Simulation of {simulation_key=} not recognized.\n Available "
-        #         f"sims: {list(self.manifest.keys())}"
-        #     )
-        # if filename is None:
-        #     raise ValueError(
-        #         f"{reducer_name=} not present in result manifest "
-        #         f"for simulation {simulation_key}.\nAvailable ids: "
-        #         f"{list(sim_dict.keys())}"
-        #     )
-
         reducers = self.load_experiment()[simulation_key].reducers
-        logger.debug("Has reducers %s" % str(reducers))
         for reducer in reducers:
-            logger.debug("Has name %s" % reducer.name)
             if reducer.name == reducer_name:
                 reducer = copy.copy(reducer)
                 reporter = self.result_reporter(reducer.name, simulation_key)
@@ -196,8 +176,8 @@ class ResultFileManager:
         Inserts a record into the manifest and returns the filename that should
         be used to dump the output
         """
-        fname = os.path.join(str(simulation_key), reducer_name.replace("/", "-"), fragment)
         simulation_key_str = str(simulation_key)
+        fname = os.path.join(reducer_name.replace("/", "-"), simulation_key_str, fragment)
         if simulation_key_str in self.manifest:
             if reducer_name in self.manifest[simulation_key_str]:
                 if fragment in self.manifest[simulation_key_str][reducer_name]:

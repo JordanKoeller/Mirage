@@ -1,0 +1,44 @@
+LensingSystem_MicrolensingLens:
+  Quasar:
+    Redshift: 1.69
+    Mass: 1e9 solMass
+  Redshift: 0.04
+  Cosmology: WMAP7
+  Convergence: 0.3
+  Shear: 0.0
+  StarryFraction: 0.40
+Starfield:
+  InitialMassFunction: Kroupa2001
+  Seed: 110
+LensedImageCenter: [0.0, 0.0, 'uas']
+RayCount: 1_000_000
+SourceRegionDimensions: [100, 100, 'uas']
+Reducers:
+  - LensedImageReducer:
+      Name: img
+      Radius: 2 uas
+      Query: [-12, 13, 'uas']
+      Resolution: [1000, 1000, '']
+  - MagnificationMapReducer:
+      Name: magmap
+      Radius: 2 uas
+      Resolution: [1000, 1000, '']
+  - LightCurvesReducer:
+      Name: curves
+      Resolution: 2 1/uas
+      Radius: 2 uas
+      NumCurves: 10
+      Seed: 12
+Variants:
+  - LinspaceVariant:
+      Name: x_pos
+      Start: -20
+      Stop: 20
+      NumPoints: 12
+      Tag: coord
+  - LinspaceVariant:
+      Name: y_pos
+      Start: -36
+      Stop: 36
+      NumPoints: 12
+      Tag: coord

@@ -8,7 +8,7 @@ import multiprocessing
 
 from mirage.sim import Simulation, Experiment
 from mirage.calc import Reducer, KdTree
-from mirage.util import BidiStream, RepeatLogger, Stopwatch, VariantKey, bind_logging_to_queue
+from mirage.util import BidiStream, RepeatLogger, Stopwatch, VariantKey, bind_logging_to_queue, Dictify
 
 logger = logging.getLogger(__name__)
 
@@ -55,21 +55,29 @@ class _CachingResultCalculator(ResultCalculator):
     def __init__(self, result_calculator: ResultCalculator):
         self.result_calculator = result_calculator
         self.ray_traced_simulation = None
-        self.cache_misses = -1
+        self.simulation_cache_misses = -1
+        self.reducer_dups = 0
+        self.computed_reducers = []
 
     def initialize(self) -> None:
         self.result_calculator.initialize()
-        self.cache_misses = -1
+        self.simulation_cache_misses = -1
 
     def raytrace(self, simulation: Simulation) -> None:
         if self.ray_traced_simulation is not None and self.ray_traced_simulation.is_similar(simulation):
             return
         self.ray_traced_simulation = simulation
         self.result_calculator.raytrace(simulation)
-        self.cache_misses += 1
+        self.simulation_cache_misses += 1
 
     def apply_reducer(self, simulation: Simulation, reducer: Reducer) -> Reducer:
-        return self.result_calculator.apply_reducer(simulation, reducer)
+        for sim, computed_reducer in self.computed_reducers:
+            if sim.is_similar(simulation) and Dictify.to_dict(reducer) == Dictify.to_dict(computed_reducer):
+                self.reducer_dups += 1
+                return computed_reducer
+        computed_reducer = self.result_calculator.apply_reducer(simulation, reducer)
+        self.computed_reducers.append((simulation, computed_reducer))
+        return computed_reducer
 
 
 
@@ -216,18 +224,22 @@ class Engine:
         timer = Stopwatch()
         timer.start()
         num_simulations = 0
-        cache_misses =  -1 # We don't call the first simulation a cache miss.
+        simulation_cache_misses =  -1 # We don't call the first simulation a cache miss.
+        computed_reducers = 0
         try:
             for key, simulation in Engine._get_simulations_grouped(experiment):
                 num_simulations += 1
-                Engine._blocking_run_simulation(calculator, stream, simulation, key)
+                computed_reducers += Engine._blocking_run_simulation(calculator, stream, simulation, key)
         except Exception as e:
             logger.error("Encountered Error")
             logger.error(str(e))
         finally:
             timer.stop()
             logger.info(
-                "Computed %d simulations (%d cache misses)", num_simulations, calculator.cache_misses
+                "Computed %d simulations (%d cache misses)", num_simulations, calculator.simulation_cache_misses
+            )
+            logger.info(
+                "Computed %d reducers (%d cache misses)", computed_reducers, computed_reducers - calculator.reducer_dups
             )
             logger.info(
                 "Total Engine Elapsed Time: %ss", timer.total_elapsed_seconds()
@@ -240,11 +252,14 @@ class Engine:
         stream: BidiStream,
         simulation: Simulation,
         key: VariantKey,
-    ):
+    ) -> int:
         calculator.raytrace(simulation)
+        count = 0
         for reducer in simulation.get_reducers():
+            count += 1
             result = calculator.apply_reducer(simulation, reducer)
             stream.send(ResultEvent(result, key), blocking=True)
+        return count
         
     @staticmethod
     def _get_simulations_grouped(experiment: Experiment) -> Iterator[tuple[VariantKey, Simulation]]:

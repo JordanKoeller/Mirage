@@ -1,4 +1,5 @@
 from typing import Self, Optional, List
+import pickle
 from dataclasses import dataclass
 from functools import cached_property, cache
 from astropy.io import fits
@@ -29,15 +30,19 @@ def unlensed_pixel_count(simulation: MicrolensingSimulation, quasar_radius: u.Qu
         pixel_region.delta.x * pixel_region.delta.y
     ).to("uas2")
 
+def magnitudes(pixel_count: float | int | np.ndarray, unlensed_pixel_count: int) -> float | np.ndarray:
+    return -2.5 * np.log10(pixel_count / unlensed_pixel_count)
+
 @dataclass(frozen=True)
 class Lightcurve:
-    data: np.ndarray # 1-dimensional array of QSO proportional to brightness of the QSO without microlensing.
+    data: np.ndarray # 1-dimensional array of number of pixels per position on the lightcurve.
+    unlensed_pixel_count: float # Number of pixels of the QSO without microlensing effects.
     start_pos: Vec2D # Starting position of the lightcurve.
     end_pos: Vec2D # ending point of the lightcurve (inclusive).
 
     @property
     def magnitudes(self) -> np.ndarray:
-        return -2.5 * np.log10(self.data)
+        return magnitudes(self.data, self.unlensed_pixel_count)
 
 
 @DelegateRegistry.register
@@ -49,7 +54,7 @@ class LensedImageReducer(Reducer):
 
     def initialize(self, simulation: MicrolensingSimulation):
         self._lens_plane = simulation.get_ray_bundle()
-        self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
+        self.unlensed_pixel_count = max(unlensed_pixel_count(simulation, self.radius), 1)
         self._canvas = None
         self.theta_0 = simulation.lensing_system.theta_0
 
@@ -74,10 +79,6 @@ class LensedImageReducer(Reducer):
     def output(self) -> np.ndarray | None:
         return self._canvas
 
-
-    def set_output(self, output: object):
-        self._canvas = output
-
     def save(self, reporter: ReducerReporter) -> None:
         with reporter.writer("canvas.npy") as f:
             np.save(f, self._canvas)
@@ -92,12 +93,12 @@ class LensedImageReducer(Reducer):
 class MagnificationMapReducer(Reducer):
     radius: u.Quantity
     resolution: Vec2D
-    canvas: Optional[np.ndarray] = None
 
     def initialize(self, simulation: MicrolensingSimulation):
         self.source_region = simulation.source_plane.source_region
-        self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
+        self.unlensed_pixel_count = max(unlensed_pixel_count(simulation, self.radius), 0)
         self.theta_0 = simulation.lensing_system.theta_0
+        self.canvas = None
 
     def reduce(self, traced_rays: KdTree):
         pixels = u.Quantity(np.ascontiguousarray(self.pixel_region.to(self.theta_0).pixels.value), self.theta_0)
@@ -144,10 +145,7 @@ class MagnificationMapReducer(Reducer):
     def magnitudes(self) -> np.ndarray:
         if self.output is None:
             raise ValueError("Cannot compute magnitudes for empty reducer")
-        return -2.5 * np.log10(self.output / self.unlensed_pixel_count)
-
-    def set_output(self, output: object):
-        self.canvas = output  # type: ignore
+        return magnitudes(self.output, self.unlensed_pixel_count)
 
     def slice(self, start: Vec2D | Index2D, end: Vec2D | Index2D) -> tuple[u.Quantity, np.ndarray]:
         """
@@ -177,7 +175,7 @@ class LightCurvesReducer(Reducer):
     def initialize(self, simulation: MicrolensingSimulation):
         self._curves: List[np.ndarray] = [None for i in range(self.num_curves)]
         self.source_region = simulation.source_plane.source_region
-        self.unlensed_pixel_count = unlensed_pixel_count(simulation, self.radius)
+        self.unlensed_pixel_count = max(unlensed_pixel_count(simulation, self.radius), 1)
         self.theta_0 = simulation.lensing_system.theta_0
 
     def reduce(self, traced_rays: KdTree):
@@ -186,7 +184,8 @@ class LightCurvesReducer(Reducer):
         for i in range(self.num_curves):
             queries = query_points[i].to(self.theta_0)
             self._curves[i] = Lightcurve(
-                data=populate_lightcurve(queries.value, radius, traced_rays) / self.unlensed_pixel_count,
+                data=populate_lightcurve(queries.value, radius, traced_rays),
+                unlensed_pixel_count=self.unlensed_pixel_count,
                 start_pos=Vec2D(queries[0][0], queries[0][1]), # Might need to swap 2nd indices
                 end_pos=Vec2D(queries[-1][0], queries[-1][1]),
             )
@@ -196,6 +195,7 @@ class LightCurvesReducer(Reducer):
             if self._curves[i] is not None and other._curves[i] is not None:
                 self._curves[i] = Lightcurve(
                     data=self._curves[i].data + other._curves[i].data,
+                    unlensed_pixel_count=self.unlensed_pixel_count,
                     start_pos=self._curves[i].start_pos,
                     end_pos=self._curves[i].end_pos,
                 )
@@ -210,9 +210,6 @@ class LightCurvesReducer(Reducer):
     @property
     def lightcurves(self):
         return self._curves
-
-    def set_output(self, output: object):
-        self._curves = output  # type: ignore
 
     def save(self, reporter: ReducerReporter) -> None:
         with reporter.writer("lightcurves.pickle") as f:

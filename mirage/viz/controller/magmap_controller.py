@@ -225,7 +225,12 @@ class MagMapController(Controller):
             self._lightcurves[variant_key].set_alpha(1.0 if primary else 0.25)
         if len(slice_x) == 0:
             return False
-        self.request_bounds(MirageAxes.LINE, 0, slice_x[-1], np.min(slice_y), np.max(slice_y))
+        self.request_bounds(
+            MirageAxes.LINE,
+            0,
+            slice_x[-1],
+            np.min(np.nan_to_num(slice_y, nan=0, posinf=0, neginf=0)),
+            np.max(np.nan_to_num(slice_y, nan=0, posinf=0, neginf=0)))
         return True
 
     def _toggle_show_all(self) -> None:

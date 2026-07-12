@@ -34,7 +34,7 @@ class MicrolensingRayTracer(RayTracer):
 
         logger.info(
             f"Running with {pixels.shape} "
-            f"(Total={pixels.shape[0]*pixels.shape[1]}) pixels"
+            f"(Total={pixels.shape[0] * pixels.shape[1]}) pixels"
         )
 
         traced_values = trace_rays(
@@ -55,5 +55,5 @@ class MicrolensingRayTracer(RayTracer):
         return (
             self.convergence == my_other.convergence
             and self.shear == my_other.shear
-            and self.starfield  == my_other.starfield
+            and self.starfield == my_other.starfield
         )

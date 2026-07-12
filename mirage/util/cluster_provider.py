@@ -52,7 +52,6 @@ class ClusterProvider(ABC):
         self.close()
 
 
-
 @dataclass(kw_only=True)
 @DelegateRegistry.register
 class LocalClusterProvider(ClusterProvider):
@@ -66,7 +65,8 @@ class LocalClusterProvider(ClusterProvider):
 
     def initialize(self):
         self._cluster = LocalCluster(
-            n_workers=self.num_workers, memory_limit=self.worker_mem,
+            n_workers=self.num_workers,
+            memory_limit=self.worker_mem,
             threads_per_worker=2,
         )
         self._client = Client(self._cluster)
@@ -152,8 +152,7 @@ class AwsEphemeralClusterProvider(ClusterProvider):
             scheduler_mem=1024 * 4,
             n_workers=self.num_workers,
             worker_extra_args=(
-                f"--nworkers {self.cpus_per_worker} "
-                f"--memory-limit 1.8GiB".split(" ")
+                f"--nworkers {self.cpus_per_worker} --memory-limit 1.8GiB".split(" ")
             ),
         )
         self._client = self._cluster.get_client()

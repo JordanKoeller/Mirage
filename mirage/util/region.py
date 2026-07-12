@@ -29,9 +29,7 @@ class Region:
         )
 
     def pixellate(self, resolution: Vec2D) -> "PixelRegion":
-        return PixelRegion(
-            dims=self.dims, center=self.center, resolution=resolution
-        )
+        return PixelRegion(dims=self.dims, center=self.center, resolution=resolution)
 
     @property
     def unit(self) -> u.Unit:
@@ -44,9 +42,7 @@ class Region:
     @property
     def outline(self) -> u.Quantity:
         center: Vec2D = (
-            self.center.to(self.unit)
-            if self.center
-            else Vec2D.zero_vector(self.unit)
+            self.center.to(self.unit) if self.center else Vec2D.zero_vector(self.unit)
         )
         tl = (center - self.dims / 2.0).to(self.unit)  # type: ignore
         br = (center + self.dims / 2.0).to(self.unit)  # type: ignore
@@ -62,9 +58,7 @@ class Region:
     @property
     def span(self) -> Tuple[Vec2D, Vec2D]:
         center: Vec2D = (
-            self.center.to(self.unit)
-            if self.center
-            else Vec2D.zero_vector(self.unit)
+            self.center.to(self.unit) if self.center else Vec2D.zero_vector(self.unit)
         )
         tl = (center - self.dims / 2.0).to(self.unit)  # type: ignore
         br = (center + self.dims / 2.0).to(self.unit)  # type: ignore
@@ -82,7 +76,7 @@ class PixelRegion(Region):
       + center (Vec2D): The position vector for the center of the region. Default (0, 0).
       + resolution (Vec2D): The resolution of the pixel region (h x w).
       + parent_region (PixelRegion): If this is a subregion, populated with a copy of the parent region.
-      + parent_region_location (Index2D): The index of the top-left pixel in the parent region. 
+      + parent_region_location (Index2D): The index of the top-left pixel in the parent region.
     """
 
     resolution: Vec2D
@@ -91,8 +85,12 @@ class PixelRegion(Region):
 
     @classmethod
     def from_span(
-        cls, min_corner: Vec2D, max_corner: Vec2D, resolution: Vec2D,
-        parent_region: Self | None = None, parent_region_location: Index2D | None = None,
+        cls,
+        min_corner: Vec2D,
+        max_corner: Vec2D,
+        resolution: Vec2D,
+        parent_region: Self | None = None,
+        parent_region_location: Index2D | None = None,
     ) -> Self:
         """
         Constructs a PixelRegion given the top left corner, bottom right corner, and
@@ -114,7 +112,13 @@ class PixelRegion(Region):
         dims = max_corner - min_corner + delta
 
         # type: ignore
-        return cls(dims=dims, center=center, resolution=resolution, parent_region=parent_region, parent_region_location=parent_region_location)
+        return cls(
+            dims=dims,
+            center=center,
+            resolution=resolution,
+            parent_region=parent_region,
+            parent_region_location=parent_region_location,
+        )
 
     def to(self, unit: Union[str, u.Unit]) -> Self:
         return PixelRegion(  # type: ignore
@@ -182,9 +186,7 @@ class PixelRegion(Region):
             for y_i in range(h):
                 s_x, e_x = x_indices[x_i]
                 s_y, e_y = y_indices[y_i]
-                subgrid_resolution = Vec2D.unitless(
-                    e_x - s_x + 1, e_y - s_y + 1
-                )
+                subgrid_resolution = Vec2D.unitless(e_x - s_x + 1, e_y - s_y + 1)
                 subgrid_min_corner = self[Index2D(s_x, s_y)]
                 subgrid_max_corner = self[Index2D(e_x, e_y)]
                 subgrids.append(
@@ -199,7 +201,7 @@ class PixelRegion(Region):
 
         return subgrids  # type: ignore
 
-    def unravel(self,  indexes: np.ndarray) -> np.ndarray:
+    def unravel(self, indexes: np.ndarray) -> np.ndarray:
         """
         Convertes a single-dimensional index into two-dimensional index.
 
@@ -209,26 +211,21 @@ class PixelRegion(Region):
         Assumes fortran-ordering (columnar).
         """
         subregion_inds = np.ndarray((len(indexes), 2), dtype=np.int64)
-        subregion_inds[:, 0] = (indexes // int(self.resolution.y))
-        subregion_inds[:, 1] = (indexes % int(self.resolution.y))
+        subregion_inds[:, 0] = indexes // int(self.resolution.y)
+        subregion_inds[:, 1] = indexes % int(self.resolution.y)
         if self.parent_region_location:
             subregion_inds[:, 0] += int(self.parent_region_location.x)
             subregion_inds[:, 1] += int(self.parent_region_location.y)
         return subregion_inds
 
     def __getitem__(self, index: Index2D):
-        if (
-            index.x > self.resolution.x.value
-            or index.y > self.resolution.y.value
-        ):
+        if index.x > self.resolution.x.value or index.y > self.resolution.y.value:
             raise ValueError(
                 f"{index=} out of bounds for PixelRegion of resolution {self.resolution}"
             )
 
         center = (
-            self.center.to(self.unit)
-            if self.center
-            else Vec2D.zero_vector(self.unit)
+            self.center.to(self.unit) if self.center else Vec2D.zero_vector(self.unit)
         )
         low_limit = center - self.dims / 2
         min_corner = (low_limit + self.delta / 2).to(self.unit)  # type: ignore
@@ -251,9 +248,7 @@ class PixelRegion(Region):
         Note: When constructing the pixel coordinates, the center of each pixel's coordinate is used.
         """
         center = (
-            self.center.to(self.unit)
-            if self.center
-            else Vec2D.zero_vector(self.unit)
+            self.center.to(self.unit) if self.center else Vec2D.zero_vector(self.unit)
         )
 
         low_limit = center - self.dims / 2

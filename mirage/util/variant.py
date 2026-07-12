@@ -7,7 +7,7 @@ If a "Variants" key is present in a yaml or json doc processed by the dictify
 module it is interpreted before the rest of the object, and any generated
 substitutions are specified.
 
-Variants can be used to expand a templated object out to multiple versions of the 
+Variants can be used to expand a templated object out to multiple versions of the
 object with a specific parameter (or parameters) tweaked on each version.
 
 Variants should be specified in a special reserved "Variants" key in the
@@ -34,10 +34,12 @@ from .dictify import Dictify
 logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
+
 class EndBehavior(Enum):
     FIXED = "FIXED"
     REPEAT = "REPEAT"
     MIRROR = "MIRROR"
+
 
 class VariantKey:
     def __init__(self, **keys: dict[str, Any]) -> None:
@@ -76,7 +78,7 @@ class VariantKey:
 @dataclass(frozen=True, kw_only=True)
 class Variant(ABC):
     """
-    Base class of all variants. 
+    Base class of all variants.
 
     Implementors should implement the get_values() abstract method.
 
@@ -91,6 +93,7 @@ class Variant(ABC):
     end_behavior: EndBehavior - What to do if two variants share the same tag
                but produce a different number of values.
     """
+
     name: str
     tag: str = field(default_factory=lambda: str(uuid4()))
     end_behavior: EndBehavior = EndBehavior.FIXED
@@ -127,12 +130,15 @@ class LinspaceVariant(Variant):
     """
     Variant that generates linearly spaced values, using the np.linspace function.
     """
+
     start: float
     stop: float
     num_points: int
 
     def get_values(self) -> list:
-        return np.linspace(self.start, self.stop, self.num_points, endpoint=True).tolist()
+        return np.linspace(
+            self.start, self.stop, self.num_points, endpoint=True
+        ).tolist()
 
 
 @DelegateRegistry.register
@@ -141,12 +147,16 @@ class LogspaceVariant(Variant):
     """
     Variant that generates logarithmically spaced values, using the np.logspace function.
     """
+
     start: float
     stop: float
     num_points: int
 
     def get_values(self) -> list:
-        return np.logspace(self.start, self.stop, self.num_points, endpoint=True).tolist()
+        return np.logspace(
+            self.start, self.stop, self.num_points, endpoint=True
+        ).tolist()
+
 
 @DelegateRegistry.register
 @dataclass(frozen=True, kw_only=True)
@@ -154,6 +164,7 @@ class ListVariant(Variant):
     """
     Variant that returns a list of value literals.
     """
+
     values: list[float]
 
     def get_values(self) -> list[float]:
@@ -164,15 +175,20 @@ class ObjVariants(Generic[T]):
     """
     Encapsulates variants of an object produced by an object template + variance.
     """
-    
-    def __init__(self, variants: list[Variant], objs: dict[VariantKey, T], template: dict[str, Any] | None = None) -> None:
+
+    def __init__(
+        self,
+        variants: list[Variant],
+        objs: dict[VariantKey, T],
+        template: dict[str, Any] | None = None,
+    ) -> None:
         self._variants = {v.name: v for v in variants}
         self._objs = {str(k): v for k, v in objs.items()}
         self._keys = {str(k): k for k in objs}
         self._template = template
 
     @classmethod
-    def from_single_variant(cls, obj: T) -> 'ObjVariants[T]':
+    def from_single_variant(cls, obj: T) -> "ObjVariants[T]":
         return cls([], {VariantKey(): obj}, Dictify.to_dict(obj))
 
     @property
@@ -273,7 +289,7 @@ class VariantDictify:
         klass: Type[T],
         dict_obj: dict[str, Any],
         allow_custom_serializer: bool = True,
-        variant_container = None,
+        variant_container=None,
     ) -> Optional[ObjVariants]:
         if "Variants" not in dict_obj:
             logger.debug("No Variant. Pass-through to regular Dictify.")
@@ -284,7 +300,7 @@ class VariantDictify:
         variants = []
         logger.debug("Found variants. Parsing.")
         for obj in dict_obj["Variants"]:
-            parsed = Dictify.from_dict(Variant, obj, allow_custom_serializer) 
+            parsed = Dictify.from_dict(Variant, obj, allow_custom_serializer)
             if parsed:
                 variants.append(parsed)
         if len(variants) == 0:
@@ -301,7 +317,9 @@ class VariantDictify:
         return (variant_container or ObjVariants)(variants, objs, original_dict_obj)
 
     @staticmethod
-    def _get_substitutions(variants: list[Variant]) -> list[tuple[dict[str, Any], dict[str, int]]]:
+    def _get_substitutions(
+        variants: list[Variant],
+    ) -> list[tuple[dict[str, Any], dict[str, int]]]:
         """
         Gives a list of substitution objects based on the values produced by the set of variants.
 
@@ -315,7 +333,9 @@ class VariantDictify:
             tag_set = {}
             tag_inds = tags_counter.get_tag_indices()
             for variant in variants:
-                substitution_set[variant.name] = variant.get_value(tag_inds[variant.tag])
+                substitution_set[variant.name] = variant.get_value(
+                    tag_inds[variant.tag]
+                )
                 tag_set[variant.name] = tag_inds[variant.tag]
             substitutions.append((substitution_set, tag_set))
             if not tags_counter.increment():
@@ -338,7 +358,9 @@ class VariantDictify:
                     if dict_obj[k] == sub_str:
                         dict_obj[k] = substitutions[s]
                     elif isinstance(dict_obj[k], str):
-                        dict_obj[k] = dict_obj[k].replace(sub_str, str(substitutions[s]))
+                        dict_obj[k] = dict_obj[k].replace(
+                            sub_str, str(substitutions[s])
+                        )
         elif isinstance(dict_obj, list):
             for i in range(len(dict_obj)):
                 if isinstance(dict_obj[i], (dict, list)):
@@ -350,7 +372,10 @@ class VariantDictify:
                     if dict_obj[i] == sub_str:
                         dict_obj[i] = substitutions[s]
                     elif isinstance(dict_obj[i], str):
-                        dict_obj[i] = dict_obj[i].replace(sub_str, str(substitutions[s]))
+                        dict_obj[i] = dict_obj[i].replace(
+                            sub_str, str(substitutions[s])
+                        )
+
 
 class _TagsCounter:
     def __init__(self, variants: list[Variant]) -> None:
@@ -358,7 +383,9 @@ class _TagsCounter:
         self.tag_lengths = {}
         for variant in variants:
             self.tag_indices[variant.tag] = 0
-            self.tag_lengths[variant.tag] = max(self.tag_lengths.get(variant.tag, 0), len(variant))
+            self.tag_lengths[variant.tag] = max(
+                self.tag_lengths.get(variant.tag, 0), len(variant)
+            )
         self.tags = list(self.tag_lengths.keys())
 
     def increment(self) -> bool:

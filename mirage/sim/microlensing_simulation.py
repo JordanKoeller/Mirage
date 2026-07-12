@@ -63,9 +63,9 @@ class MicrolensingSimulation(Simulation):
         starfield_radius = (
             self.get_ray_bundle().dims.x * STAR_REGION_FACTOR
         )  # Units of rad
-        radius_dist = (
-            starfield_radius.to("rad").value * self.lensing_system.lens_distance.to("lyr")
-        )  # Units in rad
+        radius_dist = starfield_radius.to(
+            "rad"
+        ).value * self.lensing_system.lens_distance.to("lyr")  # Units in rad
         starfield_area = np.pi * radius_dist * radius_dist
         starry_mass = (
             self._tracing_parameters.starry_fraction
@@ -140,6 +140,4 @@ class MicrolensingSimulation(Simulation):
 
     @cached_property
     def _tracing_parameters(self) -> TracingParameters:
-        return self.lensing_system.microtracing_parameters(
-            self.lensed_image_center
-        )
+        return self.lensing_system.microtracing_parameters(self.lensed_image_center)

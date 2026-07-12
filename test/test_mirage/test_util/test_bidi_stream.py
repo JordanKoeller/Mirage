@@ -3,6 +3,7 @@ import threading
 
 from mirage.util import BidiStream
 
+
 def stream_echo(rx: BidiStream) -> None:
     while True:
         try:
@@ -14,10 +15,12 @@ def stream_echo(rx: BidiStream) -> None:
             print("Stream closed. Exiting echo thread.")
             return
 
+
 def stream_send(rx: BidiStream, msgs: list[int]) -> None:
     for msg in msgs:
         rx.send(msg, blocking=True)
     rx.close()
+
 
 def stream_rcv(rx: BidiStream) -> None:
     while True:
@@ -26,6 +29,7 @@ def stream_rcv(rx: BidiStream) -> None:
             print("Received", msg)
         except EOFError:
             return
+
 
 class TestBidiStream(TestCase):
     def testEcho(self):
@@ -47,7 +51,7 @@ class TestBidiStream(TestCase):
             tx.send(i)
         tx.close()
         thread.join()
-        
+
     def testRecvCanStillReceiveMessagesAfterClosingSender(self):
         tx, rx = BidiStream.create(max_size=10)
         msgs = [i for i in range(10)]
@@ -66,8 +70,3 @@ class TestBidiStream(TestCase):
         msg = rx.recv()
         self.assertEqual(msg, "hello")
         # Do not close tx or rx. Their dtor's should do it
-
-
-
-
-

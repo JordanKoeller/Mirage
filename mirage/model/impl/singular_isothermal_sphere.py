@@ -17,9 +17,7 @@ class SingularIsothermalSphereLens(LensingSystem):
     velocity_dispersion: u.Quantity
     star_fraction: float
     shear: PolarVec = field(default_factory=lambda: PolarVec.zero_vector("rad"))
-    ellipticity: PolarVec = field(
-        default_factory=lambda: PolarVec.zero_vector("rad")
-    )
+    ellipticity: PolarVec = field(default_factory=lambda: PolarVec.zero_vector("rad"))
 
     @property
     def einstein_radius(self) -> u.Quantity:
@@ -92,8 +90,7 @@ class SingularIsothermalSphereLens(LensingSystem):
             / (
                 4
                 * (t1**2 + t2**2) ** 2
-                * (q**2 * t1**4 + q**2 * t1**2 * t2**2 + t1**2 * t2**2 + t2**4)
-                ** 2
+                * (q**2 * t1**4 + q**2 * t1**2 * t2**2 + t1**2 * t2**2 + t2**4) ** 2
             )
             + (
                 -b * t1**2 * sqrt(q**2 * t1**2 + t2**2) / 2

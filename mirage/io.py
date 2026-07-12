@@ -18,7 +18,6 @@ from mirage.sim import Experiment
 logger = logging.getLogger(__name__)
 
 
-
 class ResultFileManager:
     """
     Encapsulates file I/O for the results of a batch job.
@@ -101,7 +100,6 @@ class ResultFileManager:
         if self.extracted_dir:
             self.extracted_dir.cleanup()
 
-
     def __len__(self) -> int:
         return len(self.manifest)
 
@@ -138,12 +136,18 @@ class ResultFileManager:
     def reader(
         self, reducer_name: str, variant_key: VariantKey, fragment: str
     ) -> io.IO:
-        filename = self.manifest.get(str(variant_key), {}).get(reducer_name, {}).get(fragment, None)
+        filename = (
+            self.manifest.get(str(variant_key), {})
+            .get(reducer_name, {})
+            .get(fragment, None)
+        )
         if filename is None:
             return ValueError(f"Fragment {fragment} does not exist.")
         return self.zip_archive.open(filename, mode="r")
 
-    def result_reporter(self, reducer_name: str, variant_key: VariantKey) -> 'ReducerReporter':
+    def result_reporter(
+        self, reducer_name: str, variant_key: VariantKey
+    ) -> "ReducerReporter":
         return ReducerReporter(reducer_name, variant_key, self)
 
     def _write(self, filename: str, data: Any):
@@ -154,6 +158,7 @@ class ResultFileManager:
                 f.write(bytes(string_io.getvalue(), "utf-8"))
             else:
                 pickle.dump(data, f)
+
     #
     def _load(self, filename: str) -> Union[dict, object]:
         if self.extracted_dir:
@@ -170,14 +175,16 @@ class ResultFileManager:
                 return pickle.load(f)
 
     def _insert_manifest_entry(
-            self, reducer_name: str, simulation_key: VariantKey, fragment: str
+        self, reducer_name: str, simulation_key: VariantKey, fragment: str
     ) -> str:
         """
         Inserts a record into the manifest and returns the filename that should
         be used to dump the output
         """
         simulation_key_str = str(simulation_key)
-        fname = os.path.join(reducer_name.replace("/", "-"), simulation_key_str, fragment)
+        fname = os.path.join(
+            reducer_name.replace("/", "-"), simulation_key_str, fragment
+        )
         if simulation_key_str in self.manifest:
             if reducer_name in self.manifest[simulation_key_str]:
                 if fragment in self.manifest[simulation_key_str][reducer_name]:
@@ -189,19 +196,26 @@ class ResultFileManager:
             self.manifest[simulation_key_str] = {reducer_name: {fragment: fname}}
         return fname
 
-class ReducerReporter:
-    """
 
-    """
-    def __init__(self, reducer_name: str, variant_key: VariantKey, result_file_manager: ResultFileManager) -> None:
+class ReducerReporter:
+    """ """
+
+    def __init__(
+        self,
+        reducer_name: str,
+        variant_key: VariantKey,
+        result_file_manager: ResultFileManager,
+    ) -> None:
         self._reducer_name = reducer_name
         self._variant_key = variant_key
         self._result_file_manager = result_file_manager
 
     def writer(self, filename: str) -> io.IO:
         return self._result_file_manager.writer(
-            self._reducer_name, self._variant_key, filename)
+            self._reducer_name, self._variant_key, filename
+        )
 
     def reader(self, filename: str) -> io.IO:
         return self._result_file_manager.reader(
-            self._reducer_name, self._variant_key, filename)
+            self._reducer_name, self._variant_key, filename
+        )

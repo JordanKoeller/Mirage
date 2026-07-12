@@ -28,9 +28,16 @@ a default controller for each reducer in the ExperimentResult is enabled. Additi
 controllers can be added / removed programatically or via the UI.
 
 """
+
 from .viz import Viz
 from .window import VizWindow, MirageAxes
-from .controller import Controller, MagMapController, LightcurvesController, DebugController, LensedImageController
+from .controller import (
+    Controller,
+    MagMapController,
+    LightcurvesController,
+    DebugController,
+    LensedImageController,
+)
 from .viz_state import VizState, Panel, VizEvent, RealtimeParameters, RealTimeVizState
 
 _CONTROLLERS = {
@@ -45,6 +52,7 @@ _CONTROLLERS = {
     "LensedImage": LensedImageController,
 }
 
+
 def create_layers(*layers: list[str | Controller]) -> list[Controller]:
     ret = []
     for layer in layers:
@@ -56,9 +64,17 @@ def create_layers(*layers: list[str | Controller]) -> list[Controller]:
     return ret
 
 
-
-
 __all__ = [
-    "Viz", "VizState", "VizWindow", "Controller", "MagMapController", "Panel", "VizEvent",
-    "LightcurvesController", "DebugController", "MirageAxes", "RealTimeVizState", "create_layers"
+    "Viz",
+    "VizState",
+    "VizWindow",
+    "Controller",
+    "MagMapController",
+    "Panel",
+    "VizEvent",
+    "LightcurvesController",
+    "DebugController",
+    "MirageAxes",
+    "RealTimeVizState",
+    "create_layers",
 ]

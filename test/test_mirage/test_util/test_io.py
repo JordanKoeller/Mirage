@@ -28,6 +28,7 @@ def simulation(ray_count: int = 100_000, reducers=None) -> Simulation:
         reducers=reducers if reducers else [],
     )
 
+
 @fixture
 def experiment() -> Experiment:
     return Experiment.from_single_variant(simulation())
@@ -55,17 +56,13 @@ def reducer(radius: int = 1) -> LightCurvesReducer:
 
 
 class TestResultFileManager:
-    def test_dumpExperiment_success(
-        self, tmp_path: Path, experiment: Experiment
-    ):
+    def test_dumpExperiment_success(self, tmp_path: Path, experiment: Experiment):
         file_path = tmp_path / "some-file.zip"
         mgr = ResultFileManager.new_writer(str(file_path))
         mgr.dump_experiment(experiment)  # type: ignore
         mgr.close()  # type: ignore
 
-    def test_loadExperiment_success(
-        self, tmp_path: Path, experiment: Experiment
-    ):
+    def test_loadExperiment_success(self, tmp_path: Path, experiment: Experiment):
         file_path = tmp_path / "some-file.zip"
         mgr = ResultFileManager.new_writer(str(file_path))
         mgr.dump_experiment(experiment=experiment)  # type: ignore

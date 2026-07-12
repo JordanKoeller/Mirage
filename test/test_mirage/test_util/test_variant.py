@@ -11,6 +11,7 @@ from astropy.cosmology import Cosmology, WMAP7
 from mirage.calc.reducers import LightCurvesReducer
 from mirage.util import VariantDictify
 
+
 class TestVariantDictify(TestCase):
     def testFromDict_singelVariantListSuccess(self):
         dict_repr = {
@@ -21,10 +22,7 @@ class TestVariantDictify(TestCase):
             "Name": "lightcurve",
             "Variants": [
                 {
-                    "ListVariant": {
-                        "Name": "sub",
-                        "Values": [1, 2, 3]
-                    },
+                    "ListVariant": {"Name": "sub", "Values": [1, 2, 3]},
                 },
             ],
         }
@@ -80,13 +78,15 @@ class TestVariantDictify(TestCase):
             "Seed": 12,
             "Name": "lightcurve",
         }
-        expected = [LightCurvesReducer(
-            radius=123 * u.uas,
-            resolution=10 / u.uas,
-            num_curves=10,
-            seed=12,
-            name="lightcurve",
-        )]
+        expected = [
+            LightCurvesReducer(
+                radius=123 * u.uas,
+                resolution=10 / u.uas,
+                num_curves=10,
+                seed=12,
+                name="lightcurve",
+            )
+        ]
         actual = VariantDictify.from_dict(LightCurvesReducer, dict_repr)
         self.assertEqual(expected, actual.variants())
 
@@ -263,4 +263,3 @@ class TestVariantDictify(TestCase):
             )
         actual = VariantDictify.from_dict(LightCurvesReducer, dict_repr)
         self.assertEqual(expected, actual.variants())
-

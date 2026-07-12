@@ -45,6 +45,6 @@ module-name = "mirage_ext"
 Repo = "https://github.com/jordankoeller/mirage"
 
 [tool.ruff]
-line-length = 80
+line-length = 88
 indent-width = 4
-ignore = [ 'F403' ]
+lint.ignore = [ 'F403' ]

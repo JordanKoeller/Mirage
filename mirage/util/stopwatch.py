@@ -42,8 +42,8 @@ class Stopwatch:
         delta_t = delta.total_seconds() * 1e6 + delta.microseconds
         return delta_t / 1000
 
-class LabeledStopwatch:
 
+class LabeledStopwatch:
     def __init__(self):
         self.watches: dict[str, Stopwatch] = {}
 

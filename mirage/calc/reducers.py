@@ -5,7 +5,13 @@ from functools import cached_property, cache
 from astropy.io import fits
 
 from mirage.calc import Reducer, KdTree
-from mirage.calc.reducer_funcs import populate_magmap, populate_lightcurve, slice_magmap, merge_index_lists, populate_lensed_image
+from mirage.calc.reducer_funcs import (
+    populate_magmap,
+    populate_lightcurve,
+    slice_magmap,
+    merge_index_lists,
+    populate_lensed_image,
+)
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D
 from mirage.sim import MicrolensingSimulation
 from mirage_ext import reduce_lensed_image
@@ -16,29 +22,38 @@ from astropy import units as u
 
 HIT_COLOR = np.array([120, 120, 255], dtype=np.uint8)
 
-def unlensed_pixel_count(simulation: MicrolensingSimulation, quasar_radius: u.Quantity) -> int:
+
+def unlensed_pixel_count(
+    simulation: MicrolensingSimulation, quasar_radius: u.Quantity
+) -> int:
     source_region = simulation.source_plane.source_region
     pixel_region = simulation.get_ray_bundle().to("uas")
     apparent_quasar_area = (
         quasar_radius.to("uas") ** 2
-        * simulation.lensing_system.magnification_coefficient(
-            source_region.center
-        )
+        * simulation.lensing_system.magnification_coefficient(source_region.center)
         * np.pi
     )
-    return apparent_quasar_area / (
-        pixel_region.delta.x * pixel_region.delta.y
-    ).to("uas2")
+    return apparent_quasar_area / (pixel_region.delta.x * pixel_region.delta.y).to(
+        "uas2"
+    )
 
-def magnitudes(pixel_count: float | int | np.ndarray, unlensed_pixel_count: int) -> float | np.ndarray:
+
+def magnitudes(
+    pixel_count: float | int | np.ndarray, unlensed_pixel_count: int
+) -> float | np.ndarray:
     return -2.5 * np.log10(pixel_count / unlensed_pixel_count)
+
 
 @dataclass(frozen=True)
 class Lightcurve:
-    data: np.ndarray # 1-dimensional array of number of pixels per position on the lightcurve.
-    unlensed_pixel_count: float # Number of pixels of the QSO without microlensing effects.
-    start_pos: Vec2D # Starting position of the lightcurve.
-    end_pos: Vec2D # ending point of the lightcurve (inclusive).
+    data: (
+        np.ndarray
+    )  # 1-dimensional array of number of pixels per position on the lightcurve.
+    unlensed_pixel_count: (
+        float  # Number of pixels of the QSO without microlensing effects.
+    )
+    start_pos: Vec2D  # Starting position of the lightcurve.
+    end_pos: Vec2D  # ending point of the lightcurve (inclusive).
 
     @property
     def magnitudes(self) -> np.ndarray:
@@ -48,23 +63,29 @@ class Lightcurve:
 @DelegateRegistry.register
 @dataclass(kw_only=True)
 class LensedImageReducer(Reducer):
-    query: Vec2D # Location to query
-    radius: u.Quantity # Radius of the QSO
-    resolution: Vec2D # Resolution of the image to render
+    query: Vec2D  # Location to query
+    radius: u.Quantity  # Radius of the QSO
+    resolution: Vec2D  # Resolution of the image to render
 
     def initialize(self, simulation: MicrolensingSimulation):
         self._lens_plane = simulation.get_ray_bundle()
-        self.unlensed_pixel_count = max(unlensed_pixel_count(simulation, self.radius), 1)
+        self.unlensed_pixel_count = max(
+            unlensed_pixel_count(simulation, self.radius), 1
+        )
         self._canvas = None
         self.theta_0 = simulation.lensing_system.theta_0
 
     def reduce(self, traced_rays: KdTree):
-        active_indices = np.array(traced_rays.query_indices(
-            self.query.to(self.theta_0), self.radius.to(self.theta_0)
-        ))
+        active_indices = np.array(
+            traced_rays.query_indices(
+                self.query.to(self.theta_0), self.radius.to(self.theta_0)
+            )
+        )
         if active_indices is None or len(active_indices) == 0:
             return
-        self._canvas = populate_lensed_image(active_indices, self._lens_plane, self.resolution)
+        self._canvas = populate_lensed_image(
+            active_indices, self._lens_plane, self.resolution
+        )
 
     def merge(self, other: Self) -> Self:
         if other._canvas is None:
@@ -96,12 +117,17 @@ class MagnificationMapReducer(Reducer):
 
     def initialize(self, simulation: MicrolensingSimulation):
         self.source_region = simulation.source_plane.source_region
-        self.unlensed_pixel_count = max(unlensed_pixel_count(simulation, self.radius), 0)
+        self.unlensed_pixel_count = max(
+            unlensed_pixel_count(simulation, self.radius), 0
+        )
         self.theta_0 = simulation.lensing_system.theta_0
         self.canvas = None
 
     def reduce(self, traced_rays: KdTree):
-        pixels = u.Quantity(np.ascontiguousarray(self.pixel_region.to(self.theta_0).pixels.value), self.theta_0)
+        pixels = u.Quantity(
+            np.ascontiguousarray(self.pixel_region.to(self.theta_0).pixels.value),
+            self.theta_0,
+        )
         radius = self.radius.to(self.theta_0)
 
         self.canvas = np.array(traced_rays.batch_query_count(pixels, radius))
@@ -133,7 +159,7 @@ class MagnificationMapReducer(Reducer):
             np.save(f, self.canvas)
         with reporter.writer("magmap.fits") as f:
             # header = fits.Header(headerFields)
-            hdu = fits.PrimaryHDU(self.magnitudes) #, header=header)
+            hdu = fits.PrimaryHDU(self.magnitudes)  # , header=header)
             hdulist = fits.HDUList([hdu])
             hdulist.writeto(f)
 
@@ -147,7 +173,9 @@ class MagnificationMapReducer(Reducer):
             raise ValueError("Cannot compute magnitudes for empty reducer")
         return magnitudes(self.output, self.unlensed_pixel_count)
 
-    def slice(self, start: Vec2D | Index2D, end: Vec2D | Index2D) -> tuple[u.Quantity, np.ndarray]:
+    def slice(
+        self, start: Vec2D | Index2D, end: Vec2D | Index2D
+    ) -> tuple[u.Quantity, np.ndarray]:
         """
         Sample the MagnificationMap on an arbitrary axis.
 
@@ -161,7 +189,9 @@ class MagnificationMapReducer(Reducer):
             end = self.pixel_region[end]
         dist = (end - start).magnitude
         values = slice_magmap(self, start, end)
-        return u.Quantity(np.linspace(0, dist.value, len(values)), self.source_region.unit), values
+        return u.Quantity(
+            np.linspace(0, dist.value, len(values)), self.source_region.unit
+        ), values
 
 
 @DelegateRegistry.register
@@ -175,7 +205,9 @@ class LightCurvesReducer(Reducer):
     def initialize(self, simulation: MicrolensingSimulation):
         self._curves: List[np.ndarray] = [None for i in range(self.num_curves)]
         self.source_region = simulation.source_plane.source_region
-        self.unlensed_pixel_count = max(unlensed_pixel_count(simulation, self.radius), 1)
+        self.unlensed_pixel_count = max(
+            unlensed_pixel_count(simulation, self.radius), 1
+        )
         self.theta_0 = simulation.lensing_system.theta_0
 
     def reduce(self, traced_rays: KdTree):
@@ -186,7 +218,9 @@ class LightCurvesReducer(Reducer):
             self._curves[i] = Lightcurve(
                 data=populate_lightcurve(queries.value, radius, traced_rays),
                 unlensed_pixel_count=self.unlensed_pixel_count,
-                start_pos=Vec2D(queries[0][0], queries[0][1]), # Might need to swap 2nd indices
+                start_pos=Vec2D(
+                    queries[0][0], queries[0][1]
+                ),  # Might need to swap 2nd indices
                 end_pos=Vec2D(queries[-1][0], queries[-1][1]),
             )
 

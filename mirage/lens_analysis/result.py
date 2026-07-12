@@ -17,6 +17,7 @@ By default, the loaders must support multiple Simulations in one file. Thus, a
 simulation, you can unpack it to the `Result` object by calling .get_result()
 on the returned MultiResult.
 """
+
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Iterator
@@ -32,6 +33,7 @@ class SimulationResult:
     """
     Provides an interface for analyzing the results of one single Simulation.
     """
+
     experiment: Experiment
     io_manager: ResultFileManager
     variant_key: VariantKey
@@ -61,6 +63,7 @@ class ExperimentResult:
 
     Wraps a ResultFileManager and manages lazily loading results.
     """
+
     io_manager: ResultFileManager
 
     @cached_property
@@ -81,6 +84,7 @@ class ExperimentResult:
 
     def __iter__(self) -> Iterator[SimulationResult]:
         return iter([self.simulation(k) for k in self.keys])
+
 
 @dataclass
 class InMemorySimulationResult:
@@ -104,4 +108,3 @@ class InMemorySimulationResult:
 
     def __iter__(self) -> Iterator[Reducer]:
         return iter(self.reducers.values())
-

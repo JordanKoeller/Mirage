@@ -11,7 +11,9 @@ def register_serializers():
     Dictify.register_serializer(
         CustomSerializer(
             value_type=Quantity,
-            to_dict=lambda q: f"{int(q.value) if q.value.is_integer() else float(q.value)} {q.unit.to_string()}",
+            to_dict=lambda q: (
+                f"{int(q.value) if q.value.is_integer() else float(q.value)} {q.unit.to_string()}"
+            ),
             from_dict=lambda value_str: Quantity(
                 *(
                     float(value_str.split(" ")[0].strip()),

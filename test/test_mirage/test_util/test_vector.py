@@ -45,9 +45,7 @@ class TestVec2D(TestCase):
         self.assertRaises(ValueError, lambda: Vec2D(3 * u.m, 4 * u.kg))
 
     def testVec2DInit_dimensionalQuantities_throws(self):
-        self.assertRaises(
-            ValueError, lambda: Vec2D(u.Quantity([3, 4], u.m), 5 * u.m)
-        )
+        self.assertRaises(ValueError, lambda: Vec2D(u.Quantity([3, 4], u.m), 5 * u.m))
 
 
 class TestPolarVec(TestCase):

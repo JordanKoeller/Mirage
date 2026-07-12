@@ -5,7 +5,11 @@ from functools import cached_property
 from matplotlib.backend_bases import MouseEvent, KeyEvent
 
 from mirage.calc import Engine
-from mirage.lens_analysis.result import ExperimentResult, SimulationResult, InMemorySimulationResult
+from mirage.lens_analysis.result import (
+    ExperimentResult,
+    SimulationResult,
+    InMemorySimulationResult,
+)
 from mirage.util import VariantKey, Vec2D, Region, PixelRegion
 
 
@@ -26,7 +30,9 @@ class VizState:
     def variant_keys(self) -> list[VariantKey]:
         return self._experiment.keys
 
-    def simulation_result(self, variant_key: VariantKey | None = None) -> SimulationResult:
+    def simulation_result(
+        self, variant_key: VariantKey | None = None
+    ) -> SimulationResult:
         return self._experiment.simulation(
             variant_key or self.variant_keys[self._variant_key_index]
         )
@@ -37,27 +43,28 @@ class VizState:
 
     @property
     def source_region(self) -> Region:
-        return Region(
-            dims=self.simulation_result().simulation.source_region_dimensions)
+        return Region(dims=self.simulation_result().simulation.source_region_dimensions)
 
     @property
     def lens_region(self) -> PixelRegion:
         return self.simulation_result().simulation.get_ray_bundle()
 
-    def next_variant(self, rollover: bool=False) -> bool:
+    def next_variant(self, rollover: bool = False) -> bool:
         """
         Advance to the next variant. Returns False if there are no more variants
         to advance to, in which case this method does nothing.
         """
         if rollover:
-            self._variant_key_index = (self._variant_key_index + 1) % len(self.variant_keys)
+            self._variant_key_index = (self._variant_key_index + 1) % len(
+                self.variant_keys
+            )
             return True
         if self.variant_key == self.variant_keys[-1]:
             return False
         self._variant_key_index += 1
         return True
 
-    def prev_variant(self, rollover: bool=False) -> bool:
+    def prev_variant(self, rollover: bool = False) -> bool:
         """
         Move to the previous variant. Returns False if already on the first
         variant, in which case this method does nothing.
@@ -71,6 +78,7 @@ class VizState:
         self._variant_key_index -= 1
         return True
 
+
 @dataclass
 class RealtimeParameters:
     """
@@ -82,8 +90,10 @@ class RealtimeParameters:
         provided any computed results are saved here in addition to them being
         visualized. If not specified, results are not saved to disk.
     """
+
     engine: str = "dask"
-    save_to: str | None = None 
+    save_to: str | None = None
+
 
 @dataclass
 class RealTimeVizState:
@@ -119,8 +129,7 @@ class RealTimeVizState:
 
     @property
     def source_region(self) -> Region:
-        return Region(
-            dims=self.simulation.source_region_dimensions)
+        return Region(dims=self.simulation.source_region_dimensions)
 
     @property
     def lens_region(self) -> Region:
@@ -144,7 +153,9 @@ class RealTimeVizState:
         Returns a boolean indicating if the Simulation was scheduled or not.
         """
         self.ingest_results()
-        if self._pending_results != 0: # Still inflight work, can't start a new simulation.
+        if (
+            self._pending_results != 0
+        ):  # Still inflight work, can't start a new simulation.
             return False
         self.simulation = simulation
         self._pending_results = self.engine.start_run_simulation(self.simulation)

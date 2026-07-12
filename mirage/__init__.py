@@ -3,6 +3,7 @@ Mirage
 ======
 
 This is the main module for defining and simulating gravitational lensed systems."""
+
 from mirage.calc import *
 from mirage.sim import *
 from mirage.model import *

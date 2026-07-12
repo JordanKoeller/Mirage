@@ -18,6 +18,7 @@ from mirage.viz.viz_state import VizState, VizEvent, Panel
 from mirage.viz.controller import Controller
 from mirage.util import Index2D, VariantKey, Vec2D
 
+
 class MagMapController(Controller):
     @dataclass
     class _LineState:
@@ -50,7 +51,9 @@ class MagMapController(Controller):
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
         artists = []
         try:
-            reducer = self.find_reducer(state, MagnificationMapReducer, reducer_name = self._reducer_name)
+            reducer = self.find_reducer(
+                state, MagnificationMapReducer, reducer_name=self._reducer_name
+            )
         except ValueError:
             return artists
         magnitudes = reducer.magnitudes
@@ -64,20 +67,25 @@ class MagMapController(Controller):
                 norm=colors.TwoSlopeNorm(vcenter=0.0),
                 cmap=colormap,
                 extent=(
-                    tl.x.value, # left
-                    br.x.value, # right
-                    br.y.value, # bottom
-                    tl.y.value, # top
+                    tl.x.value,  # left
+                    br.x.value,  # right
+                    br.y.value,  # bottom
+                    tl.y.value,  # top
                 ),
             )
         else:
             self._img.set(array=magnitudes)
-        self.request_bounds(MirageAxes.IMAGE, tl.x.value, br.x.value, br.y.value, tl.y.value)
+        self.request_bounds(
+            MirageAxes.IMAGE, tl.x.value, br.x.value, br.y.value, tl.y.value
+        )
         artists.append(self._img)
 
         if self._colorbar is None:
             self._colorbar = window.figure.colorbar(
-                self._img, ax=window.im_axes, pad=0.01, fraction=0.05,
+                self._img,
+                ax=window.im_axes,
+                pad=0.01,
+                fraction=0.05,
                 location="bottom",
             )
             self._colorbar.set_label("Magnitudes")
@@ -93,15 +101,20 @@ class MagMapController(Controller):
                     artists.append(lightcurve)
                 continue
             was_drawn = self._draw_lightcurve_artist(
-                ind, 
+                ind,
                 variant_key,
                 variant_key == state.variant_key,
-                self.find_reducer(state, MagnificationMapReducer, variant_key=variant_key),
-                window)
+                self.find_reducer(
+                    state, MagnificationMapReducer, variant_key=variant_key
+                ),
+                window,
+            )
             if was_drawn:
                 artists.append(self._lightcurves[variant_key])
                 legend_handles.append(self._lightcurves[variant_key])
-        self._legend = window.line_axes.legend(handles=list(legend_handles), loc="upper right")
+        self._legend = window.line_axes.legend(
+            handles=list(legend_handles), loc="upper right"
+        )
         artists.append(self._legend)
 
         return artists
@@ -156,7 +169,6 @@ class MagMapController(Controller):
             return True
         return False, False
 
-
     def _get_line_artist(self, window: VizWindow) -> Iterable[Artist]:
         artists = []
         if self._line_state is None:
@@ -186,14 +198,14 @@ class MagMapController(Controller):
         artist = self._lightcurves[variant_key]
         artist.set_visible(False)
         return artist
-    
+
     def _draw_lightcurve_artist(
         self,
         ind: int,
         variant_key: VariantKey,
         primary: bool,
         reducer: MagnificationMapReducer,
-        window: VizWindow
+        window: VizWindow,
     ) -> bool:
         """
         Renders a lightcurve to the window.line_axes, returning a boolean if a line was drawn or not.
@@ -203,23 +215,29 @@ class MagMapController(Controller):
         unit = ""
         if self._line_state and not self._line_state.dragging:
             slice_x, slice_y = reducer.slice(
-                Vec2D(self._line_state.start_x.value, self._line_state.start_y.value, self._line_state.unit),
-                Vec2D(self._line_state.end_x.value, self._line_state.end_y.value, self._line_state.unit),
+                Vec2D(
+                    self._line_state.start_x.value,
+                    self._line_state.start_y.value,
+                    self._line_state.unit,
+                ),
+                Vec2D(
+                    self._line_state.end_x.value,
+                    self._line_state.end_y.value,
+                    self._line_state.unit,
+                ),
             )
             unit = str(slice_x.unit)
             slice_x = slice_x.value
         if variant_key not in self._lightcurves:
             self._lightcurves[variant_key] = window.line_axes.plot(
-                slice_x,
-                slice_y,
-                label=str(variant_key),
-                alpha=1.0 if primary else 0.25)[0]
+                slice_x, slice_y, label=str(variant_key), alpha=1.0 if primary else 0.25
+            )[0]
             window.line_axes.set_xlabel(unit)
             window.line_axes.set_ylabel("Magnitudes")
         else:
             self._lightcurves[variant_key].set_data(
-                    slice_x,
-                    slice_y,
+                slice_x,
+                slice_y,
             )
             self._lightcurves[variant_key].set_visible(True)
             self._lightcurves[variant_key].set_alpha(1.0 if primary else 0.25)
@@ -230,10 +248,10 @@ class MagMapController(Controller):
             0,
             slice_x[-1],
             np.min(np.nan_to_num(slice_y, nan=0, posinf=0, neginf=0)),
-            np.max(np.nan_to_num(slice_y, nan=0, posinf=0, neginf=0)))
+            np.max(np.nan_to_num(slice_y, nan=0, posinf=0, neginf=0)),
+        )
         return True
 
     def _toggle_show_all(self) -> None:
         self._show_all_lines = not self._show_all_lines
         self.request_draw()
-

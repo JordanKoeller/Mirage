@@ -11,8 +11,6 @@ from mirage.util import Region, Vec2D, Index2D, VariantKey
 from mirage.io import ResultFileManager
 
 
-
-
 class TestLightCurvesReducer(TestCase):
     def setUp(self):
         plt.cla()

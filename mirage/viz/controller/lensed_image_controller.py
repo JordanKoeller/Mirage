@@ -1,24 +1,17 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Iterable
 
-from astropy import units as u
-
-from matplotlib import pyplot as plt
-from matplotlib.lines import Line2D
-from matplotlib import colors
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
-from matplotlib.widgets import AxesWidget, Button, CheckButtons
+from matplotlib.widgets import AxesWidget, CheckButtons
 import numpy as np
 
-from mirage.viz.window import VizWindow, MirageAxes
+from mirage.viz.window import VizWindow
+from mirage.calc import Reducer
 from mirage.calc.reducers import LensedImageReducer
 from mirage.calc.reducer_funcs import draw_lensed_image
-from mirage.viz.viz_state import VizState, VizEvent, Panel
+from mirage.viz.viz_state import VizState, VizEvent
 from mirage.viz.controller import Controller
-from mirage.util import Index2D, VariantKey, Vec2D, LabeledStopwatch
 
 _COLOR_PALETTE = {
     "POS_PARITY_START": np.array([245, 0, 66], dtype=np.float64),
@@ -30,6 +23,7 @@ _COLOR_PALETTE = {
 }
 
 _RENDER_QSO = "Render Quasar"
+
 
 class LensedImageController(Controller):
     def __init__(self, reducer_name: str | None = None) -> None:
@@ -57,23 +51,36 @@ class LensedImageController(Controller):
         self.request_draw()
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
-        reducer = self.find_reducer(state, LensedImageReducer, reducer_name = self._reducer_name)
+        reducer = self.find_reducer(
+            state, LensedImageReducer, reducer_name=self._reducer_name
+        )
         artists = []
         data = []
         for i, vk in enumerate(state.variant_keys):
             output = self.find_reducer(state, LensedImageReducer, variant_key=vk).output
             data.append(output)
-            self._normalization_factor = max(np.max(np.abs(reducer.output)), self._normalization_factor)
+            self._normalization_factor = max(
+                np.max(np.abs(reducer.output)), self._normalization_factor
+            )
             if vk == state.variant_key:
                 self._active_ind = i
         artists.append(self._draw_lensed_image(reducer.output, state, window))
-        artists.extend(self._draw_light_curve(data, reducer.unlensed_pixel_count, window))
+        artists.extend(
+            self._draw_light_curve(data, reducer.unlensed_pixel_count, window)
+        )
         artists.extend(self._draw_light_curve_marker(window))
         if self._render_controls[_RENDER_QSO]:
             if self._qso_circle:
-                self._qso_circle.set(center=(reducer.query.x.value, reducer.query.y.value))
+                self._qso_circle.set(
+                    center=(reducer.query.x.value, reducer.query.y.value)
+                )
             else:
-                self._qso_circle = Ellipse((reducer.query.x.value, reducer.query.y.value), width=4, height=4, color=_COLOR_PALETTE["QSO"] / 256)
+                self._qso_circle = Ellipse(
+                    (reducer.query.x.value, reducer.query.y.value),
+                    width=4,
+                    height=4,
+                    color=_COLOR_PALETTE["QSO"] / 256,
+                )
                 window.im_axes.add_artist(self._qso_circle)
             artists.append(self._qso_circle)
         elif self._qso_circle:
@@ -90,7 +97,7 @@ class LensedImageController(Controller):
             ],
             actives=[
                 self._render_controls[_RENDER_QSO],
-            ]
+            ],
         )
         buttons.on_clicked(self._on_button_pressed)
         return [buttons]
@@ -98,7 +105,9 @@ class LensedImageController(Controller):
     def on_event(self, state: VizState, event: VizEvent) -> bool:
         pass
 
-    def _draw_lensed_image(self, img: np.ndarray, state: VizState, window: VizWindow) -> list[Artist]:
+    def _draw_lensed_image(
+        self, img: np.ndarray, state: VizState, window: VizWindow
+    ) -> list[Artist]:
         # self._canvas = img
         if self._canvas is None:
             self._canvas = np.ndarray((*img.shape, 3), dtype=np.uint8)
@@ -109,21 +118,27 @@ class LensedImageController(Controller):
             self._img = window.im_axes.imshow(
                 self._canvas,
                 extent=(
-                    tl.x.value, # left
-                    br.x.value, # right
-                    br.y.value, # bottom
-                    tl.y.value, # top
+                    tl.x.value,  # left
+                    br.x.value,  # right
+                    br.y.value,  # bottom
+                    tl.y.value,  # top
                 ),
             )
         else:
             self._img.set(array=self._canvas)
         return [self._img]
 
-    def _draw_light_curve(self, data: list[np.ndarray], unlensed_pixel_count: int, window: VizWindow) -> list[Artist]:
+    def _draw_light_curve(
+        self, data: list[np.ndarray], unlensed_pixel_count: int, window: VizWindow
+    ) -> list[Artist]:
         if self._lightcurve is None:
-            self._lightcurve = np.array([ -2.5 * np.log10(np.sum(d) / unlensed_pixel_count)  for d in data])
+            self._lightcurve = np.array(
+                [-2.5 * np.log10(np.sum(d) / unlensed_pixel_count) for d in data]
+            )
         if self._lightcurve_plot:
-            self._lightcurve_plot.set_data([i for i in range(len(self._lightcurve))], self._lightcurve)
+            self._lightcurve_plot.set_data(
+                [i for i in range(len(self._lightcurve))], self._lightcurve
+            )
         else:
             self._lightcurve_plot = window.line_axes.plot(self._lightcurve)[0]
         return [self._lightcurve_plot]
@@ -131,18 +146,20 @@ class LensedImageController(Controller):
     def _draw_light_curve_marker(self, window: VizWindow) -> list[Artist]:
         view_ratio = 3
         w = len(self._lightcurve) * 0.02 / view_ratio
-        h = abs((np.max(self._lightcurve) - np.min(self._lightcurve))) * 0.02 * view_ratio
+        h = (
+            abs((np.max(self._lightcurve) - np.min(self._lightcurve)))
+            * 0.02
+            * view_ratio
+        )
         cx = self._active_ind
         cy = self._lightcurve[self._active_ind]
         if not self._lightcurve_marker:
             self._lightcurve_marker = Ellipse((cx, cy), width=w, height=h)
             window.line_axes.add_artist(self._lightcurve_marker)
         else:
-            self._lightcurve_marker.set(center=(cx,cy), width=w, height=h)
+            self._lightcurve_marker.set(center=(cx, cy), width=w, height=h)
         return [self._lightcurve_marker]
 
     def _on_button_pressed(self, label, *args, **kwargs) -> None:
         self._render_controls[label] = not self._render_controls[label]
         self.request_draw()
-
-

@@ -24,9 +24,7 @@ class TestMicrolensingSimulation(TestCase):
             lensed_image_center=Vec2D(0.2, 2.1, "arcsec"),
             ray_count=100_000_000,
             source_region_dimensions=Vec2D(1.2, 1.2, "arcsec"),
-            starfield=Starfield(
-                initial_mass_function=WeidnerKroupa2004(), seed=2
-            ),
+            starfield=Starfield(initial_mass_function=WeidnerKroupa2004(), seed=2),
         )
 
     def testGetRayBundle_success(self):

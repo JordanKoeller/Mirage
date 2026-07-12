@@ -36,14 +36,13 @@ class Reducer(ABC):
         """
 
     @abstractmethod
-    def save(self, reporter: 'mirage.io.ReducerReporter') -> None:
+    def save(self, reporter: "mirage.io.ReducerReporter") -> None:
         """
         Save the result of this reducer to file.
         """
 
-
     @abstractmethod
-    def load(self, reporter: 'mirage.io.ReducerReporter') -> None:
+    def load(self, reporter: "mirage.io.ReducerReporter") -> None:
         """
         Load the result into self from file.
         """

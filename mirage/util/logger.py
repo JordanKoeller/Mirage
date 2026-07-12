@@ -6,52 +6,52 @@ from logging import Logger
 
 logger = logging.getLogger(__name__)
 
-_LOG_FORMAT =  "%(asctime)s [%(processName)13s] %(levelname)5s - %(name)12s | %(message)s"
+_LOG_FORMAT = (
+    "%(asctime)s [%(processName)13s] %(levelname)5s - %(name)12s | %(message)s"
+)
 
-def init_multiprocessing_logger(filename: str, level, queue = None):
-  config = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-      "simple": {"format": _LOG_FORMAT}
-    },
-    "handlers": {
-      "console": {
-        "class": "logging.StreamHandler", 
-        "formatter": "simple",
-        "stream": "ext://sys.stdout",
-        "level": level,
-      },
-      "file": {
-        "class": "logging.FileHandler", 
-        "formatter": "simple",
-        "filename": filename,
-        "level": level,
-      },
-      "queue_handler": {
-          "class": "logging.handlers.QueueHandler",
-          "handlers": [
-            "console",
-            "file",
-          ],
-          "respect_handler_level": True,
-          "level": level,
-          "queue": {
-            "()": "multiprocessing.Queue"
-          },
-      },
-    },
-    "loggers": {
-      "": {  # Root logger
-        "handlers": ["queue_handler"], 
-        "level": level,
-      }
-    },
-  }
-  logging.config.dictConfig(config)
-  queue_handler_logger = logging.getHandlerByName("queue_handler")
-  queue_handler_logger.listener.start()
-  return queue_handler_logger
+
+def init_multiprocessing_logger(filename: str, level, queue=None):
+    config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {"simple": {"format": _LOG_FORMAT}},
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "simple",
+                "stream": "ext://sys.stdout",
+                "level": level,
+            },
+            "file": {
+                "class": "logging.FileHandler",
+                "formatter": "simple",
+                "filename": filename,
+                "level": level,
+            },
+            "queue_handler": {
+                "class": "logging.handlers.QueueHandler",
+                "handlers": [
+                    "console",
+                    "file",
+                ],
+                "respect_handler_level": True,
+                "level": level,
+                "queue": {"()": "multiprocessing.Queue"},
+            },
+        },
+        "loggers": {
+            "": {  # Root logger
+                "handlers": ["queue_handler"],
+                "level": level,
+            }
+        },
+    }
+    logging.config.dictConfig(config)
+    queue_handler_logger = logging.getHandlerByName("queue_handler")
+    queue_handler_logger.listener.start()
+    return queue_handler_logger
+
 
 def bind_logging_to_queue(logging_queue: multiprocessing.Queue):
     """
@@ -60,9 +60,9 @@ def bind_logging_to_queue(logging_queue: multiprocessing.Queue):
     """
     queue_handler = logging.handlers.QueueHandler(logging_queue)
     logging.basicConfig(
-            format="%(message)s", # Only send the message. Other properties are bound on the listener-side.
-            level=logging.NOTSET,
-            handlers=[queue_handler],
+        format="%(message)s",  # Only send the message. Other properties are bound on the listener-side.
+        level=logging.NOTSET,
+        handlers=[queue_handler],
     )
 
 
@@ -84,5 +84,3 @@ class RepeatLogger:
             self.count = 0
             return True
         return False
-
-

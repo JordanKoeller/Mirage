@@ -15,6 +15,7 @@ from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
 from mirage.util import Index2D, VariantKey
 
+
 @dataclass
 class AxesBounds:
     x_min: float
@@ -28,11 +29,11 @@ class AxesBounds:
         self.y_min = min(self.y_min, y_min)
         self.y_max = max(self.y_max, y_max)
 
-    def merge(self, other: 'AxesBounds') -> None:
+    def merge(self, other: "AxesBounds") -> None:
         self.update(other.x_min, other.x_max, other.y_min, other.y_max)
 
-class Controller(ABC):
 
+class Controller(ABC):
     def __init__(self) -> None:
         self.__stale = True
         self.__bounds = {axis: None for axis in MirageAxes}
@@ -49,7 +50,9 @@ class Controller(ABC):
         """
         self.__stale = True
 
-    def do_draw(self, state: VizState, window: VizWindow, force: bool=False) -> tuple[bool, Iterable[Artist]]:
+    def do_draw(
+        self, state: VizState, window: VizWindow, force: bool = False
+    ) -> tuple[bool, Iterable[Artist]]:
         """
         Method called by the render loop to draw this controller.
 
@@ -102,7 +105,6 @@ class Controller(ABC):
         """
         return False
 
-
     def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
         """
         Create and attach any widgets associate with the Controller to the
@@ -112,8 +114,8 @@ class Controller(ABC):
         """
         return []
 
-    def request_bounds(self, axis: MirageAxes,
-        x_min: float, x_max: float, y_min: float, y_max: float
+    def request_bounds(
+        self, axis: MirageAxes, x_min: float, x_max: float, y_min: float, y_max: float
     ) -> None:
         """
         Request the specified MirageAxes have its bounds set to the provided

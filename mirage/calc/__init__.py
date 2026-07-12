@@ -30,14 +30,10 @@ def get_or_create_engine(cluster_config: str | None = None) -> Engine:
             f"Constructed {type(cluster).__name__} cluster from file {cluster_config}"
         )
     except FileNotFoundError, TypeError:
-        logger.warning(
-            "No cluster config file found. Using default local cluster"
-        )
+        logger.warning("No cluster config file found. Using default local cluster")
         cluster = LocalClusterProvider()
 
-    calculator = DaskResultCalculator(
-        cluster_provider=cluster
-    )
+    calculator = DaskResultCalculator(cluster_provider=cluster)
 
     return Engine.create_and_start(calculator)
 

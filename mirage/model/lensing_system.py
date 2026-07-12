@@ -173,9 +173,7 @@ class LensingSystem(ABC):
 
           + u.Quantity: The critical density, in units of solMass / lyr^2.
         """
-        density = (
-            const.c * const.c / (4 * pi * const.G * self.effective_distance)
-        )
+        density = const.c * const.c / (4 * pi * const.G * self.effective_distance)
         return density.to("solMass / lyr2")
 
     def special_units(self):

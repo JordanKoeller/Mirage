@@ -43,16 +43,11 @@ class StructuredEvent:
 
     @property
     def empty(self) -> bool:
-        return (
-            self.value is None or self.event_type == StructuredEventType.EMPTY
-        )
+        return self.value is None or self.event_type == StructuredEventType.EMPTY
 
     @property
     def has_payload(self) -> bool:
-        return (
-            self.value is not None
-            and self.event_type == StructuredEventType.PAYLOAD
-        )
+        return self.value is not None and self.event_type == StructuredEventType.PAYLOAD
 
 
 class StreamState(IntEnum):
@@ -63,8 +58,8 @@ class StreamState(IntEnum):
 
 @dataclass
 class Message(Generic[T]):
-    data: T | None # None on half_close message.
-    half_close: bool = False # True on the half-close message
+    data: T | None  # None on half_close message.
+    half_close: bool = False  # True on the half-close message
 
 
 class BidiStream(Generic[T]):
@@ -75,6 +70,7 @@ class BidiStream(Generic[T]):
     multi-producer / multi-consumer. Only one thread should read from the queue
     or write to the queue at a time.
     """
+
     def __init__(self, forward_queue: Queue, reverse_queue: Queue) -> None:
         self._forward_queue = forward_queue
         self._reverse_queue = reverse_queue
@@ -105,15 +101,13 @@ class BidiStream(Generic[T]):
         if self._forward_queue_state != StreamState.OPEN:
             raise EOFError("Forward queue is closing")
         try:
-            self._forward_queue.put(
-                Message(data=message, half_close=False), blocking)
+            self._forward_queue.put(Message(data=message, half_close=False), blocking)
             return True
         except queue.Full:
             return False
         except (ValueError, OSError):
             self._forward_queue_state = StreamState.SHUTDOWN_COMPLETE
             raise EOFError("Forward queue is closed")
-
 
     def recv(self, blocking: bool = True) -> T | None:
         """
@@ -142,7 +136,6 @@ class BidiStream(Generic[T]):
             raise EOFError("Receiving stream is closed")
         return msg.data
 
-
     def close(self) -> None:
         """
         Half-closes the bidirectional stream.
@@ -162,15 +155,11 @@ class BidiStream(Generic[T]):
 
     def _shutdown(self) -> None:
         try:
-            self._forward_queue.put(
-                Message(data=None, half_close=True), block=True)
+            self._forward_queue.put(Message(data=None, half_close=True), block=True)
         except (ValueError, OSError):
-            logging.error(
-                "Encountered a shutdown forward-queue while trying to close.")
+            logging.error("Encountered a shutdown forward-queue while trying to close.")
         self._forward_queue_state = StreamState.SHUTDOWN_COMPLETE
         self._reverse_queue_state = StreamState.SHUTDOWN_STARTING
-
-
 
 
 @dataclass
@@ -230,26 +219,20 @@ class DuplexChannel:
         Blocking check to receive a message. This method waits a max of 5 minutes
         before timing out and throwing an exception.
         """
-        structured_event: StructuredEvent = self.receiver.get(
-            True, MAX_TIMEOUT * 100
-        )
+        structured_event: StructuredEvent = self.receiver.get(True, MAX_TIMEOUT * 100)
         return self._recv_helper(structured_event)
 
     def close(self):
         try:
             logger.info("Called EventChannel.close()")
-            self.sender.put(
-                StructuredEvent.close_event(needs_response=True), True
-            )
+            self.sender.put(StructuredEvent.close_event(needs_response=True), True)
             self._sender_closed = True
         except Exception as e:
             logger.info("Encountered an error in close-send:\n%s", e)
 
         try:
             while not self.receiver_closed:
-                logger.debug(
-                    "Waiting for close() caller to receiv close response"
-                )
+                logger.debug("Waiting for close() caller to receiv close response")
                 logger.debug(f"With queue {self.receiver.qsize()}")
                 self.recv_blocking()
                 time.sleep(0.1)
@@ -268,16 +251,12 @@ class DuplexChannel:
     def closed(self):
         return self.sender_closed and self.receiver_closed
 
-    def _recv_helper(
-        self, structured_event: StructuredEvent
-    ) -> StructuredEvent:
+    def _recv_helper(self, structured_event: StructuredEvent) -> StructuredEvent:
         if structured_event.closed:
             logger.debug("Recv_blocking got closed response")
             if structured_event.value:  # Needs response
                 logger.debug("Recv sending needs_response=True close event")
-                self.sender.put(
-                    StructuredEvent.close_event(needs_response=False), True
-                )
+                self.sender.put(StructuredEvent.close_event(needs_response=False), True)
                 self._sender_closed = True
                 logger.debug("Response sent")
             self.receiver.close()

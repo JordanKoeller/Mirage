@@ -17,8 +17,11 @@ def experiment_result() -> ExperimentResult:
     fm = ResultFileManager("test/testdata/microlensing_result.zip", "r")
     return ExperimentResult(fm)
 
+
 @pytest.fixture
-def simulation_result(experiment_result: ExperimentResult, radius: int=0) -> SimulationResult:
+def simulation_result(
+    experiment_result: ExperimentResult, radius: int = 0
+) -> SimulationResult:
     """
     Opens the test fixture microlensing_result in read-only mode.
     """
@@ -26,7 +29,6 @@ def simulation_result(experiment_result: ExperimentResult, radius: int=0) -> Sim
 
 
 class TestExperimentResult:
-
     def testLoad(self, experiment_result: ExperimentResult) -> None:
         assert len(experiment_result) == 8
         assert experiment_result.keys == [
@@ -66,10 +68,9 @@ class TestExperimentResult:
             reducer = sim.get_reducer("magmap").output
             plt.imshow(reducer)
             plt.show()
-        
+
 
 class TestSimulationResultResult:
-
     def testLoad(self, simulation_result: SimulationResult) -> None:
         assert len(simulation_result) == 2
         assert simulation_result.reducer_names == ["magmap", "lightcurves"]
@@ -78,4 +79,3 @@ class TestSimulationResultResult:
         magmap = simulation_result.get_reducer("magmap").output
         assert magmap.shape == (512, 512)
         assert np.sum(magmap) > 0
-

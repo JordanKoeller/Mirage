@@ -21,6 +21,7 @@ This file contains the "bare bones" functions and classes.
 
 For standard IMF distributions (Kroupa, Salpeter, etc) or example usage
 please look at starfield.py"""
+
 import pdb
 from typing import Optional
 
@@ -186,9 +187,7 @@ class Imf:
                             # Add in seperation information
 
                             # Only keep companions that are more than the minimum mass
-                            compMasses[ii] = m_comp[
-                                m_comp >= self._mass_limits[0]
-                            ]
+                            compMasses[ii] = m_comp[m_comp >= self._mass_limits[0]]
                             newSystemMasses[ii] += compMasses[ii].sum()
 
                             # Double check for the case when we drop all companions.
@@ -239,9 +238,7 @@ class Imf:
         # Identify multiple systems, calculate number of companions for
         # each
         idx = np.where(newIsMultiple)[0]
-        n_comp_arr = 1 + self.random_number_generator.poisson(
-            (CSF[idx] / MF[idx]) - 1
-        )
+        n_comp_arr = 1 + self.random_number_generator.poisson((CSF[idx] / MF[idx]) - 1)
         primary = newMasses[idx]
 
         # We will deal with each number of multiple system independently. This is
@@ -283,9 +280,7 @@ class Imf:
                     compMasses[idx[tmp[jj]]] = m_comp_tmp[
                         m_comp_tmp >= self._mass_limits[0]
                     ]
-                    newSystemMasses[idx[tmp[jj]]] += compMasses[
-                        idx[tmp[jj]]
-                    ].sum()
+                    newSystemMasses[idx[tmp[jj]]] += compMasses[idx[tmp[jj]]].sum()
 
                     # Double check for the case when we drop all companions.
                     # This happens a lot near the minimum allowed mass.
@@ -631,6 +626,7 @@ class ImfBrokenPowerlaw(Imf):
         else:
             return y * z
 
+
 class AgedIMFBrokenPowerLaw(ImfBrokenPowerlaw):
     def __init__(
         self,
@@ -639,7 +635,7 @@ class AgedIMFBrokenPowerLaw(ImfBrokenPowerlaw):
     ) -> None:
         """
         Generates masses based on the provided IMF, then provides conversions to simulate an aging galaxy like large-mass stars replaced with masses of back holes, neutron stars, etc.
-        
+
         Parameters:
           - distro: IMF Mass Distribution to start with. Can swap in an instance of another IMF to start with a different model.
           - Conversions: dict, where the key is the lower limit of the star mass, value is what those masses get converted to.
@@ -651,57 +647,60 @@ class AgedIMFBrokenPowerLaw(ImfBrokenPowerlaw):
             distro._multi_props,
         )
         self.__conversions = []
-        for k,v in conversions.items():
-            if isinstance(k,str):
+        for k, v in conversions.items():
+            if isinstance(k, str):
                 k = float(k)
-            self.__conversions.append([k,v])
+            self.__conversions.append([k, v])
         self.__conversions = np.array(self.__conversions)
 
     @property
     def conversions(self):
         return self.__conversions
-    
-
 
     def generate_cluster(self, total_mass: float):
         """
-        Generate a cluster of stellar systems with the specified IMF.
-        
-        Randomly sample from an IMF with specified mass
-        limits until the desired total mass is reached. The maximum
-        stellar mass is not allowed to exceed the total cluster mass.
-        The simulated total mass will not be exactly equivalent to the
-        desired total mass; but we will take one star above or below
-        (whichever brings us closer to the desired total) the desired
-        total cluster mass break point.
-        Primary stars are sampled from the IMF, companions are generated
-        based on the multiplicity properties provided.
+            Generate a cluster of stellar systems with the specified IMF.
 
-        Parameters:
-        
-    - total_mass (`float`) : The total mass of the cluster (including companions) in solar masses.
+            Randomly sample from an IMF with specified mass
+            limits until the desired total mass is reached. The maximum
+            stellar mass is not allowed to exceed the total cluster mass.
+            The simulated total mass will not be exactly equivalent to the
+            desired total mass; but we will take one star above or below
+            (whichever brings us closer to the desired total) the desired
+            total cluster mass break point.
+            Primary stars are sampled from the IMF, companions are generated
+            based on the multiplicity properties provided.
 
-        Return:
-        
-    - masses (:class:`np.ndarray`) : List of primary star masses.
-        - format : string so return type matches other generators as a tuple.
-        
+            Parameters:
+
+        - total_mass (`float`) : The total mass of the cluster (including companions) in solar masses.
+
+            Return:
+
+        - masses (:class:`np.ndarray`) : List of primary star masses.
+            - format : string so return type matches other generators as a tuple.
+
         """
         ret_arr = []
         mass_counter = 0.0
         tolerance = 3.0
-        while (total_mass - mass_counter > tolerance):
-            raw_masses = ImfBrokenPowerlaw.generate_cluster(self, total_mass - mass_counter)
+        while total_mass - mass_counter > tolerance:
+            raw_masses = ImfBrokenPowerlaw.generate_cluster(
+                self, total_mass - mass_counter
+            )
             for mass in raw_masses:
                 if mass < self.__conversions[0][0]:
                     ret_arr.append(mass)
                     mass_counter += mass
                 else:
                     index = 0
-                    while (index < len(self.__conversions) and self.__conversions[index][0] < mass):
+                    while (
+                        index < len(self.__conversions)
+                        and self.__conversions[index][0] < mass
+                    ):
                         index += 1
-                    ret_arr.append(self.__conversions[max(index-1,0)][1])
-                    mass_counter += self.__conversions[max(index-1,0)][1]
+                    ret_arr.append(self.__conversions[max(index - 1, 0)][1])
+                    mass_counter += self.__conversions[max(index - 1, 0)][1]
         ret = np.ascontiguousarray(ret_arr)
         return ret
 
@@ -752,17 +751,19 @@ class WeidnerKroupa2004(ImfBrokenPowerlaw):
             rng_seed=rng_seed,
         )
 
+
 class Pooley2012(AgedIMFBrokenPowerLaw):
-    """"
+    """ "
     Modified version of the IMF described by Kroupa_2001. Has the cutoffs described in Pooley_2012.
     """
+
     def __init__(self, rng_seed: Optional[int] = None, multiplicity=None):
-        mass_limits = np.array([0.08,0.5,1.5])
-        powers = np.array([-1.3,-2.7])
+        mass_limits = np.array([0.08, 0.5, 1.5])
+        powers = np.array([-1.3, -2.7])
         AgedIMFBrokenPowerLaw.__init__(
             self,
             distro=ImfBrokenPowerlaw(mass_limits, powers, rng_seed, multiplicity),
-            conversions={0.8:0.6,8:1.4,30:10},
+            conversions={0.8: 0.6, 8: 1.4, 30: 10},
         )
 
 

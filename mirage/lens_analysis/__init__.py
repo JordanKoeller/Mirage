@@ -4,8 +4,21 @@ import os
 from mirage.sim import Simulation, Experiment
 from mirage.calc import get_or_create_engine
 from .result import ExperimentResult, SimulationResult
-from mirage.viz import Viz, VizWindow, VizState, MagMapController, LightcurvesController, DebugController, RealtimeParameters, Controller, create_layers, RealTimeVizState, LensedImageController
+from mirage.viz import (
+    Viz,
+    VizWindow,
+    VizState,
+    MagMapController,
+    LightcurvesController,
+    DebugController,
+    RealtimeParameters,
+    Controller,
+    create_layers,
+    RealTimeVizState,
+    LensedImageController,
+)
 from mirage.io import ResultFileManager
+
 
 def load(filename: str) -> ExperimentResult | Experiment:
     """
@@ -23,10 +36,11 @@ def load(filename: str) -> ExperimentResult | Experiment:
 
     return Experiment.from_yaml(filename)
 
+
 def visualize(
     file_or_result: str | ExperimentResult,
     layers: list[str | Controller] | None = None,
-    realtime_parameters: RealtimeParameters | None = None
+    realtime_parameters: RealtimeParameters | None = None,
 ) -> Viz:
     result: ExperimentResult = file_or_result  # type: ignore
     if isinstance(file_or_result, str):
@@ -34,15 +48,18 @@ def visualize(
     viz_obj = Viz(
         model=VizState(result, 0),
         view=VizWindow(),
-        controllers=create_layers(*(layers or ["Debug", "Magmap", "LensedImageController"])),
+        controllers=create_layers(
+            *(layers or ["Debug", "Magmap", "LensedImageController"])
+        ),
     )
     viz_obj.show()
     return viz_obj, result
 
+
 def visualize_realtime(
     file_or_result: str | ExperimentResult,
     layers: list[str | Controller] | None = None,
-    realtime_parameters: RealtimeParameters  = RealtimeParameters(),
+    realtime_parameters: RealtimeParameters = RealtimeParameters(),
 ) -> Viz:
     result: ExperimentResult = file_or_result  # type: ignore
     if isinstance(file_or_result, str):
@@ -51,7 +68,7 @@ def visualize_realtime(
         model=RealTimeVizState(
             realtime_parameters=realtime_parameters,
             simulation=result.simulations()[0][1],
-            engine=get_or_create_engine()
+            engine=get_or_create_engine(),
         ),
         view=VizWindow(),
         controllers=create_layers(*(layers or ["Debug", "LensedImageController"])),

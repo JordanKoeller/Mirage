@@ -30,15 +30,21 @@ class Starfield:
         Returns:
           (masses, positions)
         """
-        return _get_starfield(self.initial_mass_function, self.seed, total_mass, region_radius)
+        return _get_starfield(
+            self.initial_mass_function, self.seed, total_mass, region_radius
+        )
+
 
 def _reset_rng(self, seed: Optional[int] = None):
     self.initial_mass_function.set_seed(seed)
 
+
 @cache
 def _get_starfield(
-    initial_mass_function: ImfBrokenPowerlaw, seed: int,
-    total_mass: u.Quantity, region_radius: u.Quantity,
+    initial_mass_function: ImfBrokenPowerlaw,
+    seed: int,
+    total_mass: u.Quantity,
+    region_radius: u.Quantity,
 ) -> tuple[u.Quantity, u.Quantity]:
     """
     Helper function in calling get_starfield.
@@ -50,15 +56,13 @@ def _get_starfield(
 
     num_stars = total_mass / 0.5
     masses = u.Quantity(
-        initial_mass_function.generate_cluster(
-            total_mass.to("solMass").value
-        ),
+        initial_mass_function.generate_cluster(total_mass.to("solMass").value),
         "solMass",
     )
     num_stars = len(masses)
 
     positions: np.ndarray = np.ndarray(
-        (num_stars, 2), dtype=np.float64, order='F'
+        (num_stars, 2), dtype=np.float64, order="F"
     )  # Buffer where each row is [x, y]
 
     initial_mass_function.set_seed(seed + 1)
@@ -68,9 +72,7 @@ def _get_starfield(
 
     initial_mass_function.set_seed(seed + 2)
     random_thetas = (
-        2
-        * pi
-        * initial_mass_function.random_number_generator.rand(num_stars)
+        2 * pi * initial_mass_function.random_number_generator.rand(num_stars)
     )
 
     positions[:, 0] = random_radii * np.cos(random_thetas)
@@ -79,4 +81,3 @@ def _get_starfield(
     logger.info(f"Generated {num_stars} ({masses.sum()})")
 
     return masses, u.Quantity(positions, region_radius.unit)
-

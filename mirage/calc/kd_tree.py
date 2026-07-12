@@ -44,9 +44,7 @@ class PyKdTree:
         flat_indices = np.array(
             self.tree.query_ball_point([x, y], radius), dtype=np.uint64
         )
-        indices: np.ndarray = np.ndarray(
-            (len(flat_indices), 2), dtype=np.uint64
-        )
+        indices: np.ndarray = np.ndarray((len(flat_indices), 2), dtype=np.uint64)
         indices[:, 0] = flat_indices // self.data_shape[1]
         indices[:, 1] = flat_indices % self.data_shape[1]
         return indices
@@ -67,22 +65,19 @@ class RustKdTree:
     def query_rays(self, query_pos: Vec2D, radius: u.Quantity) -> u.Quantity:
         query_pos = query_pos.to(self.unit)
         radius = radius.to(self.unit)
-        rays = self.tree.query_rays(
-            query_pos.x.value, query_pos.y.value, radius.value
-        )
+        rays = self.tree.query_rays(query_pos.x.value, query_pos.y.value, radius.value)
         return u.Quantity(rays, self.unit)
 
     def query_count(self, x, y, radius) -> int:
         return self.tree.query_count(x, y, radius)
 
-    def query_indicies(
-        self, query_pos: Vec2D, radius: u.Quantity
-    ) -> np.ndarray:
+    def query_indicies(self, query_pos: Vec2D, radius: u.Quantity) -> np.ndarray:
         query_pos = query_pos.to(self.unit)
         radius = radius.to(self.unit)
         return self.tree.query_indices(
             query_pos.x.value, query_pos.y.value, radius.value
         )
+
 
 class FastKdTree:
     def __init__(self, data: u.Quantity, region: PixelRegion, leaf_size: int = 64):
@@ -102,19 +97,20 @@ class FastKdTree:
     def query_count(self, x, y, radius) -> int:
         return self.tree.points_in_circle(x, y, radius)
 
-    def batch_query_count(self, query_points: u.Quantity, radius: u.Quantity) -> np.ndarray:
+    def batch_query_count(
+        self, query_points: u.Quantity, radius: u.Quantity
+    ) -> np.ndarray:
         return self.tree.batch_points_in_circle(
-            query_points.to(self.unit).value,
-            radius.to(self.unit).value
+            query_points.to(self.unit).value, radius.to(self.unit).value
         )
 
-    def query_indices(
-        self, query_pos: Vec2D, radius: u.Quantity
-    ) -> np.ndarray:
+    def query_indices(self, query_pos: Vec2D, radius: u.Quantity) -> np.ndarray:
         """
         Returns the indices of active rays in (x, y) coordinate pairs.
         """
         query_pos = query_pos.to(self.unit)
         radius = radius.to(self.unit)
-        tree_local_inds = self.tree.query_rays(query_pos.x.value, query_pos.y.value, radius.value)
+        tree_local_inds = self.tree.query_rays(
+            query_pos.x.value, query_pos.y.value, radius.value
+        )
         return self.region.unravel(tree_local_inds)

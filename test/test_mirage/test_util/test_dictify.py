@@ -43,9 +43,7 @@ class TestJsonableMixin(TestCase):
 
     def testToDict_recursiveDataclass_success(self):
         sdc = SimpleTestDataclass(23, "abcdefg", [1, 2, 3])
-        cdc = ComplexTestDataclass(
-            "some-field", sdc, {"some_field": 123, "k2": 234}
-        )
+        cdc = ComplexTestDataclass("some-field", sdc, {"some_field": 123, "k2": 234})
         expected = {
             "SomeField": "some-field",
             "SubInstance": {
@@ -80,9 +78,7 @@ class TestJsonableMixin(TestCase):
 
     def testFromDict_withDataclassField_success(self):
         sdc = SimpleTestDataclass(23, "abcdefg", [1, 2, 3])
-        cdc = ComplexTestDataclass(
-            "some-field", sdc, {"some_field": 123, "k2": 234}
-        )
+        cdc = ComplexTestDataclass("some-field", sdc, {"some_field": 123, "k2": 234})
         serialized = Dictify.to_dict(cdc)
 
         deserialized = Dictify.from_dict(ComplexTestDataclass, serialized)
@@ -96,9 +92,7 @@ class TestJsonableMixin(TestCase):
 
         serialized = Dictify.to_dict(dc)
 
-        deserialized = Dictify.from_dict(
-            DataclassWithAbstractMember, serialized
-        )
+        deserialized = Dictify.from_dict(DataclassWithAbstractMember, serialized)
         self.assertEqual(deserialized, dc)
 
     def testToDict_withQuantity_success(self):

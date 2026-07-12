@@ -131,9 +131,7 @@ class Dictify:
                 values_list = [{k: v} for k, v in zip(type_names, values_list)]
             return values_list
         if isinstance(value, dict):
-            return Dictify._sanitize(
-                {k: Dictify.to_dict(v) for k, v in value.items()}
-            )
+            return Dictify._sanitize({k: Dictify.to_dict(v) for k, v in value.items()})
         if is_dataclass(value):
             return Dictify._sanitize(Dictify._dictify_dataclass(value))
         if isinstance(value, (datetime, time, date)):
@@ -169,9 +167,7 @@ class Dictify:
             return custom_serializer.from_dict(dict_obj)
         if isinstance(klass, DictifyMixin) and allow_custom_serializer:
             return klass.from_dict(dict_obj)
-        return Dictify._value_from_dict(
-            klass, dict_obj, allow_custom_serializer
-        )
+        return Dictify._value_from_dict(klass, dict_obj, allow_custom_serializer)
 
     @staticmethod
     def from_yaml(klass: Type[T], yaml_filename: str) -> T:
@@ -215,7 +211,9 @@ class Dictify:
 
     @staticmethod
     def to_yaml(value: T) -> str:
-        return yaml.dump(Dictify._sanitize(Dictify.to_dict(value)), default_flow_style=False)
+        return yaml.dump(
+            Dictify._sanitize(Dictify.to_dict(value)), default_flow_style=False
+        )
 
     @staticmethod
     def _value_from_dict(
@@ -269,9 +267,7 @@ class Dictify:
     def _dataclass_from_dict(klass: Type[T], dict_obj: Dict[str, Any]) -> T:
         field_map = {k.split("_")[0]: v for k, v in dict_obj.items()}
         subtype_map = {
-            k.split("_")[0]: k.split("_")[1]
-            for k in dict_obj
-            if len(k.split("_")) == 2
+            k.split("_")[0]: k.split("_")[1] for k in dict_obj if len(k.split("_")) == 2
         }
         constructor_args: Dict[str, Any] = {}
         expected_fields = {
@@ -284,14 +280,10 @@ class Dictify:
                 continue
             dict_value = field_map[dict_name]
             if custom_serializer:
-                constructor_args[field.name] = custom_serializer.from_dict(
-                    dict_value
-                )
+                constructor_args[field.name] = custom_serializer.from_dict(dict_value)
             elif isabstract(field.type):  # Find its subtype by name and construct
                 delegate_name = subtype_map[dict_name]
-                subtype = DelegateRegistry.get_typedef(
-                    field.type, delegate_name
-                )
+                subtype = DelegateRegistry.get_typedef(field.type, delegate_name)
                 if subtype:
                     constructor_args[field.name] = Dictify._value_from_dict(
                         subtype, dict_value
@@ -355,15 +347,12 @@ class Dictify:
                         )
                 return values
             return [
-                Dictify._value_from_dict(inner_type, elem)
-                for elem in dictable_value
+                Dictify._value_from_dict(inner_type, elem) for elem in dictable_value
             ]
         if isinstance(klass, Dict):
             k_type, v_type = get_args(klass)
             return {
-                Dictify._value_from_dict(k_type, k): Dictify._value_from_dict(
-                    v_type, v
-                )
+                Dictify._value_from_dict(k_type, k): Dictify._value_from_dict(v_type, v)
                 for k, v in dictable_value.items()
             }
         logger.warning(f"could not parse out python collection type {klass}")
@@ -383,9 +372,7 @@ class Dictify:
             field_value = getattr(obj, field_name, None)
             dict_key = Dictify._to_pascal_case(field_name)
             dict_value = None
-            if isabstract(field.type) and DelegateRegistry.has_supertype(
-                field.type
-            ):
+            if isabstract(field.type) and DelegateRegistry.has_supertype(field.type):
                 # Fields with a abstract-defined type have format "<FieldName>_<Type>"
                 dict_key = f"{dict_key}_{field_value.__class__.__name__}"
             if get_origin(field.type) == list:
@@ -421,6 +408,7 @@ def is_enum(klass) -> bool:
         return issubclass(klass, Enum)
     except BaseException:
         return False
+
 
 class DictifyMixin(ABC):
     @abstractmethod

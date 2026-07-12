@@ -25,9 +25,7 @@ class DelegateRegistry:
             subtype_name = klass.__name__
             if supertype_name not in DelegateRegistry.__delegate_registry:
                 DelegateRegistry.__delegate_registry[supertype_name] = {}
-            DelegateRegistry.__delegate_registry[supertype_name][
-                subtype_name
-            ] = klass
+            DelegateRegistry.__delegate_registry[supertype_name][subtype_name] = klass
         return klass
 
     @staticmethod

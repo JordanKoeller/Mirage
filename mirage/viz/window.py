@@ -23,6 +23,7 @@ presents a secondary view on what is shown in the 2d canvas.
 We can explore decoupling them in the future if there is a usecase, but it is
 not necessary now.
 """
+
 import logging
 import dataclasses
 import enum
@@ -38,16 +39,20 @@ logger = logging.getLogger(__name__)
 
 MAX_LAYERS = 4
 WIDGET_ROWS = MAX_LAYERS + 1
-PADDING=0.08
+PADDING = 0.08
+
 
 class MirageAxes(enum.Enum):
     IMAGE = "IMAGE"
     LINE = "LINE"
 
+
 class VizWindow:
     def __init__(self):
         # General high-level organization
-        self._plot_fig: Figure = plt.figure(clear=True, layout="constrained", figsize=[6.0, 6.0])
+        self._plot_fig: Figure = plt.figure(
+            clear=True, layout="constrained", figsize=[6.0, 6.0]
+        )
         self._plot_axes = self._plot_fig.subplot_mosaic(
             [
                 ["title"],
@@ -62,13 +67,25 @@ class VizWindow:
         )
 
         # UI Input Elements
-        self._widgets_fig = plt.figure(clear=True, layout="constrained", frameon=False, figsize=[6.4, 8.0])
+        self._widgets_fig = plt.figure(
+            clear=True, layout="constrained", frameon=False, figsize=[6.4, 8.0]
+        )
         self._widget_axes = self._widgets_fig.subplot_mosaic(
             [
-              ["title"] * 6,
-              ["previous", "previous", "animate","animate","next","next"],
-              *[[f"l{i}", f"l{i}", f"l{i}", f"l{i}", f"control_l{i}",f"control_l{i}",] for i in range(MAX_LAYERS)],
-              ["text"] * 6
+                ["title"] * 6,
+                ["previous", "previous", "animate", "animate", "next", "next"],
+                *[
+                    [
+                        f"l{i}",
+                        f"l{i}",
+                        f"l{i}",
+                        f"l{i}",
+                        f"control_l{i}",
+                        f"control_l{i}",
+                    ]
+                    for i in range(MAX_LAYERS)
+                ],
+                ["text"] * 6,
             ],
             subplot_kw={"frame_on": True, "xticks": [], "yticks": []},
             height_ratios=[1, 3, *([3] * MAX_LAYERS), 1],
@@ -80,7 +97,6 @@ class VizWindow:
         self._n_button = Button(self._widget_axes["next"], "Next")
         self._a_button = Button(self._widget_axes["animate"], "Animate")
         self._text_box = self._widget_axes["text"].text(0, 1, "")
-
 
         self._plot_axes["image"].invert_yaxis()
 

@@ -15,9 +15,7 @@ class TestPointLens(TestCase):
             velocity_dispersion=u.Quantity(300, "km/s"),
             star_fraction=0.8,
             shear=PolarVec(u.Quantity(0.1, "rad"), u.Quantity(0.2, "rad")),
-            ellipticity=PolarVec(
-                u.Quantity(0.1, "rad"), u.Quantity(0.3, "rad")
-            ),
+            ellipticity=PolarVec(u.Quantity(0.1, "rad"), u.Quantity(0.3, "rad")),
         )
 
     def testEinsteinRadius_success(self):

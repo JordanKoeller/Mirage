@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 ANIMATION_FRAMES_PER_SECOND = 30
 
+
 def _merge_bounds(
     merge_into: dict[MirageAxes, AxesBounds],
     merge_from: dict[MirageAxes, AxesBounds],
@@ -39,6 +40,7 @@ class _ControllerState:
     control_button: Button
     artists: List[Artist]
     widgets: List[AxesWidget]
+
 
 class Viz:
     """
@@ -110,9 +112,7 @@ class Viz:
             controller_state = self._controllers.get(layer_name)
             if not controller_state.enabled:
                 continue
-            consumed = controller_state.controller.on_event(
-                self._model, viz_event
-            )
+            consumed = controller_state.controller.on_event(self._model, viz_event)
             if consumed:
                 break
 
@@ -132,7 +132,9 @@ class Viz:
                     supported = True
                     break
         if not supported:
-            logger.info(f"No compatible reducer found for controller {controller}. Binding as Disabled.")
+            logger.info(
+                f"No compatible reducer found for controller {controller}. Binding as Disabled."
+            )
         logger.info(f"Activating Controller {controller}.")
         layer_name = layer_name or type(controller).__name__
         controller.request_draw()
@@ -150,12 +152,14 @@ class Viz:
                 self._model,
             ),
         )
-        controller_state.control_button.on_clicked(lambda *args: self.toggle_layer(layer_name))
+        controller_state.control_button.on_clicked(
+            lambda *args: self.toggle_layer(layer_name)
+        )
         self._controllers[layer_name] = controller_state
         self._model.layers.append(layer_name)
         controller.reset()
 
-    def draw(self, *args, force: bool=False, **kwargs) -> Iterable[Artist]:
+    def draw(self, *args, force: bool = False, **kwargs) -> Iterable[Artist]:
         artists = []
         artists.extend(self._window.title_artists())
         bounds = None
@@ -166,7 +170,10 @@ class Viz:
             if not controller.enabled:
                 continue
             did_draw, artists = controller.controller.do_draw(
-                self._model, self._window, force=force or new_realtime_result or self._animate)
+                self._model,
+                self._window,
+                force=force or new_realtime_result or self._animate,
+            )
             if did_draw:
                 controller.artists = artists
             artists.extend(controller.artists)
@@ -193,13 +200,15 @@ class Viz:
             for widget in self._controllers[layer_name].widgets:
                 widget.set_active(True)
 
-    def next_simulation(self, rollover: bool=False) -> bool:
+    def next_simulation(self, rollover: bool = False) -> bool:
         if not self._model.next_variant(rollover):
             return False
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
         self._window.set_title(str(self._model.variant_key))
-        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result().simulation))
+        self._window.text_box.set(
+            text=Dictify.to_yaml(self._model.simulation_result().simulation)
+        )
         return True
 
     def prev_simulation(self) -> bool:
@@ -208,7 +217,9 @@ class Viz:
         for k in self._controllers:
             self._controllers[k].controller.request_draw()
         self._window.set_title(str(self._model.variant_key))
-        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result().simulation))
+        self._window.text_box.set(
+            text=Dictify.to_yaml(self._model.simulation_result().simulation)
+        )
         return True
 
     def animate_simulation(self) -> bool:
@@ -222,10 +233,11 @@ class Viz:
             self._window.next_simulation_button.set_active(True)
             self._window.previous_simulation_button.set_active(True)
 
-
     def show(self) -> None:
         self._window.set_title(str(self._model.variant_key))
-        self._window.text_box.set(text=Dictify.to_yaml(self._model.simulation_result().simulation))
+        self._window.text_box.set(
+            text=Dictify.to_yaml(self._model.simulation_result().simulation)
+        )
         self.draw(force=True)
         self._window.show()
 
@@ -249,4 +261,3 @@ class Viz:
                     self._window.line_axes.set_xlim(cx - dx, cx + dx)
                     self._window.line_axes.set_ylim(cy - dy, cy + dy)
             self._bounds[axis] = bounds[axis]
-

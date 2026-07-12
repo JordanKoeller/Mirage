@@ -19,8 +19,3 @@ class MyClass:
     def call_c(self, arg1, **kwargs):
         calls["call_c"] = (self.c, arg1, kwargs)
         return f"{arg1}: {self.a} - {kwargs}"
-
-
-
-
-

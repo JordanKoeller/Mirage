@@ -43,9 +43,11 @@ class TestMicroTracer(TestCase):
             sample_ray, 0.0, 0.0, np.array([1e12]), np.array([[0.0, 0.0]])
         )
         macro_traced = tracer.trace(region)
-        for a, b in zip(micro_traced.flatten().tolist(), macro_traced.value.flatten().tolist()):
-             # less than 1e-7 fractional difference
-            self.assertLess(abs(a-b) / (a + b) / 2, 1e-7)
+        for a, b in zip(
+            micro_traced.flatten().tolist(), macro_traced.value.flatten().tolist()
+        ):
+            # less than 1e-7 fractional difference
+            self.assertLess(abs(a - b) / (a + b) / 2, 1e-7)
 
     def testTrace_stressTest(self):
         region = PixelRegion(
@@ -55,5 +57,9 @@ class TestMicroTracer(TestCase):
         )
         sample_ray = region.pixels.value
         micro_traced = trace_rays(
-            sample_ray, 0.3, 0.2, np.array([1e6, 2e6, 3e6] * 300), np.array([[0.0, 0.0], [-0.1, 0.2], [1.0, 2.3]] * 300)
+            sample_ray,
+            0.3,
+            0.2,
+            np.array([1e6, 2e6, 3e6] * 300),
+            np.array([[0.0, 0.0], [-0.1, 0.2], [1.0, 2.3]] * 300),
         )

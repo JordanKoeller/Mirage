@@ -7,7 +7,15 @@ import logging
 from astropy import units as u
 import yaml
 
-from mirage.util import PixelRegion, Dictify, DelegateRegistry, ObjVariants, VariantKey, VariantDictify, DictifyMixin
+from mirage.util import (
+    PixelRegion,
+    Dictify,
+    DelegateRegistry,
+    ObjVariants,
+    VariantKey,
+    VariantDictify,
+    DictifyMixin,
+)
 from mirage.model import LensingSystem, SourcePlane
 from mirage.calc import Reducer, RayTracer
 
@@ -50,28 +58,22 @@ class Simulation(DictifyMixin):
 
         dict_fields = set(sim_dict.keys())
         macro_fields = {
-            Dictify._to_pascal_case(f.name)
-            for f in fields(MacrolensingSimulation)
+            Dictify._to_pascal_case(f.name) for f in fields(MacrolensingSimulation)
         }
         micro_fields = {
-            Dictify._to_pascal_case(f.name)
-            for f in fields(MicrolensingSimulation)
+            Dictify._to_pascal_case(f.name) for f in fields(MicrolensingSimulation)
         }
         micro_only_fields = micro_fields - macro_fields
         present_micro_fields = dict_fields & micro_only_fields
         with Simulation.units_from_dict(sim_dict):
             if present_micro_fields:
-                micro_sim = Dictify.from_dict(
-                    MicrolensingSimulation, sim_dict, False
-                )
+                micro_sim = Dictify.from_dict(MicrolensingSimulation, sim_dict, False)
                 if micro_sim:
                     return micro_sim  # type: ignore
                 raise ValueError(
                     "Tried to construct a MicrolensingSimulation but got None instead"
                 )
-            macro_sim = Dictify.from_dict(
-                MacrolensingSimulation, sim_dict, False
-            )
+            macro_sim = Dictify.from_dict(MacrolensingSimulation, sim_dict, False)
             if macro_sim:
                 return macro_sim  # type: ignore
             raise ValueError(
@@ -130,17 +132,19 @@ class Simulation(DictifyMixin):
     def copy(self) -> "Simulation":
         return copy.deepcopy(self)
 
-class Experiment(ObjVariants[Simulation]):
 
+class Experiment(ObjVariants[Simulation]):
     def simulations(self) -> list[tuple[VariantKey, Simulation]]:
         return list(self._objs.items())
 
     @classmethod
-    def from_dict(cls, dict_obj: dict[str, Any]) -> 'Experiment':
-        return VariantDictify.from_dict(Simulation, dict_obj, variant_container=Experiment)
+    def from_dict(cls, dict_obj: dict[str, Any]) -> "Experiment":
+        return VariantDictify.from_dict(
+            Simulation, dict_obj, variant_container=Experiment
+        )
 
     @classmethod
-    def from_yaml(cls, yaml_filename: str) -> 'Experiment':
+    def from_yaml(cls, yaml_filename: str) -> "Experiment":
         with open(yaml_filename) as f:
             yaml_str = f.read()
             dict_obj = yaml.load(yaml_str, yaml.CLoader)

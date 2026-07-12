@@ -10,11 +10,11 @@ from mirage.calc.reducers import LightCurvesReducer
 from mirage.viz.controller import Controller
 from mirage.viz.viz_state import VizState, VizEvent, Panel
 
-_NON_SELECTED_COLOR = 'b'
-_SELECTED_COLOR = 'g'
+_NON_SELECTED_COLOR = "b"
+_SELECTED_COLOR = "g"
+
 
 class LightcurvesController(Controller):
-
     def __init__(self, reducer_name: str | None = None) -> None:
         Controller.__init__(self)
         self._reducer_name = reducer_name
@@ -27,7 +27,7 @@ class LightcurvesController(Controller):
     def reset(self) -> None:
         self._lines: list[Line2D] = []
         self._lightcurves: dict[str, Artist] = {}
-        self._selected_line = -1 # index in self._lines of selected line
+        self._selected_line = -1  # index in self._lines of selected line
         self._show_all_lines = False
 
     def draw(self, state: VizState, window: VizWindow) -> Iterable[Artist]:
@@ -37,7 +37,9 @@ class LightcurvesController(Controller):
         except ValueError:
             return artists
         tl, br = state.source_region.to("uas").span
-        self.request_bounds(MirageAxes.IMAGE, tl.x.value, br.x.value, br.y.value, tl.y.value)
+        self.request_bounds(
+            MirageAxes.IMAGE, tl.x.value, br.x.value, br.y.value, tl.y.value
+        )
         if len(self._lines) == 0:
             for lightcurve in reducer.lightcurves:
                 line = Line2D(
@@ -64,15 +66,20 @@ class LightcurvesController(Controller):
             if not self._show_all_lines and state.variant_key != variant_key:
                 continue
             was_drawn = self._get_lightcurve_artist(
-                ind, 
+                ind,
                 variant_key,
                 variant_key == state.variant_key,
-                self.find_reducer(state, LightCurvesReducer, variant_key=variant_key).lightcurves[self._selected_line],
-                window)
+                self.find_reducer(
+                    state, LightCurvesReducer, variant_key=variant_key
+                ).lightcurves[self._selected_line],
+                window,
+            )
             if was_drawn:
                 artists.append(self._lightcurves[variant_key])
                 legend_handles.append(self._lightcurves[variant_key])
-        self._legend = window.line_axes.legend(handles=list(legend_handles), loc="upper right")
+        self._legend = window.line_axes.legend(
+            handles=list(legend_handles), loc="upper right"
+        )
         artists.append(self._legend)
         return artists
 
@@ -103,12 +110,13 @@ class LightcurvesController(Controller):
         self._show_all_lines = not self._show_all_lines
         self.request_draw()
 
-    def _get_lightcurve_artist(self,
-                               ind: int,
-                               variant_key: VariantKey,
-                               primary: bool,
-                               lightcurve: Lightcurve,
-                               window: VizWindow,
+    def _get_lightcurve_artist(
+        self,
+        ind: int,
+        variant_key: VariantKey,
+        primary: bool,
+        lightcurve: Lightcurve,
+        window: VizWindow,
     ) -> bool:
         x = np.linspace(
             0,
@@ -121,12 +129,12 @@ class LightcurvesController(Controller):
                 x,
                 lightcurve.magnitudes,
                 label=str(variant_key),
-                alpha=1.0 if primary else 0.25)[0]
+                alpha=1.0 if primary else 0.25,
+            )[0]
             window.line_axes.set_xlabel(lightcurve.end_pos.unit)
             window.line_axes.set_ylabel("Magnitudes")
         else:
-            self._lightcurves[variant_key].set_data(
-                x, lightcurve.magnitudes)
+            self._lightcurves[variant_key].set_data(x, lightcurve.magnitudes)
             self._lightcurves[variant_key].set_alpha(1.0 if primary else 0.25)
         if len(x) == 0:
             return False
@@ -135,6 +143,6 @@ class LightcurvesController(Controller):
             0,
             x[-1],
             np.min(np.nan_to_num(lightcurve.magnitudes, nan=0, posinf=0, neginf=0)),
-            np.max(np.nan_to_num(lightcurve.magnitudes, nan=0, posinf=0, neginf=0)))
+            np.max(np.nan_to_num(lightcurve.magnitudes, nan=0, posinf=0, neginf=0)),
+        )
         return True
-

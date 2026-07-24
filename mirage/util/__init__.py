@@ -6,6 +6,7 @@ from .event_channel import DuplexChannel, BidiStream
 from .stopwatch import Stopwatch, LabeledStopwatch
 from .conversions import size_to_bytes, bytes_to_size
 from .variant import ObjVariants, VariantKey, VariantDictify
+from .lru_cache import LRUCache
 
 from .custom_serializers import register_serializers
 from .logger import RepeatLogger, init_multiprocessing_logger, bind_logging_to_queue
@@ -43,4 +44,6 @@ __all__ = [
   "init_multiprocessing_logger",
   "bind_logging_to_queue",
   "LabeledStopwatch",
+  "VariantKey",
+  "LRUCache",
 ]

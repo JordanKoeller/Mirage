@@ -3,7 +3,6 @@ from typing import Optional
 import multiprocessing
 import logging
 from dataclasses import dataclass, field
-import time
 
 from dask.distributed import Client, LocalCluster
 from dask_cloudprovider.aws import FargateCluster

@@ -5,9 +5,9 @@ from .kd_tree import FastKdTree as KdTree, PyKdTree, FastKdTree
 
 from .ray_tracer import RayTracer
 from .reducer import Reducer
+from .engine import Engine, ResultKey, ReducerResult, ResultCalculator
 from .reducers import *
 
-from .engine import Engine, ResultCalculator, ResultEvent
 from .dask_result_calculator import DaskResultCalculator
 
 from mirage.util import ClusterProvider, Dictify, LocalClusterProvider
@@ -29,7 +29,7 @@ def get_or_create_engine(cluster_config: str | None = None) -> Engine:
     logger.info(
       f"Constructed {type(cluster).__name__} cluster from file {cluster_config}"
     )
-  except FileNotFoundError, TypeError:
+  except (FileNotFoundError, TypeError):
     logger.warning("No cluster config file found. Using default local cluster")
     cluster = LocalClusterProvider()
 
@@ -45,6 +45,7 @@ __all__ = [
   "RayTracer",
   "Reducer",
   "Engine",
-  "ResultEvent",
+  "ReducerResult",
+  "ResultKey",
   "ResultCalculator",
 ]

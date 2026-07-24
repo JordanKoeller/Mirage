@@ -70,7 +70,7 @@ class VariantKey:
     return hash(str(self))
 
   def __eq__(self, other: object) -> bool:
-    if type(self) != type(other):
+    if type(self) is not type(other):
       return False
     return self._keys == other._keys
 

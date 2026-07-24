@@ -1,21 +1,70 @@
 import os
+from dataclasses import dataclass, field
 import copy
 import tempfile
 import yaml  # type: ignore
 import zipfile
 import io
 import pickle
-from typing import Union, Dict, Any, Literal, Optional
+from typing import Union, Any, Literal, Self
 import logging
 from functools import cache
-import contextlib
 
-from mirage.calc import Reducer
-from mirage.util import Dictify, VariantKey
+from mirage.calc import Reducer, ResultKey
+from mirage.util import VariantKey, LRUCache, DictifyMixin
 from mirage.sim import Experiment
 
 
 logger = logging.getLogger(__name__)
+
+
+def _to_filename(result_key: str, fragment: str) -> str:
+  return os.path.join(result_key, fragment)
+
+
+@dataclass
+class Manifest(DictifyMixin):
+  # Map a ResultKey to the fragments within.
+  entries: dict[str, set[str]] = field(default_factory=dict)
+
+  # Maps from an aliased ResultKey to a ResultKey with the same result.
+  aliases: dict[str, str] = field(default_factory=dict)
+
+  def add_alias(self, new_result: ResultKey, alias_of: ResultKey) -> None:
+    if str(alias_of) not in self.entries:
+      raise ValueError(f"Could not find {alias_of=} in entries.")
+    self.aliases[str(new_result)] = str(alias_of)
+
+  def add_entry(self, result_key: ResultKey, fragment: str) -> str:
+    fragments = self.entries.setdefault(str(result_key), set())
+    if fragment in fragments:
+      return ValueError("fragment already exists")
+    fragments.add(fragment)
+    return _to_filename(str(result_key), fragment)
+
+  def get_filename(self, alias_key: ResultKey, fragment: str) -> str:
+    de_aliased = self.aliases.get(str(alias_key), str(alias_key))
+    if de_aliased not in self.entries:
+      raise ValueError(f"Unrecongized result_key: {alias_key}")
+    if fragment not in self.entries[de_aliased]:
+      raise ValueError(f"Unrecongized fragment: {fragment}")
+    return _to_filename(de_aliased, fragment)
+
+  def de_alias(self, alias_key: ResultKey) -> str:
+    return self.aliases.get(str(alias_key), str(alias_key))
+
+  def to_dict(self) -> dict[str, Any] | list[Any]:
+    return {
+      "entries": {k: list(v) for k, v in self.entries.items()},
+      "aliases": self.aliases,
+    }
+
+  @classmethod
+  def from_dict(cls, dict_obj: dict[str, Any]) -> Self:
+    return cls(
+      entries={k: set(v) for k, v in dict_obj["entries"].items()},
+      aliases=dict_obj["aliases"],
+    )
 
 
 class ResultFileManager:
@@ -60,7 +109,9 @@ class ResultFileManager:
 
   """
 
-  def __init__(self, filename: str, mode: Literal["x", "r"]):
+  def __init__(
+    self, filename: str, mode: Literal["x", "r"], cache: LRUCache | None = None
+  ):
     self.filename = filename
     self.mode = mode
     if mode == "x":
@@ -70,12 +121,13 @@ class ResultFileManager:
       if not os.path.exists(self.filename):
         raise FileNotFoundError(self.filename)
     self.zip_archive = zipfile.ZipFile(self.filename, mode=mode)
-    self.manifest: Dict[int, Dict[str, str]] = {}
+    self.manifest = Manifest()
     self.extracted_dir = None
+    self._read_cache = cache
     if mode == "r":
       self.extracted_dir = tempfile.TemporaryDirectory()
       self.zip_archive.extractall(path=self.extracted_dir.name)
-      self.manifest = self._load("manifest.yaml")  # type: ignore
+      self.manifest = Manifest.from_dict(self._load("manifest.yaml"))  # type: ignore
 
   @classmethod
   def new_loader(cls, filename: str) -> "ResultFileManager":
@@ -95,7 +147,7 @@ class ResultFileManager:
 
   def close(self):
     if self.mode == "x":
-      self._write("manifest.yaml", self.manifest)
+      self._write("manifest.yaml", self.manifest.to_dict())
     self.zip_archive.close()
     if self.extracted_dir:
       self.extracted_dir.cleanup()
@@ -106,7 +158,6 @@ class ResultFileManager:
   def __hash__(self, *args, **kwargs):
     return hash((self.filename, self.mode, id(self.manifest), id(self.zip_archive)))
 
-  @cache
   def load_result(self, reducer_name: str, simulation_key: VariantKey) -> Reducer:
     """
     Load a Reducer result from file and return the populated reducer.
@@ -115,33 +166,37 @@ class ResultFileManager:
 
     TODO: Add some cache eviction behavior so we can still load large results.
     """
-    reducers = self.load_experiment()[simulation_key].reducers
-    for reducer in reducers:
-      if reducer.name == reducer_name:
-        reducer = copy.copy(reducer)
-        reporter = self.result_reporter(reducer.name, simulation_key)
-        reducer.load(reporter)
-        return reducer
-    raise ValueError(
-      f"Could not find reducer with name={reducer_name} in Simulation {simulation_key}"
-    )
 
-  def writer(self, reducer_name: str, variant_key: VariantKey, fragment: str) -> io.IO:
-    filename = self._insert_manifest_entry(reducer_name, variant_key, fragment)
+    result_key = ResultKey(reducer_name, simulation_key)
+
+    def _loader() -> tuple[Reducer, int]:
+      reducers = self.load_experiment()[simulation_key].reducers
+      for reducer in reducers:
+        if reducer.name == reducer_name:
+          reducer = copy.copy(reducer)
+          reporter = self.result_reporter(result_key)
+          reducer.load(reporter)
+          return reducer, reporter.read_bytes
+      raise ValueError(
+        f"Could not find reducer with name={reducer_name} in Simulation {simulation_key}"
+      )
+
+    if self._read_cache is not None:
+      return self._read_cache.lazy_get((self.manifest.de_alias(result_key),), _loader)
+    return _loader()[0]
+
+  def writer(self, result_key: ResultKey, fragment: str) -> io.IO:
+    filename = self._insert_manifest_entry(result_key, fragment)
     return self.zip_archive.open(filename, mode="w")
 
-  def reader(self, reducer_name: str, variant_key: VariantKey, fragment: str) -> io.IO:
-    filename = (
-      self.manifest.get(str(variant_key), {}).get(reducer_name, {}).get(fragment, None)
-    )
-    if filename is None:
-      return ValueError(f"Fragment {fragment} does not exist.")
-    return self.zip_archive.open(filename, mode="r")
+  def reader(self, result_key: ResultKey, fragment: str) -> tuple[io.IO, int]:
+    filename = self.manifest.get_filename(result_key, fragment)
+    zip_info = self.zip_archive.getinfo(filename)
+    reader = self.zip_archive.open(filename, mode="r")
+    return reader, zip_info.file_size
 
-  def result_reporter(
-    self, reducer_name: str, variant_key: VariantKey
-  ) -> "ReducerReporter":
-    return ReducerReporter(reducer_name, variant_key, self)
+  def result_reporter(self, result_key: ResultKey) -> "ReducerReporter":
+    return ReducerReporter(result_key, self)
 
   def _write(self, filename: str, data: Any):
     with self.zip_archive.open(filename, mode="w") as f:
@@ -167,46 +222,31 @@ class ResultFileManager:
       else:
         return pickle.load(f)
 
-  def _insert_manifest_entry(
-    self, reducer_name: str, simulation_key: VariantKey, fragment: str
-  ) -> str:
+  def add_alias(self, from_result_key: ResultKey, to_result_key: ResultKey) -> None:
+    self.manifest.add_alias(to_result_key, from_result_key)
+
+  def _insert_manifest_entry(self, result_key: ResultKey, fragment: str) -> str:
     """
     Inserts a record into the manifest and returns the filename that should
     be used to dump the output
     """
-    simulation_key_str = str(simulation_key)
-    fname = os.path.join(reducer_name.replace("/", "-"), simulation_key_str, fragment)
-    if simulation_key_str in self.manifest:
-      if reducer_name in self.manifest[simulation_key_str]:
-        if fragment in self.manifest[simulation_key_str][reducer_name]:
-          raise ValueError(f"Fragment {fragment} already exists")
-        self.manifest[simulation_key_str][reducer_name][fragment] = fname
-      else:
-        self.manifest[simulation_key_str][reducer_name] = {fragment: fname}
-    else:
-      self.manifest[simulation_key_str] = {reducer_name: {fragment: fname}}
-    return fname
+    return self.manifest.add_entry(result_key, fragment)
 
 
 class ReducerReporter:
-  """ """
-
   def __init__(
     self,
-    reducer_name: str,
-    variant_key: VariantKey,
+    result_key: ResultKey,
     result_file_manager: ResultFileManager,
   ) -> None:
-    self._reducer_name = reducer_name
-    self._variant_key = variant_key
+    self._result_key = result_key
     self._result_file_manager = result_file_manager
+    self.read_bytes = 0  # Number of bytes read
 
   def writer(self, filename: str) -> io.IO:
-    return self._result_file_manager.writer(
-      self._reducer_name, self._variant_key, filename
-    )
+    return self._result_file_manager.writer(self._result_key, filename)
 
   def reader(self, filename: str) -> io.IO:
-    return self._result_file_manager.reader(
-      self._reducer_name, self._variant_key, filename
-    )
+    buf, sz = self._result_file_manager.reader(self._result_key, filename)
+    self.read_bytes += sz
+    return buf

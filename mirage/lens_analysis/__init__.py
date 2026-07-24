@@ -1,21 +1,17 @@
-from typing import Union, Optional
 import os
 
-from mirage.sim import Simulation, Experiment
+from mirage.sim import Experiment
 from mirage.calc import get_or_create_engine
-from .result import ExperimentResult, SimulationResult
+from mirage.util import LRUCache
+from .result import ExperimentResult
 from mirage.viz import (
   Viz,
   VizWindow,
   VizState,
-  MagMapController,
-  LightcurvesController,
-  DebugController,
   RealtimeParameters,
   Controller,
   create_layers,
   RealTimeVizState,
-  LensedImageController,
 )
 from mirage.io import ResultFileManager
 
@@ -32,7 +28,7 @@ def load(filename: str) -> ExperimentResult | Experiment:
   if not os.path.exists(filename):
     raise ValueError(f"File not found: {filename}")
   if filename.endswith(".zip"):
-    return ExperimentResult(ResultFileManager(filename, "r"))
+    return ExperimentResult(ResultFileManager(filename, "r", LRUCache("4GB")))
 
   return Experiment.from_yaml(filename)
 

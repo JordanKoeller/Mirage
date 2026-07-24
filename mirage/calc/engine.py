@@ -22,9 +22,22 @@ _STREAM_BUFFER_SZ = 4
 
 
 @dataclass
-class ResultEvent:
-  result: object
+class ResultKey:
+  reducer_name: str
   simulation_key: VariantKey
+
+  def __str__(self, *args, **kwargs) -> str:
+    return f"ResultKey(reducer_name={self.reducer_name}, simulation_key={self.simulation_key})"
+
+  def __repr__(self, *args, **kwargs) -> str:
+    return str(self)
+
+
+@dataclass
+class ReducerResult:
+  result_key: ResultKey
+  reducer: Reducer
+  cache_key: ResultKey | None = None
 
 
 class ResultCalculator(ABC):
@@ -64,7 +77,7 @@ class _CachingResultCalculator(ResultCalculator):
     self.ray_traced_simulation = None
     self.simulation_cache_misses = -1
     self.reducer_dups = 0
-    self.computed_reducers = []
+    self.computed_reducers: list[tuple[Simulation, ReducerResult]] = []
 
   def initialize(self) -> None:
     self.result_calculator.initialize()
@@ -79,16 +92,21 @@ class _CachingResultCalculator(ResultCalculator):
     self.result_calculator.raytrace(simulation)
     self.simulation_cache_misses += 1
 
-  def apply_reducer(self, simulation: Simulation, reducer: Reducer) -> Reducer:
-    for sim, computed_reducer in self.computed_reducers:
+  def apply_reducer(
+    self, simulation: Simulation, reducer: Reducer, result_key: ResultKey
+  ) -> ReducerResult:
+    for sim, reducer_result in self.computed_reducers:
       if sim.is_similar(simulation) and Dictify.to_dict(reducer) == Dictify.to_dict(
-        computed_reducer
+        reducer_result.reducer
       ):
         self.reducer_dups += 1
-        return computed_reducer
+        return ReducerResult(
+          result_key, reducer_result.reducer, cache_key=reducer_result.result_key
+        )
     computed_reducer = self.result_calculator.apply_reducer(simulation, reducer)
-    self.computed_reducers.append((simulation, computed_reducer))
-    return computed_reducer
+    result = ReducerResult(result_key, computed_reducer)
+    self.computed_reducers.append((simulation, result))
+    return result
 
 
 class Engine:
@@ -182,7 +200,7 @@ class Engine:
       return 0
     return len(simulation.get_reducers())
 
-  def get_result(self, blocking: bool = False) -> ResultEvent | None:
+  def get_result(self, blocking: bool = False) -> ReducerResult | None:
     """
     Fetch result from the engine once it's calculated. This is non-blocking
     by default.
@@ -207,7 +225,7 @@ class Engine:
 
     # Start the calculation
     logger.info(
-      f"Initializing Calculator: %s", type(calculator.result_calculator).__name__
+      "Initializing Calculator: %s", type(calculator.result_calculator).__name__
     )
     calculator.initialize()
     while True:
@@ -225,7 +243,7 @@ class Engine:
         logger.info("Received EOF. Ending EngineProcess")
         return
       except BaseException as e:
-        logger.error(f"Encountered an exception: %s.", e)
+        logger.error("Encountered an exception: %s.", e)
         stream.send(e)
         return
       finally:
@@ -238,7 +256,6 @@ class Engine:
     timer = Stopwatch()
     timer.start()
     num_simulations = 0
-    simulation_cache_misses = -1  # We don't call the first simulation a cache miss.
     computed_reducers = 0
     try:
       for key, simulation in Engine._get_simulations_grouped(experiment):
@@ -275,8 +292,10 @@ class Engine:
     count = 0
     for reducer in simulation.get_reducers():
       count += 1
-      result = calculator.apply_reducer(simulation, reducer)
-      stream.send(ResultEvent(result, key), blocking=True)
+      result = calculator.apply_reducer(
+        simulation, reducer, ResultKey(reducer.name, key)
+      )
+      stream.send(result, blocking=True)
     return count
 
   @staticmethod

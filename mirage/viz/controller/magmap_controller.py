@@ -13,10 +13,12 @@ from matplotlib.widgets import AxesWidget, Button
 import numpy as np
 
 from mirage.viz.window import VizWindow, MirageAxes
+from mirage.viz.viz_settings import VizConfig
 from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
 from mirage.viz.controller import Controller
 from mirage.util import Index2D, VariantKey, Vec2D
+from mirage.settings import load_settings
 
 
 class MagMapController(Controller):
@@ -58,7 +60,9 @@ class MagMapController(Controller):
       return artists
     magnitudes = reducer.magnitudes
 
-    colormap = plt.get_cmap("RdBu")
+    settings = load_settings(VizConfig)
+
+    colormap = plt.get_cmap(settings.colormap)
 
     tl, br = reducer.source_region.to("uas").span
     if self._img is None:

@@ -2,19 +2,15 @@ import argparse
 import logging
 import tempfile
 import os
-import sys
 from typing import Literal, Optional
 from functools import cached_property
 
 from mirage.sim import Experiment
 from mirage.util import (
-  Dictify,
-  ClusterProvider,
-  LocalClusterProvider,
   Stopwatch,
   init_multiprocessing_logger,
 )
-from mirage.calc import get_or_create_engine
+from mirage.calc import Engine
 from mirage.io import ResultFileManager
 
 
@@ -152,7 +148,7 @@ class MirageMain:
     timer = Stopwatch()
     timer.start()
 
-    engine = get_or_create_engine(self.args.cluster[0])
+    engine = Engine.create_default()
 
     serializer = ResultFileManager(self.output_file, "x")
     serializer.dump_experiment(experiment)

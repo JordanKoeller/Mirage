@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 
 from mirage.sim import Experiment
 from mirage.calc import get_or_create_engine
@@ -12,8 +13,10 @@ from mirage.viz import (
   Controller,
   create_layers,
   RealTimeVizState,
+  VizConfig,
 )
 from mirage.io import ResultFileManager
+from mirage.settings import load_settings
 
 
 def load(filename: str) -> ExperimentResult | Experiment:
@@ -25,10 +28,13 @@ def load(filename: str) -> ExperimentResult | Experiment:
 
   If an ExperimentResult, the result is loaded in read-only mode.
   """
+  viz_config = load_settings(VizConfig)
   if not os.path.exists(filename):
     raise ValueError(f"File not found: {filename}")
   if filename.endswith(".zip"):
-    return ExperimentResult(ResultFileManager(filename, "r", LRUCache("4GB")))
+    return ExperimentResult(
+      ResultFileManager(filename, "r", LRUCache(viz_config.io_cache_size))
+    )
 
   return Experiment.from_yaml(filename)
 
@@ -41,12 +47,11 @@ def visualize(
   result: ExperimentResult = file_or_result  # type: ignore
   if isinstance(file_or_result, str):
     result = load(file_or_result)
+  viz_config = load_settings(VizConfig)
   viz_obj = Viz(
     model=VizState(result, 0),
     view=VizWindow(),
-    controllers=create_layers(
-      *(layers or ["Debug", "Magmap", "LensedImageController"])
-    ),
+    controllers=create_layers(*(layers or viz_config.default_layers)),
   )
   viz_obj.show()
   return viz_obj, result

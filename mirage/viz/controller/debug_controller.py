@@ -116,6 +116,5 @@ class DebugController(Controller):
     return [buttons]
 
   def _on_button_pressed(self, label, *args, **kwargs) -> None:
-    print("Updating controller state", label)
     self._render_controls[label] = not self._render_controls[label]
     self.request_draw()

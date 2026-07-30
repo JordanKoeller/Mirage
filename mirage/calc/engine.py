@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import functools
 from abc import ABC, abstractmethod
 from typing import Iterator, Self
 import logging
@@ -14,7 +15,10 @@ from mirage.util import (
   VariantKey,
   bind_logging_to_queue,
   Dictify,
+  ClusterProvider,
+  LocalClusterProvider
 )
+from mirage.settings import load_settings
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +160,19 @@ class Engine:
   def __init__(self, stream: BidiStream, engine_process: Process) -> None:
     self._stream = stream
     self._engine_process = engine_process
+
+  @classmethod
+  @functools.cache
+  def create_default(cls) -> Self:
+    from mirage.calc.dask_result_calculator import DaskResultCalculator
+    cluster_provider = None
+    try:
+      cluster_provider = load_settings(ClusterProvider)
+    except (EnvironmentError, ValueError):
+      cluster_provider = LocalClusterProvider()
+    dask_result_calculator = DaskResultCalculator(cluster_provider)
+    return cls.create_and_start(dask_result_calculator)
+
 
   @classmethod
   def create_and_start(cls, calculator: ResultCalculator) -> Self:

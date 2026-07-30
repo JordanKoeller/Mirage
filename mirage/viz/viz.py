@@ -6,15 +6,15 @@ from matplotlib import animation
 from matplotlib.artist import Artist
 from matplotlib.widgets import AxesWidget, Button, CheckButtons
 
+from mirage.settings import load_settings
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.viz.controller import Controller, AxesBounds
 from mirage.util import Vec2D, Dictify, LabeledStopwatch
+from mirage.viz.viz_settings import VizConfig
 
 
 logger = logging.getLogger(__name__)
-
-ANIMATION_FRAMES_PER_SECOND = 30
 
 
 def _merge_bounds(
@@ -83,10 +83,12 @@ class Viz:
 
     self.show()
 
+    config = load_settings(VizConfig)
+
     self._animation = animation.FuncAnimation(
       self._window.figure,
       self.draw,
-      interval=1000 / ANIMATION_FRAMES_PER_SECOND,
+      interval=1000 / config.max_fps,
       # blit=True,
       cache_frame_data=False,
     )

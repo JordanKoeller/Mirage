@@ -39,6 +39,7 @@ from .controller import (
   LensedImageController,
 )
 from .viz_state import VizState, Panel, VizEvent, RealtimeParameters, RealTimeVizState
+from .viz_settings import VizConfig
 
 _CONTROLLERS = {
   "MagMapController": MagMapController,
@@ -77,4 +78,5 @@ __all__ = [
   "MirageAxes",
   "RealTimeVizState",
   "create_layers",
+  "VizConfig"
 ]

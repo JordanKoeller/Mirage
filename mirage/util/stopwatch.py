@@ -1,4 +1,5 @@
 from datetime import datetime
+from contextlib import contextmanager
 
 from logging import Logger
 
@@ -21,6 +22,12 @@ class Stopwatch:
   def reset(self):
     self._start_times = []
     self._end_times = []
+
+  @contextmanager
+  def timeit(self):
+      self.start()
+      yield
+      self.stop()
 
   def total_elapsed_seconds(self) -> float:
     start = self._start_times[0]
@@ -48,6 +55,13 @@ class Stopwatch:
 class LabeledStopwatch:
   def __init__(self):
     self.watches: dict[str, Stopwatch] = {}
+
+  @contextmanager
+  def timeit(self, label: str):
+      stopwatch = self.get_or_create_stopwatch(label)
+      stopwatch.start()
+      yield
+      stopwatch.stop()
 
   def get_or_create_stopwatch(self, label: str) -> Stopwatch:
     if label not in self.watches:

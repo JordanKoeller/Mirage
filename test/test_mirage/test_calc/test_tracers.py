@@ -53,10 +53,8 @@ class TestMicroTracer(TestCase):
     tracers = [(trace_rays,()), (micro_ray_trace, (1,))]
     watches = LabeledStopwatch()
     for t, args in tracers:
-        watch = watches.get_or_create_stopwatch(t.__name__)
-        watch.start()
-        self._stressTestTracer(t, *args)
-        watch.stop()
+        with watches.timeit(t.__name__):
+            self._stressTestTracer(t, *args)
     print("\n============ Runtimes ================")
     watches.print()
 

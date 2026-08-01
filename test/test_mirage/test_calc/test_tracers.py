@@ -4,7 +4,7 @@ from astropy import units as u
 import numpy as np
 
 from mirage.calc.tracers import PointLensTracer
-from mirage.util import PixelRegion, Vec2D
+from mirage.util import PixelRegion, Vec2D, LabeledStopwatch
 from mirage.model import Quasar
 from mirage.model.impl import PointLens
 from mirage.calc.tracers.micro_tracer_helper import micro_ray_trace
@@ -50,16 +50,29 @@ class TestMicroTracer(TestCase):
       self.assertLess(abs(a - b) / (a + b) / 2, 1e-7)
 
   def testTrace_stressTest(self):
+    tracers = [(trace_rays,()), (micro_ray_trace, (1,))]
+    watches = LabeledStopwatch()
+    for t, args in tracers:
+        watch = watches.get_or_create_stopwatch(t.__name__)
+        watch.start()
+        self._stressTestTracer(t, *args)
+        watch.stop()
+    print("\n============ Runtimes ================")
+    watches.print()
+
+
+  def _stressTestTracer(self, tracer_func, *args):
     region = PixelRegion(
       dims=Vec2D(5, 55, "arcsec"),
       center=Vec2D.zero_vector("arcsec"),
       resolution=Vec2D.unitless(2000, 2000),
     )
     sample_ray = region.pixels.value
-    micro_traced = trace_rays(
+    tracer_func(
       sample_ray,
       0.3,
       0.2,
       np.array([1e6, 2e6, 3e6] * 300),
       np.array([[0.0, 0.0], [-0.1, 0.2], [1.0, 2.3]] * 300),
+      *args,
     )

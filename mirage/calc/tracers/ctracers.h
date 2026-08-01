@@ -1,3 +1,48 @@
+/*
+ *
+ * SIMD Layout
+ * ray positions are in a contiguous buffer of x, y values
+ *
+ * rays_x = [x1, x2, x3, ...]
+ * rays_y = [y1, y2, y3, ...]
+ *
+ * stars_x = [sx1, sx2, sx3, ...]
+ * stars_y = [sy1, sy2, sy3, ...]
+ * stars_m = [sm1, sm2, sm3, ...]
+ *
+ *
+ * Note that it is safe to assume that there are far fewer stars than rays.
+ *
+ * Additionally, there are a lot of repetitive values in rays_x and rays_y. since they
+ * form a grid that's the cartesian product of x and y strides.
+ *
+ * The basic algorithm is
+ *
+ * for (x, y) in zip(rays_x, rays_y):
+ *   ax = x_0 # From kap / gam
+ *   ay = y_0 # From kap / gam
+ *   for (sx, sy, sm) in zip(stars_x, stars_y, stars_m):
+ *     dx = sx - x
+ *     dy = sy - y
+ *     r2 = dx * dx + dy * dy
+ *     ax += sm * dx / r2
+ *     ay += sm * dy / r2
+ *  x = ax
+ *  y = ax
+ *
+ *  Optimizations:
+ *
+ *  1. I can compute ax, ay via simd operations, then do a final reduction of the 
+ *     simd elements at the end.
+ *     Payoff: 1/vec_size sequential operations
+ *     Tradeoff: Have to make a copy of stars_x, stars_y, stars_m to get aligned
+ *       buffers (this is fixable). Complexity
+ *  2. I can pre-calculate dx, dy on the sparse arrays.
+ *     Payoff:  M * N * S subtractions => (M + N) * S subtractions
+ *     Tradeoff: M * S + N * S memory
+ *
+ * 
+ */
 #include <experimental/simd>
 #include <stdfloat>
 
@@ -103,4 +148,5 @@ void trace(Float* rays_x, Float* rays_y, size_t num_rays, Float kap, Float gam,
       &rays_y[i]);
   }
 }
+
 

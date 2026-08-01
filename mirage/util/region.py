@@ -238,6 +238,40 @@ class PixelRegion(Region):
   def delta(self) -> Vec2D:
     return self.dims.div(self.resolution)
 
+  @property
+  def x_range(self) -> u.Quantity:
+    center = self.center.to(self.unit) if self.center else Vec2D.zero_vector(self.unit)
+
+    low_limit = center - self.dims / 2
+    high_limit = center + self.dims / 2
+    coords_start = (low_limit + self.delta / 2).to(self.unit)  # type: ignore
+    coords_end = (high_limit - self.delta / 2).to(self.unit)  # type: ignore
+    return (
+      np.linspace(
+        coords_start.x.value,
+        coords_end.x.value,
+        int(self.resolution.x.value),
+      )
+      * self.unit
+    )
+
+  @property
+  def y_range(self) -> u.Quantity:
+    center = self.center.to(self.unit) if self.center else Vec2D.zero_vector(self.unit)
+
+    low_limit = center - self.dims / 2
+    high_limit = center + self.dims / 2
+    coords_start = (low_limit + self.delta / 2).to(self.unit)  # type: ignore
+    coords_end = (high_limit - self.delta / 2).to(self.unit)  # type: ignore
+    return (
+      np.linspace(
+        coords_start.y.value,
+        coords_end.y.value,
+        int(self.resolution.y.value),
+      )
+      * self.unit
+    )
+
   @cached_property
   def pixels(self) -> u.Quantity:
     """
@@ -245,23 +279,8 @@ class PixelRegion(Region):
 
     Note: When constructing the pixel coordinates, the center of each pixel's coordinate is used.
     """
-    center = self.center.to(self.unit) if self.center else Vec2D.zero_vector(self.unit)
-
-    low_limit = center - self.dims / 2
-    high_limit = center + self.dims / 2
-    coords_start = (low_limit + self.delta / 2).to(self.unit)  # type: ignore
-    coords_end = (high_limit - self.delta / 2).to(self.unit)  # type: ignore
-
-    x_ax = np.linspace(
-      coords_start.x.value,
-      coords_end.x.value,
-      int(self.resolution.x.value),
-    )
-    y_ax = np.linspace(
-      coords_start.y.value,
-      coords_end.y.value,
-      int(self.resolution.y.value),
-    )
+    x_ax = self.x_range.value
+    y_ax = self.y_range.value
 
     x, y = np.meshgrid(x_ax, y_ax)
     grid = np.asfortranarray(np.stack([x, y], 2))

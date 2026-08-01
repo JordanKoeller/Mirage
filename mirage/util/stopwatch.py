@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from logging import Logger
+
 
 class Stopwatch:
   def __init__(self):

@@ -10,11 +10,13 @@ from mirage.settings import load_settings
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.viz.controller import Controller, AxesBounds
-from mirage.util import Vec2D, Dictify, LabeledStopwatch
+from mirage.util import Vec2D, Dictify, Stopwatch, RepeatLogger
 from mirage.viz.viz_settings import VizConfig
 
 
 logger = logging.getLogger(__name__)
+
+fps_logger = RepeatLogger(50, logger)
 
 
 def _merge_bounds(
@@ -58,8 +60,8 @@ class Viz:
     self._window = view
     self._controllers: dict[str, _ControllerState] = {}
     self._animate = False
-
     self._bounds = {axis: None for axis in MirageAxes}
+    self._stopwatch = Stopwatch()
 
     for controller in controllers or []:
       self.bind_controller(controller)
@@ -160,31 +162,35 @@ class Viz:
     controller.reset()
 
   def draw(self, *args, force: bool = False, **kwargs) -> Iterable[Artist]:
-    artists = []
-    artists.extend(self._window.title_artists())
-    bounds = None
-    new_realtime_result = self._model.realtime and self._model.ingest_results()
-    for layer_name in self._model.layers:
-      controller = self._controllers.get(layer_name)
-      artists.append(controller.control_button)
-      if not controller.enabled:
-        continue
-      did_draw, artists = controller.controller.do_draw(
-        self._model,
-        self._window,
-        force=force or new_realtime_result or self._animate,
-      )
-      if did_draw:
-        controller.artists = artists
-      artists.extend(controller.artists)
-      if bounds is None:
-        bounds = controller.controller._bounds
-      else:
-        _merge_bounds(bounds, controller.controller._bounds)
-    self._update_axes_bounds(bounds)
-    self._window.draw()
-    if self._animate:
-      self.next_simulation(rollover=True)
+    with self._stopwatch.timeit():
+      new_realtime_result = self._model.realtime and self._model.ingest_results()
+      artists = []
+      artists.extend(self._window.title_artists())
+      bounds = None
+      for layer_name in self._model.layers:
+        controller = self._controllers.get(layer_name)
+        artists.append(controller.control_button)
+        if not controller.enabled:
+          continue
+        did_draw, artists = controller.controller.do_draw(
+          self._model,
+          self._window,
+          force=force or new_realtime_result or self._animate,
+        )
+        if did_draw:
+          controller.artists = artists
+        controller = self._controllers.get(layer_name)
+        artists.extend(controller.artists)
+        if bounds is None:
+          bounds = controller.controller._bounds
+        else:
+          _merge_bounds(bounds, controller.controller._bounds)
+      self._update_axes_bounds(bounds)
+      self._window.draw()
+      if self._animate:
+        self.next_simulation(rollover=True)
+    if fps_logger.info(f"{1 / self._stopwatch.avg_elapsed_seconds()} fps"):
+        self._stopwatch.reset()
     return artists
 
   def toggle_layer(self, layer_name: str) -> None:

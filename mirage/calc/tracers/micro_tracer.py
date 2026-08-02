@@ -35,7 +35,7 @@ class MicrolensingRayTracer(RayTracer):
       f"Running with {pixels.shape} (Total={pixels.shape[0] * pixels.shape[1]}) pixels"
     )
 
-    traced_values = self.tracer_func(
+    traced_values = trace_rays(
       pixels,
       self.convergence,
       self.shear,

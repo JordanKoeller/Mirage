@@ -1,8 +1,7 @@
 import os
-from dataclasses import dataclass
 
+from mirage.calc import Engine
 from mirage.sim import Experiment
-from mirage.calc import get_or_create_engine
 from mirage.util import LRUCache
 from .result import ExperimentResult
 from mirage.viz import (
@@ -69,7 +68,7 @@ def visualize_realtime(
     model=RealTimeVizState(
       realtime_parameters=realtime_parameters,
       simulation=result.simulations()[0][1],
-      engine=get_or_create_engine(),
+      engine=Engine.create_default()
     ),
     view=VizWindow(),
     controllers=create_layers(*(layers or ["Debug", "LensedImageController"])),

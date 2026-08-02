@@ -87,6 +87,9 @@ class _CachingResultCalculator(ResultCalculator):
     self.result_calculator.initialize()
     self.simulation_cache_misses = -1
 
+  def deinit(self) -> None:
+    self.result_calculator.deinit()
+
   def raytrace(self, simulation: Simulation) -> None:
     if self.ray_traced_simulation is not None and self.ray_traced_simulation.is_similar(
       simulation
@@ -257,7 +260,8 @@ class Engine:
         else:
           logger.warning("Encountered unexpected command: %s. Skipping.", command)
       except EOFError:
-        logger.info("Received EOF. Ending EngineProcess")
+        logger.debug("Received EOF. Ending EngineProcess")
+        calculator.deinit()
         return
       except BaseException as e:
         logger.error("Encountered an exception: %s.", e)

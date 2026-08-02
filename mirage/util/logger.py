@@ -72,15 +72,32 @@ class RepeatLogger:
     self.count: int = 0
     self.logger: Logger = logger
 
-  def log(self, message: str) -> bool:
+  def log(self, message: str, level: int = logging.INFO) -> bool:
     """
     Logs the message every `every_count` times this method is called
 
     Returns true if the message was actually logged
     """
-    self.count += 1
-    if self.count == self.frequency:
-      self.logger.info(message)
-      self.count = 0
+    self.count = (self.count + 1) % self.frequency
+    if self.count == 0:
+      self.logger.log(level, message)
       return True
     return False
+
+  def info(self, message: str) -> bool:
+    return self.log(message, logging.INFO)
+
+  def debug(self, message: str) -> bool:
+    return self.log(message, logging.DEBUG)
+
+  def warning(self, message: str) -> bool:
+    return self.log(message, logging.WARNING)
+
+  def warn(self, message: str) -> bool:
+    return self.log(message, logging.WARN)
+
+  def critical(self, message: str) -> bool:
+    return self.log(message, logging.CRITICAL)
+
+  def fatal(self, message: str) -> bool:
+    return self.log(message, logging.FATAL)

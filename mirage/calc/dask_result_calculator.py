@@ -70,7 +70,8 @@ class DaskResultCalculator(ResultCalculator):
     self.cluster_provider.initialize()
     logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
 
-  def __del__(self, *args, **kwargs) -> None:
+  def deinit(self) -> None:
+    logger.debug("Dask Cluster shutting down.")
     self.cluster_provider.close()
 
   def raytrace(self, simulation: Simulation) -> None:

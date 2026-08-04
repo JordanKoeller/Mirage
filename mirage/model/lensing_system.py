@@ -152,7 +152,7 @@ class LensingSystem(ABC):
     """
     d_l = self.cosmology.angular_diameter_distance(self.redshift)
     d_s = self.cosmology.angular_diameter_distance(self.quasar.redshift)
-    d_ls = self.cosmology.angular_diameter_distance_z1z2(
+    d_ls = self.cosmology.angular_diameter_distance(
       self.redshift, self.quasar.redshift
     )
     return d_ls * d_l / d_s

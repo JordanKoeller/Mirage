@@ -14,7 +14,6 @@ from mirage.calc.reducer_funcs import (
 )
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D
 from mirage.sim import MicrolensingSimulation
-from mirage_ext import reduce_lensed_image
 from mirage.io import ReducerReporter
 
 import numpy as np

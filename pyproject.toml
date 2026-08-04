@@ -12,7 +12,7 @@ requires-python = ">=3.12"
 dependencies = [
   "dask",
   "dask[distributed]",
-  "dask-cloudprovider[aws]",
+#  "dask-cloudprovider[aws]",
   "numpy",
   "astropy",
   "bokeh",

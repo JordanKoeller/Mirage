@@ -278,6 +278,11 @@ class Engine:
     timer.start()
     num_simulations = 0
     computed_reducers = 0
+    # TODO: Call compute once. Unfortunately this would cause all reducer computations
+    # to happen at once, which will likely blow up the memory.
+
+    # One thing that might work is calling `dask.optimize` and then use the futures interface
+    # to effectively queue how many calculations are allowed at once.
     try:
       for key, simulation in Engine._get_simulations_grouped(experiment):
         num_simulations += 1

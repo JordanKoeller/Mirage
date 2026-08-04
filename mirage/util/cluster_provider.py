@@ -5,7 +5,6 @@ import logging
 from dataclasses import dataclass, field
 
 from dask.distributed import Client, LocalCluster
-from dask_cloudprovider.aws import FargateCluster
 
 from mirage.util import DelegateRegistry, size_to_bytes
 
@@ -135,9 +134,10 @@ class AwsEphemeralClusterProvider(ClusterProvider):
 
   def __post_init__(self):
     self._client: Optional[Client] = None
-    self._cluster: Optional[FargateCluster] = None
+    self._cluster = None
 
   def initialize(self):
+    from dask_cloudprovider.aws import FargateCluster
     self._cluster = FargateCluster(
       image=self.docker_image,
       worker_cpu=1024 * self.cpus_per_worker,

@@ -35,6 +35,21 @@ dev = [
 [project.urls]
 Repo = "https://github.com/jordankoeller/mirage"
 
+[build-system]
+requires = ["setuptools", "cython", "numpy"]
+build-backend = "setuptools.build_meta"
+
+# [tool.setup-tools]
+# ext-modules = [
+#   {
+#     name="mirage.calc.tracers.micro_tracer_helper",
+#     sources = ["mirage/calc/tracers/micro_tracer_helper.py"],
+#     include-dirs=["numpy.get-include"],
+#     extra-compile-args=["-O3", "-fopenmp"],
+#     extra-link-args=["-O3", "-fopenmp"],
+#   }
+# ]
+
 [tool.ruff]
 line-length = 88
 indent-width = 2

@@ -1,11 +1,11 @@
 #ifndef MIRAGE_CALC_CKD_TREE_H_
 #define MIRAGE_CALC_CKD_TREE_H_
 
-#include <vector>
-#include <queue>
 #include <functional>
-#include <stdfloat>
 #include <iostream>
+#include <queue>
+#include <stdfloat>
+#include <vector>
 
 // A header-only KD-Tree, hyper-optimized for the Mirage usecase.
 //
@@ -21,172 +21,160 @@
 // + Store bounding boxes foreach node to allow for quick exclusion of dead
 //   zones without needing recursion
 class CKDTree {
- public:
-   // Construct a CKDTree.
-   //
-   // Args:
-   //   buf: Pointer to the front of the buffer containing coordinates in columnar order.
-   //   sz: Number of elements in buf.
-   //   elem_sz: The number of floats per element (in columnar order).
-   //   leaf_size: The number of elements to include in each leaf node.
-   CKDTree(double* buf, size_t sz, size_t elem_sz, size_t leaf_size)
-     : elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
-       buf_ = buf;
-       indices_.reserve(sz_);
-       for (size_t i=0; i < sz_; i++) {
-         indices_.push_back(static_cast<int>(i));
-       }
-       init_tree();
-     }
+public:
+  // Construct a CKDTree.
+  //
+  // Args:
+  //   buf: Pointer to the front of the buffer containing coordinates in
+  //   columnar order. sz: Number of elements in buf. elem_sz: The number of
+  //   floats per element (in columnar order). leaf_size: The number of elements
+  //   to include in each leaf node.
+  CKDTree(double *buf, size_t sz, size_t elem_sz, size_t leaf_size)
+      : elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
+    buf_ = buf;
+    indices_.reserve(sz_);
+    for (size_t i = 0; i < sz_; i++) {
+      indices_.push_back(static_cast<int>(i));
+    }
+    init_tree();
+  }
 
-   CKDTree() {}
+  CKDTree() {}
 
-   // Return the number of elements in the tree that are within the circle of
-   // radius r at location (cx, cy).
-   size_t PointsInCircle(double cx, double cy, double r) {
-     size_t count = 0;
-     std::function<void(size_t)> reducer([&](size_t i)  -> void {
-       count++;
-     });
-     Reduce(cx, cy, r, &reducer);
-     return count;
-   }
+  // Return the number of elements in the tree that are within the circle of
+  // radius r at location (cx, cy).
+  size_t PointsInCircle(double cx, double cy, double r) {
+    size_t count = 0;
+    std::function<void(size_t)> reducer([&](size_t i) -> void { count++; });
+    Reduce(cx, cy, r, &reducer);
+    return count;
+  }
 
-   // batch version of PointsInCircle. Queries sz many circles, with centers
-   // specified in row-order.
-   void PointsInCircle(double* centers, size_t sz, double r, double* out) {
-     for (size_t i=0; i < sz; i++) {
-       out[i] = (double) PointsInCircle(centers[2*i], centers[2*i + 1], r);
-     }
-   }
+  // batch version of PointsInCircle. Queries sz many circles, with centers
+  // specified in row-order.
+  void PointsInCircle(double *centers, size_t sz, double r, double *out) {
+    for (size_t i = 0; i < sz; i++) {
+      out[i] = (double)PointsInCircle(centers[2 * i], centers[2 * i + 1], r);
+    }
+  }
 
-   // Return the magnification coefficient for the specified circle of radius
-   // r at location (cx, cy).
-   //
-   // If the tree does not contain magnification data 0 is returned.
-   double MagnificationCoefficient(double cx, double cy, double r) {
-     if (elem_sz_ == 2) {
-       return 0.0;
-     }
-     // Using Kahan summation algorithm to avoid numerical instability
-     // https://en.wikipedia.org/wiki/Kahan_summation_algorithm
-     double sum, c, y, t;
-     sum = 0.0;
-     c = 0.0;
-     std::function<void(size_t)> reducer([&](size_t i) -> void {
-       y = buf_[sz_ * 2 + i] - c;
-       t = sum + y;
-       c = (t - sum) - y;
-       sum = t;
-     });
-     Reduce(cx, cy, r, &reducer);
-     return sum;
-   }
+  // Return the magnification coefficient for the specified circle of radius
+  // r at location (cx, cy).
+  //
+  // If the tree does not contain magnification data 0 is returned.
+  double MagnificationCoefficient(double cx, double cy, double r) {
+    if (elem_sz_ == 2) {
+      return 0.0;
+    }
+    // Using Kahan summation algorithm to avoid numerical instability
+    // https://en.wikipedia.org/wiki/Kahan_summation_algorithm
+    double sum, c, y, t;
+    sum = 0.0;
+    c = 0.0;
+    std::function<void(size_t)> reducer([&](size_t i) -> void {
+      y = buf_[sz_ * 2 + i] - c;
+      t = sum + y;
+      c = (t - sum) - y;
+      sum = t;
+    });
+    Reduce(cx, cy, r, &reducer);
+    return sum;
+  }
 
-   // batch version of MagnificationCoefficient. Queries sz many circles, with centers
-   // specified in row-order.
-   void MagnificationCoefficient(double* centers, size_t sz, double r, double* out) {
-     for (size_t i=0; i < sz; i++) {
-       out[i] = MagnificationCoefficient(centers[2*i], centers[2*i + 1], r);
-     }
-   }
+  // batch version of MagnificationCoefficient. Queries sz many circles, with
+  // centers specified in row-order.
+  void MagnificationCoefficient(double *centers, size_t sz, double r,
+                                double *out) {
+    for (size_t i = 0; i < sz; i++) {
+      out[i] = MagnificationCoefficient(centers[2 * i], centers[2 * i + 1], r);
+    }
+  }
 
-   // Returns the indices of the rays within the specified circle.
-   //
-   // Indices are returned as a flattened value.
-   std::vector<long> LensPlaneCoordinates(double cx, double cy, double r) {
-     std::vector<long> inds;
-     std::function<void(size_t)> reducer([&](size_t i) -> void {
-         inds.push_back(indices_[i]);
-     });
-     Reduce(cx, cy, r, &reducer);
-     return inds;
-   }
+  // Returns the indices of the rays within the specified circle.
+  //
+  // Indices are returned as a flattened value.
+  std::vector<long> LensPlaneCoordinates(double cx, double cy, double r) {
+    std::vector<long> inds;
+    std::function<void(size_t)> reducer(
+        [&](size_t i) -> void { inds.push_back(indices_[i]); });
+    Reduce(cx, cy, r, &reducer);
+    return inds;
+  }
 
-   // Returns the number of elements in the buffer.
-   size_t size() {
-     return sz_;
-   }
+  // Returns the number of elements in the buffer.
+  size_t size() { return sz_; }
 
-   // Returns the number of floats in the buffer (sz_ * elem_sz_)
-   size_t buf_size() {
-     return sz_ * elem_sz_;
-   }
+  // Returns the number of floats in the buffer (sz_ * elem_sz_)
+  size_t buf_size() { return sz_ * elem_sz_; }
 
-   size_t tree_size() {
-     return splits_.size();
-   }
+  size_t tree_size() { return splits_.size(); }
 
 #ifndef TESTONLY
-   size_t queried_nodes_count() {
-     return queried_nodes_count_;
-   }
+  size_t queried_nodes_count() { return queried_nodes_count_; }
 
-   size_t queried_points_count() {
-     return queried_points_count_;
-   }
+  size_t queried_points_count() { return queried_points_count_; }
 #endif
 
- private:
+private:
+  // Swap elements i, j in buf_;
+  // This will swap all field for the i-th and j-th elements, accounting for
+  // their columnar ordering.
+  void swap(size_t i, size_t j);
 
-   // Swap elements i, j in buf_;
-   // This will swap all field for the i-th and j-th elements, accounting for
-   // their columnar ordering.
-   void swap(size_t i, size_t j);
+  // Copy out all elements of the i-th element into out.
+  void get(size_t i, double *out);
 
-   // Copy out all elements of the i-th element into out.
-   void get(size_t i, double* out);
+  // Set the i-th element with the values in elem, accounting for columnar
+  // order.
+  void set(size_t i, double *elem, size_t j);
 
-   // Set the i-th element with the values in elem, accounting for columnar order.
-   void set(size_t i, double* elem, size_t j);
+  // Reorder buf_ such that all elements left of the median between [start, end)
+  // are less than all elements right of the mediant between [start, end) along
+  // the specified dimension.
+  double partition(size_t start, size_t end, size_t dimension);
 
-   // Reorder buf_ such that all elements left of the median between [start, end)
-   // are less than all elements right of the mediant between [start, end) along
-   // the specified dimension.
-   double partition(size_t start, size_t end, size_t dimension);
+  // Calls reducer with the index of all elements that fall within the circle
+  // of radius r at location (cx, cy).
+  void Reduce(double cx, double cy, double r,
+              std::function<void(size_t)> *reducer);
 
-   // Calls reducer with the index of all elements that fall within the circle
-   // of radius r at location (cx, cy).
-   void Reduce(double cx, double cy, double r, std::function<void(size_t)>* reducer);
+  // Initialize the CKDTree.
+  void init_tree();
 
-   // Initialize the CKDTree.
-   void init_tree();
+  // Pointer to a contiguous buffer of coordinates, in columnar order.
+  double *buf_;
 
-   // Pointer to a contiguous buffer of coordinates, in columnar order.
-   double* buf_;
+  // Lookup array mapping from ordered index to the index of that point
+  // in the original buffer before sorting.
+  std::vector<long> indices_;
 
-   // Lookup array mapping from ordered index to the index of that point
-   // in the original buffer before sorting.
-   std::vector<long> indices_;
-  
-   // Number of double's per element, laid out in columnar order.
-   size_t elem_sz_;
+  // Number of double's per element, laid out in columnar order.
+  size_t elem_sz_;
 
-   //  The number of elements in buf_
-   size_t sz_;
+  //  The number of elements in buf_
+  size_t sz_;
 
-   // Min number of elements to includes per leaf.
-   size_t leaf_size_;
+  // Min number of elements to includes per leaf.
+  size_t leaf_size_;
 
 #ifndef TESTONLY
-   size_t queried_nodes_count_;
-   size_t queried_points_count_;
+  size_t queried_nodes_count_;
+  size_t queried_points_count_;
 #endif
 
-   // Array of splits in heap-ordering.
-   std::vector<double> splits_;
-
+  // Array of splits in heap-ordering.
+  std::vector<double> splits_;
 };
 
-inline void CKDTree::set(size_t i, double* elem, size_t j) {
-  for (size_t d=0; d < elem_sz_; d++) {
+inline void CKDTree::set(size_t i, double *elem, size_t j) {
+  for (size_t d = 0; d < elem_sz_; d++) {
     buf_[d * sz_ + i] = elem[d];
   }
   indices_[i] = static_cast<long>(j);
 }
 
-inline void CKDTree::get(size_t i, double* out) {
-  for (size_t d=0; d < elem_sz_; d++) {
+inline void CKDTree::get(size_t i, double *out) {
+  for (size_t d = 0; d < elem_sz_; d++) {
     out[d] = buf_[d * sz_ + i];
   }
 }
@@ -203,7 +191,6 @@ inline void CKDTree::swap(size_t i, size_t j) {
   set(j, i_vals, i_idx);
 }
 
-
 inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
   size_t k = (start + end) / 2;
   size_t l = start;
@@ -213,7 +200,7 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
   double a_j[elem_sz_];
 
   // Pointer to the first double along the partitioning buffer.
-  double* arr = &buf_[sz_*dimension]; 
+  double *arr = &buf_[sz_ * dimension];
   for (;;) {
     if (ir <= l + 1) {
       if (ir == l + 1 && arr[ir] < arr[l]) {
@@ -226,11 +213,11 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
     if (arr[l] > arr[ir]) {
       swap(l, ir);
     }
-    if (arr[l+1] > arr[ir]) {
-      swap(l+1, ir);
+    if (arr[l + 1] > arr[ir]) {
+      swap(l + 1, ir);
     }
-    if (arr[l] > arr[l+1]) {
-      swap(l, l+1);
+    if (arr[l] > arr[l + 1]) {
+      swap(l, l + 1);
     }
     i = l + 1;
     j = ir;
@@ -239,7 +226,7 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
     for (;;) {
       do {
         i++;
-      } while (arr[i] < a[dimension]); 
+      } while (arr[i] < a[dimension]);
       do {
         j--;
       } while (arr[j] > a[dimension]);
@@ -267,12 +254,13 @@ inline void CKDTree::init_tree() {
     return;
   }
   // queue up tuples of (start_i, end_i, dimension)
-  std::queue<std::tuple<size_t, size_t, size_t>> q({std::make_tuple(0, sz_, 0)});
+  std::queue<std::tuple<size_t, size_t, size_t>> q(
+      {std::make_tuple(0, sz_, 0)});
   while (!q.empty()) {
     auto [start, end, dim] = q.front();
     q.pop();
 
-    if (end-start <= leaf_size_) {
+    if (end - start <= leaf_size_) {
       continue;
     }
     size_t midpt = (start + end) / 2;
@@ -282,7 +270,8 @@ inline void CKDTree::init_tree() {
   }
 }
 
-inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(size_t)>* reducer) {
+inline void CKDTree::Reduce(double cx, double cy, double r,
+                            std::function<void(size_t)> *reducer) {
 #ifndef TESTONLY
   queried_nodes_count_ = 0;
   queried_points_count_ = 0;
@@ -290,9 +279,10 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
   double r2 = r * r;
   double center[]{cx, cy};
   // queue of tuples of (start_i, end_i, split_index, dimension)
-  std::queue<std::tuple<size_t, size_t, size_t, size_t>> q({std::make_tuple(0, sz_, 0, 0)});
+  std::queue<std::tuple<size_t, size_t, size_t, size_t>> q(
+      {std::make_tuple(0, sz_, 0, 0)});
   while (!q.empty()) {
-    auto [start, end, split, dimension]= q.front();
+    auto [start, end, split, dimension] = q.front();
     q.pop();
 
     if (end - start <= leaf_size_) {
@@ -302,7 +292,7 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
       // We're at a leaf, so apply reducer.
       // TODO: SIMD this. It's tricky because you have to use aligned pointers
       // and start for both x and y may not be aligned.
-      // 
+      //
       // If I want to SIMD this I might need to create a copy of the data
       // so that the x and y buffers are guaranteed aligned.
       for (size_t i = start; i < end; i++) {
@@ -312,7 +302,7 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
         double dx = buf_[i] - cx;
         double dy = buf_[sz_ + i] - cy;
         if (dx * dx + dy * dy < r2) {
-            (*reducer)(i);
+          (*reducer)(i);
         }
       }
       continue;
@@ -321,14 +311,13 @@ inline void CKDTree::Reduce(double cx, double cy, double r, std::function<void(s
     double split_pt = splits_[split];
     if (center[dimension] - r <= split_pt) {
       // Recurse left
-      q.push(std::make_tuple(start, midpt, split*2 + 1, (dimension + 1) % 2));
+      q.push(std::make_tuple(start, midpt, split * 2 + 1, (dimension + 1) % 2));
     }
     if (center[dimension] + r > split_pt) {
       // Recurse right
-      q.push(std::make_tuple(midpt, end, split*2 + 2, (dimension + 1) % 2));
+      q.push(std::make_tuple(midpt, end, split * 2 + 2, (dimension + 1) % 2));
     }
   }
 }
-
 
 #endif // MIRAGE_CALC_CKD_TREE_H_

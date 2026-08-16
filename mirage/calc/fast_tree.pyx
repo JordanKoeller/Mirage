@@ -1,6 +1,7 @@
 # distutils: language = c++
 
 from mirage.calc cimport ckd_tree
+from math import floor
 cimport numpy as cnp
 from libcpp.vector cimport vector
 
@@ -9,16 +10,26 @@ import numpy as np
 cdef class FastTree:
     cdef ckd_tree.CKDTree _tree
     cdef object _data
+    cdef object _indices
+    cdef object _splits
     cdef unsigned long _leaf_size
 
-    def __init__(self, cnp.ndarray[cnp.float64_t, ndim=3] data, unsigned long leaf_size):
+    def __init__(self, cnp.ndarray[cnp.float64_t, ndim=3] data, unsigned long leaf_size,
+                 indices=None, splits=None):
         cdef unsigned long sz = data.shape[0] * data.shape[1]
         if not np.isfortran(data):
             data = np.asfortranarray(data)
         self._data = data
         self._leaf_size = leaf_size
+        self._indices = indices if indices is not None else np.ndarray(sz, dtype=np.int64)
+        self._splits = splits if indices is not None else np.ndarray(max(1, floor(2 * sz / leaf_size - 1)), dtype=np.float64)
         cdef cnp.float64_t[:, :, :] data_view = self._data
-        self._tree = ckd_tree.CKDTree(&data_view[0, 0, 0], sz, data.shape[2], leaf_size)
+        cdef cnp.float64_t[:] splits_view = self._splits
+        cdef long[:] indices_view = self._indices
+        if indices is not None and splits is not None:
+            self._tree = ckd_tree.CKDTree.CreatePreconstructed(&data_view[0, 0, 0], sz, &indices_view[0], &splits_view[0], data.shape[2], leaf_size)
+        else:
+            self._tree = ckd_tree.CKDTree.Create(&data_view[0, 0, 0], sz, &indices_view[0], &splits_view[0], data.shape[2], leaf_size)
 
     def points_in_circle(self, double cx, double cy, double r):
         ret = self._tree.PointsInCircle(cx, cy, r)
@@ -47,7 +58,7 @@ cdef class FastTree:
         return ret
 
     def __reduce__(self):
-        return _reducer, (self._data, self._leaf_size)
+        return _pickle, (self._data, self._leaf_size, self._indices, self._splits)
 
-def _reducer(*args, **kwargs):
+def _pickle(*args, **kwargs):
     return FastTree(*args, **kwargs)

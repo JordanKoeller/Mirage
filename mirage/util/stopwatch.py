@@ -77,3 +77,5 @@ class LabeledStopwatch:
         f"{watch.total_elapsed_seconds() * 1000} ms (avg "
         f"{watch.avg_elapsed_seconds() * 1000} ms)"
       )
+
+

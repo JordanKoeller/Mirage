@@ -68,20 +68,31 @@ class ResultCalculator(ABC):
     """
 
   @abstractmethod
-  def apply_reducer(self, simulation: Simulation, reducer: Reducer) -> Reducer:
+  def apply_reducer(self, reducer: Reducer) -> Reducer:
     """
     Apply the specified reducer and return a reference to the hydrated
     version. This may or mahy not be the same instance as what was passed in.
     """
 
+  def apply_all_reducers(self, reducers: Iterator[Reducer], callback: Callable[Reducer, None]) -> None:
+    """
+    Apply all reducers in a batch operation. Once applied, the callback
+    function should be called with each computed reducer.
 
-class _CachingResultCalculator(ResultCalculator):
+    Default implementation calls apply_reducer() on each reducer.
+    """
+    for reducer in reducers:
+        callback(self.apply_reducer(reducer))
+
+
+class _CachingCalculator:
   def __init__(self, result_calculator: ResultCalculator):
     self.result_calculator = result_calculator
     self.ray_traced_simulation = None
     self.simulation_cache_misses = -1
     self.reducer_dups = 0
-    self.computed_reducers: list[tuple[Simulation, ReducerResult]] = []
+    self.scheduled_reducers: list[ReducerResult] = []
+    self.aliased_reducers: list[ReducerResult] = []
 
   def initialize(self) -> None:
     self.result_calculator.initialize()
@@ -90,30 +101,52 @@ class _CachingResultCalculator(ResultCalculator):
   def deinit(self) -> None:
     self.result_calculator.deinit()
 
-  def raytrace(self, simulation: Simulation) -> None:
+  def raytrace(self, simulation: Simulation) -> bool:
     if self.ray_traced_simulation is not None and self.ray_traced_simulation.is_similar(
       simulation
     ):
-      return
+      return False
     self.ray_traced_simulation = simulation
     self.result_calculator.raytrace(simulation)
+    self.scheduled_reducers = []
+    self.aliased_reducers = []
     self.simulation_cache_misses += 1
+    return True
 
-  def apply_reducer(
-    self, simulation: Simulation, reducer: Reducer, result_key: ResultKey
-  ) -> ReducerResult:
-    for sim, reducer_result in self.computed_reducers:
-      if sim.is_similar(simulation) and Dictify.to_dict(reducer) == Dictify.to_dict(
-        reducer_result.reducer
-      ):
-        self.reducer_dups += 1
-        return ReducerResult(
-          result_key, reducer_result.reducer, cache_key=reducer_result.result_key
-        )
-    computed_reducer = self.result_calculator.apply_reducer(simulation, reducer)
-    result = ReducerResult(result_key, computed_reducer)
-    self.computed_reducers.append((simulation, result))
-    return result
+  def schedule_reducer(self, reducer: Reducer, result_key: ResultKey) -> None:
+    """
+    Adds the reducer to the set of Reducers to be calculated.
+
+    If the reducer equates to a reducer already scheduled it will NOT be recomputed,
+    and will share the result of the existing reducer.
+    """
+    for reducer_result in self.scheduled_reducers:
+        if Dictify.to_dict(reducer) == Dictify.to_dict(reducer_result.reducer):
+            self.reducer_dups += 1
+            self.aliased_reducers.append(ReducerResult(
+              result_key, reducer_result.reducer, cache_key=reducer_result.result_key
+            ))
+            return
+    self.scheduled_reducers.append(ReducerResult(result_key, reducer))
+
+  def compute_reducers(self) -> Iterator[ReducerResult]:
+      """
+      Computes all scheduled reducers, and returns the results with aliased reducers
+      as well.
+      """
+      consumed_aliases = set()
+      reducers_arr = [r.reducer for r in self.scheduled_reducers]
+      applied_reducers = self.result_calculator.apply_all_reducers(reducers_arr)
+      for reducer, reducer_result in zip(applied_reducers, self.scheduled_reducers):
+          reducer_result.reducer = reducer
+          yield reducer_result
+          for i, alias in enumerate(self.aliased_reducers):
+              if i in consumed_aliases:
+                  continue
+              if Dictify.to_dict(alias.reducer) == Dictify.to_dict(reducer):
+                  alias.reducer = reducer
+                  consumed_aliases.add(i)
+                  yield alias
 
 
 class Engine:
@@ -181,7 +214,7 @@ class Engine:
   def create_and_start(cls, calculator: ResultCalculator) -> Self:
     send, recv = BidiStream.create(_STREAM_BUFFER_SZ)
     queue_logger = logging.getHandlerByName("queue_handler")
-    caching_calculator = _CachingResultCalculator(calculator)
+    caching_calculator = _CachingCalculator(calculator)
     engine_process = Process(
       name="EngineProcess",
       target=Engine._engine_process_main,
@@ -236,7 +269,7 @@ class Engine:
 
   @staticmethod
   def _engine_process_main(
-    calculator: _CachingResultCalculator,
+    calculator: _CachingCalculator,
     stream: BidiStream,
     logging_queue: multiprocessing.Queue,
   ) -> None:
@@ -256,7 +289,7 @@ class Engine:
         if isinstance(command, Experiment):
           Engine._blocking_run_experiment(calculator, stream, command)
         elif isinstance(command, tuple) and isinstance(command[0], Simulation):
-          Engine._blocking_run_simulation(calculator, stream, *command)
+          Engine._run_simulation(calculator, stream, *command)
         else:
           logger.warning("Encountered unexpected command: %s. Skipping.", command)
       except EOFError:
@@ -272,26 +305,25 @@ class Engine:
 
   @staticmethod
   def _blocking_run_experiment(
-    calculator: _CachingResultCalculator, stream: BidiStream, experiment: Experiment
+    calculator: _CachingCalculator, stream: BidiStream, experiment: Experiment
   ) -> None:
     timer = Stopwatch()
     timer.start()
     num_simulations = 0
     computed_reducers = 0
-    # TODO: Call compute once. Unfortunately this would cause all reducer computations
-    # to happen at once, which will likely blow up the memory.
-
-    # One thing that might work is calling `dask.optimize` and then use the futures interface
-    # to effectively queue how many calculations are allowed at once.
     try:
-      for key, simulation in Engine._get_simulations_grouped(experiment):
-        num_simulations += 1
-        computed_reducers += Engine._blocking_run_simulation(
-          calculator, stream, simulation, key
-        )
+      for bucket in Engine._get_simulations_grouped(experiment):
+        for key, simulation in bucket:
+          num_simulations += 1
+          computed_reducers += Engine._run_simulation(
+            calculator, stream, simulation, key, blocking=False,
+          )
+        computed = calculator.compute_reducers()
+        for result in computed:
+          stream.send(result, blocking=True)
     except Exception as e:
       logger.error("Encountered Error")
-      logger.error(str(e))
+      raise e
     finally:
       timer.stop()
       logger.info(
@@ -308,26 +340,27 @@ class Engine:
       stream.close()
 
   @staticmethod
-  def _blocking_run_simulation(
-    calculator: _CachingResultCalculator,
+  def _run_simulation(
+    calculator: _CachingCalculator,
     stream: BidiStream,
     simulation: Simulation,
     key: VariantKey,
+    blocking: bool = True,
   ) -> int:
     calculator.raytrace(simulation)
     count = 0
     for reducer in simulation.get_reducers():
       count += 1
-      result = calculator.apply_reducer(
-        simulation, reducer, ResultKey(reducer.name, key)
-      )
-      stream.send(result, blocking=True)
+      calculator.schedule_reducer(reducer, ResultKey(reducer.name, key))
+    if blocking:
+      for result in calculator.compute_reducers():
+        stream.send(result, blocking=True)
     return count
 
   @staticmethod
   def _get_simulations_grouped(
     experiment: Experiment,
-  ) -> Iterator[tuple[VariantKey, Simulation]]:
+  ) -> list[list[tuple[VariantKey, Simulation]]]:
     """
     Returns an iterator of Simulations, grouped by similarity such that
     similar simulations are always adjacent.
@@ -337,16 +370,14 @@ class Engine:
     + Simulation - The Simulation object
     + bool - If true, this is a new simulation that needs ray-traced.
     """
-    buckets: list[tuple[VariantKey, Simulation]] = []
-    for simulation in experiment.simulations():
+    buckets: list[list[tuple[VariantKey, Simulation]]] = []
+    for variant, simulation in experiment.simulations():
       found_match = False
       for bucket in buckets:
-        if bucket[-1][1].is_similar(simulation[1]):
+        if bucket[-1][1].is_similar(simulation):
           found_match = True
-          bucket.append(simulation)
+          bucket.append((variant,simulation))
           break
       if not found_match:
-        buckets.append([simulation])
-    for bucket in buckets:
-      for simulation in bucket:
-        yield simulation
+        buckets.append([(variant, simulation)])
+    return buckets

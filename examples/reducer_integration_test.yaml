@@ -17,7 +17,7 @@ Reducers:
   - LensedImageReducer:
       Name: img
       Radius: 2 uas
-      Query: [-12, 13, 'uas']
+      Query: ['${x_pos}', '${y_pos}', 'uas']
       Resolution: [1000, 1000, '']
   - MagnificationMapReducer:
       Name: magmap
@@ -34,11 +34,11 @@ Variants:
       Name: x_pos
       Start: -20
       Stop: 20
-      NumPoints: 12
+      NumPoints: 60
       Tag: coord
   - LinspaceVariant:
       Name: y_pos
       Start: -36
       Stop: 36
-      NumPoints: 12
+      NumPoints: 60
       Tag: coord

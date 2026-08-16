@@ -160,8 +160,12 @@ class MirageMain:
           continue
         reporter = serializer.result_reporter(result.result_key)
         result.reducer.save(reporter)
+    except EOFError as e:
+        self.logger.info("Stream closed.")
+        pass
     except Exception as e:
       self.logger.error("Encountered Error!")
+      raise e
       self.logger.error(str(e))
     finally:
       serializer.close()

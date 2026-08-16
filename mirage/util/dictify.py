@@ -27,7 +27,6 @@ Model_SingularIsothermalSphere:
     Cosmology: "WMAP7"
 ```"""
 
-import copy
 from dataclasses import fields, is_dataclass, dataclass
 from datetime import date, datetime, time
 from typing import (

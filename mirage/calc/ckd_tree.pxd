@@ -5,7 +5,13 @@ from libcpp.vector cimport vector
 cdef extern from "ckd_tree.h":
   cdef cppclass CKDTree:
       CKDTree()
-      CKDTree(double*, unsigned long, unsigned long, unsigned long)
+
+      @staticmethod
+      CKDTree Create(double*, unsigned long, long*, double*, unsigned long, unsigned long)
+
+      @staticmethod
+      CKDTree CreatePreconstructed(double*, unsigned long, long*, double*, unsigned long, unsigned long)
+
       unsigned long PointsInCircle(double, double, double)
       void PointsInCircle(double*, unsigned long, double, double*)
       double MagnificationCoefficient(double, double, double)

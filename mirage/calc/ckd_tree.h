@@ -29,14 +29,16 @@ public:
   //   columnar order. sz: Number of elements in buf. elem_sz: The number of
   //   floats per element (in columnar order). leaf_size: The number of elements
   //   to include in each leaf node.
-  CKDTree(double *buf, size_t sz, size_t elem_sz, size_t leaf_size)
-      : elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
-    buf_ = buf;
-    indices_.reserve(sz_);
-    for (size_t i = 0; i < sz_; i++) {
-      indices_.push_back(static_cast<int>(i));
-    }
-    init_tree();
+
+  static CKDTree Create(double *buf, size_t sz, long *indices, double *splits,
+                        size_t elem_sz, size_t leaf_size) {
+    return CKDTree(buf, sz, indices, splits, elem_sz, leaf_size, false);
+  }
+
+  static CKDTree CreatePreconstructed(double *buf, size_t sz, long *indices,
+                                      double *splits, size_t elem_sz,
+                                      size_t leaf_size) {
+    return CKDTree(buf, sz, indices, splits, elem_sz, leaf_size, true);
   }
 
   CKDTree() {}
@@ -107,7 +109,7 @@ public:
   // Returns the number of floats in the buffer (sz_ * elem_sz_)
   size_t buf_size() { return sz_ * elem_sz_; }
 
-  size_t tree_size() { return splits_.size(); }
+  size_t tree_size() { return 1 << (sz_ / leaf_size_); }
 
 #ifndef TESTONLY
   size_t queried_nodes_count() { return queried_nodes_count_; }
@@ -116,6 +118,21 @@ public:
 #endif
 
 private:
+  CKDTree(double *buf, size_t sz, long *indices, double *splits, size_t elem_sz,
+          size_t leaf_size, bool pre_initialized)
+      : elem_sz_(elem_sz), sz_(sz), leaf_size_(leaf_size) {
+    buf_ = buf;
+    indices_ = indices;
+    splits_ = splits;
+    if (pre_initialized) {
+      return;
+    }
+    for (size_t i = 0; i < sz_; i++) {
+      indices_[i] = static_cast<long>(i);
+    }
+    init_tree();
+  }
+
   // Swap elements i, j in buf_;
   // This will swap all field for the i-th and j-th elements, accounting for
   // their columnar ordering.
@@ -146,7 +163,7 @@ private:
 
   // Lookup array mapping from ordered index to the index of that point
   // in the original buffer before sorting.
-  std::vector<long> indices_;
+  long *indices_;
 
   // Number of double's per element, laid out in columnar order.
   size_t elem_sz_;
@@ -163,7 +180,7 @@ private:
 #endif
 
   // Array of splits in heap-ordering.
-  std::vector<double> splits_;
+  double *splits_;
 };
 
 inline void CKDTree::set(size_t i, double *elem, size_t j) {
@@ -250,6 +267,7 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
 }
 
 inline void CKDTree::init_tree() {
+  size_t split = 0;
   if (sz_ == 0 || elem_sz_ == 0) {
     return;
   }
@@ -264,7 +282,7 @@ inline void CKDTree::init_tree() {
       continue;
     }
     size_t midpt = (start + end) / 2;
-    splits_.push_back(partition(start, end, dim));
+    splits_[split++] = partition(start, end, dim);
     q.push(std::make_tuple(start, midpt, (dim + 1) % 2));
     q.push(std::make_tuple(midpt, end, (dim + 1) % 2));
   }

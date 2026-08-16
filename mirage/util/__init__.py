@@ -11,6 +11,8 @@ from .lru_cache import LRUCache
 from .custom_serializers import register_serializers
 from .logger import RepeatLogger, init_multiprocessing_logger, bind_logging_to_queue
 from .cluster_provider import (
+  CacheLocation,
+  CacheConfig,
   ClusterProvider,
   RemoteClusterProvider,
   AwsEphemeralClusterProvider,
@@ -46,4 +48,6 @@ __all__ = [
   "LabeledStopwatch",
   "VariantKey",
   "LRUCache",
+  "CacheLocation",
+  "CacheConfig",
 ]

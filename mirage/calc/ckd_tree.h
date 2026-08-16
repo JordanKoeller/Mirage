@@ -265,6 +265,8 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
       l = i;
     }
   }
+  delete[] a;
+  delete[] a_j;
 }
 
 inline void CKDTree::init_tree() {

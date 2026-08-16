@@ -37,9 +37,11 @@ class CudaTracer:
     return self.kernel is not None
 
   def initialize(self) -> None:
+    if self.device:
+        return
     self.device = Device()
     self.device.set_current()
-    self.stream = device.create_stream()
+    self.stream = self.device.create_stream()
 
     program_options = ProgramOptions(std="c++17", arch=f"sm_{self.device.arch}")
     self.program = Program(self._program_source_code, code_type="c++", options=program_options)
@@ -52,14 +54,15 @@ class CudaTracer:
     kap: float,
     gam: float,
     # TODO: Cache star data in GPU vram since it's doesn't change across chunks of rays.
-    star_pos: np.ndarray,
     star_mass: np.ndarray,
+    star_pos: np.ndarray,
   ) -> np.ndarray:
+    self.initialize()
     rays_x = cp.asarray(rays[:, :, 0])
     rays_y = cp.asarray(rays[:, :, 1])
     stars_x = cp.asarray(star_pos[:, 0])
     stars_y = cp.asarray(star_pos[:, 1])
-    stars_m = cp.asarray(star_mass[:, 0])
+    stars_m = cp.asarray(star_mass)
 
     out_x = cp.empty_like(rays_x)
     out_y = cp.empty_like(rays_y)

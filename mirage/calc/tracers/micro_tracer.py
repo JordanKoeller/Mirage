@@ -38,7 +38,8 @@ class MicrolensingRayTracer(RayTracer):
     )
 
     if self.cuda_tracer:
-      traced_values = cuda_tracer.cuda_trace(
+      logger.debug("Tracing with cuda tracer.")
+      traced_values = self.cuda_tracer.cuda_trace(
         pixels,
         self.convergence,
         self.shear,

@@ -94,7 +94,10 @@ class ClusterProvider(ABC):
 
   @staticmethod
   def create_default() -> Self:
-    return LocalClusterProvider()
+    return LocalClusterProvider(
+      num_workers=1,
+      threads_per_worker=1
+    )
 
   def __del__(self) -> None:
     self.close()

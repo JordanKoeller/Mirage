@@ -92,6 +92,10 @@ class ClusterProvider(ABC):
     Returns the url of the Dask dashboard.
     """
 
+  @staticmethod
+  def create_default() -> Self:
+    return LocalClusterProvider()
+
   def __del__(self) -> None:
     self.close()
 

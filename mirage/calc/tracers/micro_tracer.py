@@ -6,6 +6,7 @@ from astropy import units as u
 
 from mirage.calc import RayTracer
 from mirage.calc.tracers.micro_tracer_helper import trace
+from mirage.calc.tracers.cuda_tracer import CudaTracer
 from mirage.model import Starfield
 from mirage.util import PixelRegion
 
@@ -19,6 +20,7 @@ class MicrolensingRayTracer(RayTracer):
   starfield_angular_radius: u.Quantity
   convergence: float
   shear: float
+  cuda_tracer: CudaTracer | None = CudaTracer()
 
   def trace(self, rays: PixelRegion) -> u.Quantity:
     rays = rays.to("theta_0")
@@ -35,14 +37,23 @@ class MicrolensingRayTracer(RayTracer):
       f"Running with {pixels.shape} (Total={pixels.shape[0] * pixels.shape[1]}) pixels"
     )
 
-    traced_values = trace(
-      pixels,
-      self.convergence,
-      self.shear,
-      stars_mass.to("solMass").value,
-      stars_positions.to("theta_0").value,
-      True
-    )
+    if self.cuda_tracer:
+      traced_values = cuda_tracer.cuda_trace(
+        pixels,
+        self.convergence,
+        self.shear,
+        stars_mass.to("solMass").value,
+        stars_positions.to("theta_0").value,
+      )
+    else:
+      traced_values = trace(
+        pixels,
+        self.convergence,
+        self.shear,
+        stars_mass.to("solMass").value,
+        stars_positions.to("theta_0").value,
+        True
+      )
 
     return u.Quantity(traced_values, rays.unit)
 

@@ -27,6 +27,8 @@ def load_settings(settings_type: type) -> object:
   key = _settings_type_to_key(settings_type)
   if key not in _settings_dict():
     logger.debug(f"Settings for type {key} not found. Returning default settings.")
+    if hasattr(settings_type, 'create_default'):
+      return settings_type.create_default()
     return settings_type()
   try:
     return Dictify.from_dict(settings_type, _settings_dict()[key])

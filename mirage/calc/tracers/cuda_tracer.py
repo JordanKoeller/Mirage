@@ -46,7 +46,7 @@ class CudaTracer:
     program_options = ProgramOptions(std="c++17", arch=f"sm_{self.device.arch}")
     self.program = Program(self._program_source_code, code_type="c++", options=program_options)
     self.cuda_module = self.program.compile("cubin", name_expressions=("ray_trace_cuda<double>",))
-    self.kernel = mod.get_kernel("ray_trace_cuda<double>")
+    self.kernel = self.cuda_module.get_kernel("ray_trace_cuda<double>")
 
   def cuda_trace(
     self,
@@ -70,8 +70,9 @@ class CudaTracer:
     self.device.sync()
 
     # prepare launch
+    num_rays = rays_x.shape[0] * rays_y.shape[1]
     block = 256
-    grid = (size + block - 1) // block
+    grid = (num_rays + block - 1) // block
     config = LaunchConfig(grid=grid, block=block)
 
     launch(
@@ -80,6 +81,7 @@ class CudaTracer:
         self.kernel,
         rays_x.data.ptr,
         rays_y.data.ptr,
+        cp.uint64(num_rays),
         cp.float64(kap),
         cp.float64(gam),
         stars_x.data.ptr,
@@ -97,47 +99,3 @@ class CudaTracer:
     self.stream.close()
 
     return rays
-
-
-# def main():
-#     dev = Device()
-#     dev.set_current()
-#     stream = dev.create_stream()
-
-#     try:
-#         # prepare program
-#         program_options = ProgramOptions(std="c++17", arch=f"sm_{dev.arch}")
-#         prog = Program(code, code_type="c++", options=program_options)
-#         mod = prog.compile("cubin", name_expressions=("ray_trace_cuda<double>",))
-
-#         # run in single precision
-#         kernel = mod.get_kernel("ray_trace_cuda<double>")
-#         dtype = cp.float64
-
-#         # prepare input/output
-#         size = 50000
-#         rng = cp.random.default_rng()
-#         a = rng.random(size, dtype=dtype)
-#         b = rng.random(size, dtype=dtype)
-#         c = cp.empty_like(a)
-
-#         # cupy runs on a different stream from stream, so sync before accessing
-#         dev.sync()
-
-#         # prepare launch
-#         block = 256
-#         grid = (size + block - 1) // block
-#         config = LaunchConfig(grid=grid, block=block)
-
-#         # launch kernel on stream
-#         launch(stream, config, kernel, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(size))
-#         stream.sync()
-
-#         # check result
-#         assert cp.allclose(c, a + b)
-#     finally:
-#         stream.close()
-
-
-# if __name__ == "__main__":
-#     main()

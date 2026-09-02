@@ -96,7 +96,9 @@ class ClusterProvider(ABC):
   def create_default() -> Self:
     return LocalClusterProvider(
       num_workers=1,
-      threads_per_worker=1
+      threads_per_worker=1,
+      rays_per_chunk=100_000_000,
+      cache_config=CacheConfig(location=CacheLocation.CACHE_LOCATION_NONE)
     )
 
   def __del__(self) -> None:
@@ -108,7 +110,7 @@ class ClusterProvider(ABC):
 class LocalClusterProvider(ClusterProvider):
   num_workers: int = field(default_factory=multiprocessing.cpu_count)
   threads_per_worker: int = 1
-  worker_mem: str = field(default_factory=lambda: "1.5GiB")
+  worker_mem: str = field(default_factory=lambda: "8.0GiB")
   rays_per_chunk: int = field(default_factory=lambda: 1e6)
   cache_config: CacheConfig = field(default_factory=CacheConfig)
   reducers_chunk_size: int = 0

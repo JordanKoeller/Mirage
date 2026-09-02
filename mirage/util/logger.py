@@ -1,17 +1,31 @@
 import logging
 import logging.handlers
 import multiprocessing
-import threading
 from logging import Logger
-
-logger = logging.getLogger(__name__)
+import sys
 
 _LOG_FORMAT = (
   "%(asctime)s [%(processName)13s] %(levelname)5s - %(name)12s | %(message)s"
 )
 
+_LOGGING_LEVELS = {
+  "DEBUG": logging.DEBUG,
+  "INFO": logging.INFO,
+  "WARNING": logging.WARNING,
+  "ERROR": logging.ERROR,
+  "CRITICAL": logging.CRITICAL,
+}
+
 
 def init_multiprocessing_logger(filename: str, level, queue=None):
+  if isinstance(level, str):
+    level = _LOGGING_LEVELS.get(level)
+    if level is None:
+      print(
+        f"WARNING: specified log {level=} is invalid. Defaulting to logging INFO and above.",
+        file=sys.stderr,
+      )
+      level = logging.INFO
   config = {
     "version": 1,
     "disable_existing_loggers": False,

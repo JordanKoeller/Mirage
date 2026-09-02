@@ -13,10 +13,24 @@ from mirage.util import (
 from mirage.calc import Engine
 from mirage.io import ResultFileManager
 
+_HELP_PROLOGUE = """
+Mirage: A program for simulating and visualizing high-fidelity gravitational lensing
+and microlensing.
+"""
+
+_HELP_EPILOGUE = """
+In addition to command line arguments, additional configurations may be provided via
+a `mirage.yaml` config file, located at `~/.config/mirage.yaml` by default, or at any
+location specified via the MIRAGE_CONFIG_FILE environment variable.
+"""
+
 
 class MirageMain:
   def __init__(self):
-    self.parser = argparse.ArgumentParser()
+    self.parser = argparse.ArgumentParser(
+      description=_HELP_PROLOGUE,
+      epilog=_HELP_EPILOGUE,
+    )
     self._bind_arguments()
     self.args = self.parser.parse_args()
     self.configure_logger()
@@ -29,17 +43,6 @@ class MirageMain:
       required=False,
       nargs=1,
       help="Simulation yaml file to load",
-    )
-    self.parser.add_argument(
-      "-c",
-      "--cluster",
-      required=False,
-      nargs=1,
-      type=str,
-      default="cluster.yaml",
-      help="Filename containing the cluster spec to use. If not provided, the program"
-      "looks for a `cluster.yaml` in the current directory. Otherwise, a default"
-      "cluster on localhost is provisioned",
     )
     self.parser.add_argument(
       "-w",
@@ -59,6 +62,14 @@ class MirageMain:
       help="directory to save logs to. If not provided a temporary directory is chosen",
     )
     self.parser.add_argument(
+      "-ll",
+      "--log_level",
+      type=str,
+      required=False,
+      nargs=1,
+      help="What logging level to capture. Defaults to INFO logs and higher.",
+    )
+    self.parser.add_argument(
       "-v",
       "--viz",
       action="store_true",
@@ -70,7 +81,6 @@ class MirageMain:
       action="store_true",
       help="Launch in interractive mode",
     )
-    self.parser.add_argument("--debug", action="store_true", help="Log debug messages")
     self.parser.add_argument(
       "-f",
       "--force",
@@ -88,8 +98,10 @@ class MirageMain:
     return os.path.join(directory, f"debug_{len(existing_files)}.log")
 
   def configure_logger(self):
-    level = logging.DEBUG if self.args.debug else logging.INFO
-    self.queue_handler = init_multiprocessing_logger(self.logfile, level)
+    log_level = logging.INFO
+    if self.args.log_level:
+      log_level = self.args.log_level[0]
+    self.queue_handler = init_multiprocessing_logger(self.logfile, log_level)
     self.logger = logging.getLogger("mirage_main")
     self.logger.info("Writing logs to " + self.logfile)
 
@@ -139,6 +151,14 @@ class MirageMain:
     return experiment
 
   def run_batch_mode(self):
+    """
+    Executes Mirage in batch mode.
+
+    This is the main entrypoint for running a batch Experiment. It takes care of creating
+    an engine, loading in the Experiment from file, and executing all simulations / reducers.
+
+    The results is saved out to the file specified via the --write flag.
+    """
     if not main.output_file:
       raise ValueError("Cannot run batch-mode without an output file specified.")
     experiment = self.load_experiment()
@@ -161,12 +181,11 @@ class MirageMain:
         reporter = serializer.result_reporter(result.result_key)
         result.reducer.save(reporter)
     except EOFError as e:
-        self.logger.info("Stream closed.")
-        pass
+      self.logger.info("Stream closed.")
+      pass
     except Exception as e:
       self.logger.error("Encountered Error!")
       raise e
-      self.logger.error(str(e))
     finally:
       serializer.close()
       self.logger.info("Result saved to %s", self.output_file)

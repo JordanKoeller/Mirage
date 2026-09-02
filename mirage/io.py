@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def _to_filename(result_key: str, fragment: str) -> str:
-  return os.path.join(result_key, fragment)
+  return f"{result_key}/{fragment}" #  os.path.join(result_key, fragment)
 
 
 @dataclass

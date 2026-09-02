@@ -4,7 +4,6 @@
 #include <functional>
 #include <iostream>
 #include <queue>
-#include <stdfloat>
 #include <vector>
 
 // A header-only KD-Tree, hyper-optimized for the Mirage usecase.
@@ -198,14 +197,16 @@ inline void CKDTree::get(size_t i, double *out) {
 
 // TODO: Maybe optimize this to skip an extra copy?
 inline void CKDTree::swap(size_t i, size_t j) {
-  double i_vals[elem_sz_];
-  double j_vals[elem_sz_];
+  double* i_vals = new double[elem_sz_];
+  double* j_vals = new double[elem_sz_];
   int i_idx = indices_[i];
   int j_idx = indices_[j];
   get(i, i_vals);
   get(j, j_vals);
   set(i, j_vals, j_idx);
   set(j, i_vals, i_idx);
+  delete[] i_vals;
+  delete[] j_vals;
 }
 
 inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
@@ -213,8 +214,8 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
   size_t l = start;
   size_t ir = end - 1;
   size_t i, j, mid, a_j_idx, a_idx;
-  double a[elem_sz_];
-  double a_j[elem_sz_];
+  double* a = new double[elem_sz_];
+  double* a_j = new double[elem_sz_];
 
   // Pointer to the first double along the partitioning buffer.
   double *arr = &buf_[sz_ * dimension];
@@ -264,6 +265,8 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
       l = i;
     }
   }
+  delete[] a;
+  delete[] a_j;
 }
 
 inline void CKDTree::init_tree() {

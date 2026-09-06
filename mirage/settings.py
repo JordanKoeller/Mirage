@@ -31,7 +31,9 @@ def load_settings(settings_type: type) -> object:
       return settings_type.create_default()
     return settings_type()
   try:
-    return Dictify.from_dict(settings_type, _settings_dict()[key])
+    ret = Dictify.from_dict(settings_type, _settings_dict()[key])
+    print("Returning settings: ", ret)
+    return ret
   except ValueError:
     logger.debug(f"Could not parse settings of type {key}. Returning default settings.")
     return settings_type()

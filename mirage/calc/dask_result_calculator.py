@@ -18,6 +18,7 @@ import dask.distributed
 import dask
 import numpy as np
 
+from mirage.settings import load_settings
 from mirage.sim import Simulation
 from mirage.calc import Reducer, KdTree, RayTracer, ResultCalculator
 from mirage.util import (
@@ -26,8 +27,8 @@ from mirage.util import (
   size_to_bytes,
   bytes_to_size,
   CacheLocation,
-  CacheConfig,
-  Stopwatch,
+  timeit,
+  DaskSettings,
 )
 
 logger = logging.getLogger(__name__)
@@ -35,17 +36,6 @@ logger = logging.getLogger(__name__)
 PARTITION_SIZE_RANGE = ["10MB", "100MB"]
 RAYS_PER_PARTITION = list(map(lambda s: size_to_bytes(s) / 16, PARTITION_SIZE_RANGE))
 MAX_REDUCERS_PER_COMPUTATION = 100
-
-
-def timeit(f):
-  def func(*args, **kwargs):
-    stopwatch = Stopwatch()
-    with stopwatch.timeit():
-      ret = f(*args, **kwargs)
-    print(f"Timeit {f.__name__} {stopwatch.total_elapsed_seconds()}")
-    return ret
-
-  return func
 
 
 @dataclass
@@ -84,7 +74,7 @@ def _apply_reducers(reducers: list[Reducer], kd_tree: KdTree) -> Reducer:
 
 
 @timeit
-def _persist_to_disk(cache_config: CacheConfig, tree: KdTree) -> str:
+def _persist_to_disk(compression_level: int, tree: KdTree) -> str:
   """
   Persists the kdTree to disk as a temporary file.
 
@@ -94,14 +84,14 @@ def _persist_to_disk(cache_config: CacheConfig, tree: KdTree) -> str:
   with gzip.open(
     os.path.join(dir_path, "data.pickle.gz"),
     "wb+",
-    compresslevel=cache_config.compression_level,
+    compresslevel=compression_level,
   ) as f:
     pickle.dump(tree, f)
   return dir_path
 
 
 @timeit
-def _load_persisted_from_disk(cache_config: CacheConfig, dir_path: str) -> KdTree:
+def _load_persisted_from_disk(compression_level: int, dir_path: str) -> KdTree:
   """
   Loads a KdTree that was persisted to disk by a call to
   _persist_to_disk back into memory.
@@ -109,7 +99,7 @@ def _load_persisted_from_disk(cache_config: CacheConfig, dir_path: str) -> KdTre
   with gzip.open(
     os.path.join(dir_path, "data.pickle.gz"),
     "rb",
-    compresslevel=cache_config.compression_level,
+    compresslevel=compression_level,
   ) as f:
     return pickle.load(f)
 
@@ -137,9 +127,11 @@ def _merge_reducers(aa: list[Reducer], bb: list[Reducer]) -> Reducer:
 class DaskResultCalculator(ResultCalculator):
   cluster_provider: ClusterProvider
   trees: object | None = None
+  settings: DaskSettings | None = None
 
   def initialize(self) -> None:
     self.cluster_provider.initialize()
+    self.settings = load_settings(DaskSettings)
     logger.info(f"Dask Cluster hosted at {self.cluster_provider.dashboard}")
 
   def deinit(self) -> None:
@@ -153,12 +145,6 @@ class DaskResultCalculator(ResultCalculator):
     self.cluster_provider.close()
 
   def raytrace(self, simulation: Simulation) -> None:
-    # if (
-    #   self._cache_location == CacheLocation.CACHE_LOCATION_DISK
-    #   and self.trees is not None
-    # ):
-    #   logger.info("Destroying existing trees.")
-    #   dask.compute(self.trees.map(_cleanup_persisted_trees), sync=True)
     partition_size = self.cluster_provider.rays_per_partition
     with simulation.special_units():
       ray_tracer = simulation.get_ray_tracer()
@@ -190,7 +176,7 @@ class DaskResultCalculator(ResultCalculator):
       return
     if self._cache_location == CacheLocation.CACHE_LOCATION_DISK:
       trees_lazy = trees_lazy.map(
-        partial(_persist_to_disk, self.cluster_provider.cache_config)
+        partial(_persist_to_disk, self.settings.compression_level)
       )
     self.trees = self.cluster_provider.client.persist(trees_lazy)
 
@@ -206,11 +192,11 @@ class DaskResultCalculator(ResultCalculator):
     trees = self.trees
     if self._cache_location == CacheLocation.CACHE_LOCATION_DISK:
       trees = trees.map(
-        partial(_load_persisted_from_disk, self.cluster_provider.cache_config)
+        partial(_load_persisted_from_disk, self.settings.compression_level)
       )
     for reducers_batch in itertools.batched(
       reducers,
-      self.cluster_provider.reducers_chunk_size or MAX_REDUCERS_PER_COMPUTATION,
+      self.settings.reducer_chunk_size or MAX_REDUCERS_PER_COMPUTATION,
     ):
       reducer_futures = trees.map(partial(_apply_reducers, reducers_batch)).fold(
         _merge_reducers
@@ -222,4 +208,4 @@ class DaskResultCalculator(ResultCalculator):
 
   @property
   def _cache_location(self) -> CacheLocation:
-    return self.cluster_provider.cache_config.location
+    return self.settings.cache_location

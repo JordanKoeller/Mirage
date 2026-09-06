@@ -2,6 +2,9 @@ from datetime import datetime
 from contextlib import contextmanager
 
 from logging import Logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Stopwatch:
@@ -25,9 +28,9 @@ class Stopwatch:
 
   @contextmanager
   def timeit(self):
-      self.start()
-      yield
-      self.stop()
+    self.start()
+    yield
+    self.stop()
 
   def total_elapsed_seconds(self) -> float:
     start = self._start_times[0]
@@ -58,10 +61,10 @@ class LabeledStopwatch:
 
   @contextmanager
   def timeit(self, label: str):
-      stopwatch = self.get_or_create_stopwatch(label)
-      stopwatch.start()
-      yield
-      stopwatch.stop()
+    stopwatch = self.get_or_create_stopwatch(label)
+    stopwatch.start()
+    yield
+    stopwatch.stop()
 
   def get_or_create_stopwatch(self, label: str) -> Stopwatch:
     if label not in self.watches:
@@ -79,3 +82,12 @@ class LabeledStopwatch:
       )
 
 
+def timeit(f):
+  def func(*args, **kwargs):
+    stopwatch = Stopwatch()
+    with stopwatch.timeit():
+      ret = f(*args, **kwargs)
+    logger.debug(f"Timeit {f.__name__} {stopwatch.total_elapsed_seconds()}")
+    return ret
+
+  return func

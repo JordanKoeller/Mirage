@@ -3,7 +3,7 @@ import dataclasses
 
 @dataclasses.dataclass
 class VizConfig:
-  io_cache_size: str | int = "4GB"
+  io_cache_size: str = "4GB"
   default_layers: list[str] = dataclasses.field(
     default_factory=lambda: ["Debug", "Magmap", "LensedImageController"]
   )

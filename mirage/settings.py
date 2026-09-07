@@ -27,16 +27,20 @@ def load_settings(settings_type: type) -> object:
   key = _settings_type_to_key(settings_type)
   if key not in _settings_dict():
     logger.debug(f"Settings for type {key} not found. Returning default settings.")
-    if hasattr(settings_type, 'create_default'):
-      return settings_type.create_default()
-    return settings_type()
+    return _default(settings_type)
   try:
     ret = Dictify.from_dict(settings_type, _settings_dict()[key])
-    print("Returning settings: ", ret)
+    logger.debug("Returning settings: ", ret)
     return ret
   except ValueError:
-    logger.debug(f"Could not parse settings of type {key}. Returning default settings.")
-    return settings_type()
+    logger.warning(f"Could not parse settings of type {key}. Returning default settings.")
+    return _default(settings_type)
+
+
+def _default(settings_type: type) -> object:
+  if hasattr(settings_type, "create_default"):
+    return settings_type.create_default()
+  return settings_type()
 
 
 def _settings_type_to_key(settings_type: type) -> str:

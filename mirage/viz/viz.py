@@ -43,6 +43,14 @@ class _ControllerState:
   artists: List[Artist]
   widgets: List[AxesWidget]
 
+  def disable(self) -> None:
+    if not self.enabled:
+      return
+    self.enabled = False
+    for artist in self.artists:
+      artist.remove()
+    self.controller.reset()
+
 
 class Viz:
   """
@@ -91,11 +99,15 @@ class Viz:
       self._window.figure,
       self.draw,
       interval=1000 / config.max_fps,
-      # blit=True,
+      blit=False,
       cache_frame_data=False,
     )
 
   def _on_mouse_event(self, event) -> None:
+    tool = self._window.figure.canvas.toolbar.mode
+    if tool:
+      # Matplotlib special tool is selected, so ignore events.
+      return
     panel = None
     if event.inaxes == self._window.im_axes:
       panel = Panel.IMAGE
@@ -171,6 +183,15 @@ class Viz:
         controller = self._controllers.get(layer_name)
         artists.append(controller.control_button)
         if not controller.enabled:
+          if controller.artists:
+            for artist in controller.artists:
+              try:
+                artist.remove()
+              except:
+                pass
+            controller.controller.reset()
+            controller.artists = []
+            did_draw = True
           continue
         did_draw, artists = controller.controller.do_draw(
           self._model,
@@ -190,7 +211,7 @@ class Viz:
       if self._animate:
         self.next_simulation(rollover=True)
     if fps_logger.info(f"{1 / self._stopwatch.avg_elapsed_seconds()} fps"):
-        self._stopwatch.reset()
+      self._stopwatch.reset()
     return artists
 
   def toggle_layer(self, layer_name: str) -> None:

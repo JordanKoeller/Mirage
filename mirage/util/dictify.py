@@ -256,9 +256,12 @@ class Dictify:
 
   @staticmethod
   def _has_custom_dictify(klass: Type[T]) -> bool:
-    return issubclass(klass, DictifyMixin) or (
-      hasattr(klass, "from_dict") and hasattr(klass, "to_dict")
-    )
+    try:
+      return issubclass(klass, DictifyMixin) or (
+        hasattr(klass, "from_dict") and hasattr(klass, "to_dict")
+      )
+    except TypeError:
+      return False
 
   @staticmethod
   def _dataclass_from_dict(klass: Type[T], dict_obj: Dict[str, Any]) -> T:

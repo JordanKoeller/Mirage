@@ -25,15 +25,14 @@ not necessary now.
 """
 
 import logging
-import dataclasses
 import enum
 
 from matplotlib.figure import Figure
-from matplotlib.gridspec import GridSpec
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.widgets import Button
 from matplotlib.text import Text
+import matplotlib.style as mplstyle
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +48,9 @@ class MirageAxes(enum.Enum):
 
 class VizWindow:
   def __init__(self):
+    mplstyle.use(["fast"])
     # General high-level organization
-    self._plot_fig: Figure = plt.figure(
-      clear=True, layout="constrained", figsize=[6.0, 6.0]
-    )
+    self._plot_fig: Figure = plt.figure(layout="constrained", figsize=[6.0, 6.0])
     self._plot_axes = self._plot_fig.subplot_mosaic(
       [
         ["title"],
@@ -68,7 +66,7 @@ class VizWindow:
 
     # UI Input Elements
     self._widgets_fig = plt.figure(
-      clear=True, layout="constrained", frameon=False, figsize=[6.4, 8.0]
+      layout="constrained", frameon=False, figsize=[6.4, 8.0]
     )
     self._widget_axes = self._widgets_fig.subplot_mosaic(
       [

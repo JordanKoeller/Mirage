@@ -6,6 +6,7 @@ from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.widgets import AxesWidget
 
+from mirage.calc import Reducer
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.viz.viz_state import VizState, VizEvent
 from mirage.util import VariantKey

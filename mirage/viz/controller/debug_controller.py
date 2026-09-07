@@ -1,16 +1,14 @@
-import sys
-
 import numpy as np
+from typing import Iterable
 
 from mirage.viz.window import VizWindow, MirageAxes
-from mirage.calc.reducers import MagnificationMapReducer
-from mirage.viz.viz_state import VizState, VizEvent, Panel
+from mirage.calc import Reducer
+from mirage.viz.viz_state import VizState
 from mirage.viz.controller import Controller
-from mirage.util import Index2D, VariantKey, Vec2D
 
-from matplotlib.lines import Line2D
-from matplotlib.widgets import AxesWidget, Button, CheckButtons
+from matplotlib.widgets import AxesWidget, CheckButtons
 from matplotlib.artist import Artist
+from matplotlib.axes import Axes
 
 _RENDER_SOURCE_PLANE = "Render Source Plane"
 _RENDER_LENS_PLANE = "Render Lens Plane"
@@ -31,8 +29,8 @@ class DebugController(Controller):
 
   def reset(self) -> None:
     self._render_controls = {
-      _RENDER_SOURCE_PLANE: True,
-      _RENDER_LENS_PLANE: True,
+      _RENDER_SOURCE_PLANE: False,
+      _RENDER_LENS_PLANE: False,
       _RENDER_STARS: False,
     }
     self._artists = {

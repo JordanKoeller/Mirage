@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Iterable
 
@@ -14,10 +13,11 @@ import numpy as np
 
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.viz.viz_settings import VizConfig
+from mirage.calc.reducer import Reducer
 from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
 from mirage.viz.controller import Controller
-from mirage.util import Index2D, VariantKey, Vec2D
+from mirage.util import VariantKey, Vec2D
 from mirage.settings import load_settings
 
 
@@ -58,7 +58,7 @@ class MagMapController(Controller):
       )
     except ValueError:
       return artists
-    magnitudes = reducer.magnitudes
+    magnitudes = reducer.magnitudes.value
 
     settings = load_settings(VizConfig)
 
@@ -85,12 +85,15 @@ class MagMapController(Controller):
     artists.append(self._img)
 
     if self._colorbar is None:
+      cax = window.im_axes.inset_axes([1.0, 0.0, 0.05, 1.0])  # Positioning the colorbar
       self._colorbar = window.figure.colorbar(
         self._img,
         ax=window.im_axes,
+        cax=cax,
         pad=0.01,
         fraction=0.05,
-        location="bottom",
+        location="right",
+        orientation="vertical",
       )
       self._colorbar.set_label("Magnitudes")
     else:

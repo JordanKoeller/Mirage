@@ -109,7 +109,7 @@ class LensedImageController(Controller):
       self._canvas = np.ndarray((*img.shape, 3), dtype=np.uint8)
     draw_lensed_image(self._canvas, img, _COLOR_PALETTE, self._normalization_factor)
 
-    tl, br = state.lens_region.to("uas").span
+    tl, br = state.lens_region.to(state.length_unit).span
     if self._img is None:
       self._img = window.im_axes.imshow(
         self._canvas,

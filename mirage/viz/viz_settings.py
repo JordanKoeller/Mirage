@@ -9,3 +9,4 @@ class VizConfig:
   )
   colormap: str = "RdBu"
   max_fps: int = 20
+  length_unit: str = "theta_0"

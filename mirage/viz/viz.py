@@ -187,11 +187,10 @@ class Viz:
             for artist in controller.artists:
               try:
                 artist.remove()
-              except:
+              except BaseException:
                 pass
             controller.controller.reset()
             controller.artists = []
-            did_draw = True
           continue
         did_draw, artists = controller.controller.do_draw(
           self._model,

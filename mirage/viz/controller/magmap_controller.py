@@ -64,7 +64,7 @@ class MagMapController(Controller):
 
     colormap = plt.get_cmap(settings.colormap)
 
-    tl, br = reducer.source_region.to("uas").span
+    tl, br = reducer.source_region.to(state.length_unit).span
     if self._img is None:
       self._img = window.im_axes.imshow(
         magnitudes,

@@ -29,6 +29,7 @@ controllers can be added / removed programatically or via the UI.
 
 """
 
+from .viz_settings import VizConfig
 from .viz import Viz
 from .window import VizWindow, MirageAxes
 from .controller import (
@@ -38,8 +39,7 @@ from .controller import (
   DebugController,
   LensedImageController,
 )
-from .viz_state import VizState, Panel, VizEvent, RealtimeParameters, RealTimeVizState
-from .viz_settings import VizConfig
+from .viz_state import VizState, Panel, VizEvent, RealTimeVizState
 
 _CONTROLLERS = {
   "MagMapController": MagMapController,
@@ -78,5 +78,5 @@ __all__ = [
   "MirageAxes",
   "RealTimeVizState",
   "create_layers",
-  "VizConfig"
+  "VizConfig",
 ]

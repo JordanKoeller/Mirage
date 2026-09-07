@@ -1,10 +1,14 @@
+from typing import Iterable
+
 import numpy as np
+from astropy import units as u
 
 from matplotlib.lines import Line2D
 from matplotlib.widgets import AxesWidget, Button
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 
+from mirage.calc import Reducer
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.calc.reducers import LightCurvesReducer
 from mirage.viz.controller import Controller
@@ -36,15 +40,15 @@ class LightcurvesController(Controller):
       reducer = self.find_reducer(state, LightCurvesReducer, self._reducer_name)
     except ValueError:
       return artists
-    tl, br = state.source_region.to("uas").span
+    tl, br = state.source_region.to(state.length_unit).span
     self.request_bounds(
       MirageAxes.IMAGE, tl.x.value, br.x.value, br.y.value, tl.y.value
     )
     if len(self._lines) == 0:
       for lightcurve in reducer.lightcurves:
         line = Line2D(
-          [lightcurve.start_pos.x.value, lightcurve.end_pos.x.value],
-          [lightcurve.start_pos.y.value, lightcurve.end_pos.y.value],
+          [lightcurve.start_pos.to(state.length_unit).x.value, lightcurve.end_pos.to(state.length_unit).x.value],
+          [lightcurve.start_pos.to(state.length_unit).y.value, lightcurve.end_pos.to(state.length_unit).y.value],
           linewidth=2,
           color=_NON_SELECTED_COLOR,
           pickradius=5,
@@ -73,6 +77,7 @@ class LightcurvesController(Controller):
           state, LightCurvesReducer, variant_key=variant_key
         ).lightcurves[self._selected_line],
         window,
+        state.length_unit,
       )
       if was_drawn:
         artists.append(self._lightcurves[variant_key])
@@ -117,6 +122,7 @@ class LightcurvesController(Controller):
     primary: bool,
     lightcurve: Lightcurve,
     window: VizWindow,
+    length_unit: u.UnitBase,
   ) -> bool:
     x = np.linspace(
       0,
@@ -131,7 +137,7 @@ class LightcurvesController(Controller):
         label=str(variant_key),
         alpha=1.0 if primary else 0.25,
       )[0]
-      window.line_axes.set_xlabel(lightcurve.end_pos.unit)
+      window.line_axes.set_xlabel(length_unit)
       window.line_axes.set_ylabel("Magnitudes")
     else:
       self._lightcurves[variant_key].set_data(x, lightcurve.magnitudes)

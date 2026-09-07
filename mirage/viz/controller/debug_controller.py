@@ -46,11 +46,11 @@ class DebugController(Controller):
       if not self._render_controls[k]:
         continue  # Don't draw things that don't need rendered.
       if k == _RENDER_SOURCE_PLANE:
-        tl, br = state.source_region.to("uas").span
+        tl, br = state.source_region.to(state.length_unit).span
         self.request_bounds(
           MirageAxes.IMAGE, tl.x.value, br.x.value, tl.y.value, br.y.value
         )
-        bounds = state.source_region.outline.to("uas")
+        bounds = state.source_region.outline.to(state.length_unit)
         if self._artists[k]:
           self._artists[k].set_data(bounds[:, 0], bounds[:, 1])
         else:
@@ -58,11 +58,11 @@ class DebugController(Controller):
             bounds[:, 0], bounds[:, 1], label="Source Region"
           )[0]
       if k == _RENDER_LENS_PLANE:
-        tl, br = state.lens_region.to("uas").span
+        tl, br = state.lens_region.to(state.length_unit).span
         self.request_bounds(
           MirageAxes.IMAGE, tl.x.value, br.x.value, tl.y.value, br.y.value
         )
-        bounds = state.lens_region.outline.to("uas")
+        bounds = state.lens_region.outline.to(state.length_unit)
         if self._artists[k]:
           self._artists[k].set_data(bounds[:, 0], bounds[:, 1])
         else:
@@ -74,7 +74,7 @@ class DebugController(Controller):
         stars_mass, stars_positions = ray_tracer.starfield.get_starfield(
           ray_tracer.star_mass, ray_tracer.starfield_angular_radius
         )
-        stars_positions = stars_positions.to("uas")
+        stars_positions = stars_positions.to(state.length_unit)
         self.request_bounds(
           MirageAxes.IMAGE,
           np.min(stars_positions[:, 0].value),

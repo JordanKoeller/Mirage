@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
 
+from astropy import units as u
+
 from matplotlib.backend_bases import MouseEvent, KeyEvent
 
 from mirage.calc import Engine
@@ -11,6 +13,8 @@ from mirage.lens_analysis.result import (
   InMemorySimulationResult,
 )
 from mirage.util import VariantKey, Vec2D, Region, PixelRegion
+from mirage.settings import load_settings
+from mirage.viz import VizConfig
 
 
 @dataclass
@@ -29,6 +33,12 @@ class VizState:
   @cached_property
   def variant_keys(self) -> list[VariantKey]:
     return self._experiment.keys
+
+  @cached_property
+  def length_unit(self) -> u.UnitBase:
+    with self.simulation_result().simulation.special_units():
+      settings = load_settings(VizConfig)
+      return u.Quantity(1, settings.length_unit).unit
 
   def simulation_result(
     self, variant_key: VariantKey | None = None

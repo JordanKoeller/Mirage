@@ -47,8 +47,14 @@ class LightcurvesController(Controller):
     if len(self._lines) == 0:
       for lightcurve in reducer.lightcurves:
         line = Line2D(
-          [lightcurve.start_pos.to(state.length_unit).x.value, lightcurve.end_pos.to(state.length_unit).x.value],
-          [lightcurve.start_pos.to(state.length_unit).y.value, lightcurve.end_pos.to(state.length_unit).y.value],
+          [
+            lightcurve.start_pos.to(state.length_unit).x.value,
+            lightcurve.end_pos.to(state.length_unit).x.value,
+          ],
+          [
+            lightcurve.start_pos.to(state.length_unit).y.value,
+            lightcurve.end_pos.to(state.length_unit).y.value,
+          ],
           linewidth=2,
           color=_NON_SELECTED_COLOR,
           pickradius=5,
@@ -95,11 +101,15 @@ class LightcurvesController(Controller):
       return False
     if event.name != "button_press_event":
       return False
+    contains_event = False
     for i, line in enumerate(self._lines):
-      contains_event, _ = line.contains(event.mouse_event)
-      if contains_event:
+      line_contains_event, _ = line.contains(event.mouse_event)
+      if line_contains_event:
         self._selected_line = i
+        contains_event = True
         break
+    if not contains_event:
+      self._selected_line = -1
     self.request_draw()
     return True
 

@@ -39,7 +39,7 @@ from .controller import (
   DebugController,
   LensedImageController,
 )
-from .viz_state import VizState, Panel, VizEvent, RealTimeVizState
+from .viz_state import VizState, Panel, VizEvent, RealTimeVizState, RealtimeParameters
 
 _CONTROLLERS = {
   "MagMapController": MagMapController,
@@ -48,6 +48,7 @@ _CONTROLLERS = {
   "MagMap": MagMapController,
   "Magmap": MagMapController,
   "Lightcurves": LightcurvesController,
+  "Lightcurve": LightcurvesController,
   "Debug": DebugController,
   "LensedImageController": LensedImageController,
   "LensedImage": LensedImageController,
@@ -61,7 +62,6 @@ def create_layers(*layers: list[str | Controller]) -> list[Controller]:
       ret.append(layer)
       continue
     ret.append(_CONTROLLERS[layer]())
-  print("layers", ret)
   return ret
 
 
@@ -79,4 +79,5 @@ __all__ = [
   "RealTimeVizState",
   "create_layers",
   "VizConfig",
+  "RealtimeParameters",
 ]

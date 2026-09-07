@@ -181,7 +181,6 @@ class Viz:
       bounds = None
       for layer_name in self._model.layers:
         controller = self._controllers.get(layer_name)
-        artists.append(controller.control_button)
         if not controller.enabled:
           if controller.artists:
             for artist in controller.artists:
@@ -192,15 +191,14 @@ class Viz:
             controller.controller.reset()
             controller.artists = []
           continue
-        did_draw, artists = controller.controller.do_draw(
+        did_draw, controller_artists = controller.controller.do_draw(
           self._model,
           self._window,
           force=force or new_realtime_result or self._animate,
         )
         if did_draw:
-          controller.artists = artists
-        controller = self._controllers.get(layer_name)
-        artists.extend(controller.artists)
+          controller.artists = controller_artists
+          artists.extend(controller.artists)
         if bounds is None:
           bounds = controller.controller._bounds
         else:

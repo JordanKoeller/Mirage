@@ -5,6 +5,7 @@ from mirage.sim import Experiment
 from mirage.util import LRUCache
 from .result import ExperimentResult
 from mirage.viz import (
+  VizConfig,
   Viz,
   VizWindow,
   VizState,
@@ -12,7 +13,6 @@ from mirage.viz import (
   Controller,
   create_layers,
   RealTimeVizState,
-  VizConfig,
 )
 from mirage.io import ResultFileManager
 from mirage.settings import load_settings
@@ -68,7 +68,7 @@ def visualize_realtime(
     model=RealTimeVizState(
       realtime_parameters=realtime_parameters,
       simulation=result.simulations()[0][1],
-      engine=Engine.create_default()
+      engine=Engine.create_default(),
     ),
     view=VizWindow(),
     controllers=create_layers(*(layers or ["Debug", "LensedImageController"])),

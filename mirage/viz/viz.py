@@ -91,7 +91,7 @@ class Viz:
     self._window.figure.canvas.mpl_connect(
       "motion_notify_event", lambda event: self._on_mouse_event(event)
     )
-    self._create_variants_checkboxes()
+    # self._create_variants_checkboxes()
 
     self.show()
 

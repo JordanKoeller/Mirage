@@ -66,24 +66,6 @@ class VizState:
     Advance to the next variant. Returns False if there are no more variants
     to advance to, in which case this method does nothing.
     """
-    variant_key_index = self._variant_key_index
-    curr_variant_key = self._experiment.keys[variant_key_index]
-    flag = True
-    while flag:
-      if not rollover and variant_key_index + 1 == len(self._experiment.keys):
-        return False
-      variant_key_index = (variant_key_index + 1) % len(self._experiment.keys)
-      flag = len(self.locked_variants) != 0
-      for locked_variant in self.locked_variants:
-        if (
-          curr_variant_key[locked_variant.name]
-          != self._experiment.keys[variant_key_index][locked_variant.name]
-        ):
-          flag = False
-    old_index = self._variant_key_index
-    self._variant_key_index = variant_key_index
-    return old_index != variant_key_index
-
     if rollover:
       self._variant_key_index = (self._variant_key_index + 1) % len(self.variant_keys)
       return True

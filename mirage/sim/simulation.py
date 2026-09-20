@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass, field, fields
 from typing import Optional, List, Type, Any
 import copy

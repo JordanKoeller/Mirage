@@ -69,6 +69,9 @@ class VariantKey:
   def __hash__(self) -> int:
     return hash(str(self))
 
+  def __getitem__(self, name: str) -> Any:
+    return self._keys[name]
+
   def __eq__(self, other: object) -> bool:
     if type(self) is not type(other):
       return False

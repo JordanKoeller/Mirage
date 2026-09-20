@@ -5,7 +5,7 @@ from .region import Region, PixelRegion
 from .event_channel import DuplexChannel, BidiStream
 from .stopwatch import Stopwatch, LabeledStopwatch, timeit
 from .conversions import size_to_bytes, bytes_to_size
-from .variant import ObjVariants, VariantKey, VariantDictify
+from .variant import ObjVariants, VariantKey, VariantDictify, Variant
 from .lru_cache import LRUCache
 
 from .custom_serializers import register_serializers
@@ -31,6 +31,7 @@ __all__ = [
   "DuplexChannel",
   "Stopwatch",
   "size_to_bytes",
+  "Variant",
   "bytes_to_size",
   "register_serializers",
   "ResultFileManager",

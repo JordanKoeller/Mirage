@@ -1,6 +1,7 @@
 from typing import List, Iterable
 import logging
 from dataclasses import dataclass
+import uuid
 
 from matplotlib import animation
 from matplotlib.artist import Artist
@@ -90,6 +91,7 @@ class Viz:
     self._window.figure.canvas.mpl_connect(
       "motion_notify_event", lambda event: self._on_mouse_event(event)
     )
+    self._create_variants_checkboxes()
 
     self.show()
 
@@ -264,6 +266,30 @@ class Viz:
     )
     self.draw(force=True)
     self._window.show()
+
+  def _create_variants_checkboxes(self) -> None:
+    variant_labels = {}
+    for variant in self._model._experiment.experiment._variants.values():
+      try:
+        uuid.UUID(variant.tag)
+        variant_labels[variant.name] = variant
+      except ValueError:
+        variant_labels[variant.tag] = variant
+    self._variant_checkbuttons = CheckButtons(
+      self._window.variants_checkbox,
+      labels=list(variant_labels.keys()),
+      actives=[True for _ in range(len(variant_labels))],
+    )
+    print("Had labels", variant_labels)
+
+    def on_click(label: str, *args, **kwargs) -> None:
+      for i, variant in enumerate(self._model.locked_variants):
+        if variant.name == label or variant.tag == label:
+          self._model.locked_variants.pop(i)
+          return
+      self._model.locked_variants.append(label)
+
+    self._variant_checkbuttons.on_clicked(on_click)
 
   def _update_axes_bounds(self, bounds: dict[MirageAxes, AxesBounds] | None) -> None:
     if bounds is None:

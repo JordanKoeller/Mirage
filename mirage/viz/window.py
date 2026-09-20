@@ -30,7 +30,7 @@ import enum
 from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
-from matplotlib.widgets import Button
+from matplotlib.widgets import Button, CheckButtons
 from matplotlib.text import Text
 import matplotlib.style as mplstyle
 
@@ -71,7 +71,7 @@ class VizWindow:
     self._widget_axes = self._widgets_fig.subplot_mosaic(
       [
         ["title"] * 6,
-        ["previous", "previous", "animate", "animate", "next", "next"],
+        ["previous", "animate", "animate", "variants", "variants", "next"],
         *[
           [
             f"l{i}",
@@ -141,6 +141,10 @@ class VizWindow:
   @property
   def animate_simulation_button(self) -> Button:
     return self._a_button
+
+  @property
+  def variants_checkbox(self) -> Axes:
+      return self._widget_axes["variants"]
 
   @property
   def text_box(self) -> Axes:

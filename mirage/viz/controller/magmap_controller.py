@@ -7,8 +7,6 @@ from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib import colors
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes
-from matplotlib.widgets import AxesWidget, Button
 import numpy as np
 
 from mirage.viz.window import VizWindow, MirageAxes
@@ -17,6 +15,7 @@ from mirage.calc.reducer import Reducer
 from mirage.calc.reducers import MagnificationMapReducer
 from mirage.viz.viz_state import VizState, VizEvent, Panel
 from mirage.viz.controller import Controller
+from mirage.viz.ui_builder import PanelBuilder, ButtonBuilder
 from mirage.util import VariantKey, Vec2D
 from mirage.settings import load_settings
 
@@ -101,8 +100,8 @@ class MagMapController(Controller):
 
     artists.extend(self._get_line_artist(window))
     legend_handles = []
-    for ind, variant_key in enumerate(state.variant_keys):
-      if not self._show_all_lines and state.variant_key != variant_key:
+    for ind, (variant_key, active) in enumerate(state.variant_keys):
+      if not active or (not self._show_all_lines and state.variant_key != variant_key):
         lightcurve = self._hide_lightcurve_artist(variant_key)
         if lightcurve:
           artists.append(lightcurve)
@@ -124,13 +123,14 @@ class MagMapController(Controller):
 
     return artists
 
-  def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
-    axes.set_axis_on()
-    button = Button(axes, "Show All")
-    button.on_clicked(lambda *args: self._toggle_show_all())
-    return [
-      button,
-    ]
+  def bind_widgets(self, state: VizState) -> PanelBuilder:
+    return PanelBuilder().add_row(
+      ButtonBuilder("checkbox")
+      .set_label("Show All")
+      .set_active(False)
+      .set_callback(lambda on: self._toggle_show_all())
+      .build()
+    )
 
   def on_event(self, state: VizState, event: VizEvent) -> bool:
     if event.panel != Panel.IMAGE:
@@ -142,7 +142,7 @@ class MagMapController(Controller):
         dragging=True,
         end_x=event.screen_pos.x,
         end_y=event.screen_pos.y,
-        unit=state.source_region.unit,
+        unit=state.length_unit,
       )
       self.request_draw()
       return True
@@ -157,7 +157,7 @@ class MagMapController(Controller):
         dragging=self._line_state.dragging,
         end_x=event.screen_pos.x,
         end_y=event.screen_pos.y,
-        unit=self._line_state.unit,
+        unit=state.length_unit,
       )
       self.request_draw()
       return True
@@ -168,7 +168,7 @@ class MagMapController(Controller):
         dragging=False,
         end_x=self._line_state.end_x,
         end_y=self._line_state.end_y,
-        unit=self._line_state.unit,
+        unit=state.length_unit,
       )
       self.request_draw()
       return True
@@ -219,6 +219,7 @@ class MagMapController(Controller):
     slice_y = []
     unit = ""
     if self._line_state and not self._line_state.dragging:
+      unit = str(self._line_state.unit)
       slice_x, slice_y = reducer.slice(
         Vec2D(
           self._line_state.start_x.value,
@@ -231,7 +232,6 @@ class MagMapController(Controller):
           self._line_state.unit,
         ),
       )
-      unit = str(slice_x.unit)
       slice_x = slice_x.value
     if variant_key not in self._lightcurves:
       self._lightcurves[variant_key] = window.line_axes.plot(

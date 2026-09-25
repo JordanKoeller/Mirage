@@ -4,15 +4,14 @@ import numpy as np
 from astropy import units as u
 
 from matplotlib.lines import Line2D
-from matplotlib.widgets import AxesWidget, Button
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes
 
 from mirage.calc import Reducer
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.calc.reducers import LightCurvesReducer
 from mirage.viz.controller import Controller
 from mirage.viz.viz_state import VizState, VizEvent, Panel
+from mirage.viz.ui_builder import PanelBuilder, ButtonBuilder
 
 _NON_SELECTED_COLOR = "b"
 _SELECTED_COLOR = "g"
@@ -72,8 +71,8 @@ class LightcurvesController(Controller):
       return artists
 
     legend_handles = []
-    for ind, variant_key in enumerate(state.variant_keys):
-      if not self._show_all_lines and state.variant_key != variant_key:
+    for ind, (variant_key, active) in enumerate(state.variant_keys):
+      if not active or (not self._show_all_lines and state.variant_key != variant_key):
         continue
       was_drawn = self._get_lightcurve_artist(
         ind,
@@ -113,16 +112,17 @@ class LightcurvesController(Controller):
     self.request_draw()
     return True
 
-  def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
-    axes.set_axis_on()
-    button = Button(axes, "Show All")
-    button.on_clicked(lambda *args: self._toggle_show_all())
-    return [
-      button,
-    ]
+  def bind_widgets(self, state: VizState) -> PanelBuilder:
+    return PanelBuilder().add_row(
+      ButtonBuilder("checkbox")
+      .set_label("Show All")
+      .set_active(False)
+      .set_callback(self._toggle_show_all)
+      .build()
+    )
 
-  def _toggle_show_all(self) -> None:
-    self._show_all_lines = not self._show_all_lines
+  def _toggle_show_all(self, on) -> None:
+    self._show_all_lines = on
     self.request_draw()
 
   def _get_lightcurve_artist(

@@ -70,7 +70,7 @@ class ExperimentResult:
   def experiment(self) -> Experiment:
     return self.io_manager.load_experiment()
 
-  @property
+  @cached_property
   def keys(self) -> list[VariantKey]:
     return self.experiment.variant_keys
 

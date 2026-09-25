@@ -4,6 +4,7 @@ import tempfile
 import os
 from typing import Literal, Optional
 from functools import cached_property
+import sys
 
 from mirage.sim import Experiment
 from mirage.util import (
@@ -12,6 +13,7 @@ from mirage.util import (
 )
 from mirage.calc import Engine
 from mirage.io import ResultFileManager
+from mirage import lens_analysis as la
 
 
 class MirageMain:
@@ -24,22 +26,11 @@ class MirageMain:
   def _bind_arguments(self):
     self.parser.add_argument(
       "-r",
-      "--read_sim",
+      "--read_file",
       type=str,
       required=False,
       nargs=1,
-      help="Simulation yaml file to load",
-    )
-    self.parser.add_argument(
-      "-c",
-      "--cluster",
-      required=False,
-      nargs=1,
-      type=str,
-      default="cluster.yaml",
-      help="Filename containing the cluster spec to use. If not provided, the program"
-      "looks for a `cluster.yaml` in the current directory. Otherwise, a default"
-      "cluster on localhost is provisioned",
+      help="File to open in read-only mode. If running in batch mode (default), this should be a yaml file with an Experiment defined. If running in visualization mode, this should be a .zip file written by a previous invocation of Mirage.",
     )
     self.parser.add_argument(
       "-w",
@@ -47,8 +38,7 @@ class MirageMain:
       required=False,
       nargs=1,
       type=str,
-      help="The file to write the results of the experiment to."
-      "Ignored if runing in interractive mode.",
+      help="The file to write the results of the experiment to. The filename should have extension .zip or no extension (in which case .zip is automatically appended).",
     )
     self.parser.add_argument(
       "-l",
@@ -56,19 +46,13 @@ class MirageMain:
       type=str,
       required=False,
       nargs=1,
-      help="directory to save logs to. If not provided a temporary directory is chosen",
+      help="Directory to save logs to. If not provided a temporary directory is chosen",
     )
     self.parser.add_argument(
       "-v",
       "--viz",
       action="store_true",
-      help="Launch in visualization mode",
-    )
-    self.parser.add_argument(
-      "-i",
-      "--interractive",
-      action="store_true",
-      help="Launch in interractive mode",
+      help="If specified, launches Mirage in visualization mode.",
     )
     self.parser.add_argument("--debug", action="store_true", help="Log debug messages")
     self.parser.add_argument(
@@ -94,11 +78,9 @@ class MirageMain:
     self.logger.info("Writing logs to " + self.logfile)
 
   @property
-  def run_mode(self) -> Literal["batch", "interractive", "viz"]:
+  def run_mode(self) -> Literal["batch", "viz"]:
     if self.args.viz:
       return "viz"
-    if self.args.interractive:
-      return "interractive"
     return "batch"
 
   @property
@@ -119,13 +101,23 @@ class MirageMain:
   def overwrite(self) -> bool:
     return bool(self.args.force)
 
-  def load_experiment(self) -> Optional[Experiment]:
-    if not self.args.read_sim:
+  @property
+  def read_file(self) -> str:
+    if not self.args.read_file:
       return None
 
-    sim_file = self.args.read_sim[0]
-    if not os.path.exists(sim_file):
-      raise ValueError(f"File not found: {sim_file}")
+    read_file = self.args.read_file[0]
+    if not os.path.exists(read_file):
+      raise ValueError(f"File not found: {read_file}")
+    return read_file
+
+  def load_experiment(self) -> Optional[Experiment]:
+
+    sim_file = self.read_file
+    if not (sim_file.endswith(".yaml") or sim_file.endswith(".yml")):
+      raise ValueError(
+        f"Invalid filename {sim_file}. Sim files should have .yaml extension."
+      )
 
     self.logger.info(f"Loading experiment from file: {sim_file}")
 
@@ -137,6 +129,18 @@ class MirageMain:
 
     self.logger.info(f"Constructed Simulation of type: {type(experiment).__name__}")
     return experiment
+
+  def run_viz_mode(self):
+    from matplotlib.backends.qt_compat import QtWidgets
+
+    filename = self.read_file
+    if not filename.endswith(".zip"):
+      filename = f"{filename}.zip"
+    v, e = la.visualize(self.read_file)
+    qapp = QtWidgets.QApplication.instance()
+    if not qapp:
+      qapp = QtWidgets.QApplication(sys.argv)
+    qapp.exec()
 
   def run_batch_mode(self):
     if not main.output_file:
@@ -160,13 +164,13 @@ class MirageMain:
           continue
         reporter = serializer.result_reporter(result.result_key)
         result.reducer.save(reporter)
-    except EOFError as e:
-        self.logger.info("Stream closed.")
-        pass
+    except EOFError:
+      self.logger.info("Stream closed.")
+      pass
     except Exception as e:
       self.logger.error("Encountered Error!")
-      raise e
       self.logger.error(str(e))
+      raise e
     finally:
       serializer.close()
       self.logger.info("Result saved to %s", self.output_file)
@@ -184,6 +188,9 @@ if __name__ == "__main__":
   if run_mode == "batch":
     main.logger.info("Running Batch Job")
     main.run_batch_mode()
+    main.logger.info("Goodbye!")
+  elif run_mode == "viz":
+    main.run_viz_mode()
     main.logger.info("Goodbye!")
   else:
     raise NotImplementedError()

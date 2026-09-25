@@ -3,13 +3,12 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes
-from matplotlib.widgets import AxesWidget
 
 from mirage.calc import Reducer
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.viz.viz_state import VizState, VizEvent
 from mirage.util import VariantKey
+from mirage.viz.ui_builder import PanelBuilder
 
 
 @dataclass
@@ -63,7 +62,8 @@ class Controller(ABC):
       return False, []
     self.__stale = False
     self.__bounds = {axis: None for axis in MirageAxes}
-    return True, self.draw(state, window)
+    self.draw(state, window)
+    return True
 
   @property
   @abstractmethod
@@ -101,7 +101,7 @@ class Controller(ABC):
     """
     return False
 
-  def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
+  def bind_widgets(self, state: VizState) -> PanelBuilder:
     """
     Create and attach any widgets associate with the Controller to the
     specified Axes.

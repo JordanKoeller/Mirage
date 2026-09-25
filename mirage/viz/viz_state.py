@@ -12,18 +12,18 @@ from mirage.lens_analysis.result import (
   SimulationResult,
   InMemorySimulationResult,
 )
-from mirage.util import VariantKey, Vec2D, Region, PixelRegion, Variant
+from mirage.util import VariantKey, Vec2D, Region, PixelRegion
 from mirage.settings import load_settings
 from mirage.viz import VizConfig
 
 
 @dataclass
 class VizState:
-  _experiment: ExperimentResult
+  experiment: ExperimentResult
   _variant_key_index: int = 0
   layers: list[str] = field(default_factory=list)
-  # Variants within this list should not change when iterating VariantKeys
-  locked_variants: list[Variant] = field(default_factory=list)
+  # Variants within this set should not change when iterating VariantKeys
+  locked_variants: set[str] = field(default_factory=set)
 
   @property
   def realtime(self) -> bool:
@@ -32,9 +32,21 @@ class VizState:
     """
     return False
 
-  @cached_property
-  def variant_keys(self) -> list[VariantKey]:
-    return self._experiment.keys
+  @property
+  def variant_keys(self) -> list[tuple[VariantKey, bool]]:
+    """
+    Get all VariantKeys in the Experiment.
+
+    Returns:
+      list[tuple[VariantKey, bool]] - All variant keys, with a boolean indicating if the
+      variant is active or not.
+    """
+    variant_query = {
+      k: self.variant_key[k] if k in self.locked_variants else (lambda _x: True)
+      for k in self.variant_key
+    }
+
+    return [(k, k.matches(variant_query)) for k in self.experiment.keys]
 
   @cached_property
   def length_unit(self) -> u.UnitBase:
@@ -45,13 +57,13 @@ class VizState:
   def simulation_result(
     self, variant_key: VariantKey | None = None
   ) -> SimulationResult:
-    return self._experiment.simulation(
-      variant_key or self.variant_keys[self._variant_key_index]
+    return self.experiment.simulation(
+      variant_key or self.experiment.keys[self._variant_key_index]
     )
 
   @property
   def variant_key(self) -> VariantKey:
-    return self.variant_keys[self._variant_key_index]
+    return self.experiment.keys[self._variant_key_index]
 
   @property
   def source_region(self) -> Region:
@@ -66,12 +78,16 @@ class VizState:
     Advance to the next variant. Returns False if there are no more variants
     to advance to, in which case this method does nothing.
     """
-    if rollover:
-      self._variant_key_index = (self._variant_key_index + 1) % len(self.variant_keys)
-      return True
-    if self.variant_key == self.variant_keys[-1]:
+    variant_query = {
+      k: self.variant_key[k] if k in self.locked_variants else (lambda _x: True)
+      for k in self.variant_key
+    }
+    next_ind = (self._variant_key_index + 1) % len(self.experiment.keys)
+    while not self.experiment.keys[next_ind].matches(variant_query):
+      next_ind = (next_ind + 1) % len(self.experiment.keys)
+    if not rollover and next_ind < self._variant_key_index:
       return False
-    self._variant_key_index += 1
+    self._variant_key_index = next_ind
     return True
 
   def prev_variant(self, rollover: bool = False) -> bool:

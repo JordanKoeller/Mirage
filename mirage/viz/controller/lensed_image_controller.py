@@ -1,9 +1,8 @@
 from typing import Iterable
+from functools import partial
 
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse
-from matplotlib.widgets import AxesWidget, CheckButtons
 import numpy as np
 
 from mirage.viz.window import VizWindow
@@ -12,6 +11,7 @@ from mirage.calc.reducers import LensedImageReducer
 from mirage.calc.reducer_funcs import draw_lensed_image
 from mirage.viz.viz_state import VizState, VizEvent
 from mirage.viz.controller import Controller
+from mirage.viz.ui_builder import PanelBuilder, ButtonBuilder
 
 _COLOR_PALETTE = {
   "POS_PARITY_START": np.array([245, 0, 66], dtype=np.float64),
@@ -56,7 +56,9 @@ class LensedImageController(Controller):
     )
     artists = []
     data = []
-    for i, vk in enumerate(state.variant_keys):
+    for i, (vk, active) in enumerate(state.variant_keys):
+      if not active:
+          continue
       output = self.find_reducer(state, LensedImageReducer, variant_key=vk).output
       data.append(output)
       self._normalization_factor = max(
@@ -84,19 +86,14 @@ class LensedImageController(Controller):
       self._qso_circle = None
     return artists
 
-  def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
-    axes.set_axis_on()
-    buttons = CheckButtons(
-      axes,
-      labels=[
-        _RENDER_QSO,
-      ],
-      actives=[
-        self._render_controls[_RENDER_QSO],
-      ],
+  def bind_widgets(self, state: VizState) -> PanelBuilder:
+    return PanelBuilder().add_row(
+      ButtonBuilder("checkbox")
+      .set_label(_RENDER_QSO)
+      .set_active(self._render_controls[_RENDER_QSO])
+      .set_callback(partial(self._on_button_pressed, _RENDER_QSO))
+      .build()
     )
-    buttons.on_clicked(self._on_button_pressed)
-    return [buttons]
 
   def on_event(self, state: VizState, event: VizEvent) -> bool:
     pass
@@ -152,6 +149,6 @@ class LensedImageController(Controller):
       self._lightcurve_marker.set(center=(cx, cy), width=w, height=h)
     return [self._lightcurve_marker]
 
-  def _on_button_pressed(self, label, *args, **kwargs) -> None:
-    self._render_controls[label] = not self._render_controls[label]
+  def _on_button_pressed(self, label, on) -> None:
+    self._render_controls[label] = on
     self.request_draw()

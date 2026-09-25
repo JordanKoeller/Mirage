@@ -52,11 +52,11 @@ class VariantKey:
       if callable(v):
         if not v(self._keys[k]):
           return False
-      if isinstance(v, slice):
+      elif isinstance(v, slice):
         value = self._keys[k]
         if not (v.start < value and value <= v.stop):
           return False
-      if self._keys[k] != v:
+      elif self._keys[k] != v:
         return False
     return True
 
@@ -71,6 +71,9 @@ class VariantKey:
 
   def __getitem__(self, name: str) -> Any:
     return self._keys[name]
+
+  def __iter__(self):
+    return iter(self._keys.keys())
 
   def __eq__(self, other: object) -> bool:
     if type(self) is not type(other):
@@ -238,16 +241,17 @@ class ObjVariants(Generic[T]):
       return self._objs.get(str(key), None)
     ret = {}
     is_multi_response = False
-    for variant_key, variant in self._objs:
+    for variant_key_str, variant_key in self._keys.items():
+      variant = self._objs[variant_key_str]
       if variant_key.matches(key):
-        ret[variant_key] = variant
+        ret[variant_key_str] = variant
     for k, v in key.items():
       if callable(v) or isinstance(v, slice):
         is_multi_response = True
-    if is_multi_response:
-      return ret
     if len(ret) == 0:
       return None
+    if is_multi_response:
+      return list(ret.values())
     if len(ret) != 1:
       return ValueError(f"Ambiguous matches: {list(ret.keys())}")
     for k in ret:

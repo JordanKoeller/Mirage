@@ -1,18 +1,20 @@
-from typing import List, Iterable
+from typing import List
 import logging
 from dataclasses import dataclass
 import uuid
+from functools import partial
+import threading
+import queue
 
-from matplotlib import animation
-from matplotlib.artist import Artist
-from matplotlib.widgets import AxesWidget, Button, CheckButtons
+from matplotlib.widgets import CheckButtons
+from matplotlib.backends.qt_compat import QtWidgets
+from matplotlib.animation import FuncAnimation
 
-from mirage.settings import load_settings
 from mirage.viz.viz_state import VizState, Panel, VizEvent
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.viz.controller import Controller, AxesBounds
+from mirage.viz.ui_builder import PanelBuilder, ButtonBuilder
 from mirage.util import Vec2D, Dictify, Stopwatch, RepeatLogger
-from mirage.viz.viz_settings import VizConfig
 
 
 logger = logging.getLogger(__name__)
@@ -40,17 +42,7 @@ def _merge_bounds(
 class _ControllerState:
   controller: Controller
   enabled: bool
-  control_button: Button
-  artists: List[Artist]
-  widgets: List[AxesWidget]
-
-  def disable(self) -> None:
-    if not self.enabled:
-      return
-    self.enabled = False
-    for artist in self.artists:
-      artist.remove()
-    self.controller.reset()
+  panel: QtWidgets.QGroupBox
 
 
 class Viz:
@@ -71,17 +63,17 @@ class Viz:
     self._animate = False
     self._bounds = {axis: None for axis in MirageAxes}
     self._stopwatch = Stopwatch()
+    self._needs_clear = False
+
+    self.bind_variants()
 
     for controller in controllers or []:
       self.bind_controller(controller)
 
-    self._window.next_simulation_button.on_clicked(lambda *args: self.next_simulation())
-    self._window.previous_simulation_button.on_clicked(
-      lambda *args: self.prev_simulation()
-    )
-    self._window.animate_simulation_button.on_clicked(
-      lambda *args: self.animate_simulation()
-    )
+    self._window.sim_next_button.clicked.connect(self.next_simulation)
+    self._window.sim_prev_button.clicked.connect(self.prev_simulation)
+    self._window.sim_animate_button.clicked.connect(self.animate_simulation)
+
     self._window.figure.canvas.mpl_connect(
       "button_press_event", lambda event: self._on_mouse_event(event)
     )
@@ -91,19 +83,11 @@ class Viz:
     self._window.figure.canvas.mpl_connect(
       "motion_notify_event", lambda event: self._on_mouse_event(event)
     )
-    # self._create_variants_checkboxes()
+    self._window.export_button.clicked.connect(self._export)
 
+    self._window.timer.add_callback(self.draw)
+    self._window.timer.start()
     self.show()
-
-    config = load_settings(VizConfig)
-
-    self._animation = animation.FuncAnimation(
-      self._window.figure,
-      self.draw,
-      interval=1000 / config.max_fps,
-      blit=False,
-      cache_frame_data=False,
-    )
 
   def _on_mouse_event(self, event) -> None:
     tool = self._window.figure.canvas.toolbar.mode
@@ -135,6 +119,31 @@ class Viz:
   def _on_key_event(self, event) -> None:
     pass
 
+  def bind_variants(self):
+    self._window.add_panel(
+      "variant_controls",
+      PanelBuilder("Active Variants")
+      .add_row(
+        *[
+          (
+            ButtonBuilder("checkbox")
+            .set_label(k)
+            .set_active(True)
+            .set_callback(partial(self._toggle_locked_variant, k))
+            .build()
+          )
+          for k in self._model.variant_key
+        ]
+      )
+      .build(),
+    )
+
+  def _toggle_locked_variant(self, variant_name: str, on: bool) -> None:
+    if on:
+      self._model.locked_variants.remove(variant_name)
+      return
+    self._model.locked_variants.add(variant_name)
+
   def bind_controller(
     self, controller: Controller, layer_name: str | None = None
   ) -> None:
@@ -157,50 +166,34 @@ class Viz:
     controller_state = _ControllerState(
       controller=controller,
       enabled=supported,
-      control_button=CheckButtons(
-        self._window.layer_control_axes(len(self._model.layers)),
-        labels=[f"Enable {layer_name}"],
-        actives=[supported],
-      ),
-      artists=[],
-      widgets=controller.bind_widgets(
-        self._window.ui_axes(len(self._model.layers)),
-        self._model,
-      ),
-    )
-    controller_state.control_button.on_clicked(
-      lambda *args: self.toggle_layer(layer_name)
+      panel=controller.bind_widgets(self._model)
+      .set_title(layer_name)
+      .set_checkbox_callback(partial(self.toggle_layer, layer_name))
+      .build(),
     )
     self._controllers[layer_name] = controller_state
+    self._window.add_panel(layer_name, controller_state.panel)
     self._model.layers.append(layer_name)
     controller.reset()
 
-  def draw(self, *args, force: bool = False, **kwargs) -> Iterable[Artist]:
+  def draw(self, *args, force: bool = False, **kwargs) -> None:
     with self._stopwatch.timeit():
+      if self._needs_clear:
+        self._window.clear_plots()
+        self._needs_clear = True
       new_realtime_result = self._model.realtime and self._model.ingest_results()
-      artists = []
-      artists.extend(self._window.title_artists())
       bounds = None
       for layer_name in self._model.layers:
         controller = self._controllers.get(layer_name)
         if not controller.enabled:
-          if controller.artists:
-            for artist in controller.artists:
-              try:
-                artist.remove()
-              except BaseException:
-                pass
-            controller.controller.reset()
-            controller.artists = []
           continue
-        did_draw, controller_artists = controller.controller.do_draw(
+        did_draw = controller.controller.do_draw(
           self._model,
           self._window,
           force=force or new_realtime_result or self._animate,
         )
-        if did_draw:
-          controller.artists = controller_artists
-          artists.extend(controller.artists)
+        if not did_draw:
+          continue
         if bounds is None:
           bounds = controller.controller._bounds
         else:
@@ -211,20 +204,17 @@ class Viz:
         self.next_simulation(rollover=True)
     if fps_logger.info(f"{1 / self._stopwatch.avg_elapsed_seconds()} fps"):
       self._stopwatch.reset()
-    return artists
+    return
 
-  def toggle_layer(self, layer_name: str) -> None:
+  def toggle_layer(self, layer_name: str, on) -> None:
     """
     Toggle a layer enabled or disabled.
     """
-    if self._controllers[layer_name].enabled:
-      self._controllers[layer_name].enabled = False
-      for widget in self._controllers[layer_name].widgets:
-        widget.set_active(False)
-    else:
-      self._controllers[layer_name].enabled = True
-      for widget in self._controllers[layer_name].widgets:
-        widget.set_active(True)
+    for k in self._controllers:
+      if k == layer_name:
+        self._controllers[layer_name].enabled = on
+      self._controllers[layer_name].controller.reset()
+      self._controllers[layer_name].controller.request_draw()
 
   def next_simulation(self, rollover: bool = False) -> bool:
     if not self._model.next_variant(rollover):
@@ -232,9 +222,7 @@ class Viz:
     for k in self._controllers:
       self._controllers[k].controller.request_draw()
     self._window.set_title(str(self._model.variant_key))
-    self._window.text_box.set(
-      text=Dictify.to_yaml(self._model.simulation_result().simulation)
-    )
+    self._window.set_text(Dictify.to_yaml(self._model.simulation_result().simulation))
     return True
 
   def prev_simulation(self) -> bool:
@@ -243,29 +231,59 @@ class Viz:
     for k in self._controllers:
       self._controllers[k].controller.request_draw()
     self._window.set_title(str(self._model.variant_key))
-    self._window.text_box.set(
-      text=Dictify.to_yaml(self._model.simulation_result().simulation)
-    )
+    self._window.set_text(Dictify.to_yaml(self._model.simulation_result().simulation))
     return True
 
   def animate_simulation(self) -> bool:
     self._animate = not self._animate
-    if self._animate:
-      # self._window.animate_simulation_button.set_text("Stop Animation")
-      self._window.next_simulation_button.set_active(False)
-      self._window.previous_simulation_button.set_active(False)
-    else:
-      # self._window.animate_simulation_button.set_text("Animation")
-      self._window.next_simulation_button.set_active(True)
-      self._window.previous_simulation_button.set_active(True)
 
   def show(self) -> None:
     self._window.set_title(str(self._model.variant_key))
-    self._window.text_box.set(
-      text=Dictify.to_yaml(self._model.simulation_result().simulation)
-    )
+    self._window.set_text(Dictify.to_yaml(self._model.simulation_result().simulation))
     self.draw(force=True)
     self._window.show()
+
+  def _export(self) -> None:
+    """
+    Exports the current figure to file.
+
+    If Viz is animating, a mp4 video of the animation is exported. Otherwise a still
+    png is exported.
+    """
+    if not self._animate:
+      fname = self._window.pick_file("image")
+      if not fname:
+        print("Image not exported")
+      self._window.figure.savefig(fname, format="png")
+      return
+    self._window.timer.stop()
+    fname = self._window.pick_file("video")
+    if not fname:
+      print("Video not exported")
+    num_frames = 0
+    for i, (variant, active) in enumerate(self._model.variant_keys):
+      if active:
+        num_frames += 1
+        self._model._variant_key_index = min(self._model._variant_key_index, i)
+    progress_dialog = self._window.progress_dialog(num_frames * 10)
+    progress_dialog.show()
+    QtWidgets.QApplication.processEvents()
+
+    def progress(i, n):
+      progress_dialog.setValue(i)
+      QtWidgets.QApplication.processEvents()
+
+    animation = FuncAnimation(
+      self._window.figure,
+      frames=num_frames * 10,
+      func=partial(self.draw, force=True),
+    )
+    animation.save(
+      fname,
+      progress_callback=progress,
+    )
+    progress(num_frames * 10, num_frames * 10)
+    progress_dialog.setCancelButtonText("Done")
 
   def _create_variants_checkboxes(self) -> None:
     variant_labels = {}
@@ -280,7 +298,6 @@ class Viz:
       labels=list(variant_labels.keys()),
       actives=[True for _ in range(len(variant_labels))],
     )
-    print("Had labels", variant_labels)
 
     def on_click(label: str, *args, **kwargs) -> None:
       for i, variant in enumerate(self._model.locked_variants):
@@ -309,5 +326,5 @@ class Viz:
           self._window.im_axes.set_ylim(cy + dy, cy - dy)
         case MirageAxes.LINE:
           self._window.line_axes.set_xlim(cx - dx, cx + dx)
-          self._window.line_axes.set_ylim(cy - dy, cy + dy)
+          self._window.line_axes.set_ylim(cy + dy, cy - dy)
       self._bounds[axis] = bounds[axis]

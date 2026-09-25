@@ -1,14 +1,14 @@
 import numpy as np
 from typing import Iterable
+from functools import partial
 
 from mirage.viz.window import VizWindow, MirageAxes
 from mirage.calc import Reducer
 from mirage.viz.viz_state import VizState
 from mirage.viz.controller import Controller
+from mirage.viz.ui_builder import ButtonBuilder, PanelBuilder
 
-from matplotlib.widgets import AxesWidget, CheckButtons
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes
 
 _RENDER_SOURCE_PLANE = "Render Source Plane"
 _RENDER_LENS_PLANE = "Render Lens Plane"
@@ -99,20 +99,18 @@ class DebugController(Controller):
     ret = [self._artists[k] for k in self._artists if self._artists[k]]
     return ret
 
-  def bind_widgets(self, axes: Axes, state: VizState) -> list[AxesWidget]:
-    axes.set_axis_on()
-    buttons = CheckButtons(
-      axes,
-      labels=[_RENDER_SOURCE_PLANE, _RENDER_LENS_PLANE, _RENDER_STARS],
-      actives=[
-        self._render_controls[_RENDER_SOURCE_PLANE],
-        self._render_controls[_RENDER_LENS_PLANE],
-        self._render_controls[_RENDER_STARS],
-      ],
-    )
-    buttons.on_clicked(self._on_button_pressed)
-    return [buttons]
+  def bind_widgets(self, state: VizState) -> PanelBuilder:
+    builder = PanelBuilder()
+    for k in self._render_controls:
+      builder.add_row(
+        ButtonBuilder("checkbox")
+        .set_label(k)
+        .set_active(self._render_controls[k])
+        .set_callback(partial(self._on_button_pressed, k))
+        .build()
+      )
+    return builder
 
-  def _on_button_pressed(self, label, *args, **kwargs) -> None:
-    self._render_controls[label] = not self._render_controls[label]
+  def _on_button_pressed(self, label, on) -> None:
+    self._render_controls[label] = on
     self.request_draw()

@@ -3,8 +3,7 @@ import logging
 from dataclasses import dataclass
 import uuid
 from functools import partial
-import threading
-import queue
+import contextlib
 
 from matplotlib.widgets import CheckButtons
 from matplotlib.backends.qt_compat import QtWidgets
@@ -15,6 +14,8 @@ from mirage.viz.window import VizWindow, MirageAxes
 from mirage.viz.controller import Controller, AxesBounds
 from mirage.viz.ui_builder import PanelBuilder, ButtonBuilder
 from mirage.util import Vec2D, Dictify, Stopwatch, RepeatLogger
+from mirage.settings import load_settings
+from mirage.viz import VizConfig
 
 
 logger = logging.getLogger(__name__)
@@ -85,9 +86,18 @@ class Viz:
     )
     self._window.export_button.clicked.connect(self._export)
 
+    self._timer = self._window.new_timer()
     self._window.timer.add_callback(self.draw)
     self._window.timer.start()
     self.show()
+
+  @contextlib.contextmanager
+  def pause_timer(self):
+    self._timer.stop()
+    yield
+    self._timer = self._window.new_timer()
+    self._timer.add_callback(self.draw)
+    self._timer.start()
 
   def _on_mouse_event(self, event) -> None:
     tool = self._window.figure.canvas.toolbar.mode
@@ -254,12 +264,14 @@ class Viz:
       fname = self._window.pick_file("image")
       if not fname:
         print("Image not exported")
+        return
       self._window.figure.savefig(fname, format="png")
       return
     self._window.timer.stop()
     fname = self._window.pick_file("video")
     if not fname:
       print("Video not exported")
+      return
     num_frames = 0
     for i, (variant, active) in enumerate(self._model.variant_keys):
       if active:
@@ -273,17 +285,22 @@ class Viz:
       progress_dialog.setValue(i)
       QtWidgets.QApplication.processEvents()
 
-    animation = FuncAnimation(
-      self._window.figure,
-      frames=num_frames * 10,
-      func=partial(self.draw, force=True),
-    )
-    animation.save(
-      fname,
-      progress_callback=progress,
-    )
-    progress(num_frames * 10, num_frames * 10)
-    progress_dialog.setCancelButtonText("Done")
+    settings = load_settings(VizConfig)
+    with self.pause_timer():
+      animation = FuncAnimation(
+        self._window.figure,
+        frames=num_frames * 10,
+        func=partial(self.draw, force=True),
+        interval=1
+      )
+      animation.save(
+        fname,
+        progress_callback=progress,
+        fps=settings.max_fps
+      )
+      progress(num_frames * 10, num_frames * 10)
+      progress_dialog.setCancelButtonText("Done")
+      animation.pause()
 
   def _create_variants_checkboxes(self) -> None:
     variant_labels = {}

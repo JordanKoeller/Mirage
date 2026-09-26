@@ -36,7 +36,9 @@ from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as Navigation
 from matplotlib.backends.qt_compat import QtWidgets, QtCore
 from matplotlib.figure import Figure
 
+from mirage.viz import VizConfig
 from mirage.viz.ui_builder import PanelBuilder, ButtonBuilder
+from mirage.settings import load_settings
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +71,7 @@ class FigWindow(QtWidgets.QMainWindow):
     )
     self._layout.addWidget(NavigationToolbar(self._figure, self))
     self._layout.addWidget(self._figure)
-    self.timer = self._figure.new_timer(100)
+
 
   @property
   def figure(self) -> Figure:
@@ -128,6 +130,12 @@ class VizWindow:
     self._figure_window = FigWindow()
     self._widgets_window = WidgetsWindow()
     self._locked_variants = set()
+    settings = load_settings(VizConfig)
+    self._timer = self._figure_window._figure.new_timer(1000 / settings.max_fps)
+
+  def new_timer(self):
+    settings = load_settings(VizConfig)
+    return self._figure_window._figure.new_timer(1000 / settings.max_fps)
 
   def add_panel(self, key: str, panel: QtWidgets.QWidget) -> None:
     if key in self._widgets_window._panels:
@@ -177,8 +185,9 @@ class VizWindow:
     return f
 
   def progress_dialog(self, num_steps: int) -> QtWidgets.QProgressDialog:
-    dialog = QtWidgets.QProgressDialog("Exporting...", "Cancel", 0, num_steps, self._widgets_window)
-    dialog.setAutoClose(True)
+    dialog = QtWidgets.QProgressDialog(
+      "Exporting...", "Cancel", 0, num_steps, self._widgets_window
+    )
     return dialog
 
   def clear_plots(self) -> None:
@@ -187,7 +196,7 @@ class VizWindow:
 
   @property
   def timer(self):
-    return self._figure_window.timer
+    return self._timer
 
   @property
   def sim_prev_button(self) -> QtWidgets.QPushButton:

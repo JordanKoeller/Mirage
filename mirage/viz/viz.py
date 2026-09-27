@@ -277,7 +277,9 @@ class Viz:
       if active:
         num_frames += 1
         self._model._variant_key_index = min(self._model._variant_key_index, i)
-    progress_dialog = self._window.progress_dialog(num_frames * 10)
+    settings = load_settings(VizConfig)
+    frames_in_animation = num_frames * settings.export_animation_repeats
+    progress_dialog = self._window.progress_dialog(frames_in_animation)
     progress_dialog.show()
     QtWidgets.QApplication.processEvents()
 
@@ -285,20 +287,17 @@ class Viz:
       progress_dialog.setValue(i)
       QtWidgets.QApplication.processEvents()
 
-    settings = load_settings(VizConfig)
     with self.pause_timer():
       animation = FuncAnimation(
         self._window.figure,
-        frames=num_frames * 10,
+        frames=frames_in_animation,
         func=partial(self.draw, force=True),
-        interval=1
+        interval=1,
       )
       animation.save(
-        fname,
-        progress_callback=progress,
-        fps=settings.max_fps
+        fname, progress_callback=progress, fps=settings.export_fps or settings.max_fps
       )
-      progress(num_frames * 10, num_frames * 10)
+      progress(frames_in_animation, frames_in_animation)
       progress_dialog.setCancelButtonText("Done")
       animation.pause()
 

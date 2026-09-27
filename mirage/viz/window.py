@@ -42,10 +42,6 @@ from mirage.settings import load_settings
 
 logger = logging.getLogger(__name__)
 
-MAX_LAYERS = 4
-WIDGET_ROWS = MAX_LAYERS + 1
-PADDING = 0.08
-
 
 class MirageAxes(enum.Enum):
   IMAGE = "IMAGE"
@@ -71,7 +67,6 @@ class FigWindow(QtWidgets.QMainWindow):
     )
     self._layout.addWidget(NavigationToolbar(self._figure, self))
     self._layout.addWidget(self._figure)
-
 
   @property
   def figure(self) -> Figure:

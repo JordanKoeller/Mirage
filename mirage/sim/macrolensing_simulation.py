@@ -14,6 +14,7 @@ from mirage.calc import Reducer, RayTracer
 from mirage.model import SourcePlane
 
 _MACROLENSING_RESOLUTION = Vec2D.unitless(1_200, 1_200)
+_AREA_FACTOR = 4
 
 
 @DelegateRegistry.register
@@ -33,7 +34,7 @@ class MacrolensingSimulation(Simulation):
   def get_ray_bundle(self) -> PixelRegion:
     er = self.lensing_system.einstein_radius
     ret = PixelRegion(
-      dims=Vec2D(2 * er, 2 * er),
+      dims=Vec2D(_AREA_FACTOR * er, _AREA_FACTOR * er),
       center=Vec2D.zero_vector(er.unit),
       resolution=copy(_MACROLENSING_RESOLUTION),
     )
@@ -47,7 +48,7 @@ class MacrolensingSimulation(Simulation):
   def source_plane(self) -> SourcePlane:
     er = self.lensing_system.einstein_radius
     region = Region(
-      dims=Vec2D(2 * er, 2 * er),
+      dims=Vec2D(_AREA_FACTOR * er, _AREA_FACTOR * er),
       center=Vec2D.zero_vector(er.unit),
     )
 

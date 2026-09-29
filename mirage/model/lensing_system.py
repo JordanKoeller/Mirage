@@ -144,6 +144,12 @@ class LensingSystem(ABC):
     return self.cosmology.angular_diameter_distance(self.quasar.redshift)
 
   @property
+  def source_lens_distance(self) -> u.Quantity:
+    return self.cosmology.angular_diameter_distance(
+      self.redshift, self.quasar.redshift
+    )
+
+  @property
   def effective_distance(self) -> u.Quantity:
     """
     Returns the effective distance of the lens.

@@ -50,8 +50,8 @@ cdef class FastTree:
         self._tree.MagnificationCoefficient(&centers_view[0,0], centers.shape[0], r, &ret[0])
         return ret
 
-    def query_rays(self, double cx, double cy, double r):
-        cdef vector[long] indices = self._tree.LensPlaneCoordinates(cx, cy, r)
+    def query_rays(self, double cx, double cy, double r, int parity):
+        cdef vector[long] indices = self._tree.LensPlaneCoordinates(cx, cy, r, parity)
         cdef cnp.ndarray[cnp.int64_t, ndim=1] ret = np.ndarray((indices.size(),), dtype=np.int64)
         for i in range(0, indices.size()):
             ret[i] = indices[i]

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 MVSC_FLAGS = ["/std:c++20"]
 
-GCC_FLAGS = ["O3", "--std=c++20"]
+GCC_FLAGS = ["--std=c++20"]
 
 def _get_compiler_flags() -> list[str]:
     if platform.system() == "Windows":
@@ -18,8 +18,6 @@ def _get_compiler_flags() -> list[str]:
     return GCC_FLAGS
 
 def get_ext_modules() -> list[Extension]:
-    import numpy
-
     flags = _get_compiler_flags()
 
     extensions = [

@@ -170,13 +170,13 @@ cpdef np.ndarray[np.int64_t, ndim=1] merge_index_lists(
 
 cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
     np.ndarray[np.int64_t, ndim=2] source_indices,
+    np.ndarray[np.int32_t, ndim=2] canvas,
+    int parity,
     object lens_region, # Pixel Region
-    object canvas_resolution # Vec2D
 ):
   cdef:
-    int canvas_width = int(canvas_resolution.x)
-    int canvas_height = int(canvas_resolution.y)
-    np.ndarray[np.int32_t, ndim=2] canvas = np.zeros((canvas_width, canvas_height), dtype=np.int32)
+    int canvas_width = int(canvas.shape[0])
+    int canvas_height = int(canvas.shape[1])
     int i, j, n = source_indices.shape[0]
     double x, y
     int xx, yy
@@ -189,7 +189,7 @@ cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
     x = float(source_indices[i, 1]) / source_height_d
     xx = int(floor(x * (canvas_width - 1)))
     yy = int(floor(y * (canvas_height - 1)))
-    canvas[xx, yy] += 1
+    canvas[xx, yy] += parity
   return canvas
       # Query: [-2.857142857142854, -5.142857142857146, 'uas']
 

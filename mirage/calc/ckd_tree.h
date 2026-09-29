@@ -94,10 +94,26 @@ public:
   // Returns the indices of the rays within the specified circle.
   //
   // Indices are returned as a flattened value.
-  std::vector<long> LensPlaneCoordinates(double cx, double cy, double r) {
+  std::vector<long> LensPlaneCoordinates(double cx, double cy, double r,
+                                         int parity = 0) {
     std::vector<long> inds;
-    std::function<void(size_t)> reducer(
-        [&](size_t i) -> void { inds.push_back(indices_[i]); });
+    std::function<void(size_t)> reducer([&](size_t i) -> void {
+      switch (parity) {
+      case 0:
+        inds.push_back(indices_[i]);
+        break;
+      case 1:
+        if (buf_[sz_ * 2 + i] > 0.0) {
+          inds.push_back(indices_[i]);
+        }
+        break;
+      case -1:
+        if (buf_[sz_ * 2 + i] < 0.0) {
+          inds.push_back(indices_[i]);
+        }
+        break;
+      }
+    });
     Reduce(cx, cy, r, &reducer);
     return inds;
   }
@@ -197,8 +213,8 @@ inline void CKDTree::get(size_t i, double *out) {
 
 // TODO: Maybe optimize this to skip an extra copy?
 inline void CKDTree::swap(size_t i, size_t j) {
-  double* i_vals = new double[elem_sz_];
-  double* j_vals = new double[elem_sz_];
+  double *i_vals = new double[elem_sz_];
+  double *j_vals = new double[elem_sz_];
   int i_idx = indices_[i];
   int j_idx = indices_[j];
   get(i, i_vals);
@@ -214,8 +230,8 @@ inline double CKDTree::partition(size_t start, size_t end, size_t dimension) {
   size_t l = start;
   size_t ir = end - 1;
   size_t i, j, mid, a_j_idx, a_idx;
-  double* a = new double[elem_sz_];
-  double* a_j = new double[elem_sz_];
+  double *a = new double[elem_sz_];
+  double *a_j = new double[elem_sz_];
 
   // Pointer to the first double along the partitioning buffer.
   double *arr = &buf_[sz_ * dimension];

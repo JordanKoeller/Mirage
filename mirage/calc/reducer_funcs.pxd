@@ -15,8 +15,9 @@ cpdef np.ndarray[np.float64_t, ndim=1] populate_lightcurve(
 
 cpdef np.ndarray[np.int32_t, ndim=2] populate_lensed_image(
     np.ndarray[np.int64_t, ndim=2] source_indices,
+    np.ndarray[np.int32_t, ndim=2] canvas,
+    int parity,
     object lens_region, # Pixel Region
-    object canvas_resolution # Vec2D
 )
 
 cpdef np.ndarray[np.float64_t, ndim=1] slice_magmap(

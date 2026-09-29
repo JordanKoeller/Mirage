@@ -16,11 +16,11 @@ Variants:
       Name: x_pos
       Start: -1
       Stop: 1
-      NumPoints: 25
+      NumPoints: 50
       Tag: coord
   - LinspaceVariant:
       Name: y_pos
       Start: -2
       Stop: 2
-      NumPoints: 25
+      NumPoints: 50
       Tag: coord

@@ -57,12 +57,6 @@ class FastKdTree:
 
   def query_rays(self, query_pos: Vec2D, radius: u.Quantity) -> u.Quantity:
     raise NotImplementedError("Yat")
-    query_pos = query_pos.to(self.unit)
-    radius = radius.to(self.unit)
-    rays = self.tree.points_in_circle(
-      query_pos.x.value, query_pos.y.value, radius.value
-    )
-    return u.Quantity(rays, self.unit)
 
   def query_count(self, x, y, radius) -> int:
     return self.tree.points_in_circle(x, y, radius)
@@ -74,13 +68,13 @@ class FastKdTree:
       query_points.to(self.unit).value, radius.to(self.unit).value
     )
 
-  def query_indices(self, query_pos: Vec2D, radius: u.Quantity) -> np.ndarray:
+  def query_indices(self, query_pos: Vec2D, radius: u.Quantity, parity: int) -> np.ndarray:
     """
     Returns the indices of active rays in (x, y) coordinate pairs.
     """
     query_pos = query_pos.to(self.unit)
     radius = radius.to(self.unit)
     tree_local_inds = self.tree.query_rays(
-      query_pos.x.value, query_pos.y.value, radius.value
+      query_pos.x.value, query_pos.y.value, radius.value, parity
     )
     return self.region.unravel(tree_local_inds)

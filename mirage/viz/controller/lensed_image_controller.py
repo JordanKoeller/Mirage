@@ -126,7 +126,7 @@ class LensedImageController(Controller):
   ) -> list[Artist]:
     if self._lightcurve is None:
       self._lightcurve = np.array(
-        [-2.5 * np.log10(np.sum(d) / unlensed_pixel_count) for d in data]
+        [-2.5 * np.log10(np.sum(np.abs(d)) / unlensed_pixel_count) for d in data]
       )
     if self._lightcurve_plot:
       self._lightcurve_plot.set_data(

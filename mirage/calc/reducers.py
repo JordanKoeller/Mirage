@@ -71,16 +71,18 @@ class LensedImageReducer(Reducer):
     self.theta_0 = simulation.lensing_system.theta_0
 
   def reduce(self, traced_rays: KdTree):
-    active_indices = np.array(
-      traced_rays.query_indices(
-        self.query.to(self.theta_0), self.radius.to(self.theta_0)
+    self._canvas = np.zeros((int(self.resolution.x), int(self.resolution.y)), dtype=np.int32)
+    print("Querying pt")
+    for i in [-1, 1]:
+      active_indices = np.array(
+        traced_rays.query_indices(
+          self.query.to(self.theta_0), self.radius.to(self.theta_0), i
+        )
       )
-    )
-    if active_indices is None or len(active_indices) == 0:
-      return
-    self._canvas = populate_lensed_image(
-      active_indices, self._lens_plane, self.resolution
-    )
+      if active_indices is None or len(active_indices) == 0:
+        print("No indices")
+        continue
+      self._canvas = populate_lensed_image(active_indices, self._canvas, i, self._lens_plane)
 
   def merge(self, other: Self) -> Self:
     if other._canvas is None:
@@ -109,6 +111,7 @@ class LensedImageReducer(Reducer):
 class MagnificationMapReducer(Reducer):
   radius: u.Quantity
   resolution: Vec2D
+  parity: int = 0  # If 1 > 0, positive parity map. If < 0, negative parity. If equal to zero, ignore
 
   def initialize(self, simulation: MicrolensingSimulation):
     self.source_region = simulation.source_plane.source_region

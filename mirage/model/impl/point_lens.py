@@ -21,7 +21,9 @@ class PointLens(LensingSystem):
       4
       * const.G
       * self.mass.to("kg")
-      / self.effective_distance.to("m")
+      * self.source_lens_distance
+      / self.source_distance
+      / self.lens_distance
       / const.c
       / const.c
     )
@@ -33,7 +35,7 @@ class PointLens(LensingSystem):
     )
 
   def get_ray_tracer(self) -> RayTracer:
-    return PointLensTracer(mass=self.mass)
+    return PointLensTracer(mass=self.mass, einstein_radius=self.einstein_radius)
 
   def _convergence(self, position: Vec2D) -> float:
     einstein_radius = self.einstein_radius

@@ -1,16 +1,17 @@
 from dataclasses import dataclass
 from typing import List
-from copy import copy
+from copy import copy, deepcopy
 
 from mirage.util import (
   Vec2D,
   PixelRegion,
   DelegateRegistry,
-  DictifyMixin,
   Dictify,
+  Region,
 )
 from mirage.sim import Simulation
 from mirage.calc import Reducer, RayTracer
+from mirage.model import SourcePlane
 
 _MACROLENSING_RESOLUTION = Vec2D.unitless(1_200, 1_200)
 
@@ -37,7 +38,20 @@ class MacrolensingSimulation(Simulation):
       resolution=copy(_MACROLENSING_RESOLUTION),
     )
 
-    return ret.to("theta_0")
+    return ret
 
   def get_reducers(self) -> List[Reducer]:  # type: ignore
     return self.reducers
+
+  @property
+  def source_plane(self) -> SourcePlane:
+    er = self.lensing_system.einstein_radius
+    region = Region(
+      dims=Vec2D(2 * er, 2 * er),
+      center=Vec2D.zero_vector(er.unit),
+    )
+
+    return SourcePlane(
+      quasar=deepcopy(self.lensing_system.quasar),
+      source_region=region,
+    )

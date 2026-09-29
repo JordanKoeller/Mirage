@@ -1,0 +1,26 @@
+LensingSystem_PointLens:
+  Quasar:
+    Redshift: 2.0
+    Mass: 1e9 solMass
+  Redshift: 0.5
+  Cosmology: WMAP7
+  Mass: [1e12, solMass]
+Reducers:
+- LensedImageReducer:
+    Name: image
+    Query: ['${x_pos}', '${y_pos}', 'arcsec']
+    Radius: [0.1, 'arcsec']
+    Resolution: [1200, 1200, '']
+Variants:
+  - LinspaceVariant:
+      Name: x_pos
+      Start: -1
+      Stop: 1
+      NumPoints: 25
+      Tag: coord
+  - LinspaceVariant:
+      Name: y_pos
+      Start: -2
+      Stop: 2
+      NumPoints: 25
+      Tag: coord

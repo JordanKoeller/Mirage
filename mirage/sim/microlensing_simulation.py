@@ -16,7 +16,6 @@ from mirage.util import (
   PixelRegion,
   DelegateRegistry,
   Dictify,
-  DictifyMixin,
 )
 from mirage.sim import Simulation
 from mirage.calc import Reducer, RayTracer
@@ -102,7 +101,7 @@ class MicrolensingSimulation(Simulation):
     # See below for why this works
     resolution = self._get_pixels_resolution(ax_ratio)
 
-    return PixelRegion(dims=ray_dims, resolution=resolution).to("rad")
+    return PixelRegion(dims=ray_dims, resolution=resolution)
 
   def get_reducers(self) -> List[Reducer]:
     return deepcopy(self.reducers)

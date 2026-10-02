@@ -55,7 +55,14 @@ class _CpuTracerFn(_TracerFn):
   ) -> np.ndarray:
     from mirage.calc.tracers.micro_tracer_helper import trace
 
-    return trace(rays, kap, gam, star_mass, star_pos, True)
+    print("Tracing ", star_pos.shape[0], "stars")
+    macro_mag = 1 / ((1 - kap)**2 - gam**2)
+    if macro_mag < 0.0:
+        print("Macroimage has negative parity")
+    else:
+        print("Macroimage has positive parity")
+
+    return trace(rays, kap, gam, star_mass, star_pos, False)
 
 
 class _CudaTracerFn(_TracerFn):

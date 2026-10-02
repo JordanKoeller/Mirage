@@ -57,7 +57,7 @@ class MagMapController(Controller):
       )
     except ValueError:
       return artists
-    magnitudes = reducer.magnitudes.value
+    magnitudes = reducer.magnitudes
 
     settings = load_settings(VizConfig)
 

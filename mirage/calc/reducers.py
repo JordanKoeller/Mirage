@@ -32,7 +32,7 @@ def unlensed_pixel_count(
     * simulation.lensing_system.magnification_coefficient(source_region.center)
     * np.pi
   )
-  return apparent_quasar_area / (pixel_region.delta.x * pixel_region.delta.y).to("uas2")
+  return max(apparent_quasar_area / (pixel_region.delta.x * pixel_region.delta.y).to("uas2"), 1)
 
 
 def magnitudes(
@@ -72,7 +72,6 @@ class LensedImageReducer(Reducer):
 
   def reduce(self, traced_rays: KdTree):
     self._canvas = np.zeros((int(self.resolution.x), int(self.resolution.y)), dtype=np.int32)
-    print("Querying pt")
     for i in [-1, 1]:
       active_indices = np.array(
         traced_rays.query_indices(
@@ -80,9 +79,8 @@ class LensedImageReducer(Reducer):
         )
       )
       if active_indices is None or len(active_indices) == 0:
-        print("No indices")
         continue
-      self._canvas = populate_lensed_image(active_indices, self._canvas, i, self._lens_plane)
+      self._canvas = populate_lensed_image(active_indices, self._canvas, i or 1, self._lens_plane)
 
   def merge(self, other: Self) -> Self:
     if other._canvas is None:

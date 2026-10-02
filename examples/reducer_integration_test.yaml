@@ -4,47 +4,41 @@ LensingSystem_MicrolensingLens:
     Mass: 1e9 solMass
   Redshift: 0.04
   Cosmology: WMAP7
-  Convergence: 0.3
-  Shear: 0.0
-  StarryFraction: 0.40
+  Convergence: 0.7
+  Shear: 0.7
+  StarryFraction: 0.1
 Starfield:
   InitialMassFunction: Kroupa2001
   Seed: 110
 LensedImageCenter: [0.0, 0.0, 'uas']
-RayCount: 100_000_000
-SourceRegionDimensions: [100, 100, 'uas']
+RayCount: 50_000_000
+SourceRegionDimensions: [5, 5, 'theta_0']
 Reducers:
   - LensedImageReducer:
       Name: img
-      Radius: ${radius} r_g
-      Query: ['${x_pos}', '${y_pos}', 'uas']
+      Radius: 50 r_g
+      Query: ['${x_pos}', '${y_pos}', 'theta_0']
       Resolution: [1000, 1000, '']
   - MagnificationMapReducer:
       Name: magmap
-      Radius: ${radius} r_g
+      Radius: 50 r_g
       Resolution: [1000, 1000, '']
-  - LightCurvesReducer:
-      Name: curves
-      Resolution: 2 1/uas
-      Radius: ${radius} r_g
-      NumCurves: 10
-      Seed: 12
+  # - LightCurvesReducer:
+  #     Name: curves
+  #     Resolution: 2 1/uas
+  #     Radius: ${radius} r_g
+  #     NumCurves: 10
+  #     Seed: 12
 Variants:
   - LinspaceVariant:
-      Name: radius
-      Start: 10
-      Stop: 50
-      NumPoints: 5
-      Tag: radius
-  - LinspaceVariant:
       Name: x_pos
-      Start: -20
-      Stop: 20
-      NumPoints: 10
+      Start: -7
+      Stop: 7
+      NumPoints: 20
       Tag: coord
   - LinspaceVariant:
       Name: y_pos
-      Start: -36
-      Stop: 36
-      NumPoints: 10
+      Start: -7
+      Stop: 7
+      NumPoints: 20
       Tag: coord

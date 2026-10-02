@@ -44,6 +44,7 @@
  *
  */
 
+#include <cmath>
 #include <iostream>
 #include <stdfloat>
 
@@ -72,13 +73,17 @@ using Float = double;
 inline void trace_no_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
                           Float kap, Float gam, Float *stars_x, Float *stars_y,
                           Float *stars_m, std::size_t num_stars,
-                          bool include_macro) {
+                          bool include_macro, Float *mag) {
   Float g_min = 1.0 - gam;
   Float g_max = 1.0 + gam;
   Float rx, ry;
   for (std::size_t i = 0; i < num_rays; i++) {
     rx = rays_x[i];
     ry = rays_y[i];
+
+    Float psi11 = g_min - kap;
+    Float psi22 = g_max - kap;
+    Float psi12 = 0.0;
 
     if (include_macro) {
       rays_x[i] = g_min * rx - kap * rx;
@@ -88,9 +93,22 @@ inline void trace_no_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
     for (std::size_t s = 0; s < num_stars; s++) {
       Float dx = rx - stars_x[s];
       Float dy = ry - stars_y[s];
-      Float r = dx * dx + dy * dy;
-      rays_x[i] -= stars_m[s] * dx / r;
-      rays_y[i] -= stars_m[s] * dy / r;
+      Float r2 = dx * dx + dy * dy;
+      rays_x[i] -= stars_m[s] * dx / r2;
+      rays_y[i] -= stars_m[s] * dy / r2;
+      psi11 -= stars_m[s] * (dy * dy - dx * dx) / r2;
+      psi12 += 2.0 * stars_m[s] * dx * dy / r2;
+      psi22 -= stars_m[s] * (dx * dx - dy * dy) / r2;
+    }
+    if (mag != nullptr) {
+      Float m = (psi11 * psi22 - psi12 * psi12);
+      if (std::abs(m) < 1e-3) {
+        mag[i] = 0.0;
+      } else if (m < 0.0) {
+        mag[i] = -1.0;
+      } else if (m > 0.0) {
+        mag[i] = 1.0;
+      }
     }
   }
 }
@@ -158,7 +176,7 @@ inline void trace_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
   size_t last_star_ind = (num_stars / FV::size()) * FV::size();
   trace_no_simd(rays_x, rays_y, num_rays, kap, gam, &stars_x[last_star_ind],
                 &stars_y[last_star_ind], &stars_m[last_star_ind],
-                num_stars - last_star_ind, false);
+                num_stars - last_star_ind, false, nullptr);
 
   delete[] stars_x_buf;
   delete[] stars_y_buf;
@@ -171,7 +189,7 @@ inline void trace_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
 //
 void trace(Float *rays_x, Float *rays_y, std::size_t num_rays, Float kap,
            Float gam, Float *stars_m, Float *stars_x, Float *stars_y,
-           std::size_t num_stars, int allow_simd) {
+           std::size_t num_stars, Float *mag, int allow_simd) {
 
 #ifdef using_simd
   if (allow_simd) {
@@ -181,7 +199,7 @@ void trace(Float *rays_x, Float *rays_y, std::size_t num_rays, Float kap,
   }
 #endif
   trace_no_simd(rays_x, rays_y, num_rays, kap, gam, stars_x, stars_y, stars_m,
-                num_stars, true);
+                num_stars, true, mag);
 }
 
 bool supports_simd() {

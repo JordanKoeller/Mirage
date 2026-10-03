@@ -30,21 +30,24 @@ class _TracerFn(ABC):
     """
 
   @staticmethod
-  def create():
+  def create(compute_parity: bool = False):
     platform = load_settings(DaskSettings).platform
     if platform in (Platform.PLATFORM_CPU_SIMD, Platform.PLATFORM_CPU):
-      return _CpuTracerFn
+      return _CpuTracerFn(compute_parity)
     if platform == Platform.PLATFORM_CUDA:
       if not _CudaTracerFn.is_supported():
         raise EnvironmentError("Cuda tracing requested, but CUDA API is not available.")
-      return _CudaTracerFn()
+      return _CudaTracerFn(compute_parity)
     if platform == Platform.PLATFORM_AUTO:
       if _CudaTracerFn.is_supported():
-        return _CudaTracerFn()
-      return _CpuTracerFn()
+        return _CudaTracerFn(compute_parity)
+      return _CpuTracerFn(compute_parity)
 
 
 class _CpuTracerFn(_TracerFn):
+  def __init__(self, compute_parity: bool) -> None:
+    self.compute_parity = compute_parity
+
   def trace(
     self,
     rays: np.ndarray,
@@ -55,19 +58,13 @@ class _CpuTracerFn(_TracerFn):
   ) -> np.ndarray:
     from mirage.calc.tracers.micro_tracer_helper import trace
 
-    print("Tracing ", star_pos.shape[0], "stars")
-    macro_mag = 1 / ((1 - kap)**2 - gam**2)
-    if macro_mag < 0.0:
-        print("Macroimage has negative parity")
-    else:
-        print("Macroimage has positive parity")
-
-    return trace(rays, kap, gam, star_mass, star_pos, True)
+    return trace(rays, kap, gam, star_mass, star_pos, self.compute_parity, True)
 
 
 class _CudaTracerFn(_TracerFn):
   # dependencies = ["cuda_bindings", "cuda_core", "nvidia-cuda-nvrtc", "cupy-cuda13x"]
-  def __init__(self) -> None:
+  def __init__(self, compute_parity: bool) -> None:
+    self.compute_parity = compute_parity
     self.device = None
     self.stream = None
     self.program = None
@@ -168,7 +165,11 @@ class MicrolensingRayTracer(RayTracer):
   starfield_angular_radius: u.Quantity
   convergence: float
   shear: float
-  tracer_fn: _TracerFn = field(default_factory=_TracerFn.create)
+  compute_parity: bool = False
+  tracer_fn: _TracerFn | None = None
+
+  def __post_init__(self) -> None:
+    self.tracer_fn = _TracerFn.create(self.compute_parity)
 
   def trace(self, rays: PixelRegion) -> u.Quantity:
     rays = rays.to("theta_0")

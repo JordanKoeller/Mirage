@@ -11,20 +11,18 @@ Starfield:
   InitialMassFunction: Kroupa2001
   Seed: 110
 LensedImageCenter: [0.0, 0.0, 'uas']
-RayCount: 400_000_000
+RayCount: 100_000_000
 SourceRegionDimensions: [100, 100, 'uas']
 Reducers:
-  - LensedImageReducer:
-      Name: img
-      Radius: 50 r_g
-      Query: ['${x_pos}', '${y_pos}', 'uas']
-      Resolution: [1000, 1000, '']
-      Parity: 1
+  # - LensedImageReducer:
+  #     Name: img
+  #     Radius: 50 r_g
+  #     Query: ['${x_pos}', '${y_pos}', 'uas']
+  #     Resolution: [1000, 1000, '']
   - MagnificationMapReducer:
       Name: magmap_pos
       Radius: ${radius} r_g
       Resolution: [1000, 1000, '']
-      Parity: 1
   # - MagnificationMapReducer:
   #     Name: magmap_neg
   #     Radius: 50 r_g

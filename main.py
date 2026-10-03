@@ -5,6 +5,7 @@ import os
 from typing import Literal, Optional
 from functools import cached_property
 import sys
+import time
 
 from mirage.sim import Experiment
 from mirage.util import (

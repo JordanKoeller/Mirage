@@ -81,6 +81,7 @@ class MicrolensingSimulation(Simulation):
       starfield_radius,
       smooth_matter,
       self._tracing_parameters.shear,
+      self._requires_parity_computation,
     )
 
   def get_ray_bundle(self) -> PixelRegion:
@@ -138,3 +139,10 @@ class MicrolensingSimulation(Simulation):
   @cached_property
   def _tracing_parameters(self) -> TracingParameters:
     return self.lensing_system.microtracing_parameters(self.lensed_image_center)
+
+  @property
+  def _requires_parity_computation(self) -> bool:
+    for reducer in self.get_reducers():
+      if reducer.requires_parity_computation:
+        return True
+    return False

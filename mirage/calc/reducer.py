@@ -12,6 +12,13 @@ logger = logging.getLogger(__name__)
 class Reducer(ABC):
   name: str
 
+  @property
+  def requires_parity_computation(self) -> bool:
+    """
+    If true, this reducer requires parity values be computed for traced rays.
+    """
+    return False
+
   @abstractmethod
   def reduce(self, traced_rays: KdTree):
     """

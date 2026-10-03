@@ -1,15 +1,13 @@
 from typing import Self, Optional, List
 import pickle
 from dataclasses import dataclass
-from functools import cached_property, cache
+from functools import cached_property
 from astropy.io import fits
 
 from mirage.calc import Reducer, KdTree
 from mirage.calc.reducer_funcs import (
-  populate_magmap,
   populate_lightcurve,
   slice_magmap,
-  merge_index_lists,
   populate_lensed_image,
 )
 from mirage.util import Vec2D, PixelRegion, DelegateRegistry, Region, Index2D
@@ -66,6 +64,10 @@ class LensedImageReducer(Reducer):
   radius: u.Quantity  # Radius of the QSO
   resolution: Vec2D  # Resolution of the image to render
 
+  @property
+  def requires_parity_computation(self) -> bool:
+    return True
+
   def initialize(self, simulation: MicrolensingSimulation):
     self._lens_plane = simulation.get_ray_bundle()
     self.unlensed_pixel_count = max(unlensed_pixel_count(simulation, self.radius), 1)
@@ -116,6 +118,10 @@ class MagnificationMapReducer(Reducer):
   radius: u.Quantity
   resolution: Vec2D
   parity: int = 0  # If 1 > 0, positive parity map. If < 0, negative parity. If equal to zero, ignore
+
+  @property
+  def requires_parity_computation(self) -> bool:
+    return self.parity != 0
 
   def initialize(self, simulation: MicrolensingSimulation):
     self.source_region = simulation.source_plane.source_region

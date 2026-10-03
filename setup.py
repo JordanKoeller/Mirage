@@ -12,55 +12,49 @@ MVSC_FLAGS = ["/std:c++20"]
 
 GCC_FLAGS = ["--std=c++20", "-Ofast"]
 
+
 def _get_compiler_flags() -> list[str]:
-    if platform.system() == "Windows":
-        return MVSC_FLAGS
-    return GCC_FLAGS
+  if platform.system() == "Windows":
+    return MVSC_FLAGS
+  return GCC_FLAGS
+
 
 def get_ext_modules() -> list[Extension]:
-    flags = _get_compiler_flags()
+  flags = _get_compiler_flags()
 
-    extensions = [
-        Extension(
-            "mirage.calc.tracers.micro_tracer_helper",
-            sources=[
-                path.join(
-                    "mirage", "calc", "tracers", "micro_tracer_helper.pyx"
-                )
-            ],
-            include_dirs=[numpy.get_include(), path.join("mirage", "calc", "tracers")],
-            extra_compile_args=flags,
-            extra_link_args=flags,
-        ),
-        Extension(
-            "mirage.calc.fast_tree",
-            sources=[
-                path.join(
-                    "mirage", "calc", "fast_tree.pyx"
-                )
-            ],
-            include_dirs=[numpy.get_include(), path.join("mirage", "calc")],
-            extra_compile_args=flags,
-            extra_link_args=flags,
-        ),
-        Extension(
-            "mirage.calc.reducer_funcs",
-            sources=[path.join("mirage", "calc", "reducer_funcs.pyx")],
-            include_dirs=[numpy.get_include()],
-            extra_compile_args=flags,
-            extra_link_args=flags,
-        ),
-    ]
-    return cythonize(
-        extensions,
-        include_path=[numpy.get_include()],
-        exclude_failures=True,
-    )
+  extensions = [
+    Extension(
+      "mirage.calc.tracers.micro_tracer_helper",
+      sources=[path.join("mirage", "calc", "tracers", "micro_tracer_helper.pyx")],
+      include_dirs=[numpy.get_include(), path.join("mirage", "calc", "tracers")],
+      extra_compile_args=flags,
+      extra_link_args=flags,
+    ),
+    Extension(
+      "mirage.calc.fast_tree",
+      sources=[path.join("mirage", "calc", "fast_tree.pyx")],
+      include_dirs=[numpy.get_include(), path.join("mirage", "calc")],
+      extra_compile_args=flags,
+      extra_link_args=flags,
+    ),
+    Extension(
+      "mirage.calc.reducer_funcs",
+      sources=[path.join("mirage", "calc", "reducer_funcs.pyx")],
+      include_dirs=[numpy.get_include()],
+      extra_compile_args=flags,
+      extra_link_args=flags,
+    ),
+  ]
+  return cythonize(
+    extensions,
+    include_path=[numpy.get_include()],
+    exclude_failures=True,
+  )
 
 
 setup(
-    name="mirage",
-    version="2.0",
-    packages=find_packages(),
-    ext_modules=get_ext_modules(),
+  name="mirage",
+  version="2.0",
+  packages=find_packages(),
+  ext_modules=get_ext_modules(),
 )

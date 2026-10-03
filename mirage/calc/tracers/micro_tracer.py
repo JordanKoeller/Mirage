@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from importlib.util import find_spec
 from abc import abstractmethod, ABC
 import logging

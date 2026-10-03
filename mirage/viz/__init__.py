@@ -72,8 +72,6 @@ def create_layers(
     return ret
 
 
-
-
 __all__ = [
   "Viz",
   "VizState",

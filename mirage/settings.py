@@ -33,7 +33,9 @@ def load_settings(settings_type: type) -> object:
     logger.debug(f"Returning settings: {ret}")
     return ret
   except ValueError:
-    logger.warning(f"Could not parse settings of type {key}. Returning default settings.")
+    logger.warning(
+      f"Could not parse settings of type {key}. Returning default settings."
+    )
     return _default(settings_type)
 
 

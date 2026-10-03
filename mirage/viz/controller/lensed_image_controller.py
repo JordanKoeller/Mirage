@@ -58,7 +58,7 @@ class LensedImageController(Controller):
     data = []
     for i, (vk, active) in enumerate(state.variant_keys):
       if not active:
-          continue
+        continue
       output = self.find_reducer(state, LensedImageReducer, variant_key=vk).output
       data.append(output)
       self._normalization_factor = max(

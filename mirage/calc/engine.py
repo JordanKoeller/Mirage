@@ -16,7 +16,7 @@ from mirage.util import (
   bind_logging_to_queue,
   Dictify,
   ClusterProvider,
-  LocalClusterProvider
+  LocalClusterProvider,
 )
 from mirage.settings import load_settings
 
@@ -74,7 +74,9 @@ class ResultCalculator(ABC):
     version. This may or mahy not be the same instance as what was passed in.
     """
 
-  def apply_all_reducers(self, reducers: Iterator[Reducer], callback: Callable[Reducer, None]) -> None:
+  def apply_all_reducers(
+    self, reducers: Iterator[Reducer], callback: Callable[Reducer, None]
+  ) -> None:
     """
     Apply all reducers in a batch operation. Once applied, the callback
     function should be called with each computed reducer.
@@ -82,7 +84,7 @@ class ResultCalculator(ABC):
     Default implementation calls apply_reducer() on each reducer.
     """
     for reducer in reducers:
-        callback(self.apply_reducer(reducer))
+      callback(self.apply_reducer(reducer))
 
 
 class _CachingCalculator:
@@ -121,32 +123,34 @@ class _CachingCalculator:
     and will share the result of the existing reducer.
     """
     for reducer_result in self.scheduled_reducers:
-        if Dictify.to_dict(reducer) == Dictify.to_dict(reducer_result.reducer):
-            self.reducer_dups += 1
-            self.aliased_reducers.append(ReducerResult(
-              result_key, reducer_result.reducer, cache_key=reducer_result.result_key
-            ))
-            return
+      if Dictify.to_dict(reducer) == Dictify.to_dict(reducer_result.reducer):
+        self.reducer_dups += 1
+        self.aliased_reducers.append(
+          ReducerResult(
+            result_key, reducer_result.reducer, cache_key=reducer_result.result_key
+          )
+        )
+        return
     self.scheduled_reducers.append(ReducerResult(result_key, reducer))
 
   def compute_reducers(self) -> Iterator[ReducerResult]:
-      """
-      Computes all scheduled reducers, and returns the results with aliased reducers
-      as well.
-      """
-      consumed_aliases = set()
-      reducers_arr = [r.reducer for r in self.scheduled_reducers]
-      applied_reducers = self.result_calculator.apply_all_reducers(reducers_arr)
-      for reducer, reducer_result in zip(applied_reducers, self.scheduled_reducers):
-          reducer_result.reducer = reducer
-          yield reducer_result
-          for i, alias in enumerate(self.aliased_reducers):
-              if i in consumed_aliases:
-                  continue
-              if Dictify.to_dict(alias.reducer) == Dictify.to_dict(reducer):
-                  alias.reducer = reducer
-                  consumed_aliases.add(i)
-                  yield alias
+    """
+    Computes all scheduled reducers, and returns the results with aliased reducers
+    as well.
+    """
+    consumed_aliases = set()
+    reducers_arr = [r.reducer for r in self.scheduled_reducers]
+    applied_reducers = self.result_calculator.apply_all_reducers(reducers_arr)
+    for reducer, reducer_result in zip(applied_reducers, self.scheduled_reducers):
+      reducer_result.reducer = reducer
+      yield reducer_result
+      for i, alias in enumerate(self.aliased_reducers):
+        if i in consumed_aliases:
+          continue
+        if Dictify.to_dict(alias.reducer) == Dictify.to_dict(reducer):
+          alias.reducer = reducer
+          consumed_aliases.add(i)
+          yield alias
 
 
 class Engine:
@@ -201,6 +205,7 @@ class Engine:
   @functools.cache
   def create_default(cls) -> Self:
     from mirage.calc.dask_result_calculator import DaskResultCalculator
+
     cluster_provider = None
     try:
       cluster_provider = load_settings(ClusterProvider)
@@ -208,7 +213,6 @@ class Engine:
       cluster_provider = LocalClusterProvider()
     dask_result_calculator = DaskResultCalculator(cluster_provider)
     return cls.create_and_start(dask_result_calculator)
-
 
   @classmethod
   def create_and_start(cls, calculator: ResultCalculator) -> Self:
@@ -316,7 +320,11 @@ class Engine:
         for key, simulation in bucket:
           num_simulations += 1
           computed_reducers += Engine._run_simulation(
-            calculator, stream, simulation, key, blocking=False,
+            calculator,
+            stream,
+            simulation,
+            key,
+            blocking=False,
           )
         computed = calculator.compute_reducers()
         for result in computed:
@@ -376,7 +384,7 @@ class Engine:
       for bucket in buckets:
         if bucket[-1][1].is_similar(simulation):
           found_match = True
-          bucket.append((variant,simulation))
+          bucket.append((variant, simulation))
           break
       if not found_match:
         buckets.append([(variant, simulation)])

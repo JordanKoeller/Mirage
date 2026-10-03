@@ -12,7 +12,6 @@ from mirage.util import DelegateRegistry, size_to_bytes
 logger = logging.getLogger(__name__)
 
 
-
 @dataclass
 class ClusterProvider(ABC):
   @property

@@ -145,9 +145,7 @@ class LensingSystem(ABC):
 
   @property
   def source_lens_distance(self) -> u.Quantity:
-    return self.cosmology.angular_diameter_distance(
-      self.redshift, self.quasar.redshift
-    )
+    return self.cosmology.angular_diameter_distance(self.redshift, self.quasar.redshift)
 
   @property
   def effective_distance(self) -> u.Quantity:
@@ -158,9 +156,7 @@ class LensingSystem(ABC):
     """
     d_l = self.cosmology.angular_diameter_distance(self.redshift)
     d_s = self.cosmology.angular_diameter_distance(self.quasar.redshift)
-    d_ls = self.cosmology.angular_diameter_distance(
-      self.redshift, self.quasar.redshift
-    )
+    d_ls = self.cosmology.angular_diameter_distance(self.redshift, self.quasar.redshift)
     return d_ls * d_l / d_s
 
   @property

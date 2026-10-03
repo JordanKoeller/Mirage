@@ -23,6 +23,7 @@ Reducers:
       Name: magmap_pos
       Radius: ${radius} r_g
       Resolution: [1000, 1000, '']
+      Parity: -1
   # - MagnificationMapReducer:
   #     Name: magmap_neg
   #     Radius: 50 r_g

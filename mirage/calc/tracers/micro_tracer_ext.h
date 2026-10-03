@@ -95,7 +95,6 @@ inline void trace_no_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
       rays_y[i] -= stars_m[s] * dy / r2;
 
       // Parity Computation below
-      // TODO: Double-check this. I'm not sure why r4 is needed but it works.
       Float r4 = r2 * r2;
       Float ri = stars_m[s] * (dy * dy - dx * dx) / r4;
       psi11 += ri;
@@ -103,14 +102,7 @@ inline void trace_no_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
       psi22 -= ri;
     }
     if (mag != nullptr) {
-      Float m = (psi11 * psi22 - psi12 * psi12);
-      if (m > -1e-3 && m < 1e-3) {
-        mag[i] = 0.0;
-      } else if (m < 0.0) {
-        mag[i] = -1.0;
-      } else if (m > 0.0) {
-        mag[i] = 1.0;
-      }
+      mag[i] = 1.0 / (psi11 * psi22 - psi12 * psi12);
     }
   }
 }
@@ -175,19 +167,23 @@ inline void trace_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
       out_y_v -= stars_m_buf[s] * dy / r2;
 
       // Magnification calculation
-      FV r4 = r2 * r2;
-      FV ri = stars_m_buf[s] * (dy * dy - dx * dx) / r4;
-      psi11_v += ri;
-      psi22_v -= ri;
-      psi12_v += 2.0 * stars_m_buf[s] * dx * dy / r4;
+      if (mag != nullptr) {
+        FV r4 = r2 * r2;
+        FV ri = stars_m_buf[s] * (dy * dy - dx * dx) / r4;
+        psi11_v += ri;
+        psi22_v -= ri;
+        psi12_v += 2.0 * stars_m_buf[s] * dx * dy / r4;
+      }
     }
     // reduce the out vector.
     for (std::size_t j = 0; j < FV::size(); j++) {
       rays_x[r] += out_x_v[j];
       rays_y[r] += out_y_v[j];
-      psi11 += psi11_v[j];
-      psi22 += psi22_v[j];
-      psi12 += psi12_v[j];
+      if (mag != nullptr) {
+        psi11 += psi11_v[j];
+        psi22 += psi22_v[j];
+        psi12 += psi12_v[j];
+      }
     }
 
     // Trace any leftover stars.
@@ -198,23 +194,17 @@ inline void trace_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
       Float r2 = dx * dx + dy * dy;
       rays_x[r] -= stars_m[s] * dx / r2;
       rays_y[r] -= stars_m[s] * dy / r2;
-      Float r4 = r2 * r2;
-      Float ri = stars_m[s] * (dy * dy - dx * dx) / r4;
-      psi11 += ri;
-      psi22 -= ri;
-      psi12 += 2.0 * stars_m[s] * dx * dy / r4;
+      if (mag != nullptr) {
+        Float r4 = r2 * r2;
+        Float ri = stars_m[s] * (dy * dy - dx * dx) / r4;
+        psi11 += ri;
+        psi22 -= ri;
+        psi12 += 2.0 * stars_m[s] * dx * dy / r4;
+      }
     }
 
     if (mag != nullptr) {
-      Float m = (psi11 * psi22 - psi12 * psi12);
-      if (m > -1e-3 && m < 1e-3) {
-        mag[r] = 0.0;
-      } else if (m < 0.0) {
-        mag[r] = -1.0;
-      } else if (m > 0.0) {
-        // TODO: Accumulate properly in the no_simd version as well.
-        mag[r] = 1.0;
-      }
+      mag[r] = 1.0 / (psi11 * psi22 - psi12 * psi12);
     }
   }
 

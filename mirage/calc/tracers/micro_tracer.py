@@ -97,10 +97,16 @@ class _CudaTracerFn(_TracerFn):
     self.program = Program(
       self._program_source_code, code_type="c++", options=program_options
     )
-    self.cuda_module = self.program.compile(
-      "cubin", name_expressions=("ray_trace_cuda<double>",)
-    )
-    self.kernel = self.cuda_module.get_kernel("ray_trace_cuda<double>")
+    if self.compute_parity:
+      self.cuda_module = self.program.compile(
+        "cubin", name_expressions=("ray_trace_cuda_parity<double>",)
+      )
+      self.kernel = self.cuda_module.get_kernel("ray_trace_cuda_parity<double>")
+    else:
+      self.cuda_module = self.program.compile(
+        "cubin", name_expressions=("ray_trace_cuda<double>",)
+      )
+      self.kernel = self.cuda_module.get_kernel("ray_trace_cuda<double>")
 
   def trace(
     self,
@@ -123,6 +129,8 @@ class _CudaTracerFn(_TracerFn):
 
     out_x = cp.empty_like(rays_x)
     out_y = cp.empty_like(rays_y)
+    if self.compute_parity:
+      out_parity = cp.empty_like(rays_x)
 
     self.device.sync()
 
@@ -132,23 +140,47 @@ class _CudaTracerFn(_TracerFn):
     grid = (num_rays + block - 1) // block
     config = LaunchConfig(grid=grid, block=block)
 
-    launch(
-      self.stream,
-      config,
-      self.kernel,
-      rays_x.data.ptr,
-      rays_y.data.ptr,
-      cp.uint64(num_rays),
-      cp.float64(kap),
-      cp.float64(gam),
-      stars_x.data.ptr,
-      stars_y.data.ptr,
-      stars_m.data.ptr,
-      cp.uint64(stars_m.shape[0]),
-      out_x.data.ptr,
-      out_y.data.ptr,
-    )
-    self.stream.sync()
+    if self.compute_parity:
+      launch(
+        self.stream,
+        config,
+        self.kernel,
+        rays_x.data.ptr,
+        rays_y.data.ptr,
+        cp.uint64(num_rays),
+        cp.float64(kap),
+        cp.float64(gam),
+        stars_x.data.ptr,
+        stars_y.data.ptr,
+        stars_m.data.ptr,
+        cp.uint64(stars_m.shape[0]),
+        out_x.data.ptr,
+        out_y.data.ptr,
+        out_parity.ptr,
+      )
+      self.stream.sync()
+    else:
+      launch(
+        self.stream,
+        config,
+        self.kernel,
+        rays_x.data.ptr,
+        rays_y.data.ptr,
+        cp.uint64(num_rays),
+        cp.float64(kap),
+        cp.float64(gam),
+        stars_x.data.ptr,
+        stars_y.data.ptr,
+        stars_m.data.ptr,
+        cp.uint64(stars_m.shape[0]),
+        out_x.data.ptr,
+        out_y.data.ptr,
+      )
+      self.stream.sync()
+
+    if self.compute_parity:
+      rays = np.empty((rays.shape[0], rays.shape[1], 3), order="F", dtype=np.float64)
+      rays[:, :, 2] = out_parity.get()
 
     rays[:, :, 0] = out_x.get()
     rays[:, :, 1] = out_y.get()

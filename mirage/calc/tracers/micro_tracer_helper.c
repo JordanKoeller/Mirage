@@ -20,7 +20,7 @@
             "/home/jkoeller/Tools/pkg/miniconda3/envs/mirage/lib/python3.14/site-packages/numpy/_core/include",
             "mirage/calc/tracers"
         ],
-        "language": "c++",
+        "language": "c++, boundscheck=False, wraparound=False",
         "name": "mirage.calc.tracers.micro_tracer_helper",
         "sources": [
             "mirage/calc/tracers/micro_tracer_helper.pyx"
@@ -543,36 +543,20 @@ typedef uintptr_t  __pyx_uintptr_t;
 #endif
 #define __PYX_REINTERPRET_FUNCION(func_pointer, other_pointer) ((func_pointer)(void(*)(void))(other_pointer))
 
-/* CppInitCode */
-#ifndef __cplusplus
-  #error "Cython files generated with the C++ option must be compiled with a C++ compiler."
-#endif
+/* CInitCode */
 #ifndef CYTHON_INLINE
   #if defined(__clang__)
     #define CYTHON_INLINE __inline__ __attribute__ ((__unused__))
-  #else
+  #elif defined(__GNUC__)
+    #define CYTHON_INLINE __inline__
+  #elif defined(_MSC_VER)
+    #define CYTHON_INLINE __inline
+  #elif defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
     #define CYTHON_INLINE inline
+  #else
+    #define CYTHON_INLINE
   #endif
 #endif
-template<typename T>
-void __Pyx_call_destructor(T& x) {
-    x.~T();
-}
-template<typename T>
-class __Pyx_FakeReference {
-  public:
-    __Pyx_FakeReference() : ptr(NULL) { }
-    __Pyx_FakeReference(const T& ref) : ptr(const_cast<T*>(&ref)) { }
-    T *operator->() { return ptr; }
-    T *operator&() { return ptr; }
-    operator T&() { return *ptr; }
-    template<typename U> bool operator ==(const U& other) const { return *ptr == other; }
-    template<typename U> bool operator !=(const U& other) const { return *ptr != other; }
-    template<typename U> bool operator==(const __Pyx_FakeReference<U>& other) const { return *ptr == *other.ptr; }
-    template<typename U> bool operator!=(const __Pyx_FakeReference<U>& other) const { return *ptr != *other.ptr; }
-  private:
-    T *ptr;
-};
 
 /* PythonCompatibility */
 #define __PYX_BUILD_PY_SSIZE_T "n"
@@ -1164,7 +1148,11 @@ static int __Pyx_init_co_variables(void) {
     #warning Please do not define the '__PYX_EXTERN_C' macro externally. Use 'CYTHON_EXTERN_C' instead.
     #endif
 #else
-    #define __PYX_EXTERN_C extern "C++"
+  #ifdef __cplusplus
+    #define __PYX_EXTERN_C extern "C"
+  #else
+    #define __PYX_EXTERN_C extern
+  #endif
 #endif
 
 #define __PYX_HAVE__mirage__calc__tracers__micro_tracer_helper
@@ -1604,55 +1592,6 @@ static const char* const __pyx_f[] = {
 #define __Pyx_FastGIL_Remember()
 #define __Pyx_FastGIL_Forget()
 #define __Pyx_FastGilFuncInit()
-
-/* Profile_config.proto (used by Profile) */
-#ifndef CYTHON_PROFILE
-#if CYTHON_COMPILING_IN_LIMITED_API || CYTHON_COMPILING_IN_PYPY
-  #define CYTHON_PROFILE 0
-#else
-  #define CYTHON_PROFILE 1
-#endif
-#endif
-#ifndef CYTHON_TRACE_NOGIL
-  #define CYTHON_TRACE_NOGIL 0
-#else
-  #if CYTHON_TRACE_NOGIL && !defined(CYTHON_TRACE)
-    #define CYTHON_TRACE 1
-  #endif
-#endif
-#ifndef CYTHON_TRACE
-  #define CYTHON_TRACE 0
-#endif
-#if CYTHON_PROFILE || CYTHON_TRACE
-#if CYTHON_USE_SYS_MONITORING
-    typedef enum {
-        __Pyx_Monitoring_PY_START = 0,
-        __Pyx_Monitoring_PY_RETURN,
-        __Pyx_Monitoring_PY_UNWIND,
-        __Pyx_Monitoring_LINE,
-        __Pyx_Monitoring_RAISE,
-        __Pyx_Monitoring_RERAISE,
-        __Pyx_Monitoring_EXCEPTION_HANDLED,
-        __Pyx_Monitoring_PY_RESUME,
-        __Pyx_Monitoring_PY_YIELD,
-        __Pyx_Monitoring_STOP_ITERATION,
-    } __Pyx_Monitoring_Event_Index;
-    static const unsigned char __Pyx_MonitoringEventTypes[] = {
-        PY_MONITORING_EVENT_PY_START,
-        PY_MONITORING_EVENT_PY_RETURN,
-        PY_MONITORING_EVENT_PY_UNWIND,
-        PY_MONITORING_EVENT_LINE,
-        PY_MONITORING_EVENT_RAISE,
-        PY_MONITORING_EVENT_RERAISE,
-        PY_MONITORING_EVENT_EXCEPTION_HANDLED,
-        PY_MONITORING_EVENT_PY_RESUME,
-        PY_MONITORING_EVENT_PY_YIELD,
-        PY_MONITORING_EVENT_STOP_ITERATION,
-    };
-    #define __Pyx_MonitoringEventTypes_CyFunc_count (sizeof(__Pyx_MonitoringEventTypes) - 3)
-    #define __Pyx_MonitoringEventTypes_CyGen_count (sizeof(__Pyx_MonitoringEventTypes))
-#endif
-#endif
 
 /* BufferFormatStructs.proto (used by BufferFormatCheck) */
 struct __Pyx_StructField_;
@@ -2736,432 +2675,6 @@ static CYTHON_INLINE long __Pyx_div_long(long, long, int b_is_constant);
 /* PyImportError_Check.proto */
 #define __Pyx_PyExc_ImportError_Check(obj)  __Pyx_TypeCheck(obj, PyExc_ImportError)
 
-/* Profile.proto */
-#if CYTHON_TRACE
-  #undef CYTHON_PROFILE_REUSE_FRAME
-#endif
-#if CYTHON_USE_MODULE_STATE
-  #undef CYTHON_PROFILE_REUSE_CODEOBJ
-  #define CYTHON_PROFILE_REUSE_CODEOBJ 0
-  #undef CYTHON_PROFILE_REUSE_FRAME
-#endif
-#ifndef CYTHON_PROFILE_REUSE_CODEOBJ
-  #define CYTHON_PROFILE_REUSE_CODEOBJ 1
-#endif
-#ifndef CYTHON_PROFILE_REUSE_FRAME
-  #define CYTHON_PROFILE_REUSE_FRAME 0
-#endif
-#if CYTHON_USE_SYS_MONITORING && (CYTHON_PROFILE || CYTHON_TRACE)
-  #define __PYX_MONITORING_ABI_SUFFIX  "_mon"
-#else
-  #define __PYX_MONITORING_ABI_SUFFIX
-#endif
-#if CYTHON_PROFILE || CYTHON_TRACE
-#if CYTHON_USE_SYS_MONITORING
-  typedef uint64_t __pyx_monitoring_version_type;
-  #define __Pyx_TraceDeclarationsFunc\
-      PyObject *__pyx_frame_code = NULL;\
-      PyMonitoringState __pyx_pymonitoring_state[__Pyx_MonitoringEventTypes_CyFunc_count];\
-      int __pyx_exception_already_reported = 0;\
-      const int __pyx_sys_monitoring_disabled_in_parallel = 0; CYTHON_UNUSED_VAR(__pyx_sys_monitoring_disabled_in_parallel);
-  #define __Pyx_TraceDeclarationsGen\
-      PyObject *__pyx_frame_code = Py_NewRef(__pyx_generator->gi_code);\
-      PyMonitoringState* __pyx_pymonitoring_state = __pyx_generator->__pyx_pymonitoring_state;\
-      __pyx_monitoring_version_type __pyx_pymonitoring_version = __pyx_generator->__pyx_pymonitoring_version;\
-      int __pyx_exception_already_reported = 0;\
-      const int __pyx_sys_monitoring_disabled_in_parallel = 0; CYTHON_UNUSED_VAR(__pyx_sys_monitoring_disabled_in_parallel);
-  #define __Pyx_IsTracing(event_id)  ((!__pyx_sys_monitoring_disabled_in_parallel) && (__pyx_pymonitoring_state[event_id]).active)
-  #define __Pyx_TraceFrameInit(codeobj)\
-      if (codeobj) __pyx_frame_code = codeobj;
-  #define __Pyx_TurnOffSysMonitoringInParallel\
-    const int __pyx_sys_monitoring_disabled_in_parallel = 1;\
-    CYTHON_UNUSED_VAR(__pyx_sys_monitoring_disabled_in_parallel);
-  CYTHON_UNUSED static PyCodeObject *__Pyx_createFrameCodeObject(const char *funcname, const char *srcfile, int firstlineno);
-  CYTHON_UNUSED static int __Pyx__TraceStartFunc(PyMonitoringState *state_array, PyObject *code_obj, int offset, int skip_event);
-  CYTHON_UNUSED static int __Pyx__TraceStartGen(PyMonitoringState *state_array, __pyx_monitoring_version_type *version, PyObject *code_obj, int offset);
-  CYTHON_UNUSED static int __Pyx__TraceResumeGen(PyMonitoringState *state_array, __pyx_monitoring_version_type *version, PyObject *code_obj, int offset);
-  CYTHON_UNUSED static void __Pyx__TraceException(PyMonitoringState *monitoring_state, PyObject *code_obj, int offset, int reraised);
-  #define __Pyx_PyMonitoring_ExitScope(nogil)\
-    if (nogil) {\
-        (void) __pyx_exception_already_reported;\
-        if (CYTHON_TRACE_NOGIL) {\
-            PyGILState_STATE state = PyGILState_Ensure();\
-            PyMonitoring_ExitScope();\
-            Py_XDECREF(__pyx_frame_code);\
-            PyGILState_Release(state);\
-        }\
-    } else {\
-        PyMonitoring_ExitScope();\
-        Py_XDECREF(__pyx_frame_code);\
-    }
-  #define __Pyx_TraceStartFunc(funcname, srcfile, firstlineno, offset, nogil, skip_event, goto_error)\
-  if ((0) ); else {\
-      int ret = 0;\
-      memset(__pyx_pymonitoring_state, 0, sizeof(__pyx_pymonitoring_state));\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              if (!__Pyx_PyThreadState_Current->tracing) {\
-                  if (likely(__pyx_frame_code)) Py_INCREF(__pyx_frame_code);\
-                  else __pyx_frame_code = (PyObject*) __Pyx_createFrameCodeObject(funcname, srcfile, firstlineno);\
-                  if (unlikely(!__pyx_frame_code)) ret = -1;\
-                  else ret = __Pyx__TraceStartFunc(__pyx_pymonitoring_state, __pyx_frame_code, offset, skip_event);\
-              } else __pyx_frame_code = NULL;\
-              PyGILState_Release(state);\
-          } else __pyx_frame_code = NULL;\
-      } else {\
-          if (!__Pyx_PyThreadState_Current->tracing) {\
-              if (likely(__pyx_frame_code)) Py_INCREF(__pyx_frame_code);\
-              else __pyx_frame_code = (PyObject*) __Pyx_createFrameCodeObject(funcname, srcfile, firstlineno);\
-              if (unlikely(!__pyx_frame_code)) ret = -1;\
-              else ret = __Pyx__TraceStartFunc(__pyx_pymonitoring_state, __pyx_frame_code, offset, skip_event);\
-          } else __pyx_frame_code = NULL;\
-      }\
-      if (unlikely(ret == -1)) goto_error;\
-  }
-  #define __Pyx_TraceStartGen(funcname, srcfile, firstlineno, offset, nogil, skip_event, goto_error)\
-  if ((0) ); else {\
-      int ret = __Pyx__TraceStartGen(__pyx_pymonitoring_state, &__pyx_pymonitoring_version, __pyx_frame_code, offset);\
-      if (unlikely(ret == -1)) goto_error;\
-  }
-  #define __Pyx_TraceResumeGen(funcname, srcfile, firstlineno, offset, goto_error)\
-  if ((0) ); else {\
-      int ret = __Pyx__TraceResumeGen(__pyx_pymonitoring_state, &__pyx_pymonitoring_version, __pyx_frame_code, offset);\
-      if (unlikely(ret == -1)) goto_error;\
-  }
-  #define __Pyx_TraceYield(result, offset, goto_error)\
-  if (!__Pyx_IsTracing(__Pyx_Monitoring_PY_YIELD)); else {\
-      int ret = PyMonitoring_FirePyYieldEvent(&__pyx_pymonitoring_state[__Pyx_Monitoring_PY_RETURN], __pyx_frame_code, offset, result);\
-      PyMonitoring_ExitScope();\
-      if (unlikely(ret == -1)) goto_error;\
-  }
-  #define __Pyx_TraceException(offset, reraised, fresh)\
-  if (!__Pyx_IsTracing((reraised) ? __Pyx_Monitoring_RERAISE : __Pyx_Monitoring_RAISE)); else {\
-      if (fresh || reraised || !__pyx_exception_already_reported) {\
-          __Pyx__TraceException(&__pyx_pymonitoring_state[(reraised) ? __Pyx_Monitoring_RERAISE : __Pyx_Monitoring_RAISE], __pyx_frame_code, offset, reraised);\
-      }\
-      __pyx_exception_already_reported = 1;\
-  }
-  #define __Pyx_TraceExceptionDone()  __pyx_exception_already_reported = 0
-  #define __Pyx_TraceExceptionHandled(offset)\
-  if (!__Pyx_IsTracing(__Pyx_Monitoring_EXCEPTION_HANDLED)); else {\
-      (void) PyMonitoring_FireExceptionHandledEvent(&__pyx_pymonitoring_state[__Pyx_Monitoring_EXCEPTION_HANDLED], __pyx_frame_code, offset);\
-      __pyx_exception_already_reported = 0;\
-  }
-  #define __Pyx_TraceReturnValue(result, offset, nogil, goto_error)\
-  if (!__Pyx_IsTracing(__Pyx_Monitoring_PY_RETURN)); else {\
-      int ret = 0;\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              ret = PyMonitoring_FirePyReturnEvent(&__pyx_pymonitoring_state[__Pyx_Monitoring_PY_RETURN], __pyx_frame_code, offset, result);\
-              PyGILState_Release(state);\
-          }\
-      } else {\
-          ret = PyMonitoring_FirePyReturnEvent(&__pyx_pymonitoring_state[__Pyx_Monitoring_PY_RETURN], __pyx_frame_code, offset, result);\
-      }\
-      if (unlikely(ret == -1)) goto_error;\
-  }
-  #define __Pyx_TraceReturnCValue(cresult, convert_function, offset, nogil, goto_error)\
-  if (!__Pyx_IsTracing(__Pyx_Monitoring_PY_RETURN)); else {\
-      int ret = 0;\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              PyObject *pyvalue = convert_function(cresult);\
-              if (unlikely(!pyvalue)) {\
-                  PyErr_Clear();\
-                  pyvalue = Py_None; Py_INCREF(Py_None);\
-              }\
-              ret = PyMonitoring_FirePyReturnEvent(&__pyx_pymonitoring_state[__Pyx_Monitoring_PY_RETURN], __pyx_frame_code, offset, pyvalue);\
-              Py_DECREF(pyvalue);\
-              PyGILState_Release(state);\
-          }\
-      } else {\
-          PyObject *pyvalue = convert_function(cresult);\
-          if (unlikely(!pyvalue)) {\
-              PyErr_Clear();\
-              pyvalue = Py_None; Py_INCREF(Py_None);\
-          }\
-          ret = PyMonitoring_FirePyReturnEvent(&__pyx_pymonitoring_state[__Pyx_Monitoring_PY_RETURN], __pyx_frame_code, offset, pyvalue);\
-          Py_DECREF(pyvalue);\
-      }\
-      if (unlikely(ret == -1)) goto_error;\
-  }
-  #define __Pyx_TraceExceptionUnwind(offset, nogil)\
-  if (!__Pyx_IsTracing(__Pyx_Monitoring_PY_UNWIND)); else {\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              (void) PyMonitoring_FirePyUnwindEvent(&__pyx_pymonitoring_state[__Pyx_Monitoring_PY_UNWIND], __pyx_frame_code, offset);\
-              PyGILState_Release(state);\
-          }\
-      } else {\
-          (void) PyMonitoring_FirePyUnwindEvent(&__pyx_pymonitoring_state[__Pyx_Monitoring_PY_UNWIND], __pyx_frame_code, offset);\
-      }\
-  }
-  #if CYTHON_TRACE
-  CYTHON_UNUSED static int __Pyx__TraceLine(PyMonitoringState *monitoring_state, PyObject *code_obj, int line, int offset);
-  #define __Pyx_TraceLine(line, offset, nogil, goto_error)\
-  if (!__Pyx_IsTracing(__Pyx_Monitoring_LINE)); else {\
-      int ret = 0;\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              ret = __Pyx__TraceLine(&__pyx_pymonitoring_state[__Pyx_Monitoring_LINE], __pyx_frame_code, line, offset);\
-              PyGILState_Release(state);\
-          }\
-      } else {\
-          ret = __Pyx__TraceLine(&__pyx_pymonitoring_state[__Pyx_Monitoring_LINE], __pyx_frame_code, line, offset);\
-      }\
-      if (unlikely(ret == -1)) goto_error;\
-  }
-  #endif
-#else
-  #include "compile.h"
-  #include "frameobject.h"
-  #include "traceback.h"
-#if PY_VERSION_HEX >= 0x030b00a6 && !defined(PYPY_VERSION)
-  #ifndef Py_BUILD_CORE
-    #define Py_BUILD_CORE 1
-  #endif
-  #include "internal/pycore_frame.h"
-#endif
-  #if CYTHON_PROFILE_REUSE_FRAME
-    #define CYTHON_FRAME_MODIFIER static
-    #define CYTHON_FRAME_DEL(frame)
-  #else
-    #define CYTHON_FRAME_MODIFIER
-    #define CYTHON_FRAME_DEL(frame) Py_CLEAR(frame)
-  #endif
-  #if CYTHON_PROFILE_REUSE_CODEOBJ
-    #define CYTHON_CODEOBJ_MODIFIER static
-  #else
-    #define CYTHON_CODEOBJ_MODIFIER
-  #endif
-  #define __Pyx_TraceDeclarationsFunc\
-      CYTHON_CODEOBJ_MODIFIER PyCodeObject *__pyx_frame_code = NULL;\
-      CYTHON_FRAME_MODIFIER PyFrameObject *__pyx_frame = NULL;\
-      int __Pyx_use_tracing = 0;
-  #define __Pyx_TraceDeclarationsGen\
-      PyObject *__pyx_frame_code = __pyx_generator->gi_code;\
-      CYTHON_FRAME_MODIFIER PyFrameObject *__pyx_frame = NULL;\
-      int __Pyx_use_tracing = 0;
-  #define __Pyx_TraceFrameInit(codeobj)\
-      if (codeobj) __pyx_frame_code = (PyCodeObject*) codeobj;
-  #define __Pyx_PyMonitoring_ExitScope(nogil)\
-    if (!CYTHON_PROFILE_REUSE_FRAME && nogil) {\
-        PyGILState_STATE state = PyGILState_Ensure();\
-        CYTHON_FRAME_DEL(__pyx_frame);\
-        PyGILState_Release(state);\
-    } else {\
-        CYTHON_FRAME_DEL(__pyx_frame);\
-    }
-  #define __Pyx_TraceException(offset, reraised, fresh)  {}
-  #define __Pyx_TraceExceptionHandled(offset)  {}
-  #define __Pyx_TraceExceptionDone()  {}
-  #define __Pyx_TurnOffSysMonitoringInParallel {} // Only needed for freethreading
-#if PY_VERSION_HEX >= 0x030b00a2
-  #if PY_VERSION_HEX >= 0x030C00b1
-  #define __Pyx_IsTracing(tstate, check_tracing, check_funcs)\
-     ((!(check_tracing) || !(tstate)->tracing) &&\
-         (!(check_funcs) || (tstate)->c_profilefunc || (CYTHON_TRACE && (tstate)->c_tracefunc)))
-  #else
-  #define __Pyx_IsTracing(tstate, check_tracing, check_funcs)\
-     (unlikely((tstate)->cframe->use_tracing) &&\
-         (!(check_tracing) || !(tstate)->tracing) &&\
-         (!(check_funcs) || (tstate)->c_profilefunc || (CYTHON_TRACE && (tstate)->c_tracefunc)))
-  #endif
-  #define __Pyx_EnterTracing(tstate)  PyThreadState_EnterTracing(tstate)
-  #define __Pyx_LeaveTracing(tstate)  PyThreadState_LeaveTracing(tstate)
-#elif PY_VERSION_HEX >= 0x030a00b1
-  #define __Pyx_IsTracing(tstate, check_tracing, check_funcs)\
-     (unlikely((tstate)->cframe->use_tracing) &&\
-         (!(check_tracing) || !(tstate)->tracing) &&\
-         (!(check_funcs) || (tstate)->c_profilefunc || (CYTHON_TRACE && (tstate)->c_tracefunc)))
-  #define __Pyx_EnterTracing(tstate)\
-      do { tstate->tracing++; tstate->cframe->use_tracing = 0; } while (0)
-  #define __Pyx_LeaveTracing(tstate)\
-      do {\
-          tstate->tracing--;\
-          tstate->cframe->use_tracing = ((CYTHON_TRACE && tstate->c_tracefunc != NULL)\
-                                 || tstate->c_profilefunc != NULL);\
-      } while (0)
-#else
-  #define __Pyx_IsTracing(tstate, check_tracing, check_funcs)\
-     (unlikely((tstate)->use_tracing) &&\
-         (!(check_tracing) || !(tstate)->tracing) &&\
-         (!(check_funcs) || (tstate)->c_profilefunc || (CYTHON_TRACE && (tstate)->c_tracefunc)))
-  #define __Pyx_EnterTracing(tstate)\
-      do { tstate->tracing++; tstate->use_tracing = 0; } while (0)
-  #define __Pyx_LeaveTracing(tstate)\
-      do {\
-          tstate->tracing--;\
-          tstate->use_tracing = ((CYTHON_TRACE && tstate->c_tracefunc != NULL)\
-                                         || tstate->c_profilefunc != NULL);\
-      } while (0)
-#endif
-  #define __Pyx_TraceStartFunc(funcname, srcfile, firstlineno, offset, nogil, skip_event, goto_error)\
-  if (nogil) {\
-      if (CYTHON_TRACE_NOGIL) {\
-          PyThreadState *tstate;\
-          PyGILState_STATE state = PyGILState_Ensure();\
-          tstate = __Pyx_PyThreadState_Current;\
-          if (__Pyx_IsTracing(tstate, 1, 1)) {\
-              __Pyx_use_tracing = __Pyx_TraceSetupAndCall((PyCodeObject**)&__pyx_frame_code, &__pyx_frame, tstate, funcname, srcfile, firstlineno, skip_event);\
-          }\
-          PyGILState_Release(state);\
-          if (unlikely(__Pyx_use_tracing < 0)) goto_error;\
-      }\
-  } else {\
-      PyThreadState* tstate = PyThreadState_GET();\
-      if (__Pyx_IsTracing(tstate, 1, 1)) {\
-          __Pyx_use_tracing = __Pyx_TraceSetupAndCall((PyCodeObject**)&__pyx_frame_code, &__pyx_frame, tstate, funcname, srcfile, firstlineno, skip_event);\
-          if (unlikely(__Pyx_use_tracing < 0)) goto_error;\
-      }\
-  }
-  #define __Pyx_TraceStartGen __Pyx_TraceStartFunc
-  #define __Pyx_TraceYield(result, offset, goto_error)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      PyThreadState* tstate = __Pyx_PyThreadState_Current;\
-      if (__Pyx_IsTracing(tstate, 0, 0)) {\
-          __Pyx_call_return_trace_func(tstate, __pyx_frame, (PyObject*)result);\
-      }\
-      if ((1)); else goto_error;\
-  }
-  #define __Pyx_TraceResumeGen(funcname, srcfile, firstlineno, offset, goto_error)\
-      __Pyx_TraceStartFunc(funcname, srcfile, firstlineno, offset, 0, 0, goto_error)
-  CYTHON_UNUSED static void __Pyx_call_return_trace_func(PyThreadState *tstate, PyFrameObject *frame, PyObject *result) {
-      PyObject *type, *value, *traceback;
-      __Pyx_ErrFetchInState(tstate, &type, &value, &traceback);
-      __Pyx_EnterTracing(tstate);
-      if (CYTHON_TRACE && tstate->c_tracefunc)
-          tstate->c_tracefunc(tstate->c_traceobj, frame, PyTrace_RETURN, result);
-      if (tstate->c_profilefunc)
-          tstate->c_profilefunc(tstate->c_profileobj, frame, PyTrace_RETURN, result);
-      __Pyx_LeaveTracing(tstate);
-      __Pyx_ErrRestoreInState(tstate, type, value, traceback);
-  }
-  #define __Pyx_TraceReturnValue(result, offset, nogil, goto_error)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyThreadState *tstate;\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              tstate = __Pyx_PyThreadState_Current;\
-              if (__Pyx_IsTracing(tstate, 0, 0)) {\
-                  __Pyx_call_return_trace_func(tstate, __pyx_frame, (PyObject*)result);\
-              }\
-              PyGILState_Release(state);\
-          }\
-      } else {\
-          PyThreadState* tstate = __Pyx_PyThreadState_Current;\
-          if (__Pyx_IsTracing(tstate, 0, 0)) {\
-              __Pyx_call_return_trace_func(tstate, __pyx_frame, (PyObject*)result);\
-          }\
-      }\
-      if ((1)); else goto_error;\
-  }
-  #define __Pyx_TraceReturnCValue(cresult, convert_function, offset, nogil, goto_error)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyThreadState *tstate;\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              tstate = __Pyx_PyThreadState_Current;\
-              if (__Pyx_IsTracing(tstate, 0, 0)) {\
-                  PyObject *pyvalue = convert_function(cresult);\
-                  if (unlikely(!pyvalue)) {\
-                    PyErr_Clear();\
-                    pyvalue = Py_None; Py_INCREF(Py_None);\
-                  }\
-                  __Pyx_call_return_trace_func(tstate, __pyx_frame, pyvalue);\
-                  Py_DECREF(pyvalue);\
-              }\
-              PyGILState_Release(state);\
-          }\
-      } else {\
-          PyThreadState* tstate = __Pyx_PyThreadState_Current;\
-          if (__Pyx_IsTracing(tstate, 0, 0)) {\
-              PyObject *pyvalue = convert_function(cresult);\
-              if (unlikely(!pyvalue)) {\
-                  PyErr_Clear();\
-                  pyvalue = Py_None; Py_INCREF(Py_None);\
-              }\
-              __Pyx_call_return_trace_func(tstate, __pyx_frame, pyvalue);\
-              Py_DECREF(pyvalue);\
-          }\
-      }\
-      if ((1)); else goto_error;\
-  }
-  #define __Pyx_TraceExceptionUnwind(offset, nogil)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyThreadState *tstate;\
-              PyGILState_STATE state = PyGILState_Ensure();\
-              tstate = __Pyx_PyThreadState_Current;\
-              if (__Pyx_IsTracing(tstate, 0, 0)) {\
-                  __Pyx_call_return_trace_func(tstate, __pyx_frame, Py_None);\
-              }\
-              PyGILState_Release(state);\
-          }\
-      } else {\
-          PyThreadState* tstate = __Pyx_PyThreadState_Current;\
-          if (__Pyx_IsTracing(tstate, 0, 0)) {\
-              __Pyx_call_return_trace_func(tstate, __pyx_frame, Py_None);\
-          }\
-      }\
-  }
-  static int __Pyx_TraceSetupAndCall(PyCodeObject** code, PyFrameObject** frame, PyThreadState* tstate, const char *funcname, const char *srcfile, int firstlineno, int skip_event);
-#if CYTHON_TRACE
-  CYTHON_UNUSED static int __Pyx_call_line_trace_func(PyThreadState *tstate, PyFrameObject *frame, int line);
-  #define __Pyx_TraceLine(line, offset, nogil, goto_error)\
-  if (likely(!__Pyx_use_tracing)); else {\
-      int ret = 0;\
-      if (nogil) {\
-          if (CYTHON_TRACE_NOGIL) {\
-              PyThreadState *tstate;\
-              PyGILState_STATE state = __Pyx_PyGILState_Ensure();\
-              tstate = __Pyx_PyThreadState_Current;\
-              if (__Pyx_IsTracing(tstate, 0, 0) && tstate->c_tracefunc && __pyx_frame->f_trace) {\
-                  ret = __Pyx_call_line_trace_func(tstate, __pyx_frame, line);\
-              }\
-              __Pyx_PyGILState_Release(state);\
-          }\
-      } else {\
-          PyThreadState* tstate = __Pyx_PyThreadState_Current;\
-          if (__Pyx_IsTracing(tstate, 0, 0) && tstate->c_tracefunc && __pyx_frame->f_trace) {\
-              ret = __Pyx_call_line_trace_func(tstate, __pyx_frame, line);\
-          }\
-      }\
-      if (unlikely(ret)) goto_error;\
-  }
-#endif
-#endif
-#else
-  #define __Pyx_TraceDeclarationsFunc
-  #define __Pyx_TraceDeclarationsGen
-  #define __Pyx_TraceExceptionDone()  {}
-  #define __Pyx_TraceFrameInit(codeobj)  {}
-  #define __Pyx_TurnOffSysMonitoringInParallel {}
-  #define __Pyx_PyMonitoring_ExitScope(nogil)  {}
-  #define __Pyx_TraceException(offset, reraised, fresh)  {}
-  #define __Pyx_TraceExceptionUnwind(offset, nogil)  {}
-  #define __Pyx_TraceExceptionHandled(offset)  {}
-  #define __Pyx_TraceStartFunc(funcname, srcfile, firstlineno, offset, nogil, skip_event, goto_error)   if ((1)); else goto_error;
-  #define __Pyx_TraceStartGen __Pyx_TraceStartFunc
-  #define __Pyx_TraceResumeGen(funcname, srcfile, firstlineno, offset, goto_error)   if ((1)); else goto_error;
-  #define __Pyx_TraceYield(result, offset, goto_error)   if ((1)); else goto_error;
-  #define __Pyx_TraceReturnValue(result, offset, nogil, goto_error)\
-      if ((1)); else goto_error;
-  #define __Pyx_TraceReturnCValue(cresult, convert_function, offset, nogil, goto_error)\
-      if ((1)); else { (void) convert_function; goto_error }
-#endif
-#if !CYTHON_TRACE
-  #define __Pyx_TraceLine(line, offset, nogil, goto_error)   if ((1)); else goto_error;
-#endif
-
 /* IsLittleEndian.proto (used by BufferFormatCheck) */
 static CYTHON_INLINE int __Pyx_Is_Little_Endian(void);
 
@@ -3204,6 +2717,12 @@ static int __Pyx_VectorcallBuilder_AddArgStr(const char *key, PyObject *value, P
 /* BufferFallbackError.proto */
 static void __Pyx_RaiseBufferFallbackError(void);
 
+/* BufferIndexError.proto (used by BufferIndexErrorNogil) */
+static void __Pyx_RaiseBufferIndexError(int axis);
+
+/* BufferIndexErrorNogil.proto */
+static void __Pyx_RaiseBufferIndexErrorNogil(int axis);
+
 /* AllocateExtensionType.proto */
 static PyObject *__Pyx_AllocateExtensionType(PyTypeObject *t, int is_final);
 
@@ -3227,13 +2746,6 @@ static PyObject *__Pyx_AllocateExtensionType(PyTypeObject *t, int is_final);
 #else
 static int __Pyx_call_type_traverse(PyObject *o, int always_call, visitproc visit, void *arg);
 #endif
-
-/* DefaultPlacementNew.proto */
-#include <new>
-template<typename T>
-void __Pyx_default_placement_construct(T* x) {
-    new (static_cast<void*>(x)) T();
-}
 
 /* LimitedApiGetTypeDict.proto (used by SetItemOnTypeDict) */
 #if CYTHON_COMPILING_IN_LIMITED_API
@@ -19057,7 +18569,7 @@ static CYTHON_INLINE NPY_DATETIMEUNIT __pyx_f_5numpy_get_datetime64_unit(PyObjec
   return __pyx_r;
 }
 
-/* "mirage/calc/tracers/micro_tracer_helper.pyx":11
+/* "mirage/calc/tracers/micro_tracer_helper.pyx":10
  * 
  * 
  * cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace(             # <<<<<<<<<<<<<<
@@ -19087,7 +18599,6 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
   __Pyx_LocalBuf_ND __pyx_pybuffernd_star_pos;
   __Pyx_Buffer __pyx_pybuffer_star_pos;
   PyArrayObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
@@ -19122,9 +18633,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]))
   __Pyx_RefNannySetupContext("trace", 0);
-  __Pyx_TraceStartFunc("trace", __pyx_f[0], 11, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 11, __pyx_L1_error));
   __Pyx_INCREF((PyObject *)__pyx_v_rays);
   __Pyx_INCREF((PyObject *)__pyx_v_star_pos);
   __pyx_pybuffer_rays.pybuffer.buf = NULL;
@@ -19141,21 +18650,21 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
   __pyx_pybuffernd_star_pos.rcbuffer = &__pyx_pybuffer_star_pos;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_rays.rcbuffer->pybuffer, (PyObject*)__pyx_v_rays, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 11, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_rays.rcbuffer->pybuffer, (PyObject*)__pyx_v_rays, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 10, __pyx_L1_error)
   }
   __pyx_pybuffernd_rays.diminfo[0].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_rays.diminfo[0].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_rays.diminfo[1].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_rays.diminfo[1].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_rays.diminfo[2].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_rays.diminfo[2].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[2];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_star_mass.rcbuffer->pybuffer, (PyObject*)__pyx_v_star_mass, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 11, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_star_mass.rcbuffer->pybuffer, (PyObject*)__pyx_v_star_mass, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 10, __pyx_L1_error)
   }
   __pyx_pybuffernd_star_mass.diminfo[0].strides = __pyx_pybuffernd_star_mass.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_star_mass.diminfo[0].shape = __pyx_pybuffernd_star_mass.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_star_pos.rcbuffer->pybuffer, (PyObject*)__pyx_v_star_pos, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 11, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_star_pos.rcbuffer->pybuffer, (PyObject*)__pyx_v_star_pos, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 10, __pyx_L1_error)
   }
   __pyx_pybuffernd_star_pos.diminfo[0].strides = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_star_pos.diminfo[0].shape = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_star_pos.diminfo[1].strides = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_star_pos.diminfo[1].shape = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.shape[1];
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":20
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":19
  *       int allow_simd,
  * ):
  *   cdef int width = rays.shape[0]             # <<<<<<<<<<<<<<
@@ -19164,7 +18673,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
 */
   __pyx_v_width = (__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_rays))[0]);
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":21
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":20
  * ):
  *   cdef int width = rays.shape[0]
  *   cdef int height = rays.shape[1]             # <<<<<<<<<<<<<<
@@ -19173,7 +18682,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
 */
   __pyx_v_height = (__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_rays))[1]);
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":22
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":21
  *   cdef int width = rays.shape[0]
  *   cdef int height = rays.shape[1]
  *   cdef double* nullptr = cython.NULL             # <<<<<<<<<<<<<<
@@ -19182,7 +18691,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
 */
   __pyx_v_nullptr = NULL;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":23
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":22
  *   cdef int height = rays.shape[1]
  *   cdef double* nullptr = cython.NULL
  *   if compute_parity:             # <<<<<<<<<<<<<<
@@ -19192,7 +18701,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
   __pyx_t_1 = (__pyx_v_compute_parity != 0);
   if (__pyx_t_1) {
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":24
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":23
  *   cdef double* nullptr = cython.NULL
  *   if compute_parity:
  *       rays_mag = np.empty((rays.shape[0], rays.shape[1], 3), order='F', dtype=np.float64)             # <<<<<<<<<<<<<<
@@ -19200,29 +18709,29 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
  *       rays_mag[:, :, 1] = rays[:, :, 1]
 */
     __pyx_t_3 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_empty); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_empty); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyLong_From_npy_intp((__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_rays))[0])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyLong_From_npy_intp((__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_rays))[0])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = __Pyx_PyLong_From_npy_intp((__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_rays))[1])); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyLong_From_npy_intp((__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_rays))[1])); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 23, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_7 = PyTuple_New(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __pyx_t_7 = PyTuple_New(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 23, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_GIVEREF(__pyx_t_4);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4) != (0)) __PYX_ERR(0, 24, __pyx_L1_error);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4) != (0)) __PYX_ERR(0, 23, __pyx_L1_error);
     __Pyx_GIVEREF(__pyx_t_6);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_6) != (0)) __PYX_ERR(0, 24, __pyx_L1_error);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_6) != (0)) __PYX_ERR(0, 23, __pyx_L1_error);
     __Pyx_INCREF(__pyx_mstate_global->__pyx_int_3);
     __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_3);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_mstate_global->__pyx_int_3) != (0)) __PYX_ERR(0, 24, __pyx_L1_error);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_mstate_global->__pyx_int_3) != (0)) __PYX_ERR(0, 23, __pyx_L1_error);
     __pyx_t_4 = 0;
     __pyx_t_6 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 23, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_8 = 1;
@@ -19239,47 +18748,47 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
     #endif
     {
       PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 2 : 0)] = {__pyx_t_3, __pyx_t_7};
-      __pyx_t_6 = __Pyx_MakeVectorcallBuilderKwds(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 24, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_MakeVectorcallBuilderKwds(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 23, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_order, __pyx_mstate_global->__pyx_n_u_F, __pyx_t_6, __pyx_callargs+2, 0) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_dtype, __pyx_t_4, __pyx_t_6, __pyx_callargs+2, 1) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_order, __pyx_mstate_global->__pyx_n_u_F, __pyx_t_6, __pyx_callargs+2, 0) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_dtype, __pyx_t_4, __pyx_t_6, __pyx_callargs+2, 1) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
       __pyx_t_2 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_8, (2-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_6);
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
     }
     __pyx_v_rays_mag = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":25
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":24
  *   if compute_parity:
  *       rays_mag = np.empty((rays.shape[0], rays.shape[1], 3), order='F', dtype=np.float64)
  *       rays_mag[:, :, 0] = rays[:, :, 0]             # <<<<<<<<<<<<<<
  *       rays_mag[:, :, 1] = rays[:, :, 1]
  *       rays = rays_mag
 */
-    __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_rays), __pyx_mstate_global->__pyx_tuple[1]); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_rays), __pyx_mstate_global->__pyx_tuple[1]); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (unlikely((PyObject_SetItem(__pyx_v_rays_mag, __pyx_mstate_global->__pyx_tuple[1], __pyx_t_2) < 0))) __PYX_ERR(0, 25, __pyx_L1_error)
+    if (unlikely((PyObject_SetItem(__pyx_v_rays_mag, __pyx_mstate_global->__pyx_tuple[1], __pyx_t_2) < 0))) __PYX_ERR(0, 24, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":26
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":25
  *       rays_mag = np.empty((rays.shape[0], rays.shape[1], 3), order='F', dtype=np.float64)
  *       rays_mag[:, :, 0] = rays[:, :, 0]
  *       rays_mag[:, :, 1] = rays[:, :, 1]             # <<<<<<<<<<<<<<
  *       rays = rays_mag
  *   elif not np.isfortran(rays):
 */
-    __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_rays), __pyx_mstate_global->__pyx_tuple[2]); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 26, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_rays), __pyx_mstate_global->__pyx_tuple[2]); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (unlikely((PyObject_SetItem(__pyx_v_rays_mag, __pyx_mstate_global->__pyx_tuple[2], __pyx_t_2) < 0))) __PYX_ERR(0, 26, __pyx_L1_error)
+    if (unlikely((PyObject_SetItem(__pyx_v_rays_mag, __pyx_mstate_global->__pyx_tuple[2], __pyx_t_2) < 0))) __PYX_ERR(0, 25, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":27
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":26
  *       rays_mag[:, :, 0] = rays[:, :, 0]
  *       rays_mag[:, :, 1] = rays[:, :, 1]
  *       rays = rays_mag             # <<<<<<<<<<<<<<
@@ -19288,7 +18797,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
 */
     __pyx_t_2 = __pyx_v_rays_mag;
     __Pyx_INCREF(__pyx_t_2);
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 27, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 26, __pyx_L1_error)
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
       __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_rays.rcbuffer->pybuffer);
@@ -19304,12 +18813,12 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
         __pyx_t_10 = __pyx_t_11 = __pyx_t_12 = 0;
       }
       __pyx_pybuffernd_rays.diminfo[0].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_rays.diminfo[0].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_rays.diminfo[1].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_rays.diminfo[1].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_rays.diminfo[2].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_rays.diminfo[2].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[2];
-      if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 27, __pyx_L1_error)
+      if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 26, __pyx_L1_error)
     }
     __Pyx_DECREF_SET(__pyx_v_rays, ((PyArrayObject *)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":23
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":22
  *   cdef int height = rays.shape[1]
  *   cdef double* nullptr = cython.NULL
  *   if compute_parity:             # <<<<<<<<<<<<<<
@@ -19319,7 +18828,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
     goto __pyx_L3;
   }
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":28
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":27
  *       rays_mag[:, :, 1] = rays[:, :, 1]
  *       rays = rays_mag
  *   elif not np.isfortran(rays):             # <<<<<<<<<<<<<<
@@ -19327,9 +18836,9 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
  *   if not np.isfortran(star_pos):
 */
   __pyx_t_5 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 28, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_isfortran); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_isfortran); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_t_8 = 1;
@@ -19349,15 +18858,15 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
     __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_8, (2-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 28, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 27, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_1 < 0))) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_1 < 0))) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_13 = (!__pyx_t_1);
   if (__pyx_t_13) {
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":29
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":28
  *       rays = rays_mag
  *   elif not np.isfortran(rays):
  *       rays = np.asfortranarray(rays)             # <<<<<<<<<<<<<<
@@ -19365,9 +18874,9 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
  *       star_pos = np.asfortranarray(star_pos)
 */
     __pyx_t_4 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 29, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_asfortranarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_asfortranarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_8 = 1;
@@ -19387,10 +18896,10 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
       __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_8, (2-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 29, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 28, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
     }
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 29, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 28, __pyx_L1_error)
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
       __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_rays.rcbuffer->pybuffer);
@@ -19406,12 +18915,12 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
         __pyx_t_12 = __pyx_t_11 = __pyx_t_10 = 0;
       }
       __pyx_pybuffernd_rays.diminfo[0].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_rays.diminfo[0].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_rays.diminfo[1].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_rays.diminfo[1].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_rays.diminfo[2].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_rays.diminfo[2].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[2];
-      if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 29, __pyx_L1_error)
+      if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 28, __pyx_L1_error)
     }
     __Pyx_DECREF_SET(__pyx_v_rays, ((PyArrayObject *)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":28
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":27
  *       rays_mag[:, :, 1] = rays[:, :, 1]
  *       rays = rays_mag
  *   elif not np.isfortran(rays):             # <<<<<<<<<<<<<<
@@ -19421,7 +18930,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
   }
   __pyx_L3:;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":30
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":29
  *   elif not np.isfortran(rays):
  *       rays = np.asfortranarray(rays)
  *   if not np.isfortran(star_pos):             # <<<<<<<<<<<<<<
@@ -19429,9 +18938,9 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
  *   cdef:
 */
   __pyx_t_6 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_isfortran); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 30, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_isfortran); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_8 = 1;
@@ -19451,15 +18960,15 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
     __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_8, (2-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 29, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
-  __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_13 < 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_13 < 0))) __PYX_ERR(0, 29, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_1 = (!__pyx_t_13);
   if (__pyx_t_1) {
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":31
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":30
  *       rays = np.asfortranarray(rays)
  *   if not np.isfortran(star_pos):
  *       star_pos = np.asfortranarray(star_pos)             # <<<<<<<<<<<<<<
@@ -19467,9 +18976,9 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
  *       cnp.float64_t[::1, :, :] rays_view = rays
 */
     __pyx_t_5 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 31, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 30, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_asfortranarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_asfortranarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_8 = 1;
@@ -19489,10 +18998,10 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
       __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_8, (2-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 31, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
     }
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 31, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_mstate_global->__pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 30, __pyx_L1_error)
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
       __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_star_pos.rcbuffer->pybuffer);
@@ -19508,12 +19017,12 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
         __pyx_t_10 = __pyx_t_11 = __pyx_t_12 = 0;
       }
       __pyx_pybuffernd_star_pos.diminfo[0].strides = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_star_pos.diminfo[0].shape = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_star_pos.diminfo[1].strides = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_star_pos.diminfo[1].shape = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.shape[1];
-      if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 31, __pyx_L1_error)
+      if (unlikely((__pyx_t_9 < 0))) __PYX_ERR(0, 30, __pyx_L1_error)
     }
     __Pyx_DECREF_SET(__pyx_v_star_pos, ((PyArrayObject *)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "mirage/calc/tracers/micro_tracer_helper.pyx":30
+    /* "mirage/calc/tracers/micro_tracer_helper.pyx":29
  *   elif not np.isfortran(rays):
  *       rays = np.asfortranarray(rays)
  *   if not np.isfortran(star_pos):             # <<<<<<<<<<<<<<
@@ -19522,43 +19031,43 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
 */
   }
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":33
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":32
  *       star_pos = np.asfortranarray(star_pos)
  *   cdef:
  *       cnp.float64_t[::1, :, :] rays_view = rays             # <<<<<<<<<<<<<<
  *       cnp.float64_t[::1, :] star_pos_view = star_pos
  *       cnp.float64_t[::1] star_mass_view = star_mass
 */
-  __pyx_t_14 = __Pyx_PyObject_to_MemoryviewSlice_dcd_d__nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_rays), PyBUF_WRITABLE); if (unlikely(!__pyx_t_14.memview)) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_PyObject_to_MemoryviewSlice_dcd_d__nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_rays), PyBUF_WRITABLE); if (unlikely(!__pyx_t_14.memview)) __PYX_ERR(0, 32, __pyx_L1_error)
   __pyx_v_rays_view = __pyx_t_14;
   __pyx_t_14.memview = NULL;
   __pyx_t_14.data = NULL;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":34
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":33
  *   cdef:
  *       cnp.float64_t[::1, :, :] rays_view = rays
  *       cnp.float64_t[::1, :] star_pos_view = star_pos             # <<<<<<<<<<<<<<
  *       cnp.float64_t[::1] star_mass_view = star_mass
  *   with nogil:
 */
-  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_dcd__nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_star_pos), PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_dcd__nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_star_pos), PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 33, __pyx_L1_error)
   __pyx_v_star_pos_view = __pyx_t_15;
   __pyx_t_15.memview = NULL;
   __pyx_t_15.data = NULL;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":35
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":34
  *       cnp.float64_t[::1, :, :] rays_view = rays
  *       cnp.float64_t[::1, :] star_pos_view = star_pos
  *       cnp.float64_t[::1] star_mass_view = star_mass             # <<<<<<<<<<<<<<
  *   with nogil:
  *       if compute_parity:
 */
-  __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_star_mass), PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_star_mass), PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 34, __pyx_L1_error)
   __pyx_v_star_mass_view = __pyx_t_16;
   __pyx_t_16.memview = NULL;
   __pyx_t_16.data = NULL;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":36
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":35
  *       cnp.float64_t[::1, :] star_pos_view = star_pos
  *       cnp.float64_t[::1] star_mass_view = star_mass
  *   with nogil:             # <<<<<<<<<<<<<<
@@ -19571,7 +19080,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
       __Pyx_FastGIL_Remember();
       /*try:*/ {
 
-        /* "mirage/calc/tracers/micro_tracer_helper.pyx":37
+        /* "mirage/calc/tracers/micro_tracer_helper.pyx":36
  *       cnp.float64_t[::1] star_mass_view = star_mass
  *   with nogil:
  *       if compute_parity:             # <<<<<<<<<<<<<<
@@ -19581,7 +19090,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
         __pyx_t_1 = (__pyx_v_compute_parity != 0);
         if (__pyx_t_1) {
 
-          /* "mirage/calc/tracers/micro_tracer_helper.pyx":39
+          /* "mirage/calc/tracers/micro_tracer_helper.pyx":38
  *       if compute_parity:
  *           micro_tracer_ext.trace(
  *               &rays_view[0, 0, 0],  &rays_view[0, 0, 1],             # <<<<<<<<<<<<<<
@@ -19591,11 +19100,45 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
           __pyx_t_17 = 0;
           __pyx_t_18 = 0;
           __pyx_t_19 = 0;
+          __pyx_t_9 = -1;
+          if (__pyx_t_17 < 0) {
+            __pyx_t_17 += __pyx_v_rays_view.shape[0];
+            if (unlikely(__pyx_t_17 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_17 >= __pyx_v_rays_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_18 < 0) {
+            __pyx_t_18 += __pyx_v_rays_view.shape[1];
+            if (unlikely(__pyx_t_18 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_18 >= __pyx_v_rays_view.shape[1])) __pyx_t_9 = 1;
+          if (__pyx_t_19 < 0) {
+            __pyx_t_19 += __pyx_v_rays_view.shape[2];
+            if (unlikely(__pyx_t_19 < 0)) __pyx_t_9 = 2;
+          } else if (unlikely(__pyx_t_19 >= __pyx_v_rays_view.shape[2])) __pyx_t_9 = 2;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 38, __pyx_L6_error)
+          }
           __pyx_t_20 = 0;
           __pyx_t_21 = 0;
           __pyx_t_22 = 1;
+          __pyx_t_9 = -1;
+          if (__pyx_t_20 < 0) {
+            __pyx_t_20 += __pyx_v_rays_view.shape[0];
+            if (unlikely(__pyx_t_20 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_20 >= __pyx_v_rays_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_21 < 0) {
+            __pyx_t_21 += __pyx_v_rays_view.shape[1];
+            if (unlikely(__pyx_t_21 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_21 >= __pyx_v_rays_view.shape[1])) __pyx_t_9 = 1;
+          if (__pyx_t_22 < 0) {
+            __pyx_t_22 += __pyx_v_rays_view.shape[2];
+            if (unlikely(__pyx_t_22 < 0)) __pyx_t_9 = 2;
+          } else if (unlikely(__pyx_t_22 >= __pyx_v_rays_view.shape[2])) __pyx_t_9 = 2;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 38, __pyx_L6_error)
+          }
 
-          /* "mirage/calc/tracers/micro_tracer_helper.pyx":41
+          /* "mirage/calc/tracers/micro_tracer_helper.pyx":40
  *               &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
  *               width * height, kap, gam,
  *               &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],             # <<<<<<<<<<<<<<
@@ -19603,12 +19146,47 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
  *       else:
 */
           __pyx_t_23 = 0;
+          __pyx_t_9 = -1;
+          if (__pyx_t_23 < 0) {
+            __pyx_t_23 += __pyx_v_star_mass_view.shape[0];
+            if (unlikely(__pyx_t_23 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_23 >= __pyx_v_star_mass_view.shape[0])) __pyx_t_9 = 0;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 40, __pyx_L6_error)
+          }
           __pyx_t_24 = 0;
           __pyx_t_25 = 0;
+          __pyx_t_9 = -1;
+          if (__pyx_t_24 < 0) {
+            __pyx_t_24 += __pyx_v_star_pos_view.shape[0];
+            if (unlikely(__pyx_t_24 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_24 >= __pyx_v_star_pos_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_25 < 0) {
+            __pyx_t_25 += __pyx_v_star_pos_view.shape[1];
+            if (unlikely(__pyx_t_25 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_25 >= __pyx_v_star_pos_view.shape[1])) __pyx_t_9 = 1;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 40, __pyx_L6_error)
+          }
           __pyx_t_26 = 0;
           __pyx_t_27 = 1;
+          __pyx_t_9 = -1;
+          if (__pyx_t_26 < 0) {
+            __pyx_t_26 += __pyx_v_star_pos_view.shape[0];
+            if (unlikely(__pyx_t_26 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_26 >= __pyx_v_star_pos_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_27 < 0) {
+            __pyx_t_27 += __pyx_v_star_pos_view.shape[1];
+            if (unlikely(__pyx_t_27 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_27 >= __pyx_v_star_pos_view.shape[1])) __pyx_t_9 = 1;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 40, __pyx_L6_error)
+          }
 
-          /* "mirage/calc/tracers/micro_tracer_helper.pyx":42
+          /* "mirage/calc/tracers/micro_tracer_helper.pyx":41
  *               width * height, kap, gam,
  *               &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],
  *               &rays_view[0, 0, 2], allow_simd)             # <<<<<<<<<<<<<<
@@ -19618,8 +19196,25 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
           __pyx_t_28 = 0;
           __pyx_t_29 = 0;
           __pyx_t_30 = 2;
+          __pyx_t_9 = -1;
+          if (__pyx_t_28 < 0) {
+            __pyx_t_28 += __pyx_v_rays_view.shape[0];
+            if (unlikely(__pyx_t_28 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_28 >= __pyx_v_rays_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_29 < 0) {
+            __pyx_t_29 += __pyx_v_rays_view.shape[1];
+            if (unlikely(__pyx_t_29 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_29 >= __pyx_v_rays_view.shape[1])) __pyx_t_9 = 1;
+          if (__pyx_t_30 < 0) {
+            __pyx_t_30 += __pyx_v_rays_view.shape[2];
+            if (unlikely(__pyx_t_30 < 0)) __pyx_t_9 = 2;
+          } else if (unlikely(__pyx_t_30 >= __pyx_v_rays_view.shape[2])) __pyx_t_9 = 2;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 41, __pyx_L6_error)
+          }
 
-          /* "mirage/calc/tracers/micro_tracer_helper.pyx":38
+          /* "mirage/calc/tracers/micro_tracer_helper.pyx":37
  *   with nogil:
  *       if compute_parity:
  *           micro_tracer_ext.trace(             # <<<<<<<<<<<<<<
@@ -19628,7 +19223,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
 */
           trace((&(*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ ((char *) (((__pyx_t_5numpy_float64_t *) __pyx_v_rays_view.data) + __pyx_t_17)) ) + __pyx_t_18 * __pyx_v_rays_view.strides[1]) ) + __pyx_t_19 * __pyx_v_rays_view.strides[2]) )))), (&(*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ ((char *) (((__pyx_t_5numpy_float64_t *) __pyx_v_rays_view.data) + __pyx_t_20)) ) + __pyx_t_21 * __pyx_v_rays_view.strides[1]) ) + __pyx_t_22 * __pyx_v_rays_view.strides[2]) )))), (__pyx_v_width * __pyx_v_height), __pyx_v_kap, __pyx_v_gam, (&(*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ ((char *) (((__pyx_t_5numpy_float64_t *) __pyx_v_star_mass_view.data) + __pyx_t_23)) )))), (&(*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((__pyx_t_5numpy_float64_t *) __pyx_v_star_pos_view.data) + __pyx_t_24)) ) + __pyx_t_25 * __pyx_v_star_pos_view.strides[1]) )))), (&(*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ ((char *) (((__pyx_t_5numpy_float64_t *) __pyx_v_star_pos_view.data) + __pyx_t_26)) ) + __pyx_t_27 * __pyx_v_star_pos_view.strides[1]) )))), (__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_star_pos))[0]), (&(*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ ((char *) (((__pyx_t_5numpy_float64_t *) __pyx_v_rays_view.data) + __pyx_t_28)) ) + __pyx_t_29 * __pyx_v_rays_view.strides[1]) ) + __pyx_t_30 * __pyx_v_rays_view.strides[2]) )))), __pyx_v_allow_simd);
 
-          /* "mirage/calc/tracers/micro_tracer_helper.pyx":37
+          /* "mirage/calc/tracers/micro_tracer_helper.pyx":36
  *       cnp.float64_t[::1] star_mass_view = star_mass
  *   with nogil:
  *       if compute_parity:             # <<<<<<<<<<<<<<
@@ -19638,7 +19233,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
           goto __pyx_L8;
         }
 
-        /* "mirage/calc/tracers/micro_tracer_helper.pyx":44
+        /* "mirage/calc/tracers/micro_tracer_helper.pyx":43
  *               &rays_view[0, 0, 2], allow_simd)
  *       else:
  *           micro_tracer_ext.trace(             # <<<<<<<<<<<<<<
@@ -19647,7 +19242,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
 */
         /*else*/ {
 
-          /* "mirage/calc/tracers/micro_tracer_helper.pyx":45
+          /* "mirage/calc/tracers/micro_tracer_helper.pyx":44
  *       else:
  *           micro_tracer_ext.trace(
  *               &rays_view[0, 0, 0],  &rays_view[0, 0, 1],             # <<<<<<<<<<<<<<
@@ -19657,11 +19252,45 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
           __pyx_t_30 = 0;
           __pyx_t_29 = 0;
           __pyx_t_28 = 0;
+          __pyx_t_9 = -1;
+          if (__pyx_t_30 < 0) {
+            __pyx_t_30 += __pyx_v_rays_view.shape[0];
+            if (unlikely(__pyx_t_30 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_30 >= __pyx_v_rays_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_29 < 0) {
+            __pyx_t_29 += __pyx_v_rays_view.shape[1];
+            if (unlikely(__pyx_t_29 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_29 >= __pyx_v_rays_view.shape[1])) __pyx_t_9 = 1;
+          if (__pyx_t_28 < 0) {
+            __pyx_t_28 += __pyx_v_rays_view.shape[2];
+            if (unlikely(__pyx_t_28 < 0)) __pyx_t_9 = 2;
+          } else if (unlikely(__pyx_t_28 >= __pyx_v_rays_view.shape[2])) __pyx_t_9 = 2;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 44, __pyx_L6_error)
+          }
           __pyx_t_27 = 0;
           __pyx_t_26 = 0;
           __pyx_t_25 = 1;
+          __pyx_t_9 = -1;
+          if (__pyx_t_27 < 0) {
+            __pyx_t_27 += __pyx_v_rays_view.shape[0];
+            if (unlikely(__pyx_t_27 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_27 >= __pyx_v_rays_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_26 < 0) {
+            __pyx_t_26 += __pyx_v_rays_view.shape[1];
+            if (unlikely(__pyx_t_26 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_26 >= __pyx_v_rays_view.shape[1])) __pyx_t_9 = 1;
+          if (__pyx_t_25 < 0) {
+            __pyx_t_25 += __pyx_v_rays_view.shape[2];
+            if (unlikely(__pyx_t_25 < 0)) __pyx_t_9 = 2;
+          } else if (unlikely(__pyx_t_25 >= __pyx_v_rays_view.shape[2])) __pyx_t_9 = 2;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 44, __pyx_L6_error)
+          }
 
-          /* "mirage/calc/tracers/micro_tracer_helper.pyx":47
+          /* "mirage/calc/tracers/micro_tracer_helper.pyx":46
  *               &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
  *               width * height, kap, gam,
  *               &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],             # <<<<<<<<<<<<<<
@@ -19669,12 +19298,47 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
  *   return rays
 */
           __pyx_t_24 = 0;
+          __pyx_t_9 = -1;
+          if (__pyx_t_24 < 0) {
+            __pyx_t_24 += __pyx_v_star_mass_view.shape[0];
+            if (unlikely(__pyx_t_24 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_24 >= __pyx_v_star_mass_view.shape[0])) __pyx_t_9 = 0;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 46, __pyx_L6_error)
+          }
           __pyx_t_23 = 0;
           __pyx_t_22 = 0;
+          __pyx_t_9 = -1;
+          if (__pyx_t_23 < 0) {
+            __pyx_t_23 += __pyx_v_star_pos_view.shape[0];
+            if (unlikely(__pyx_t_23 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_23 >= __pyx_v_star_pos_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_22 < 0) {
+            __pyx_t_22 += __pyx_v_star_pos_view.shape[1];
+            if (unlikely(__pyx_t_22 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_22 >= __pyx_v_star_pos_view.shape[1])) __pyx_t_9 = 1;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 46, __pyx_L6_error)
+          }
           __pyx_t_21 = 0;
           __pyx_t_20 = 1;
+          __pyx_t_9 = -1;
+          if (__pyx_t_21 < 0) {
+            __pyx_t_21 += __pyx_v_star_pos_view.shape[0];
+            if (unlikely(__pyx_t_21 < 0)) __pyx_t_9 = 0;
+          } else if (unlikely(__pyx_t_21 >= __pyx_v_star_pos_view.shape[0])) __pyx_t_9 = 0;
+          if (__pyx_t_20 < 0) {
+            __pyx_t_20 += __pyx_v_star_pos_view.shape[1];
+            if (unlikely(__pyx_t_20 < 0)) __pyx_t_9 = 1;
+          } else if (unlikely(__pyx_t_20 >= __pyx_v_star_pos_view.shape[1])) __pyx_t_9 = 1;
+          if (unlikely(__pyx_t_9 != -1)) {
+            __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_9);
+            __PYX_ERR(0, 46, __pyx_L6_error)
+          }
 
-          /* "mirage/calc/tracers/micro_tracer_helper.pyx":44
+          /* "mirage/calc/tracers/micro_tracer_helper.pyx":43
  *               &rays_view[0, 0, 2], allow_simd)
  *       else:
  *           micro_tracer_ext.trace(             # <<<<<<<<<<<<<<
@@ -19686,7 +19350,7 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
         __pyx_L8:;
       }
 
-      /* "mirage/calc/tracers/micro_tracer_helper.pyx":36
+      /* "mirage/calc/tracers/micro_tracer_helper.pyx":35
  *       cnp.float64_t[::1, :] star_pos_view = star_pos
  *       cnp.float64_t[::1] star_mass_view = star_mass
  *   with nogil:             # <<<<<<<<<<<<<<
@@ -19699,11 +19363,16 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
           PyEval_RestoreThread(_save);
           goto __pyx_L7;
         }
+        __pyx_L6_error: {
+          __Pyx_FastGIL_Forget();
+          PyEval_RestoreThread(_save);
+          goto __pyx_L1_error;
+        }
         __pyx_L7:;
       }
   }
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":49
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":48
  *               &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],
  *               nullptr, allow_simd)
  *   return rays             # <<<<<<<<<<<<<<
@@ -19713,10 +19382,9 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
   __Pyx_XDECREF((PyObject *)__pyx_r);
   __Pyx_INCREF((PyObject *)__pyx_v_rays);
   __pyx_r = ((PyArrayObject *)__pyx_v_rays);
-  __Pyx_TraceReturnValue((PyObject *)__pyx_r, 160, 0, __PYX_ERR(0, 49, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":11
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":10
  * 
  * 
  * cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace(             # <<<<<<<<<<<<<<
@@ -19743,12 +19411,6 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_star_mass.rcbuffer->pybuffer);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_star_pos.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_TraceException(__pyx_lineno, 0, 0);
-  #if CYTHON_USE_SYS_MONITORING
-  __Pyx_TraceExceptionUnwind(0, 0);
-  #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 11, __pyx_L1_error));
-  #endif
   __Pyx_AddTraceback("mirage.calc.tracers.micro_tracer_helper.trace", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   goto __pyx_L2;
@@ -19764,7 +19426,6 @@ static PyArrayObject *__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace
   __Pyx_XDECREF((PyObject *)__pyx_v_rays);
   __Pyx_XDECREF((PyObject *)__pyx_v_star_pos);
   __Pyx_XGIVEREF((PyObject *)__pyx_r);
-  __Pyx_PyMonitoring_ExitScope(0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -19777,8 +19438,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_6mirage_4calc_7tracers_19micro_tracer_helper_trace, "trace(ndarray rays, double kap, double gam, ndarray star_mass, ndarray star_pos, int compute_parity, int allow_simd) -> ndarray");
-static PyMethodDef __pyx_mdef_6mirage_4calc_7tracers_19micro_tracer_helper_1trace = {"trace", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_1trace, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_6mirage_4calc_7tracers_19micro_tracer_helper_trace};
+static PyMethodDef __pyx_mdef_6mirage_4calc_7tracers_19micro_tracer_helper_1trace = {"trace", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_1trace, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
 static PyObject *__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_1trace(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
@@ -19815,74 +19475,74 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_rays,&__pyx_mstate_global->__pyx_n_u_kap,&__pyx_mstate_global->__pyx_n_u_gam,&__pyx_mstate_global->__pyx_n_u_star_mass,&__pyx_mstate_global->__pyx_n_u_star_pos,&__pyx_mstate_global->__pyx_n_u_compute_parity,&__pyx_mstate_global->__pyx_n_u_allow_simd,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 11, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 10, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  7:
         values[6] = __Pyx_ArgRef_FASTCALL(__pyx_args, 6);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 11, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 10, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  6:
         values[5] = __Pyx_ArgRef_FASTCALL(__pyx_args, 5);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 11, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 10, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  5:
         values[4] = __Pyx_ArgRef_FASTCALL(__pyx_args, 4);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 11, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 10, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  4:
         values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 11, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 10, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 11, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 10, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 11, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 10, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 11, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 10, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "trace", 0) < (0)) __PYX_ERR(0, 11, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "trace", 0) < (0)) __PYX_ERR(0, 10, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 7; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("trace", 1, 7, 7, i); __PYX_ERR(0, 11, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("trace", 1, 7, 7, i); __PYX_ERR(0, 10, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 7)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 11, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 10, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 11, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 10, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 11, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 10, __pyx_L3_error)
       values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 11, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 10, __pyx_L3_error)
       values[4] = __Pyx_ArgRef_FASTCALL(__pyx_args, 4);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 11, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 10, __pyx_L3_error)
       values[5] = __Pyx_ArgRef_FASTCALL(__pyx_args, 5);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 11, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 10, __pyx_L3_error)
       values[6] = __Pyx_ArgRef_FASTCALL(__pyx_args, 6);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 11, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 10, __pyx_L3_error)
     }
     __pyx_v_rays = ((PyArrayObject *)values[0]);
-    __pyx_v_kap = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_kap == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
-    __pyx_v_gam = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_gam == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
+    __pyx_v_kap = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_kap == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 12, __pyx_L3_error)
+    __pyx_v_gam = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_gam == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
     __pyx_v_star_mass = ((PyArrayObject *)values[3]);
     __pyx_v_star_pos = ((PyArrayObject *)values[4]);
-    __pyx_v_compute_parity = __Pyx_PyLong_As_int(values[5]); if (unlikely((__pyx_v_compute_parity == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 17, __pyx_L3_error)
-    __pyx_v_allow_simd = __Pyx_PyLong_As_int(values[6]); if (unlikely((__pyx_v_allow_simd == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
+    __pyx_v_compute_parity = __Pyx_PyLong_As_int(values[5]); if (unlikely((__pyx_v_compute_parity == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 16, __pyx_L3_error)
+    __pyx_v_allow_simd = __Pyx_PyLong_As_int(values[6]); if (unlikely((__pyx_v_allow_simd == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 17, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("trace", 1, 7, 7, __pyx_nargs); __PYX_ERR(0, 11, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("trace", 1, 7, 7, __pyx_nargs); __PYX_ERR(0, 10, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -19893,9 +19553,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_rays), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "rays", 0))) __PYX_ERR(0, 12, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_star_mass), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "star_mass", 0))) __PYX_ERR(0, 15, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_star_pos), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "star_pos", 0))) __PYX_ERR(0, 16, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_rays), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "rays", 0))) __PYX_ERR(0, 11, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_star_mass), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "star_mass", 0))) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_star_pos), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "star_pos", 0))) __PYX_ERR(0, 15, __pyx_L1_error)
   __pyx_r = __pyx_pf_6mirage_4calc_7tracers_19micro_tracer_helper_trace(__pyx_self, __pyx_v_rays, __pyx_v_kap, __pyx_v_gam, __pyx_v_star_mass, __pyx_v_star_pos, __pyx_v_compute_parity, __pyx_v_allow_simd);
 
   /* function exit code */
@@ -19923,15 +19583,12 @@ static PyObject *__pyx_pf_6mirage_4calc_7tracers_19micro_tracer_helper_trace(CYT
   __Pyx_LocalBuf_ND __pyx_pybuffernd_star_pos;
   __Pyx_Buffer __pyx_pybuffer_star_pos;
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]))
   __Pyx_RefNannySetupContext("trace", 0);
-  __Pyx_TraceStartFunc("trace (wrapper)", __pyx_f[0], 11, 0, 0, 0, __PYX_ERR(0, 11, __pyx_L1_error));
   __pyx_pybuffer_rays.pybuffer.buf = NULL;
   __pyx_pybuffer_rays.refcount = 0;
   __pyx_pybuffernd_rays.data = NULL;
@@ -19946,21 +19603,21 @@ static PyObject *__pyx_pf_6mirage_4calc_7tracers_19micro_tracer_helper_trace(CYT
   __pyx_pybuffernd_star_pos.rcbuffer = &__pyx_pybuffer_star_pos;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_rays.rcbuffer->pybuffer, (PyObject*)__pyx_v_rays, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 11, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_rays.rcbuffer->pybuffer, (PyObject*)__pyx_v_rays, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) __PYX_ERR(0, 10, __pyx_L1_error)
   }
   __pyx_pybuffernd_rays.diminfo[0].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_rays.diminfo[0].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_rays.diminfo[1].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_rays.diminfo[1].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_rays.diminfo[2].strides = __pyx_pybuffernd_rays.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_rays.diminfo[2].shape = __pyx_pybuffernd_rays.rcbuffer->pybuffer.shape[2];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_star_mass.rcbuffer->pybuffer, (PyObject*)__pyx_v_star_mass, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 11, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_star_mass.rcbuffer->pybuffer, (PyObject*)__pyx_v_star_mass, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 10, __pyx_L1_error)
   }
   __pyx_pybuffernd_star_mass.diminfo[0].strides = __pyx_pybuffernd_star_mass.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_star_mass.diminfo[0].shape = __pyx_pybuffernd_star_mass.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_star_pos.rcbuffer->pybuffer, (PyObject*)__pyx_v_star_pos, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 11, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_star_pos.rcbuffer->pybuffer, (PyObject*)__pyx_v_star_pos, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float64_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 10, __pyx_L1_error)
   }
   __pyx_pybuffernd_star_pos.diminfo[0].strides = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_star_pos.diminfo[0].shape = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_star_pos.diminfo[1].strides = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_star_pos.diminfo[1].shape = __pyx_pybuffernd_star_pos.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace(__pyx_v_rays, __pyx_v_kap, __pyx_v_gam, __pyx_v_star_mass, __pyx_v_star_pos, __pyx_v_compute_parity, __pyx_v_allow_simd, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_trace(__pyx_v_rays, __pyx_v_kap, __pyx_v_gam, __pyx_v_star_mass, __pyx_v_star_pos, __pyx_v_compute_parity, __pyx_v_allow_simd, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -19977,12 +19634,6 @@ static PyObject *__pyx_pf_6mirage_4calc_7tracers_19micro_tracer_helper_trace(CYT
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_star_mass.rcbuffer->pybuffer);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_star_pos.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_TraceException(__pyx_lineno, 0, 0);
-  #if CYTHON_USE_SYS_MONITORING
-  __Pyx_TraceExceptionUnwind(0, 0);
-  #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 11, __pyx_L1_error));
-  #endif
   __Pyx_AddTraceback("mirage.calc.tracers.micro_tracer_helper.trace", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
@@ -19992,12 +19643,11 @@ static PyObject *__pyx_pf_6mirage_4calc_7tracers_19micro_tracer_helper_trace(CYT
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_star_pos.rcbuffer->pybuffer);
   __pyx_L2:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_PyMonitoring_ExitScope(0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "mirage/calc/tracers/micro_tracer_helper.pyx":51
+/* "mirage/calc/tracers/micro_tracer_helper.pyx":50
  *   return rays
  * 
  * cpdef bint supports_simd():             # <<<<<<<<<<<<<<
@@ -20007,23 +19657,16 @@ static PyObject *__pyx_pf_6mirage_4calc_7tracers_19micro_tracer_helper_trace(CYT
 static PyObject *__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused); /*proto*/
 static int __pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_supports_simd(CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_r;
-  __Pyx_TraceDeclarationsFunc
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1]))
-  __Pyx_TraceStartFunc("supports_simd", __pyx_f[0], 51, 0, 0, __pyx_skip_dispatch, __PYX_ERR(0, 51, __pyx_L1_error));
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":52
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":51
  * 
  * cpdef bint supports_simd():
  *   return micro_tracer_ext.supports_simd()             # <<<<<<<<<<<<<<
 */
   __pyx_r = supports_simd();
-  __Pyx_TraceReturnCValue(__pyx_r, __Pyx_PyBool_FromLong, 2, 0, __PYX_ERR(0, 52, __pyx_L1_error));
   goto __pyx_L0;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":51
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":50
  *   return rays
  * 
  * cpdef bint supports_simd():             # <<<<<<<<<<<<<<
@@ -20031,24 +19674,13 @@ static int __pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_supports_simd(CY
 */
 
   /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_TraceException(__pyx_lineno, 0, 0);
-  #if CYTHON_USE_SYS_MONITORING
-  __Pyx_TraceExceptionUnwind(0, 0);
-  #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 51, __pyx_L1_error));
-  #endif
-  __Pyx_AddTraceback("mirage.calc.tracers.micro_tracer_helper.supports_simd", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = -1;
   __pyx_L0:;
-  __Pyx_PyMonitoring_ExitScope(0);
   return __pyx_r;
 }
 
 /* Python wrapper */
 static PyObject *__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-PyDoc_STRVAR(__pyx_doc_6mirage_4calc_7tracers_19micro_tracer_helper_2supports_simd, "supports_simd() -> bool");
-static PyMethodDef __pyx_mdef_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd = {"supports_simd", (PyCFunction)__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd, METH_NOARGS, __pyx_doc_6mirage_4calc_7tracers_19micro_tracer_helper_2supports_simd};
+static PyMethodDef __pyx_mdef_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd = {"supports_simd", (PyCFunction)__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd, METH_NOARGS, 0};
 static PyObject *__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused) {
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   PyObject *__pyx_r = 0;
@@ -20064,19 +19696,16 @@ static PyObject *__pyx_pw_6mirage_4calc_7tracers_19micro_tracer_helper_3supports
 
 static PyObject *__pyx_pf_6mirage_4calc_7tracers_19micro_tracer_helper_2supports_simd(CYTHON_UNUSED PyObject *__pyx_self) {
   PyObject *__pyx_r = NULL;
-  __Pyx_TraceDeclarationsFunc
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_TraceFrameInit(((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1]))
   __Pyx_RefNannySetupContext("supports_simd", 0);
-  __Pyx_TraceStartFunc("supports_simd (wrapper)", __pyx_f[0], 51, 0, 0, 0, __PYX_ERR(0, 51, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_supports_simd(1); if (unlikely(__pyx_t_1 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_6mirage_4calc_7tracers_19micro_tracer_helper_supports_simd(1); if (unlikely(__pyx_t_1 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -20085,17 +19714,10 @@ static PyObject *__pyx_pf_6mirage_4calc_7tracers_19micro_tracer_helper_2supports
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_TraceException(__pyx_lineno, 0, 0);
-  #if CYTHON_USE_SYS_MONITORING
-  __Pyx_TraceExceptionUnwind(0, 0);
-  #else
-  __Pyx_TraceReturnValue(NULL, 0, 0, __PYX_ERR(0, 51, __pyx_L1_error));
-  #endif
   __Pyx_AddTraceback("mirage.calc.tracers.micro_tracer_helper.supports_simd", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_PyMonitoring_ExitScope(0);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -20794,7 +20416,6 @@ static PyObject *__pyx_tp_new__memoryviewslice(PyTypeObject *t, PyObject *a, PyO
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_memoryviewslice_obj *)o);
   p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_memoryview*)__pyx_vtabptr__memoryviewslice;
-  __Pyx_default_placement_construct(&(p->from_slice));
   p->from_object = Py_None; Py_INCREF(Py_None);
   p->from_slice.memview = NULL;
   return o;
@@ -20818,7 +20439,6 @@ static void __pyx_tp_dealloc__memoryviewslice(PyObject *o) {
     __Pyx_DeallocKeepAliveEnd(o);
     PyErr_Restore(etype, eval, etb);
   }
-  __Pyx_call_destructor(p->from_slice);
   Py_CLEAR(p->from_object);
   PyObject_GC_Track(o);
   __pyx_tp_dealloc_memoryview(o);
@@ -21507,7 +21127,6 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_micro_tracer_helper(PyObject *__py
   int pystate_addmodule_run = 0;
   #endif
   __pyx_mstatetype *__pyx_mstate = NULL;
-  __Pyx_TraceDeclarationsFunc
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
@@ -21601,7 +21220,6 @@ __Pyx_RefNannySetupContext("PyInit_micro_tracer_helper", 0);
   (void)__Pyx_modinit_variable_import_code(__pyx_mstate);
   (void)__Pyx_modinit_function_import_code(__pyx_mstate);
   /*--- Execution code ---*/
-  __Pyx_TraceStartFunc("PyInit_micro_tracer_helper", __pyx_f[0], 1, 0, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
 
   /* "View.MemoryView":108
  * 
@@ -22094,59 +21712,57 @@ __Pyx_RefNannySetupContext("PyInit_micro_tracer_helper", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_Enum, __pyx_t_4) < (0)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":7
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":6
  * cimport numpy as cnp
  * 
  * import numpy as np             # <<<<<<<<<<<<<<
  * import cython
  * 
 */
-  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_numpy, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_numpy, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
   __pyx_t_4 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_np, __pyx_t_4) < (0)) __PYX_ERR(0, 7, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_np, __pyx_t_4) < (0)) __PYX_ERR(0, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":11
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":10
  * 
  * 
  * cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace(             # <<<<<<<<<<<<<<
  *       cnp.ndarray[cnp.float64_t, ndim=3] rays,
  *       double kap,
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_6mirage_4calc_7tracers_19micro_tracer_helper_1trace, 0, __pyx_mstate_global->__pyx_n_u_trace, NULL, __pyx_mstate_global->__pyx_n_u_mirage_calc_tracers_micro_tracer, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 11, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_6mirage_4calc_7tracers_19micro_tracer_helper_1trace, 0, __pyx_mstate_global->__pyx_n_u_trace, NULL, __pyx_mstate_global->__pyx_n_u_mirage_calc_tracers_micro_tracer, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_trace, __pyx_t_4) < (0)) __PYX_ERR(0, 11, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_trace, __pyx_t_4) < (0)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":51
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":50
  *   return rays
  * 
  * cpdef bint supports_simd():             # <<<<<<<<<<<<<<
  *   return micro_tracer_ext.supports_simd()
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd, 0, __pyx_mstate_global->__pyx_n_u_supports_simd, NULL, __pyx_mstate_global->__pyx_n_u_mirage_calc_tracers_micro_tracer, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_6mirage_4calc_7tracers_19micro_tracer_helper_3supports_simd, 0, __pyx_mstate_global->__pyx_n_u_supports_simd, NULL, __pyx_mstate_global->__pyx_n_u_mirage_calc_tracers_micro_tracer, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_supports_simd, __pyx_t_4) < (0)) __PYX_ERR(0, 51, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_supports_simd, __pyx_t_4) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "mirage/calc/tracers/micro_tracer_helper.pyx":1
- * # distutils: language=c++             # <<<<<<<<<<<<<<
- * # cython: profile=True, boundscheck=False, wraparound=False, embedsignature=True
+ * # distutils: language=c++, boundscheck=False, wraparound=False             # <<<<<<<<<<<<<<
  * 
+ * from mirage.calc.tracers cimport micro_tracer_ext
 */
   __pyx_t_4 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_4) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_TraceReturnValue(Py_None, 0, 0, __PYX_ERR(0, 1, __pyx_L1_error));
-  __Pyx_PyMonitoring_ExitScope(0);
 
   /*--- Wrapped vars code ---*/
 
@@ -22154,8 +21770,6 @@ __Pyx_RefNannySetupContext("PyInit_micro_tracer_helper", 0);
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_TraceException(__pyx_lineno, 0, 0);
-  __Pyx_TraceExceptionUnwind(0, 0);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init mirage.calc.tracers.micro_tracer_helper", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -22235,25 +21849,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_slice[0]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_slice[0]);
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":25
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":24
  *   if compute_parity:
  *       rays_mag = np.empty((rays.shape[0], rays.shape[1], 3), order='F', dtype=np.float64)
  *       rays_mag[:, :, 0] = rays[:, :, 0]             # <<<<<<<<<<<<<<
  *       rays_mag[:, :, 1] = rays[:, :, 1]
  *       rays = rays_mag
 */
-  __pyx_mstate_global->__pyx_tuple[1] = PyTuple_Pack(3, __pyx_mstate_global->__pyx_slice[0], __pyx_mstate_global->__pyx_slice[0], __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_mstate_global->__pyx_tuple[1])) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_tuple[1] = PyTuple_Pack(3, __pyx_mstate_global->__pyx_slice[0], __pyx_mstate_global->__pyx_slice[0], __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_mstate_global->__pyx_tuple[1])) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[1]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[1]);
 
-  /* "mirage/calc/tracers/micro_tracer_helper.pyx":26
+  /* "mirage/calc/tracers/micro_tracer_helper.pyx":25
  *       rays_mag = np.empty((rays.shape[0], rays.shape[1], 3), order='F', dtype=np.float64)
  *       rays_mag[:, :, 0] = rays[:, :, 0]
  *       rays_mag[:, :, 1] = rays[:, :, 1]             # <<<<<<<<<<<<<<
  *       rays = rays_mag
  *   elif not np.isfortran(rays):
 */
-  __pyx_mstate_global->__pyx_tuple[2] = PyTuple_Pack(3, __pyx_mstate_global->__pyx_slice[0], __pyx_mstate_global->__pyx_slice[0], __pyx_mstate_global->__pyx_int_1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[2])) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_tuple[2] = PyTuple_Pack(3, __pyx_mstate_global->__pyx_slice[0], __pyx_mstate_global->__pyx_slice[0], __pyx_mstate_global->__pyx_int_1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[2])) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[2]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[2]);
   #if CYTHON_IMMORTAL_CONSTANTS
@@ -22456,12 +22070,12 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {7, 0, 0, 7, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 11};
+    const __Pyx_PyCode_New_function_description descr = {7, 0, 0, 7, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 10};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_rays, __pyx_mstate->__pyx_n_u_kap, __pyx_mstate->__pyx_n_u_gam, __pyx_mstate->__pyx_n_u_star_mass, __pyx_mstate->__pyx_n_u_star_pos, __pyx_mstate->__pyx_n_u_compute_parity, __pyx_mstate->__pyx_n_u_allow_simd};
     __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_tracers_micro_tracer_2, __pyx_mstate->__pyx_n_u_trace, __pyx_mstate->__pyx_kp_b_iso88591_4vQa_D_aq_q_Q_6_4vQd_fAT_V5_bPQ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 0, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 51};
+    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 0, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 50};
     PyObject* const varnames[] = {0};
     __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_tracers_micro_tracer_2, __pyx_mstate->__pyx_n_u_supports_simd, __pyx_mstate->__pyx_kp_b_iso88591_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
   }
@@ -25313,124 +24927,6 @@ static CYTHON_INLINE long __Pyx_div_long(long a, long b, int b_is_constant) {
     return q - adapt_python;
 }
 
-/* Profile */
-#if CYTHON_PROFILE || CYTHON_TRACE
-#if CYTHON_TRACE && !CYTHON_USE_SYS_MONITORING
-static int __Pyx_call_line_trace_func(PyThreadState *tstate, PyFrameObject *frame, int line) {
-    int ret;
-    PyObject *type, *value, *traceback;
-    __Pyx_ErrFetchInState(tstate, &type, &value, &traceback);
-    __Pyx_PyFrame_SetLineNumber(frame, line);
-    __Pyx_EnterTracing(tstate);
-    ret = tstate->c_tracefunc(tstate->c_traceobj, frame, PyTrace_LINE, NULL);
-    __Pyx_LeaveTracing(tstate);
-    if (likely(!ret)) {
-        __Pyx_ErrRestoreInState(tstate, type, value, traceback);
-    } else {
-        Py_XDECREF(type);
-        Py_XDECREF(value);
-        Py_XDECREF(traceback);
-    }
-    return ret;
-}
-#endif
-CYTHON_UNUSED static PyCodeObject *__Pyx_createFrameCodeObject(const char *funcname, const char *srcfile, int firstlineno) {
-    PyCodeObject *py_code = PyCode_NewEmpty(srcfile, funcname, firstlineno);
-    if (likely(py_code)) {
-        py_code->co_flags |= CO_OPTIMIZED | CO_NEWLOCALS;
-    }
-    return py_code;
-}
-#if CYTHON_USE_SYS_MONITORING
-CYTHON_UNUSED static int __Pyx__TraceStartFunc(PyMonitoringState *state_array, PyObject *code_obj, int offset, int skip_event) {
-    int ret;
-    __pyx_monitoring_version_type version = 0;
-    ret = PyMonitoring_EnterScope(state_array, &version, __Pyx_MonitoringEventTypes, __Pyx_MonitoringEventTypes_CyFunc_count);
-    if (unlikely(ret == -1)) return -1;
-    return skip_event ? 0 : PyMonitoring_FirePyStartEvent(&state_array[__Pyx_Monitoring_PY_START], code_obj, offset);
-}
-CYTHON_UNUSED static int __Pyx__TraceStartGen(PyMonitoringState *state_array, __pyx_monitoring_version_type *version, PyObject *code_obj, int offset) {
-    int ret;
-    ret = PyMonitoring_EnterScope(state_array, version, __Pyx_MonitoringEventTypes, __Pyx_MonitoringEventTypes_CyGen_count);
-    if (unlikely(ret == -1)) return -1;
-    return PyMonitoring_FirePyStartEvent(&state_array[__Pyx_Monitoring_PY_START], code_obj, offset);
-}
-CYTHON_UNUSED static int __Pyx__TraceResumeGen(PyMonitoringState *state_array, __pyx_monitoring_version_type *version, PyObject *code_obj, int offset) {
-    int ret;
-    ret = PyMonitoring_EnterScope(state_array, version, __Pyx_MonitoringEventTypes, __Pyx_MonitoringEventTypes_CyGen_count);
-    if (unlikely(ret == -1)) return -1;
-    return PyMonitoring_FirePyResumeEvent(&state_array[__Pyx_Monitoring_PY_RESUME], code_obj, offset);
-}
-CYTHON_UNUSED static void __Pyx__TraceException(PyMonitoringState *monitoring_state, PyObject *code_obj, int offset, int reraised) {
-    if (reraised) {
-        (void) PyMonitoring_FireReraiseEvent(monitoring_state, code_obj, offset);
-    } else {
-        (void) PyMonitoring_FireRaiseEvent(monitoring_state, code_obj, offset);
-    }
-}
-#if CYTHON_TRACE
-CYTHON_UNUSED static int __Pyx__TraceLine(PyMonitoringState *monitoring_state, PyObject *code_obj, int line, int offset) {
-    int ret;
-    PyObject *exc = PyErr_GetRaisedException();
-    ret = PyMonitoring_FireLineEvent(monitoring_state, code_obj, offset, line);
-    if (exc) PyErr_SetRaisedException(exc);
-    return ret;
-}
-#endif
-#else
-static int __Pyx_TraceSetupAndCall(PyCodeObject** code,
-                                   PyFrameObject** frame,
-                                   PyThreadState* tstate,
-                                   const char *funcname,
-                                   const char *srcfile,
-                                   int firstlineno,
-                                   int skip_event) {
-    if (*frame == NULL || !CYTHON_PROFILE_REUSE_FRAME) {
-        int needs_new_code_obj = (*code == NULL);
-        if (needs_new_code_obj) {
-            *code = __Pyx_createFrameCodeObject(funcname, srcfile, firstlineno);
-            if (*code == NULL) return 0;
-        }
-        *frame = PyFrame_New(
-            tstate,                          /*PyThreadState *tstate*/
-            *code,                           /*PyCodeObject *code*/
-            __pyx_mstate_global->__pyx_d,    /*PyObject *globals*/
-            0                                /*PyObject *locals*/
-        );
-        if (needs_new_code_obj && !CYTHON_PROFILE_REUSE_CODEOBJ)
-            Py_CLEAR(*code); // otherwise the reference is owned externally
-        if (*frame == NULL) return 0;
-        if (CYTHON_TRACE && (*frame)->f_trace == NULL) {
-            Py_INCREF(Py_None);
-            (*frame)->f_trace = Py_None;
-        }
-    }
-    if (!skip_event) {
-        PyObject *type, *value, *traceback;
-        int retval = 1;
-        __Pyx_PyFrame_SetLineNumber(*frame, firstlineno);
-        __Pyx_EnterTracing(tstate);
-        __Pyx_ErrFetchInState(tstate, &type, &value, &traceback);
-        #if CYTHON_TRACE
-        if (tstate->c_tracefunc)
-            retval = tstate->c_tracefunc(tstate->c_traceobj, *frame, PyTrace_CALL, NULL) == 0;
-        if (retval && tstate->c_profilefunc)
-        #endif
-            retval = tstate->c_profilefunc(tstate->c_profileobj, *frame, PyTrace_CALL, NULL) == 0;
-        __Pyx_LeaveTracing(tstate);
-        if (unlikely(!retval)) {
-            Py_XDECREF(type);
-            Py_XDECREF(value);
-            Py_XDECREF(traceback);
-            return -1;
-        }
-        __Pyx_ErrRestoreInState(tstate, type, value, traceback);
-    }
-    return __Pyx_IsTracing(tstate, 0, 0);
-}
-#endif
-#endif
-
 /* IsLittleEndian (used by BufferFormatCheck) */
 static CYTHON_INLINE int __Pyx_Is_Little_Endian(void)
 {
@@ -26025,6 +25521,19 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
   static void __Pyx_RaiseBufferFallbackError(void) {
     PyErr_SetString(PyExc_ValueError,
        "Buffer acquisition failed on assignment; and then reacquiring the old buffer failed too!");
+  }
+  
+/* BufferIndexError (used by BufferIndexErrorNogil) */
+  static void __Pyx_RaiseBufferIndexError(int axis) {
+    PyErr_Format(PyExc_IndexError,
+       "Out of bounds on buffer access (axis %d)", axis);
+  }
+  
+/* BufferIndexErrorNogil */
+  static void __Pyx_RaiseBufferIndexErrorNogil(int axis) {
+      PyGILState_STATE gilstate = PyGILState_Ensure();
+      __Pyx_RaiseBufferIndexError(axis);
+      PyGILState_Release(gilstate);
   }
   
 /* AllocateExtensionType */

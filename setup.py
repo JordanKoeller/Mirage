@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 MVSC_FLAGS = ["/std:c++20"]
 
-GCC_FLAGS = ["--std=c++20"]
+GCC_FLAGS = ["--std=c++20", "-Ofast"]
 
 def _get_compiler_flags() -> list[str]:
     if platform.system() == "Windows":
@@ -46,7 +46,6 @@ def get_ext_modules() -> list[Extension]:
         Extension(
             "mirage.calc.reducer_funcs",
             sources=[path.join("mirage", "calc", "reducer_funcs.pyx")],
-            # define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
             include_dirs=[numpy.get_include()],
             extra_compile_args=flags,
             extra_link_args=flags,

@@ -1,4 +1,5 @@
-# distutils: language = c++
+# distutils: language=c++
+# cython: profile=True, boundscheck=False, wraparound=False, embedsignature=True
 
 from mirage.calc.tracers cimport micro_tracer_ext
 cimport numpy as cnp
@@ -16,8 +17,9 @@ cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace(
       int compute_parity,
       int allow_simd,
 ):
-  width = rays.shape[0]
-  height = rays.shape[1]
+  cdef int width = rays.shape[0]
+  cdef int height = rays.shape[1]
+  cdef double* nullptr = cython.NULL
   if compute_parity:
       rays_mag = np.empty((rays.shape[0], rays.shape[1], 3), order='F', dtype=np.float64)
       rays_mag[:, :, 0] = rays[:, :, 0]
@@ -31,18 +33,19 @@ cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace(
       cnp.float64_t[::1, :, :] rays_view = rays
       cnp.float64_t[::1, :] star_pos_view = star_pos
       cnp.float64_t[::1] star_mass_view = star_mass
-  if compute_parity:
-      micro_tracer_ext.trace(
-          &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
-          width * height, kap, gam,
-          &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],
-          &rays_view[0, 0, 2], allow_simd)
-  else:
-      micro_tracer_ext.trace(
-          &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
-          width * height, kap, gam,
-          &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],
-          cython.NULL, allow_simd)
+  with nogil:
+      if compute_parity:
+          micro_tracer_ext.trace(
+              &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
+              width * height, kap, gam,
+              &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],
+              &rays_view[0, 0, 2], allow_simd)
+      else:
+          micro_tracer_ext.trace(
+              &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
+              width * height, kap, gam,
+              &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],
+              nullptr, allow_simd)
   return rays
 
 cpdef bint supports_simd():

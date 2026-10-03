@@ -62,7 +62,7 @@ class _CpuTracerFn(_TracerFn):
     else:
         print("Macroimage has positive parity")
 
-    return trace(rays, kap, gam, star_mass, star_pos, False)
+    return trace(rays, kap, gam, star_mass, star_pos, True)
 
 
 class _CudaTracerFn(_TracerFn):

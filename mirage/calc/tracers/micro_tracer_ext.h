@@ -72,8 +72,7 @@ using Float = double;
 
 inline void trace_no_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
                           Float kap, Float gam, Float *stars_x, Float *stars_y,
-                          Float *stars_m, std::size_t num_stars,
-                          bool include_macro, Float *mag) {
+                          Float *stars_m, std::size_t num_stars, Float *mag) {
   Float g_min = 1.0 - gam;
   Float g_max = 1.0 + gam;
   Float rx, ry;
@@ -85,10 +84,8 @@ inline void trace_no_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
     Float psi22 = g_max - kap;
     Float psi12 = 0.0;
 
-    if (include_macro) {
-      rays_x[i] = g_min * rx - kap * rx;
-      rays_y[i] = g_max * ry - kap * ry;
-    }
+    rays_x[i] = g_min * rx - kap * rx;
+    rays_y[i] = g_max * ry - kap * ry;
 
     for (std::size_t s = 0; s < num_stars; s++) {
       Float dx = rx - stars_x[s];
@@ -96,13 +93,18 @@ inline void trace_no_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
       Float r2 = dx * dx + dy * dy;
       rays_x[i] -= stars_m[s] * dx / r2;
       rays_y[i] -= stars_m[s] * dy / r2;
-      psi11 -= stars_m[s] * (dy * dy - dx * dx) / r2;
-      psi12 += 2.0 * stars_m[s] * dx * dy / r2;
-      psi22 -= stars_m[s] * (dx * dx - dy * dy) / r2;
+
+      // Parity Computation below
+      // TODO: Double-check this. I'm not sure why r4 is needed but it works.
+      Float r4 = r2 * r2;
+      Float ri = stars_m[s] * (dy * dy - dx * dx) / r4;
+      psi11 += ri;
+      psi12 += 2.0 * stars_m[s] * dx * dy / r4;
+      psi22 -= ri;
     }
     if (mag != nullptr) {
       Float m = (psi11 * psi22 - psi12 * psi12);
-      if (std::abs(m) < 1e-3) {
+      if (m > -1e-3 && m < 1e-3) {
         mag[i] = 0.0;
       } else if (m < 0.0) {
         mag[i] = -1.0;
@@ -138,7 +140,7 @@ Float *aligned_copy(Float *buffer, std::size_t len) {
  */
 inline void trace_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
                        Float kap, Float gam, Float *stars_x, Float *stars_y,
-                       Float *stars_m, std::size_t num_stars) {
+                       Float *stars_m, std::size_t num_stars, Float *mag) {
   FV *stars_x_buf = (FV *)(aligned_copy(stars_x, num_stars));
   FV *stars_y_buf = (FV *)(aligned_copy(stars_y, num_stars));
   FV *stars_m_buf = (FV *)(aligned_copy(stars_m, num_stars));
@@ -155,28 +157,66 @@ inline void trace_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
     FV out_x_v(0.0);
     FV out_y_v(0.0);
 
+    Float psi11 = g_min - kap;
+    Float psi22 = g_max - kap;
+    Float psi12 = 0.0;
+    FV psi11_v = 0.0;
+    FV psi22_v = 0.0;
+    FV psi12_v = 0.0;
+
     rays_x[r] = g_min * rx - kap * rx;
     rays_y[r] = g_max * ry - kap * ry;
 
     for (std::size_t s = 0; s < num_stars / FV::size(); s++) {
       FV dx = ray_x - stars_x_buf[s];
       FV dy = ray_y - stars_y_buf[s];
-      FV r = dx * dx + dy * dy;
-      out_x_v += stars_m_buf[s] * dx / r;
-      out_y_v += stars_m_buf[s] * dy / r;
+      FV r2 = dx * dx + dy * dy;
+      out_x_v -= stars_m_buf[s] * dx / r2;
+      out_y_v -= stars_m_buf[s] * dy / r2;
+
+      // Magnification calculation
+      FV r4 = r2 * r2;
+      FV ri = stars_m_buf[s] * (dy * dy - dx * dx) / r4;
+      psi11_v += ri;
+      psi22_v -= ri;
+      psi12_v += 2.0 * stars_m_buf[s] * dx * dy / r4;
     }
     // reduce the out vector.
     for (std::size_t j = 0; j < FV::size(); j++) {
-      rays_x[r] -= out_x_v[j];
-      rays_y[r] -= out_y_v[j];
+      rays_x[r] += out_x_v[j];
+      rays_y[r] += out_y_v[j];
+      psi11 += psi11_v[j];
+      psi22 += psi22_v[j];
+      psi12 += psi12_v[j];
+    }
+
+    // Trace any leftover stars.
+    size_t last_star_ind = (num_stars / FV::size()) * FV::size();
+    for (std::size_t s = last_star_ind; s < num_stars; s++) {
+      Float dx = rx - stars_x[s];
+      Float dy = ry - stars_y[s];
+      Float r2 = dx * dx + dy * dy;
+      rays_x[r] -= stars_m[s] * dx / r2;
+      rays_y[r] -= stars_m[s] * dy / r2;
+      Float r4 = r2 * r2;
+      Float ri = stars_m[s] * (dy * dy - dx * dx) / r4;
+      psi11 += ri;
+      psi22 -= ri;
+      psi12 += 2.0 * stars_m[s] * dx * dy / r4;
+    }
+
+    if (mag != nullptr) {
+      Float m = (psi11 * psi22 - psi12 * psi12);
+      if (m > -1e-3 && m < 1e-3) {
+        mag[r] = 0.0;
+      } else if (m < 0.0) {
+        mag[r] = -1.0;
+      } else if (m > 0.0) {
+        // TODO: Accumulate properly in the no_simd version as well.
+        mag[r] = 1.0;
+      }
     }
   }
-
-  // Trace any leftover stars.
-  size_t last_star_ind = (num_stars / FV::size()) * FV::size();
-  trace_no_simd(rays_x, rays_y, num_rays, kap, gam, &stars_x[last_star_ind],
-                &stars_y[last_star_ind], &stars_m[last_star_ind],
-                num_stars - last_star_ind, false, nullptr);
 
   delete[] stars_x_buf;
   delete[] stars_y_buf;
@@ -194,12 +234,12 @@ void trace(Float *rays_x, Float *rays_y, std::size_t num_rays, Float kap,
 #ifdef using_simd
   if (allow_simd) {
     trace_simd(rays_x, rays_y, num_rays, kap, gam, stars_x, stars_y, stars_m,
-               num_stars);
+               num_stars, mag);
     return;
   }
 #endif
   trace_no_simd(rays_x, rays_y, num_rays, kap, gam, stars_x, stars_y, stars_m,
-                num_stars, true, mag);
+                num_stars, mag);
 }
 
 bool supports_simd() {

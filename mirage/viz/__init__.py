@@ -55,14 +55,23 @@ _CONTROLLERS = {
 }
 
 
-def create_layers(*layers: list[str | Controller]) -> list[Controller]:
+def create_layers(
+  layers: list[str | Controller] | dict[str, str],
+) -> list[Controller]:
   ret = []
-  for layer in layers:
-    if isinstance(layer, Controller):
-      ret.append(layer)
-      continue
-    ret.append(_CONTROLLERS[layer]())
-  return ret
+  if isinstance(layers, list):
+    for layer in layers:
+      if isinstance(layer, Controller):
+        ret.append(layer)
+        continue
+      ret.append(_CONTROLLERS[layer]())
+    return ret
+  if isinstance(layers, dict):
+    for name, layer in layers.items():
+      ret.append(_CONTROLLERS[layer](name))
+    return ret
+
+
 
 
 __all__ = [

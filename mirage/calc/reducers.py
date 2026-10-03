@@ -32,7 +32,9 @@ def unlensed_pixel_count(
     * simulation.lensing_system.magnification_coefficient(source_region.center)
     * np.pi
   )
-  return max(apparent_quasar_area / (pixel_region.delta.x * pixel_region.delta.y).to("uas2"), 1)
+  return max(
+    apparent_quasar_area / (pixel_region.delta.x * pixel_region.delta.y).to("uas2"), 1
+  )
 
 
 def magnitudes(
@@ -71,7 +73,9 @@ class LensedImageReducer(Reducer):
     self.theta_0 = simulation.lensing_system.theta_0
 
   def reduce(self, traced_rays: KdTree):
-    self._canvas = np.zeros((int(self.resolution.x), int(self.resolution.y)), dtype=np.int32)
+    self._canvas = np.zeros(
+      (int(self.resolution.x), int(self.resolution.y)), dtype=np.int32
+    )
     for i in [-1, 1]:
       active_indices = np.array(
         traced_rays.query_indices(
@@ -80,7 +84,9 @@ class LensedImageReducer(Reducer):
       )
       if active_indices is None or len(active_indices) == 0:
         continue
-      self._canvas = populate_lensed_image(active_indices, self._canvas, i or 1, self._lens_plane)
+      self._canvas = populate_lensed_image(
+        active_indices, self._canvas, i or 1, self._lens_plane
+      )
 
   def merge(self, other: Self) -> Self:
     if other._canvas is None:
@@ -124,7 +130,7 @@ class MagnificationMapReducer(Reducer):
     )
     radius = self.radius.to(self.theta_0)
 
-    self.canvas = np.array(traced_rays.batch_query_count(pixels, radius))
+    self.canvas = np.array(traced_rays.batch_query_count(pixels, radius, self.parity))
 
   def merge(self, other: Self) -> Self:
     other_canvas = other.canvas
@@ -165,7 +171,7 @@ class MagnificationMapReducer(Reducer):
   def magnitudes(self) -> np.ndarray:
     if self.output is None:
       raise ValueError("Cannot compute magnitudes for empty reducer")
-    return magnitudes(self.output, self.unlensed_pixel_count)
+    return magnitudes(self.output, self.unlensed_pixel_count).value
 
   def slice(
     self, start: Vec2D | Index2D, end: Vec2D | Index2D

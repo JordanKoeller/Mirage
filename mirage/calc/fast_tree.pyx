@@ -31,14 +31,14 @@ cdef class FastTree:
         else:
             self._tree = ckd_tree.CKDTree.Create(&data_view[0, 0, 0], sz, &indices_view[0], &splits_view[0], data.shape[2], leaf_size)
 
-    def points_in_circle(self, double cx, double cy, double r):
-        ret = self._tree.PointsInCircle(cx, cy, r)
+    def points_in_circle(self, double cx, double cy, double r, int parity):
+        ret = self._tree.PointsInCircle(cx, cy, r, parity)
         return ret
 
-    def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r):
+    def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r, int parity):
         cdef cnp.float64_t[:, ::1] ret = np.ndarray((centers.shape[0], centers.shape[1]))
         cdef cnp.float64_t[:, :, ::1] centers_view = centers
-        self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0])
+        self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0], parity)
         return ret
 
     def magnification_coefficient(self, double cx, double cy, double r):

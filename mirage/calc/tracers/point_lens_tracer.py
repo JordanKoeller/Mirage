@@ -28,7 +28,8 @@ class PointLensTracer(RayTracer):
     ys = np.ndarray((xs.shape[0], xs.shape[1], 3), dtype=np.float64)
     ys[:, :, 0] = xs[:, :, 0]
     ys[:, :, 1] = xs[:, :, 1]
-    ys[:, :, 2] = 1 / (1- ((rs_norm / self.einstein_radius**2).to("").value)**2)
+    ys[:, :, 2] = rs_norm.value - 1.0
+    ys[:, :, 2] = ys[:, :, 2] / np.abs(ys[:, :, 2])
     ys[:, :, 0] -= deflection_factor * xs[:, :, 0] / rs
     ys[:, :, 1] -= deflection_factor * xs[:, :, 1] / rs
 

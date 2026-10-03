@@ -50,7 +50,7 @@ def visualize(
   viz_obj = Viz(
     model=VizState(result, 0),
     view=VizWindow(),
-    controllers=create_layers(*(layers or viz_config.default_layers)),
+    controllers=create_layers((layers or viz_config.default_layers)),
   )
   viz_obj.show()
   return viz_obj, result
@@ -58,7 +58,7 @@ def visualize(
 
 def visualize_realtime(
   file_or_result: str | ExperimentResult,
-  layers: list[str | Controller] | None = None,
+  layers: list[str | Controller] | dict[str, str | Controller] | None = None,
   realtime_parameters: RealtimeParameters = RealtimeParameters(),
 ) -> Viz:
   result: ExperimentResult = file_or_result  # type: ignore
@@ -71,7 +71,7 @@ def visualize_realtime(
       engine=Engine.create_default(),
     ),
     view=VizWindow(),
-    controllers=create_layers(*(layers or ["Debug", "LensedImageController"])),
+    controllers=create_layers((layers or ["Debug", "LensedImageController"])),
   )
 
 

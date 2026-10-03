@@ -58,17 +58,19 @@ class FastKdTree:
   def query_rays(self, query_pos: Vec2D, radius: u.Quantity) -> u.Quantity:
     raise NotImplementedError("Yat")
 
-  def query_count(self, x, y, radius) -> int:
-    return self.tree.points_in_circle(x, y, radius)
+  def query_count(self, x, y, radius, parity=0) -> int:
+    return self.tree.points_in_circle(x, y, radius, parity)
 
   def batch_query_count(
-    self, query_points: u.Quantity, radius: u.Quantity
+    self, query_points: u.Quantity, radius: u.Quantity, parity: int = 0
   ) -> np.ndarray:
     return self.tree.batch_points_in_circle(
-      query_points.to(self.unit).value, radius.to(self.unit).value
+      query_points.to(self.unit).value, radius.to(self.unit).value, parity
     )
 
-  def query_indices(self, query_pos: Vec2D, radius: u.Quantity, parity: int) -> np.ndarray:
+  def query_indices(
+    self, query_pos: Vec2D, radius: u.Quantity, parity: int
+  ) -> np.ndarray:
     """
     Returns the indices of active rays in (x, y) coordinate pairs.
     """

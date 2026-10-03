@@ -12,8 +12,8 @@ cdef extern from "ckd_tree.h":
       @staticmethod
       CKDTree CreatePreconstructed(double*, unsigned long, long*, double*, unsigned long, unsigned long)
 
-      unsigned long PointsInCircle(double, double, double)
-      void PointsInCircle(double*, unsigned long, double, double*)
+      unsigned long PointsInCircle(double, double, double, int)
+      void PointsInCircle(double*, unsigned long, double, double*, int)
       double MagnificationCoefficient(double, double, double)
       void MagnificationCoefficient(double*, unsigned long, double, double*)
       vector[long] LensPlaneCoordinates(double, double, double, int)

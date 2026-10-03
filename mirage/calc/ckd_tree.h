@@ -3,8 +3,12 @@
 
 #include <functional>
 #include <iostream>
+#include <memory>
+#include <optional>
 #include <queue>
 #include <vector>
+
+using ReducerFn = std::function<void(size_t)>;
 
 // A header-only KD-Tree, hyper-optimized for the Mirage usecase.
 //
@@ -44,18 +48,33 @@ public:
 
   // Return the number of elements in the tree that are within the circle of
   // radius r at location (cx, cy).
-  size_t PointsInCircle(double cx, double cy, double r) {
+  size_t PointsInCircle(double cx, double cy, double r, int parity) {
     size_t count = 0;
-    std::function<void(size_t)> reducer([&](size_t i) -> void { count++; });
+    ReducerFn reducer([&](size_t i) -> void {
+      if (parity == 0) {
+        count++;
+        return;
+      }
+      if (parity > 0 and buf_[sz_ * 2 + i] > 0.0) {
+        count++;
+        return;
+      }
+      if (parity < 0 and buf_[sz_ * 2 + i] < 0.0) {
+        count++;
+        return;
+      }
+    });
     Reduce(cx, cy, r, &reducer);
     return count;
   }
 
   // batch version of PointsInCircle. Queries sz many circles, with centers
   // specified in row-order.
-  void PointsInCircle(double *centers, size_t sz, double r, double *out) {
+  void PointsInCircle(double *centers, size_t sz, double r, double *out,
+                      int parity) {
     for (size_t i = 0; i < sz; i++) {
-      out[i] = (double)PointsInCircle(centers[2 * i], centers[2 * i + 1], r);
+      out[i] =
+          (double)PointsInCircle(centers[2 * i], centers[2 * i + 1], r, parity);
     }
   }
 

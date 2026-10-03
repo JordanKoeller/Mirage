@@ -3540,8 +3540,8 @@ static PyObject *__pyx_pf___pyx_memoryviewslice___reduce_cython__(CYTHON_UNUSED 
 static PyObject *__pyx_pf___pyx_memoryviewslice_2__setstate_cython__(CYTHON_UNUSED struct __pyx_memoryviewslice_obj *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_15View_dot_MemoryView___pyx_unpickle_Enum(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_6mirage_4calc_9fast_tree_8FastTree___init__(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, PyArrayObject *__pyx_v_data, unsigned long __pyx_v_leaf_size, PyObject *__pyx_v_indices, PyObject *__pyx_v_splits); /* proto */
-static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, double __pyx_v_cx, double __pyx_v_cy, double __pyx_v_r); /* proto */
-static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_circle(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, PyArrayObject *__pyx_v_centers, double __pyx_v_r); /* proto */
+static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, double __pyx_v_cx, double __pyx_v_cy, double __pyx_v_r, int __pyx_v_parity); /* proto */
+static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_circle(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, PyArrayObject *__pyx_v_centers, double __pyx_v_r, int __pyx_v_parity); /* proto */
 static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_6magnification_coefficient(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, double __pyx_v_cx, double __pyx_v_cy, double __pyx_v_r); /* proto */
 static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_8batch_magnification_coefficients(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, PyArrayObject *__pyx_v_centers, double __pyx_v_r); /* proto */
 static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_10query_rays(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, double __pyx_v_cx, double __pyx_v_cy, double __pyx_v_r, int __pyx_v_parity); /* proto */
@@ -3801,7 +3801,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_b_iso88591_A_82WF_4wfTUUV_5Q_F_q_T_as_GSYYZ __pyx_string_tab[152]
 #define __pyx_kp_b_iso88591_A_D_C1D_Cq_4Bhb_uFRXXZZ_E_as_a_q __pyx_string_tab[153]
 #define __pyx_kp_b_iso88591_A_b_at6_1_2_F_1A_D_vQdRUUVVYYZZ __pyx_string_tab[154]
-#define __pyx_kp_b_iso88591_A_d_q_D_q __pyx_string_tab[155]
+#define __pyx_kp_b_iso88591_A_d_q_D_1_q __pyx_string_tab[155]
 #define __pyx_kp_b_iso88591_A_t6_2_4t1 __pyx_string_tab[156]
 #define __pyx_kp_b_iso88591_A_z_XT_d_T __pyx_string_tab[157]
 #define __pyx_n_b_O __pyx_string_tab[158]
@@ -19273,7 +19273,7 @@ static int __pyx_pf_6mirage_4calc_9fast_tree_8FastTree___init__(struct __pyx_obj
  *         else:
  *             self._tree = ckd_tree.CKDTree.Create(&data_view[0, 0, 0], sz, &indices_view[0], &splits_view[0], data.shape[2], leaf_size)             # <<<<<<<<<<<<<<
  * 
- *     def points_in_circle(self, double cx, double cy, double r):
+ *     def points_in_circle(self, double cx, double cy, double r, int parity):
 */
   /*else*/ {
     __pyx_t_25 = 0;
@@ -19366,8 +19366,8 @@ static int __pyx_pf_6mirage_4calc_9fast_tree_8FastTree___init__(struct __pyx_obj
 /* "mirage/calc/fast_tree.pyx":34
  *             self._tree = ckd_tree.CKDTree.Create(&data_view[0, 0, 0], sz, &indices_view[0], &splits_view[0], data.shape[2], leaf_size)
  * 
- *     def points_in_circle(self, double cx, double cy, double r):             # <<<<<<<<<<<<<<
- *         ret = self._tree.PointsInCircle(cx, cy, r)
+ *     def points_in_circle(self, double cx, double cy, double r, int parity):             # <<<<<<<<<<<<<<
+ *         ret = self._tree.PointsInCircle(cx, cy, r, parity)
  *         return ret
 */
 
@@ -19390,11 +19390,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   double __pyx_v_cx;
   double __pyx_v_cy;
   double __pyx_v_r;
+  int __pyx_v_parity;
   #if !CYTHON_METH_FASTCALL
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   #endif
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
-  PyObject* values[3] = {0,0,0};
+  PyObject* values[4] = {0,0,0,0};
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -19410,11 +19411,15 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   #endif
   __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
   {
-    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_cx,&__pyx_mstate_global->__pyx_n_u_cy,&__pyx_mstate_global->__pyx_n_u_r,0};
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_cx,&__pyx_mstate_global->__pyx_n_u_cy,&__pyx_mstate_global->__pyx_n_u_r,&__pyx_mstate_global->__pyx_n_u_parity,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
     if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 34, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
+        case  4:
+        values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 34, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
         if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 34, __pyx_L3_error)
@@ -19432,10 +19437,10 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
       if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "points_in_circle", 0) < (0)) __PYX_ERR(0, 34, __pyx_L3_error)
-      for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("points_in_circle", 1, 3, 3, i); __PYX_ERR(0, 34, __pyx_L3_error) }
+      for (Py_ssize_t i = __pyx_nargs; i < 4; i++) {
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("points_in_circle", 1, 4, 4, i); __PYX_ERR(0, 34, __pyx_L3_error) }
       }
-    } else if (unlikely(__pyx_nargs != 3)) {
+    } else if (unlikely(__pyx_nargs != 4)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
@@ -19444,14 +19449,17 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 34, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
       if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 34, __pyx_L3_error)
+      values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 34, __pyx_L3_error)
     }
     __pyx_v_cx = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_cx == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
     __pyx_v_cy = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_cy == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
     __pyx_v_r = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_r == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
+    __pyx_v_parity = __Pyx_PyLong_As_int(values[3]); if (unlikely((__pyx_v_parity == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("points_in_circle", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 34, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("points_in_circle", 1, 4, 4, __pyx_nargs); __PYX_ERR(0, 34, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -19462,7 +19470,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(((struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *)__pyx_v_self), __pyx_v_cx, __pyx_v_cy, __pyx_v_r);
+  __pyx_r = __pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(((struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *)__pyx_v_self), __pyx_v_cx, __pyx_v_cy, __pyx_v_r, __pyx_v_parity);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -19472,7 +19480,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, double __pyx_v_cx, double __pyx_v_cy, double __pyx_v_r) {
+static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, double __pyx_v_cx, double __pyx_v_cy, double __pyx_v_r, int __pyx_v_parity) {
   unsigned long __pyx_v_ret;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -19484,19 +19492,19 @@ static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(s
 
   /* "mirage/calc/fast_tree.pyx":35
  * 
- *     def points_in_circle(self, double cx, double cy, double r):
- *         ret = self._tree.PointsInCircle(cx, cy, r)             # <<<<<<<<<<<<<<
+ *     def points_in_circle(self, double cx, double cy, double r, int parity):
+ *         ret = self._tree.PointsInCircle(cx, cy, r, parity)             # <<<<<<<<<<<<<<
  *         return ret
  * 
 */
-  __pyx_v_ret = __pyx_v_self->_tree.PointsInCircle(__pyx_v_cx, __pyx_v_cy, __pyx_v_r);
+  __pyx_v_ret = __pyx_v_self->_tree.PointsInCircle(__pyx_v_cx, __pyx_v_cy, __pyx_v_r, __pyx_v_parity);
 
   /* "mirage/calc/fast_tree.pyx":36
- *     def points_in_circle(self, double cx, double cy, double r):
- *         ret = self._tree.PointsInCircle(cx, cy, r)
+ *     def points_in_circle(self, double cx, double cy, double r, int parity):
+ *         ret = self._tree.PointsInCircle(cx, cy, r, parity)
  *         return ret             # <<<<<<<<<<<<<<
  * 
- *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r):
+ *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r, int parity):
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyLong_From_unsigned_long(__pyx_v_ret); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
@@ -19508,8 +19516,8 @@ static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(s
   /* "mirage/calc/fast_tree.pyx":34
  *             self._tree = ckd_tree.CKDTree.Create(&data_view[0, 0, 0], sz, &indices_view[0], &splits_view[0], data.shape[2], leaf_size)
  * 
- *     def points_in_circle(self, double cx, double cy, double r):             # <<<<<<<<<<<<<<
- *         ret = self._tree.PointsInCircle(cx, cy, r)
+ *     def points_in_circle(self, double cx, double cy, double r, int parity):             # <<<<<<<<<<<<<<
+ *         ret = self._tree.PointsInCircle(cx, cy, r, parity)
  *         return ret
 */
 
@@ -19527,7 +19535,7 @@ static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_2points_in_circle(s
 /* "mirage/calc/fast_tree.pyx":38
  *         return ret
  * 
- *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r):             # <<<<<<<<<<<<<<
+ *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r, int parity):             # <<<<<<<<<<<<<<
  *         cdef cnp.float64_t[:, ::1] ret = np.ndarray((centers.shape[0], centers.shape[1]))
  *         cdef cnp.float64_t[:, :, ::1] centers_view = centers
 */
@@ -19550,11 +19558,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 ) {
   PyArrayObject *__pyx_v_centers = 0;
   double __pyx_v_r;
+  int __pyx_v_parity;
   #if !CYTHON_METH_FASTCALL
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   #endif
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
-  PyObject* values[2] = {0,0};
+  PyObject* values[3] = {0,0,0};
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -19570,11 +19579,15 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   #endif
   __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
   {
-    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_centers,&__pyx_mstate_global->__pyx_n_u_r,0};
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_centers,&__pyx_mstate_global->__pyx_n_u_r,&__pyx_mstate_global->__pyx_n_u_parity,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
     if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 38, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
+        case  3:
+        values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 38, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
         if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 38, __pyx_L3_error)
@@ -19588,23 +19601,26 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
       if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "batch_points_in_circle", 0) < (0)) __PYX_ERR(0, 38, __pyx_L3_error)
-      for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("batch_points_in_circle", 1, 2, 2, i); __PYX_ERR(0, 38, __pyx_L3_error) }
+      for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("batch_points_in_circle", 1, 3, 3, i); __PYX_ERR(0, 38, __pyx_L3_error) }
       }
-    } else if (unlikely(__pyx_nargs != 2)) {
+    } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
       if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 38, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
       if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 38, __pyx_L3_error)
+      values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 38, __pyx_L3_error)
     }
     __pyx_v_centers = ((PyArrayObject *)values[0]);
     __pyx_v_r = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_r == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 38, __pyx_L3_error)
+    __pyx_v_parity = __Pyx_PyLong_As_int(values[2]); if (unlikely((__pyx_v_parity == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 38, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("batch_points_in_circle", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 38, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("batch_points_in_circle", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 38, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -19616,7 +19632,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_centers), __pyx_mstate_global->__pyx_ptype_5numpy_ndarray, 1, "centers", 0))) __PYX_ERR(0, 38, __pyx_L1_error)
-  __pyx_r = __pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_circle(((struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *)__pyx_v_self), __pyx_v_centers, __pyx_v_r);
+  __pyx_r = __pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_circle(((struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *)__pyx_v_self), __pyx_v_centers, __pyx_v_r, __pyx_v_parity);
 
   /* function exit code */
   goto __pyx_L0;
@@ -19635,7 +19651,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_circle(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, PyArrayObject *__pyx_v_centers, double __pyx_v_r) {
+static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_circle(struct __pyx_obj_6mirage_4calc_9fast_tree_FastTree *__pyx_v_self, PyArrayObject *__pyx_v_centers, double __pyx_v_r, int __pyx_v_parity) {
   __Pyx_memviewslice __pyx_v_ret = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_centers_view = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_LocalBuf_ND __pyx_pybuffernd_centers;
@@ -19673,10 +19689,10 @@ static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_ci
 
   /* "mirage/calc/fast_tree.pyx":39
  * 
- *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r):
+ *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r, int parity):
  *         cdef cnp.float64_t[:, ::1] ret = np.ndarray((centers.shape[0], centers.shape[1]))             # <<<<<<<<<<<<<<
  *         cdef cnp.float64_t[:, :, ::1] centers_view = centers
- *         self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0])
+ *         self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0], parity)
 */
   __pyx_t_2 = NULL;
   __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 39, __pyx_L1_error)
@@ -19724,10 +19740,10 @@ static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_ci
   __pyx_t_8.data = NULL;
 
   /* "mirage/calc/fast_tree.pyx":40
- *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r):
+ *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r, int parity):
  *         cdef cnp.float64_t[:, ::1] ret = np.ndarray((centers.shape[0], centers.shape[1]))
  *         cdef cnp.float64_t[:, :, ::1] centers_view = centers             # <<<<<<<<<<<<<<
- *         self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0])
+ *         self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0], parity)
  *         return ret
 */
   __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_5numpy_float64_t(((PyObject *)__pyx_v_centers), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 40, __pyx_L1_error)
@@ -19738,7 +19754,7 @@ static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_ci
   /* "mirage/calc/fast_tree.pyx":41
  *         cdef cnp.float64_t[:, ::1] ret = np.ndarray((centers.shape[0], centers.shape[1]))
  *         cdef cnp.float64_t[:, :, ::1] centers_view = centers
- *         self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0])             # <<<<<<<<<<<<<<
+ *         self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0], parity)             # <<<<<<<<<<<<<<
  *         return ret
  * 
 */
@@ -19777,11 +19793,11 @@ static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_ci
     __Pyx_RaiseBufferIndexError(__pyx_t_13);
     __PYX_ERR(0, 41, __pyx_L1_error)
   }
-  __pyx_v_self->_tree.PointsInCircle((&(*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_centers_view.data + __pyx_t_10 * __pyx_v_centers_view.strides[0]) ) + __pyx_t_11 * __pyx_v_centers_view.strides[1]) )) + __pyx_t_12)) )))), ((__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_centers))[0]) * (__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_centers))[1])), __pyx_v_r, (&(*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_ret.data + __pyx_t_14 * __pyx_v_ret.strides[0]) )) + __pyx_t_15)) )))));
+  __pyx_v_self->_tree.PointsInCircle((&(*((__pyx_t_5numpy_float64_t *) ( /* dim=2 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_centers_view.data + __pyx_t_10 * __pyx_v_centers_view.strides[0]) ) + __pyx_t_11 * __pyx_v_centers_view.strides[1]) )) + __pyx_t_12)) )))), ((__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_centers))[0]) * (__pyx_f_5numpy_7ndarray_5shape_shape(((PyArrayObject *)__pyx_v_centers))[1])), __pyx_v_r, (&(*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ ((char *) (((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_ret.data + __pyx_t_14 * __pyx_v_ret.strides[0]) )) + __pyx_t_15)) )))), __pyx_v_parity);
 
   /* "mirage/calc/fast_tree.pyx":42
  *         cdef cnp.float64_t[:, :, ::1] centers_view = centers
- *         self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0])
+ *         self._tree.PointsInCircle(&centers_view[0,0, 0], centers.shape[0] * centers.shape[1], r, &ret[0, 0], parity)
  *         return ret             # <<<<<<<<<<<<<<
  * 
  *     def magnification_coefficient(self, double cx, double cy, double r):
@@ -19796,7 +19812,7 @@ static PyObject *__pyx_pf_6mirage_4calc_9fast_tree_8FastTree_4batch_points_in_ci
   /* "mirage/calc/fast_tree.pyx":38
  *         return ret
  * 
- *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r):             # <<<<<<<<<<<<<<
+ *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r, int parity):             # <<<<<<<<<<<<<<
  *         cdef cnp.float64_t[:, ::1] ret = np.ndarray((centers.shape[0], centers.shape[1]))
  *         cdef cnp.float64_t[:, :, ::1] centers_view = centers
 */
@@ -23008,8 +23024,8 @@ __Pyx_RefNannySetupContext("PyInit_fast_tree", 0);
   /* "mirage/calc/fast_tree.pyx":34
  *             self._tree = ckd_tree.CKDTree.Create(&data_view[0, 0, 0], sz, &indices_view[0], &splits_view[0], data.shape[2], leaf_size)
  * 
- *     def points_in_circle(self, double cx, double cy, double r):             # <<<<<<<<<<<<<<
- *         ret = self._tree.PointsInCircle(cx, cy, r)
+ *     def points_in_circle(self, double cx, double cy, double r, int parity):             # <<<<<<<<<<<<<<
+ *         ret = self._tree.PointsInCircle(cx, cy, r, parity)
  *         return ret
 */
   __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_6mirage_4calc_9fast_tree_8FastTree_3points_in_circle, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_FastTree_points_in_circle, NULL, __pyx_mstate_global->__pyx_n_u_mirage_calc_fast_tree, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 34, __pyx_L1_error)
@@ -23023,7 +23039,7 @@ __Pyx_RefNannySetupContext("PyInit_fast_tree", 0);
   /* "mirage/calc/fast_tree.pyx":38
  *         return ret
  * 
- *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r):             # <<<<<<<<<<<<<<
+ *     def batch_points_in_circle(self, cnp.ndarray[cnp.float64_t, ndim=3] centers, double r, int parity):             # <<<<<<<<<<<<<<
  *         cdef cnp.float64_t[:, ::1] ret = np.ndarray((centers.shape[0], centers.shape[1]))
  *         cdef cnp.float64_t[:, :, ::1] centers_view = centers
 */
@@ -23260,33 +23276,33 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{2},{35},{54},{37},{60},{24},{52},{26},{34},{33},{45},{22},{15},{179},{37},{32},{1},{1},{1},{1},{1},{8},{5},{6},{15},{23},{25},{7},{6},{2},{6},{35},{9},{30},{25},{50},{39},{34},{8},{20},{32},{22},{30},{37},{5},{8},{8},{19},{41},{31},{34},{25},{19},{20},{8},{15},{3},{15},{12},{4},{14},{18},{4},{32},{22},{1},{7},{12},{9},{17},{18},{5},{2},{2},{4},{8},{5},{15},{6},{9},{5},{5},{7},{9},{5},{6},{7},{8},{12},{1},{2},{10},{5},{7},{5},{13},{9},{5},{8},{6},{9},{25},{8},{4},{7},{21},{4},{10},{4},{8},{7},{4},{7},{2},{5},{3},{4},{6},{7},{16},{3},{14},{11},{10},{19},{14},{12},{10},{1},{10},{17},{13},{8},{3},{4},{12},{10},{12},{19},{5},{4},{6},{5},{4},{4},{6},{8},{6},{6},{6},{1},{13},{99},{81},{78},{24},{20},{23},{1}};
-    #if (CYTHON_COMPRESS_STRINGS) == 3 && __PYX_LIMITED_VERSION_HEX >= 0x030e0000 /* compression: zstd (1376 bytes) */
-const char* const cstring = "(\265/\375`\355\010\265*\000\nH\324\r<\020\223\323\001\000(P\241 \000\001\005*\024\004\324)D\210\004\274\204\310N\221\177K\271\242\310Fv\0229\215)\"v\210\360f\007~\204#0p\206.s\023\323\3171~\372ei\2074\271\000\272\000\270\000\320a,W\177\3076x\352\213\253\037!>6\254 Y\241\361\335\005\371w2\246!?\021~\231B'\371\002\005\210zsV_fT\303\345\242S\352\305]\324\261\006~\222\322\327p7\321\344\361OYU\226\233\\;\347JQj\376r:\345\244\014+\353\225\253\325\270^_Q$\255\257\202\216x\224\355\221\251~\372\216g{\334\371\027\345\352z\325|\263(\207_lJ\316\211!f\277'\313\206\267<U\276\306L\273\257tMI1\245\261\325-ie\372\243t\352\255\277\232\307\350*\377\362tz\301(5\256\210\363\353\371\256\354\262\342\260\276\214\352,\237\262pot\3624Y&TD\356\027#1O\224\367-\361\366\252!$11\021i\021\"\271\264\277\317I\010\327\212\3754\277\224E5\354\235\264)\211\247tM\272*\312\212\255}\307v\255)\334\336\364\374\rQF\353ik\354\254\307\2635}h\355\304Oe\344\\\225\304<\277\275\357\304\301\301u\0348\263\263\251\016:\002D\371F\373\373\310\337\357\202\272\014{\277\330$@\034f\245w\014\241t\234\016\372\253\3742\266\367\266\004\206\013\t\t#)\376\326\237\274\221\037]\\Pwvn\243T\177\321\222o\251\220\330\341\226\360\246/\231\330-\312\376\275\350\263kd\315\373V\2179\252%/\235LT\362\330\017\333\3028\273oS\276W\374\376s\337\375\033V\376\354\255M\220\375yN~\357\014\207'\\ke\023IZ\264(\313U\034k\\\343\\Uk\225\254\030\252\270\256\332\365=\267\252\252H=j#\264Z\223$\212)\315\307nmZ\206,*\035\333\331\265\326\332\353\366\326\232\213\326\324\332/5\345\267\017\020\277\022N\236Y8M9'SVd~\262y\267\327^k\227\343\270\217\226t*\316=gZk\255\371\344\217\354\034\373b\234c\277%%\331.^\276\276\236\231\334Zs\230\225\330En11\213\347p\212\366\256G8\327\212\326\374\332\331\256\311\326\nt\263\273\265\254zb\351\\O\0353K5M*\024\210PB\031@\017\203\360A\361\244\2640h\271\341\001z\354\003{\220\201\350<\000l\344#\340\263\342I\320b\241\363r \230\361\"c\221=\321\211h3\002\222\000R\000\242\361\t\371x|2,\310\"`\036:F\036\242\005\"\020\241\007-\210\000\310""\001\006\000\353\370`<\026NZBZ`t\006t\016\214\326\323\300si\361\316v\032tHf\244d),\262\022\221\025*\020\302\2004\230\t\354\243c\264\"\022\021\t\020\215\204<B\"RF\3403\342\241\260\222#A\307\310Fg=e\023g\214\3110\233m\215\254\206\214LF\214,F\213\354\204H\202\310C\033\"\020r\000B\301&`\001\260\225\017\210'\202G\201\207C\247$\307\201\216\321\t\366\241c\364\302E\346\002%\233D,\241\217P\204P\t\010\006\346\001\013\361Y\360\301\3201\n\301q\322\222\322\361\320\t\221\303\200\200\021\000\034\034g\013\356\206\177_e\265w~+\200\327\250A%DF\221\231\tDD\223\202$\303\001 \204 \244\254\314\003\2614I\025\"\022)H\nJRX\346\227\231\001QK\257Z\221J\332\000\264CN\254wV\231\250\241\217Py\231\215\330\337\233(\215@\226\265<\344\027\373\335\220\344\353Sb\013\020\325\360r\347\222\224d\205\235\271\334\244\310\225\324J8\322mN-d\342\365\261k\321\361[O\016\225N\251\005\335I\370]#\021\035\025h\344\347\010`Y\"\026)\304E\303\271\032\2433W\227I\351\022\004@\260\305\t\216<N\232\325\003;\366\227\036\227\024\320s\233\247\0032\031\022\324\367%Y?;\300/V`e3 bp\001Om,\330Qj\026e\222\330\223\346K#\370\345!\3218\r\267!\327\312\307\000\200\342\273\350r\255\025\222\344}\237\215\022H\304\303;5\002\\C\035x\024Q5H.\033J\267-\034@\005\177\216\313\316[\330\203\356\354!\377\376\017-\376\314K\0165\211\301b\266\262\377\201L<\304\260\tl\202}\034\3574?\264\345\310p\260\007\2555\035\353\357\027\231\350\303\216\025\217N\264\025\344\371\326\013l*\030R>\245~\334)\352\212\227\324\020m\375G\301;Eb/eo\033\362L\325S6N\234\233e\355;\325l@F\370\001\"w-Y\316\024 qF\375\243\2649~>/-\254\253\323\004\260B_\000\001\324K}\004j6\357`\301|\000Q\360)\247%6.T\231\336\373\024Y$\250}\323?\351\365\262\325a\024'0z\014\035w)E=Y\360\343E\314\244!\365\347\013q\220\331&a#n\021B\235-\251\246\312\310\332\254\334\217W\016\372\327\030F&\037q:\244\332\331\245\024\313\322\321\202\262\243\020\333F\r";
-    PyObject *data = __Pyx_DecompressString(cstring, 1376, 3);
+    const struct { const unsigned int length: 8; } index[] = {{2},{35},{54},{37},{60},{24},{52},{26},{34},{33},{45},{22},{15},{179},{37},{32},{1},{1},{1},{1},{1},{8},{5},{6},{15},{23},{25},{7},{6},{2},{6},{35},{9},{30},{25},{50},{39},{34},{8},{20},{32},{22},{30},{37},{5},{8},{8},{19},{41},{31},{34},{25},{19},{20},{8},{15},{3},{15},{12},{4},{14},{18},{4},{32},{22},{1},{7},{12},{9},{17},{18},{5},{2},{2},{4},{8},{5},{15},{6},{9},{5},{5},{7},{9},{5},{6},{7},{8},{12},{1},{2},{10},{5},{7},{5},{13},{9},{5},{8},{6},{9},{25},{8},{4},{7},{21},{4},{10},{4},{8},{7},{4},{7},{2},{5},{3},{4},{6},{7},{16},{3},{14},{11},{10},{19},{14},{12},{10},{1},{10},{17},{13},{8},{3},{4},{12},{10},{12},{19},{5},{4},{6},{5},{4},{4},{6},{8},{6},{6},{6},{1},{13},{102},{81},{78},{26},{20},{23},{1}};
+    #if (CYTHON_COMPRESS_STRINGS) == 3 && __PYX_LIMITED_VERSION_HEX >= 0x030e0000 /* compression: zstd (1381 bytes) */
+const char* const cstring = "(\265/\375`\362\010\335*\000ZH\350\r<\020\223\323\001\000(P\241 \000\001\005*\024\004\324)\244\000\001|\033\221\235\"\377\226rE\221\215\354$r\032SD\354\020\341\315\016\374\010G`\340\014]\346&\246\237c\374\364\313R5\322\272\000\274\000\271\000\276\320e,W\177\3077x\352\213\253\037\">8\260 a\241\361\335\005\371wr\246!?\021~\251B'\t#\005\210zwV_jt\003\006\243S*\306a\324\361\006~\222\322\327p9\321\344\361OYU\226\233\\;\347JQn\376r:\345\244\014+\353\225\253\335\270^_Q$\255\317\202\216x\224\355\221\251~\372\216g{\334\371\030\345\352z\335|\263h\207_lJ\316\211af\277'\013\207\267<U\276FM\273\257tMI1\245\261\325-ii\372\243t\352\255\277\233\317\350*\377\362tz\301(5\256\210\363\353\371\256\354\262\352\260\276\214\352,\237\262pst\3624Y'tDK\265\215\373\315H\314\023\345}K\274\275j\010ILLD\\\204H.\355\357s\022\302\265b\277\315/eQ\r{'mJ\342)]\223\256\212\262bk\337\261]k\n\2679=\237C\224\321z\332\032;\353\361lM\037Z;\361S\031;W%1\317o\357;upp]\007\326\354l\312\203\222\000Q\306\321\376>\362\367\303\240N\303\336/v\t\020\227Y\351\035C(]\307\203\376*\277\214\355\2755\221\001SB\312H\212\277\365's\344\307\027\030\324\235\235\333(\325_\264\344[+$v\270%\314i\214&v\213\262\1771\372\354\032y\363\276\325c\216j\311K'\023\225<\366\303\2662\316\036\355\235\337\232\362\275\342\367\237\373\356\337\260\362gom\202\354\317s\362{k:<\341Z+\234H\322\242EY\256\342x\343Z\347\252Z\253d\305P\305u\325\256\357\271UUE\352Q\033\241\325\232$QLm>vk\3232dQ\351\330\316\256\265\326^\267\267\326\\\264\246\326~\251)\277}\204\370\225pr\315\302i\3129\231\262\"\363\223\315\273\275\366Z\273\\\307}\264\244Sq\356Y\323Zk\315'\177d\347\3307\343\034\373-)\311v\361\362\365u\315\344\326\232\313\254\304.\262\213\211[|\207U\264w=\322\271X\264\346\327\316vM\266V\240\233\335\255e\325\023K\347z\352\250\t+\026\214PD\032B\017\213\000B\371\244\2704p\301\341\021z\354\003\203\220\205\360\274\007&\000\033\001\r\000\255|\024\270\\\360\274\226\0044`d-\2627:\031qFB\023B\013B5@! \017\220\006\006\231\004\354C\307\213\307\210\301(\204\350C\033*""\020z\200\001\300:@\231\317\205\023\227\020\227\030\036\002\036\004/\373q\360\301\270\270g=\016<$4R\262\224\026Y\311\310\022\031\020eB\033\354\004\366\321\361\2622\022\031\r\030\215\210<D\"RV\0004\362\251\260\322\242\240\343%R\031\325YO\331\304\031g\262\314fk#\2631#\233!#\223\341\"C1\2320r\321\212\n\210\036\204P0\nX\000l\005\004\362\221\360Y\360\351\340)iA\320\361r\202\201\350x\201\361\"{\201\222M#\026\321\207H\202\250$\024\003\373\200\211\0001\000e\350x\t\311q\342\222\342\371\340\021\321r`\300\013\200\034\035g\013.\207\177_e\005\200\327\250A%DF\221\231\tDD\232\202$\303\030 \204 \244\254\314\003\2614I\025\"\022)H\nJRX\346\227\271\001QKo5\"5nC\352\316sb\222\266\312D\r\375\010\252\027\316\213\375\200\024\245\021\310\262\226\207\374b\277\033\222|}Jl\001\242\032^\356\\\222\222\254\2603\227\233\024\271\222Z\tG\272\315\251\205L\274>v-:~\353\311\241\322)\265\240;\t\277;\022\321Q\201F~\216\000\226%b\221B\\4\234\2531:su\231\224.A\000\004[\234\340\310\343\244Y=\260c\177\351qI\001=\267y: \223!A}_\222\365\263\003\374b\005V6\003\"\006\027\360\324\306\202\035U\263(\223\304\2364_\032\301/\017\211\306i\270\r\271V>\006\000\024\337E\227k\255\220$\357\373l\224@\"\036\336\251\021\340\032\352\300\243\210\252Ar\331P\272m\341\000*\370s\\v\336\302\036t\347\036\364\357\177\350\342o\275D\250\241\030\014f!\373\037\310\304C\014\233\300&\330\307\361N\363C[\216\014\007{\320Z\323\261\376~\221\211>\354X\361\350D[A\236o\275\300\246\202!\345S\352\307\235\242\256xI\r\321\326\177\024\274S$\366R\366\266!\317T=e\343\304\271Y\326\276S\315\006d\204\037 r\327\222\345L\001\022g\324?J\233\343\347\363\322\302\272:M\000+\364\005\020@\275\324G\240f\363\016\026\314\007\020\005\237rZb\343B\225\351\275O\221E\202\3327\375\223^/[\035Fq\002\243\307\320q\227R\324\223\005?^\304L\032R\177\276\020\007\231m\0226\342\026!\324mI5UF\326f\345~\\9\375_c\030\231|\304\351\220jg\227RX\226\216\026\224\035\205\3306j";
+    PyObject *data = __Pyx_DecompressString(cstring, 1381, 3);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1525 bytes) */
-const char* const cstring = "BZh91AY&SYo\017\014?\000\000\224\177\376w\315\266\242\177\357\367W\277\243\377\375\277\377\377\360@@@@@@@@@@@@P\005\215\254/t\353qwis4\332\235\327\220\320\211\243S\004\311\244\331)\372\231\221M\222\032\001\352\0004\320\323G\250\003C#\323Q\352\001\3523Pi\244\000\211\242~\242\237\252bz\214\217P\007\250\003@d\000\000\000\r\000\000\003M\010#HI\372\247\251\351<\241\264\217Q\265\000\001\247\250m@\000\000\0004\006\215\r\003 \003\322\001\246\206\232\000\000\000\000\000\000\032\032\000\320\006\206 %\004 \023H\324\366I=O(\321\220\006\203 \r\000\000\000\000\000\0007\201i\374\030\325\375\344\323\307\310\263\016\000\002@\226@\022\230\343o#u5n>\310\035u\337\216\216\020\233\037\217~\177\314_;lj\256\275#\367y\322al\211';\010\361\252\254\353\254\352\332\225\002\263\274\210\242\035o\336\257=\277/\2350\364\243\010Z\035hdpZ\031\201J\275M\003\177R\222\030P\260F\346@l\316\025\255`\254\304\250\305Y\200pd\262\203\330\322\2356\243n<yN\236E\337\342\310\270k\313#\000\3301C\271 \262\276\t\303n\320w1\316\320\240\266\005\0252 *\315&\220G\216y\334\355[\243.\356RZ\336Kd\217c\325\007\014b\315\340*\364\355@\013\312\230,uAX\2236\273\267\306\026*\355L\215\372na\340\227\243<5)\364p\321\306\234!\355\366\305\211'\222\025x\025\360R\305\017\316\233\"]\364\3325\021N\313\213\0263q*Y\3178\330k\211\023\312\037J\220\264}\207\334V\264\326\"\210\355dB%\n\324!\340\260\345\236q\301\227\237\314\244\243\221\2030\020\213\377\031\3013\337Ww\034'Y\027\203A\\\024P\230\266$\005VQA\233\206\334\241\320\235KT\226x\216#\n\005(\262\244\203U\253\023k\205\230V\010K\3167\335\370\320\030\206\311h\250\033\030\202\376o\037\321A\271\377(Z\0315\253I\300V\013\365\336 \367h\315e\364\256\\\227d\237\030Q\240\211\214\312\366\233%E!\222\361l\006\\Dr$\002\025\024\372\346\003y\261\301\375kY\216\346V\335\033r\355v\300X\0022\327;\020\257r\375\"\213\321\347T\005\020\022Xv\311\004\222\206\035\000J\240\r\325\t8\263\253\366\3522\003\314\241\253\310.\0354?\216T\210Vaa\2250Q\022rn\000\240\331\202\222\304\270\026j6\033\234\320\310 \205\326\026\010%""\030\245\010(P\215\212++\224\r.\22775\231\177\327\003\035\342\235\333\023\305d\301\007\277\033\251\246wE\n\254\306\221 \231$\233\204\032\245\013\002o\275B$=mu\323\372A E]\226u\243\2122\306(\022\262\321\206\252\213\340jB26\334\225H\324\2746AGCzP\266\020\003\020\2642\207Z\031\255\235JC2\261\344_1[\006LB\2673Ae\030%\370\325Kt\000\022\"t\235#I\313\031m\313\255S\006\316'\005\302\026\200\211@\030\n\002\231\262M3\341|\325,.j\352\270\\$7\357\202\0011\304\255\326\tRmAk\005FTML\355v \312\241\234\3742\216\024T\023\002C\234IB_P-\261+~\021\265\206\002\225y\002\017b\006\036\n\206\030\226\350a\26303\021AUe\271 \025\210RR\222\250\203\337\247\243\202\025\274\247\330,\232K\000\277M*\\\226\210\370\242\340\306)\003\234&\272\210WI\024\224)(\032Td\350\270\013\003\220\255\211E\304\223\211\rp\325fD\302\325\210\030\320ob\003\261\347t\242Q\"\227\244\214\2246R*H*\332,\316\001U \020\t\210\317\021P\333\031A\354,\000y\243\352(\0217\010\201\024\000\312\210Bb\215\240\202JJ`\305(\004\247b*A\024p[VZX\354&p\245D\236\322\262{]2\227\252\206Y%`\367\321\013\332\266\006A\373\003$\202\231\354\226\220\261)\266\016H\030,Db\353\002A!7\330v\321\332%\0053\307.\007\313E\010\322!_{\035\267kr\2351QR\371\306\367\333 \235\n5b\317\254\206\2777}D\312\212\026e\254T\034\270JH\004\215\241x\342\020L\007A\n\024W\224\363\227\021\022\235Gxf\223\020\022H0\r\026\007\025.X/\202 \253\r\023\275\204Y\034\226\206\030)`\026\263\245'z\306;\036S\027\264\022\332A\356G>\226\201\247\244\216l\213\256Y\204\260\242)\022`\201\024\2359(B\221\224\312\254\331\224[iL \200\327\306\007y\225\266!Q\027\035\250\214&\372\025\274*\"b\0346\023(Z\004^\254 \224HIDP2qS\021W\222\036.@\270\320Z\3648\003PJ\323dB\nQ\2001C\002f3y\t\013\nF5j\313D*\352p\271u\377D\036 \371\250\245\3044\230]\241y\351q\030\035\224\301\014\200\353+\365\265e\274b\247\305\332\020\3503\245xVi\204+\220\312\355%T;\371\237\021\006\014\027\300S\n\351\031\216\274\\\212\204i\272l\201\200\2246\330\003\244\363\240\244\002\376\013\303\366c\375\233\336\\Y\310\234\353\341\335\366\315\233N\206>""\356\216q\032;\341\300I\177\022\251P\301\206\t\273l\230S\236\302Z\342\000\373\216\027\206\342\222i\251\014\266\214\317\302\265\200\374\347\206\353\202\006\354a\320\0246\316\003\001\301\010\005\336\242;w\230R&\351\021x\026\014\207\356N\001\025 \260\213=\344f\327\333\271\317\3256\016\242\227\235\305\220\303\323\222\037\370\273\222)\302\204\203xxa\370";
-    PyObject *data = __Pyx_DecompressString(cstring, 1525, 2);
+    #elif (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1527 bytes) */
+const char* const cstring = "BZh91AY&SY%s\267O\000\000\224\377\376\177\315\266\242\177\357\367W\277\243\377\375\277\377\377\360@@@@@@@@@@@@P\005\214{\033\234,\235\332\204\035\251\335\274\341\244\0212i\222l\203D\3234#M\r\032\031\000\000\r\0324\r\006\215\006\200h\315A)\244\004h\247\251\264I\204\014\215M\r\036\2404\364F\0022\030@\032\003j\000=F\001\251\350A\032\022O\325=OQ\352\031\352jz\207\250\000\007\222\033P\000\000\000\r\001\240d\320\310\006\214\200i\220h\000\000\000\000\000\032\000\000\001\246\215\014@J\0214\002b\232lBd\236\241\352h\r\000\000\000\000\000\000\000\000+\202\275\360`\377\356\013\327\360$\301@\000;'\210\000p\302\372\370\027}t\250\302\260\240@\201\335v\330>\277\347\341\237\365\006\316\272\371SZp\3744\247 \225@\223\235D9\024Ru\222Tl\306a\025\232$M\307.\306.\233}\276\363\320\353J1\254>\260\262\262\260\266!H!\230o\355\0248\306eD\257+\307\356O\245)\005$#5(\252\003\003\024\213\332\245\214\247\263\013n\273!\323\306\233\375\3364\303\243\267d\003J\230\343\342\321[\375\027\222\344\306\267l_(\341\360\034\232\3260\232\025\265l*\330\276\353\325\325\216\233\0346\t)X\361\210\353c\277\n\3341\2050\007\254\323\204\013\214\363\340\325\005\006%\314H\023E\005Q)\345a\261.E\016\366\352:\313\310`\352\030\352.fB\326\227j\211\335\210\3127\021\332\204\211,:zA\273G\246d\021:\254\204\2107<\220\333\246\363\030\313\250v\226@\364x\345w\330{\211\311<r&\214\345c\221 b@\343\302Q\314<\363\203&^l\343\014j\025@|\033aX\023-\3656\\\371RE\340\257H\202\020P\312DD\235\010\035\375\227\352\020b\250\311\023\346H\200\316 -g\272\327\021x\275V20\327z2SZ\247\227\036f\203\211D\322\035\215\003\377\333'\230\234nw\311\365\005\3734$\200+\005\3347D\016\267R:n\231r\337m\362b\tlD\304euG4\234\230/\270ZA\227\t\025\350\360|\344\336\270\300\330\342o\177[4\342\265\225\266\306\271\223F x\025&e\232\227\364u\365\214y\352\367:\204\300\026M\035h5\230\340\270\303Q\300\261\250A\302\310\256\355N^\016\215CO\030\264rY\374q:!A[\014\251\202X\211\013\344\t\216*:Pl\205\r\330\323\235\277M\202\214\245\202\201F\264\0352\023&Fy\242\243\027\005\217K\235\232""\254\233U\205:(w\252O\031]\201\355~\026;L\357\013\212$\206\221 \230\272+\303\013B\004y7\332\201\002\032\225\261\235\376 \220 \214\251*\\\302j\363\233\rz\204\345\302\346\240\350JtY\343K\232\026\310\343\023E\226T\226r\220n\031\220rX\220\341\340t\324\337xM\0337\232p64\032r\206ouh\333:\235\324s\002\344A\226ib\361\233\206[M\307yQJ\212\202A\007\000i\000\030\004\001.-h\261X\t\311BBb\350\236\321k\037\273v\007\204g\002\207+\322t\310\013@*2\242m\363\265\270C*\206s\216\026\221gb\360\270\370\022L\224\364\20686\234\215\251\342\2339-\244\324\244X\202\365\230+\210\252\312\351\314\014\304H*\2546\243\302\221\t\211\222\023\217u\33250>\207BN\221\215&\242\033;\315e\2543\347\030\003\231\310 p?\"\261\266\331&\234o.\036wlvd\030\022d\3705\237C_TFF\3646\033^/P\324\307\247P\226\256\r\311\337rf\243k\325\240\330(\343\203\272BxmB\021\004\356\201\002S:\363.3T\224qP\0025h\364\034&\261D\221`T\263!\2713\322!$\324\250\246\326\010\344b%\036\2128\026\245\206Ki#\326xN\242KYI-nH\313\325CZ\t@:\371_{P\300\310;\2562@&\222\230d\026\"j\236\342\000\301J#\026\322*\212\242nk\315%\2519>\372L\370!.4S\"\215\013\235\026\273\337\231r\230L+\t\244\272\025@$B]13\266P\341\362\367R\306\250\241NZ\005A\305\242L< j\227\016\020z`9\350J\242\272\022HZD$\332\\\347\346\203\017\022\0100\r\023\002\202\352\352\027\301\017D~\344\342|\025\314J\277\013\320\250\tI\322\2135\"\352\2322\027\265\333;RriN\330\207'q\245\033\224\262{\306\3013:.\201DZ\373t\231\016\215\023E\031\263 \266\322\354 \200\267\306\006i\024\266\001\034\344\272\3279D\233B\226}\004HK\243\002\364\312!Y\274\020\2235.r\254B\372\272\251\246i\0232a\3651\214\331k\021b\354V\025\030\265\240\020r\003o\253\346\206\246\t\253]1{\266\307}\337_I\307\332\013\020`\310&\350\213\306\tpLY\272&\003L\363\331\210\r8\246\316]%\304`\363\002T\226\\ft\242\265\2161\n 2\271\240\252\207{3\260\217`\301s\305+\\fc\255\023\211!\356TS\302c@\354\314(\325\240\332\003\233\316\346\037\352<\236?\265\270\277Fip\363\373\277V\256_\t_\356\340\347e\316Q\027\364\227\360\025\t\306\030\211\233l\031\311\301\"Y\342""\030}\307\000\257\r\306\324i\240\231m\031\237\206k\001\371\317\r\331\004&\353\341\320\0246\316\003\010\340\004\to\250\216\335\345\0274\335\".\t[\024?q\361\003\234\202\300,\367\314\231\225\327\335\263Q\370\324+\"\207B\211 \212\255\265\376.\344\212p\241 J\347n\236";
+    PyObject *data = __Pyx_DecompressString(cstring, 1527, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1369 bytes) */
-const char* const cstring = "x\332\205U\315o\023G\024\027\025\245\221\212\212@\255P\017\225\006\332b\020\260\020\224\"T\245\251B>\252\034\n\004\002\004\250\030\215g\336\332Cvg63\263\211\315\211c\216>\372\350\243\217{\364\321G\037\367\350?\247of\327N\010\320\036\354};\363>\177\357\367\336\376N\036\346q\014\206\034H8$B\203%J;\002\235L[ \326\031)\300\2561E\264J\272\204\033`\016\010#\315\312\310\265\231#\322\022\256\225\223\255\\\347\226HERH\265\351Fh\345]1keK\021\247\t\032\213\333\301O\245\341C\326J\265\343C#\035k&P+TI\305F\247\377e+\225\200\0169\224\256M\\7\003\322\250\317\235a\312\2062\216M*5\264\220\006\270#B\246\240\254\324\312\256\317$\362\253\360\025y\007\225\322F\232\271.\261m\206\256]\236ar\2616\204w][\253\210\031\303\272[\237\272\013\3666\3172m\034\210-u\300\022)H\252\005\334\362\330\2422\010\322\340\r\202\256\032\350\317\347\332\270EZh5S\256\"\"\234\254\203\371,\377\035jx\341k\3201y\244\021\255\200\376ZH\304\247, \221M0\210#\242\344;\207AB\213\024y\262\361\344\366\322\203%\302\224@$\337ax\213\3315y\202\315\301\216\243\303f.\023\207\301<\2026\"[1\351\352\234(\3004\261s\031\352\2354pmP\304\202\363\002i\004\270\231\303\272)\232K\325j\324\320\311\003\360\326\233,\261\020=\316]\010\244s%0\244\232q\210q\016\350\375z(\363\271\n\355G#\244\324\001\030\354\256\203\324\277\353\246O;Zi\334\370\223\tA\225\007\300\227C\020\203\273\035\256\223\304\007D\350#\326\344\313'\010\351\225\252tVN\037\317x\260\"\244\365q!Doqr\3357\242\025(\340s\304\222\260k\016\224\013\374\236\267\031Q\257L\204\317\322\312\367@\226\377 w?!H*\rk\301\035\316\022~'f\326Qg\000\242\254\333Q\032\273\026\263<q\204R\003\"\347@)\021y@@iu\033\273x Y\202\267\\*\351(Uy\232u#\312\265\201(E;\031\002\220\230\311\244j\225L=\347N\252\345)C\316\237\326\250\001]Y\256f\\|\204\323\247g\236\250s\270>\272\237\237\346\363\336\261$\321<,\212\220\234`\216E\237\271\255\030\356}\324{&Z}\266\266\265\265\221$2\263\322n\"R;\010\324\354\031\035C4?j2\307\3334e-%c\311+\016r\r1\276H\337\256S\212\231\226xH%*I\303\223c\327_\3640\327\370\242\351~\016\246K\261NK""\351\223n\007\177\3538y\364\021\022\346)\304\317\000\357\025\007?\270\321\361\014#Gg0\320j\016(\255\307\010\313c\246e\231\255\327B\300\220\331\256\342RG\330P\235\343\234\202m2\013\377W\375\347\213\306yS\270\031l\375\240~/\"\277\374hS:\023Z\340<\247\375+F\363\306\230\013\307\210|\217\343\004;\336\341]\337WJ\205\257\226\n\2778\302\037\225\226V\334\302\272q\341\001r1l%0F\2338a-\033'\232\271\373K\365\203:\024\360F\033$j]4\245q\256\270O\007\023\261\025*R\n\374\013\344\305\247_\372\236z\270<\260<\364\202a\347\350\310\031x\325\\\326\303\271w\350\201M\200\305\324\277~\0217\212\220b\301\324\317\r~:<>\325\004G~\202\243\371\004\373u\216ZZ\344\t>\025K\217\377E\350\032\246\207\010*\017\257\312\302H\"0\031B\2301\374\320ui&\371^\002\247\373\223\351\214R\\\016\224\267\201\357\331<\255\336j\024\274\030`\016R\256*\037tC\315\364\016\302\027\324C\267\237\263\244\312\347\230\243\346x\210\346R\265\252N\034@\307\213-i\221\037\006\361\207$\246\024\327}]\035J\365\326\nr\235\330\ty\3460\014\270\207\332f\211t\026/\rj@f\235\306\237\311=q\034 \232\276\016\204%\317\220R\200\237\277\034l\347\303\231\351\331o\217\036\364\356\365v\373\333\037V\247\0137\206\227\206\017\212{\305\313\321\346\370\312xi|8\211\313\235\347\345\363\027\323\205\337\212\355\351\302\371\243\315\336\235\301\305\301\225\301\362p\277\370\252\370\271\330\031]\036\237\033\263\261\235\\\235\374U>{U\276z]\276~[\276e%k\226M(!.cY\312w\323\205\013G\373>\304/\203\365\341\2712Z\033/\216\327'g'k\223\375\351\302R\361\260h\217\232\343o\306\371d\263|\272[\356\242\2237>\334F\357\207\036\353\331~c\360\303\200M\317\243\217\336\327\275\227\375\325\376\366\334\341\265As\270P\234).\217\316\215\330\310\215\357O.M\026\247\013\367\212+!\337\362\322\315\341\342pu\370\317\350\342\350\352h\035c\034L\266'\242|\352\313*_T\t\277\231{\373\356H\364\256\365/\014\366\207g\207\353\305\231\371\371\205#\327\273_\376\210^\213\245\302\215\026\253\263\367\375\357\373\273\203\235\341O\205\030\335\034\357L.>\376\027\231\200\351\222";
-    PyObject *data = __Pyx_DecompressString(cstring, 1369, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1373 bytes) */
+const char* const cstring = "x\332\205U\315o\023G\024W[J-\025\025\201\212P\017\225\006\332b\020\260\020\224\"T\245\251B>\252\034\n\004\002\004\250\030\215g\336\332\323\354\316lff\023\233\023\307\034}\314\321G\037\367\350\243\217>\356\321\177N\337\314\256\235\020\240=\330\373v\346}\376\336\357\275\375\215<\314\343\030\014\331\227p@\204\006K\224v\004\272\231\266@\2543R\200]e\212h\225\364\0107\300\034\020FZ\225\221\3530G\244%\\+'\333\271\316-\221\212\244\220j\323\213\320\312\273b\326\312\266\"N\0234\026\267\203\237J\303\207\254\225j\307\007F:\326J\240V\250\222\212\215N\377\313V*\001]r ]\207\270^\006\244Y\237;\303\224\re\034\233Tjh!\rpG\204LAY\251\225]\233I\344\027\341+\362\016*\245\3654s=b;\014]\273<\303\344bm\010\357\271\216V\0213\206\3656?v\027\354m\236e\3328\020\233j\237%R\220T\013\270\345\261Ee\020\244\311\233\004]5\321\237\317\265y\213\264\321j\246\\ED8Y\027\363Y\372+\324\360\302\327\240c\362H#Z\001\375\325\220\210OY@\"[`\020GD\311w\016\203\204\026)\362d\375\311\355\305\007\213\204)\201H\376\203\341-f\327\342\t6\007;\216\016[\271L\034\006\363\010\332\210l\306\244\247s\242\000\323\304\316e\250w\322\300u@\021\013\316\013\244\031\340f\016\353\246h.U\273YC'\367\301[o\260\304B\3648w!\220\316\225\300\220j\306!\3069\240\367\353\241\314\347*\264\037\215\220R\373`\260\273\016R\377\256[>\355h\271y\343\017&\004U\036\000_\016A\014\356v\271N\022\037\020\241\217X\213/\235 \244W\252\322Y>}<\343\301\262\220\326\307\205\020\275\315\311u\337\210v\240\200\317\021K\302\2569P.\360{\336fD\2752\021>K+\337\001Y\372\235\334\375\210 \2514\254\rw8K\370\235\230YG\235\001\210\262^Wi\354Z\314\362\304\021J\r\210\234\003\245D\344\001\001\245\325m\354\342\276d\t\336r\251\244\243T\345i\326\213(\327\006\242\024\355d\010@b&\223\252U2\365\234;\251\226\247\0149\177Z\243\006ty\251\232q\361\001N\037\237y\242\316\341\372\340~~\232\317{\307\222D\363\260(Br\2029\026}\342\266b\270\367Q\357\231h\345\331\352\346\346z\222\310\314J\273\201Hm#P\263gt\014\321\374\250\305\034\357\320\224\265\225\214%\2578\3105\304\370\"}\273N)fZ\342!\225\250$""\rO\216]\177\326\303\\\343\263\246{9\230\036\305:-\245Oz]\374\255\341\344\321GH\230\247\020?\003\274W\034\374\340F\3073\214\034\235\301@\2539\240\264\036#,\217\231\266e\266^\013\001Cf{\212K\035aCu\216s\n\266\305,\374_\365\237.\032\347M\341f\260\365\203\372\275\210\374\362\243M\351Lh\203\363\234\366\257\030\315\033c.\034#\362]\216\023\354x\227\367|_)\025\276Z*\374\342\010\177TZZq\013\353\306\205\007\310\305\260\225\300\030m\342\204\265m\234h\346\356/\326\017\352P\300\033m\220\250u\321\224\306\271\342>\035L\304V\250H)\360/\220\027\237~\351{\352\341\362\300\362\320\013\206\235\243#g\340UsY\017\347\356\201\0076\001\026S\377\372Y\334(B\212\005S?7\370\351\360\370T\023\034\371\t\216\346\023\354\3279ji\221'\370T,=\376\027\241k\230\036\"\250<\274*\013#\211\300d\010a\306\360C\327\243\231\344\273\t\234\356O\2463Jq9P\336\001\276k\363\264z\253Q\360b\2009H\271\252|\320u5\323\333\017_P\017\335^\316\222*\237c\216\232\343!\232K\325\252:q\000]/\266\245E~\030\304\037\222\230R\\\367uu(\325[+\310ub'\344\231\3030\340\036j\233%\322Y\2744\250\001\231u\032\177&\367\304q\200h\372:\020\226<CJ\001~\376r\260\335\367_L\317|{\370\240\177\257\277s\264\365~e\332\2701\2748|P\334+^\2166\306W\306\213\343\203I\\n?/\237\277\2306~-\266\246\215s\207\033\375;\203\013\203+\203\245\341^\361e\361S\261=\272<>;fc;\271:\371\263|\366\252|\365\272|\375\266|\313J\326*[PB\\\306\262\224i\231\252i\343\374\341\236\217\362\363`mx\266\214V\307\013\343\265\311\231\311\352do\332X,\036\026\235Qk\374\3158\237l\224Ow\312\035\364\363\306G\\\357_\352\263\276=j\016.\r\330\364\034\372\350\177\335\177y\264r\2645wxm\320\0326\212/\212\313\243\263#6r\343\373\223\213\223\205i\343^q%\244\\^\2749\\\030\256\014\377\036]\030]\035\255a\214\375\311\326D\224O}e\345\213*\3477so\337\035\212\376\265\243\363\203\275\341\231\341Z\361U\2610\2779\177\350\372\367\313\037\320o\261X\270\321Bu\366\356\350\373\243\235\301\366\360\307B\214n\216\267'\027\036\377\013\220\244\354#";
+    PyObject *data = __Pyx_DecompressString(cstring, 1373, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (2541 bytes) */
-const char* const bytes = ": Buffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsDimension %d is not directEmpty shape tuple for cython.arrayIndirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Unable to convert item to object.>')?add_note and  at 0xcollections.abc<contiguous and direct><contiguous and indirect>disableenablegc (got got differing extents in dimension isenableditemsize <= 0 for cython.arraymirage/calc/fast_tree.pyxno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object><strided and direct><strided and direct or indirect><strided and indirect>unable to allocate array data.unable to allocate shape and strides.ASCIIEllipsisFastTreeFastTree.__reduce__FastTree.batch_magnification_coefficientsFastTree.batch_points_in_circleFastTree.magnification_coefficientFastTree.points_in_circleFastTree.query_rays__Pyx_PyDict_NextRefSequenceView.MemoryViewabcallocate_buffer__annotate__argsasfortranarrayasyncio.coroutinesbasebatch_magnification_coefficientsbatch_points_in_circleccenterscenters_view__class____class_getitem__cline_in_tracebackcountcxcydata__dict__dtypedtype_is_objectencodeenumerateerrorflagsfloat64float64_tfloorformatfortran__func____getstate__iid__import__indexindicesint64_is_coroutineisfortranitemsitemsizekwargsleaf_sizemagnification_coefficient__main__mathmemviewmirage.calc.fast_treemode__module__name__name__ndarrayndim__new__npnumpyobjpackparity_picklepoints_in_circlepop__pyx_checksum__pyx_state__pyx_type__pyx_unpickle_Enum__py""x_vtable____qualname__query_raysr__reduce____reduce_cython____reduce_ex__registerretself__set_name__setdefault__setstate____setstate_cython__shapesizesplitsstartstepstopstruct__test__unpackupdatevaluesx\200\001\330\004\013\2108\2202\220X\230Q\200A\330\010)\250\022\2508\2602\260W\270F\300!\3004\300w\310f\320TU\320UV\330\0105\260Q\330\010\014\210F\220/\240\021\240!\240<\250q\260\002\260#\260T\270\027\300\006\300a\300s\310\"\310G\320SY\320YZ\320Z^\320^a\320ab\320be\320ef\320fi\320ij\330\010\017\210q\200A\330\010$\240D\250\006\320.C\3001\300D\310\004\310C\310q\330\0104\260B\260h\270b\300\007\300u\310F\320RX\320XZ\320Z[\330\010\014\210E\220\025\220a\220s\230'\240\025\240a\330\014\017\210q\220\005\220W\230A\230Q\330\010\017\210q\200A\330\010&\240b\250\010\260\001\260\027\270\006\270a\270t\3006\310\022\3101\330\0102\260!\330\010\014\210F\320\022+\2501\250A\250\\\270\021\270\"\270D\300\007\300v\310Q\310d\320RU\320UV\320VY\320YZ\320Z[\330\010\017\210q\200A\330\010\016\210d\220&\230\017\240q\250\004\250D\260\001\330\010\017\210q\200A\330\010\017\210t\2206\320\0312\260!\2604\260t\2701\200A\330\010\017\210z\230\024\230X\240T\250\035\260d\270+\300T\310\021O";
+    #else /* compression: none (2546 bytes) */
+const char* const bytes = ": Buffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsDimension %d is not directEmpty shape tuple for cython.arrayIndirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Unable to convert item to object.>')?add_note and  at 0xcollections.abc<contiguous and direct><contiguous and indirect>disableenablegc (got got differing extents in dimension isenableditemsize <= 0 for cython.arraymirage/calc/fast_tree.pyxno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object><strided and direct><strided and direct or indirect><strided and indirect>unable to allocate array data.unable to allocate shape and strides.ASCIIEllipsisFastTreeFastTree.__reduce__FastTree.batch_magnification_coefficientsFastTree.batch_points_in_circleFastTree.magnification_coefficientFastTree.points_in_circleFastTree.query_rays__Pyx_PyDict_NextRefSequenceView.MemoryViewabcallocate_buffer__annotate__argsasfortranarrayasyncio.coroutinesbasebatch_magnification_coefficientsbatch_points_in_circleccenterscenters_view__class____class_getitem__cline_in_tracebackcountcxcydata__dict__dtypedtype_is_objectencodeenumerateerrorflagsfloat64float64_tfloorformatfortran__func____getstate__iid__import__indexindicesint64_is_coroutineisfortranitemsitemsizekwargsleaf_sizemagnification_coefficient__main__mathmemviewmirage.calc.fast_treemode__module__name__name__ndarrayndim__new__npnumpyobjpackparity_picklepoints_in_circlepop__pyx_checksum__pyx_state__pyx_type__pyx_unpickle_Enum__py""x_vtable____qualname__query_raysr__reduce____reduce_cython____reduce_ex__registerretself__set_name__setdefault__setstate____setstate_cython__shapesizesplitsstartstepstopstruct__test__unpackupdatevaluesx\200\001\330\004\013\2108\2202\220X\230Q\200A\330\010)\250\022\2508\2602\260W\270F\300!\3004\300w\310f\320TU\320UV\330\0105\260Q\330\010\014\210F\220/\240\021\240!\240<\250q\260\002\260#\260T\270\027\300\006\300a\300s\310\"\310G\320SY\320YZ\320Z^\320^a\320ab\320be\320ef\320fi\320im\320mn\330\010\017\210q\200A\330\010$\240D\250\006\320.C\3001\300D\310\004\310C\310q\330\0104\260B\260h\270b\300\007\300u\310F\320RX\320XZ\320Z[\330\010\014\210E\220\025\220a\220s\230'\240\025\240a\330\014\017\210q\220\005\220W\230A\230Q\330\010\017\210q\200A\330\010&\240b\250\010\260\001\260\027\270\006\270a\270t\3006\310\022\3101\330\0102\260!\330\010\014\210F\320\022+\2501\250A\250\\\270\021\270\"\270D\300\007\300v\310Q\310d\320RU\320UV\320VY\320YZ\320Z[\330\010\017\210q\200A\330\010\016\210d\220&\230\017\240q\250\004\250D\260\003\2601\330\010\017\210q\200A\330\010\017\210t\2206\320\0312\260!\2604\260t\2701\200A\330\010\017\210z\230\024\230X\240T\250\035\260d\270+\300T\310\021O";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -23403,13 +23419,13 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 34};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_cx, __pyx_mstate->__pyx_n_u_cy, __pyx_mstate->__pyx_n_u_r, __pyx_mstate->__pyx_n_u_ret};
-    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_fast_tree_pyx, __pyx_mstate->__pyx_n_u_points_in_circle, __pyx_mstate->__pyx_kp_b_iso88591_A_d_q_D_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {5, 0, 0, 6, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 34};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_cx, __pyx_mstate->__pyx_n_u_cy, __pyx_mstate->__pyx_n_u_r, __pyx_mstate->__pyx_n_u_parity, __pyx_mstate->__pyx_n_u_ret};
+    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_fast_tree_pyx, __pyx_mstate->__pyx_n_u_points_in_circle, __pyx_mstate->__pyx_kp_b_iso88591_A_d_q_D_1_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 38};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_centers, __pyx_mstate->__pyx_n_u_r, __pyx_mstate->__pyx_n_u_ret, __pyx_mstate->__pyx_n_u_centers_view};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 6, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 38};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_centers, __pyx_mstate->__pyx_n_u_r, __pyx_mstate->__pyx_n_u_parity, __pyx_mstate->__pyx_n_u_ret, __pyx_mstate->__pyx_n_u_centers_view};
     __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_mirage_calc_fast_tree_pyx, __pyx_mstate->__pyx_n_u_batch_points_in_circle, __pyx_mstate->__pyx_kp_b_iso88591_A_82WF_4wfTUUV_5Q_F_q_T_as_GSYYZ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
   }
   {

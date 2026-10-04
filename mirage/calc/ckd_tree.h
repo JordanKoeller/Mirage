@@ -1,6 +1,7 @@
 #ifndef MIRAGE_CALC_CKD_TREE_H_
 #define MIRAGE_CALC_CKD_TREE_H_
 
+#include <cmath>
 #include <functional>
 #include <iostream>
 #include <memory>

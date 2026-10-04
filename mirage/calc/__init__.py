@@ -1,6 +1,6 @@
 import logging
 
-from .kd_tree import FastKdTree as KdTree, PyKdTree, FastKdTree
+from .kd_tree import FastKdTree as KdTree
 
 from .ray_tracer import RayTracer
 from .reducer import Reducer
@@ -12,8 +12,6 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
   "KdTree",
-  "PyKdTree",
-  "FastKdTree",
   "RayTracer",
   "Reducer",
   "Engine",

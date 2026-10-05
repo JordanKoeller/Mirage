@@ -56,9 +56,14 @@ class _CpuTracerFn(_TracerFn):
     star_mass: np.ndarray,
     star_pos: np.ndarray,
   ) -> np.ndarray:
-    from mirage.calc.tracers.micro_tracer_helper import trace
+    from mirage.calc.tracers.micro_tracer_helper import (
+      trace_bruteforce,
+      trace_gravity_tree,
+    )
 
-    return trace(rays, kap, gam, star_mass, star_pos, self.compute_parity, True)
+    if self.compute_parity:
+      return trace_bruteforce(rays, kap, gam, star_mass, star_pos, True, True)
+    return trace_gravity_tree(rays, kap, gam, star_mass, star_pos)
 
 
 class _CudaTracerFn(_TracerFn):

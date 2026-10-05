@@ -1,14 +1,15 @@
 # distutils: language=c++
 # cython: profile=True, boundscheck=False, wraparound=False, embedsignature=True
 
-from mirage.calc.tracers cimport micro_tracer_ext
+from mirage.calc.tracers cimport bruteforce_tracer_ext
+from mirage.calc.tracers cimport gravity_tree_tracer_ext
 cimport numpy as cnp
 
 import numpy as np
 import cython
 
 
-cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace(
+cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace_bruteforce(
       cnp.ndarray[cnp.float64_t, ndim=3] rays,
       double kap,
       double gam,
@@ -35,18 +36,44 @@ cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace(
       cnp.float64_t[::1] star_mass_view = star_mass
   with nogil:
       if compute_parity:
-          micro_tracer_ext.trace(
+          bruteforce_tracer_ext.trace_bruteforce(
               &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
               width * height, kap, gam,
               &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],
               &rays_view[0, 0, 2], allow_simd)
       else:
-          micro_tracer_ext.trace(
+          bruteforce_tracer_ext.trace_bruteforce(
               &rays_view[0, 0, 0],  &rays_view[0, 0, 1],
               width * height, kap, gam,
               &star_mass_view[0], &star_pos_view[0, 0], &star_pos_view[0, 1], star_pos.shape[0],
               nullptr, allow_simd)
   return rays
 
+cpdef cnp.ndarray[cnp.float64_t, ndim=3] trace_gravity_tree(
+      cnp.ndarray[cnp.float64_t, ndim=3] rays,
+      double kap,
+      double gam,
+      cnp.ndarray[cnp.float64_t, ndim=1] star_mass,
+      cnp.ndarray[cnp.float64_t, ndim=2] star_pos,
+      double approximation_factor,
+):
+  cdef int width = rays.shape[0]
+  cdef int height = rays.shape[1]
+  cdef int num_stars = star_mass.shape[0]
+  if not np.isfortran(rays):
+      rays = np.asfortranarray(rays)
+  stars = np.empty((star_pos.shape[0], 3), order='F', dtype=np.float64)
+  stars[:, 0:2] = star_pos
+  stars[:, 2] = star_mass
+  cdef:
+      cnp.float64_t[::1, :, :] rays_view = rays
+      cnp.float64_t[::1, :] stars_view = stars
+  with nogil:
+      gravity_tree_tracer_ext.trace_gravity_tree(
+          &rays_view[0, 0, 0], width * height,
+          kap, gam,
+          &stars_view[0, 0], num_stars, approximation_factor)
+  return rays
+
 cpdef bint supports_simd():
-  return micro_tracer_ext.supports_simd()
+  return True

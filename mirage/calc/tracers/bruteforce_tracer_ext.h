@@ -208,16 +208,16 @@ inline void trace_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
     }
   }
 
-  delete[] stars_x_buf;
-  delete[] stars_y_buf;
-  delete[] stars_m_buf;
+  std::free(stars_x_buf);
+  std::free(stars_y_buf);
+  std::free(stars_m_buf);
 }
 #endif
 
 // Trace the provided rays. The input rays_x and rays_y are out parameters. The
 // traced rays are written back to these buffers.
 //
-void trace(Float *rays_x, Float *rays_y, std::size_t num_rays, Float kap,
+void trace_bruteforce(Float *rays_x, Float *rays_y, std::size_t num_rays, Float kap,
            Float gam, Float *stars_m, Float *stars_x, Float *stars_y,
            std::size_t num_stars, Float *mag, int allow_simd) {
 
@@ -230,11 +230,4 @@ void trace(Float *rays_x, Float *rays_y, std::size_t num_rays, Float kap,
 #endif
   trace_no_simd(rays_x, rays_y, num_rays, kap, gam, stars_x, stars_y, stars_m,
                 num_stars, mag);
-}
-
-bool supports_simd() {
-#ifdef using_simd
-  return true;
-#endif
-  return false;
 }

@@ -29,7 +29,7 @@ class PointLensTracer(RayTracer):
     ys[:, :, 0] = xs[:, :, 0]
     ys[:, :, 1] = xs[:, :, 1]
     ys[:, :, 2] = rs_norm.value - 1.0
-    ys[:, :, 2] = ys[:, :, 2] / np.abs(ys[:, :, 2])
+    ys[:, :, 2] = ys[:, :, 2]
     ys[:, :, 0] -= deflection_factor * xs[:, :, 0] / rs
     ys[:, :, 1] -= deflection_factor * xs[:, :, 1] / rs
 

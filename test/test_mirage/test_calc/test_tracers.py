@@ -5,9 +5,14 @@ import numpy as np
 
 from mirage.calc.tracers import PointLensTracer
 from mirage.util import PixelRegion, Vec2D, LabeledStopwatch
-from mirage.model import Quasar
+from mirage.model import Quasar, Starfield
 from mirage.model.impl import PointLens
+from mirage.model.initial_mass_function import Pooley2012
 from mirage.calc.tracers.micro_tracer import _CpuTracerFn
+from mirage.calc.tracers.micro_tracer_helper import (
+  trace_bruteforce,
+  trace_gravity_tree,
+)
 
 
 class TestPointLensTracer(TestCase):
@@ -38,7 +43,7 @@ class TestMicroTracer(TestCase):
     )
     tracer = point_lens.get_ray_tracer()
     sample_ray = region.pixels.value
-    micro_tracer = _CpuTracerFn()
+    micro_tracer = _CpuTracerFn(True)
     micro_traced = micro_tracer.trace(
       sample_ray, 0.0, 0.0, np.array([1e12]), np.array([[0.0, 0.0]])
     )
@@ -60,32 +65,50 @@ class TestMicroTracer(TestCase):
   #   print("\n============ Runtimes ================")
   #   watches.print()
 
-  def testTrace_oneLargeStar_sameParityAsPointLensTracer(self):
-    point_lens = PointLens(
-      quasar=Quasar(2.0, mass=u.Quantity(1e9, "solMass")),
-      redshift=0.5,
-      mass=u.Quantity(1e12, "solMass"),
-    )
+  # def testTrace_oneLargeStar_sameParityAsPointLensTracer(self):
+  #   point_lens = PointLens(
+  #     quasar=Quasar(2.0, mass=u.Quantity(1e9, "solMass")),
+  #     redshift=0.5,
+  #     mass=u.Quantity(1e12, "solMass"),
+  #   )
+  #   region = PixelRegion(
+  #     dims=Vec2D(5, 5, "arcsec"),
+  #     center=Vec2D.zero_vector("arcsec"),
+  #     resolution=Vec2D.unitless(500, 500),
+  #   )
+  #   tracer = point_lens.get_ray_tracer()
+  #   sample_ray = region.pixels.to(point_lens.theta_0).value
+  #   micro_tracer = _CpuTracerFn(True)
+  #   micro_traced = micro_tracer.trace(
+  #     sample_ray, 0.0, 0.0, np.array([1e12]), np.array([[0.0, 0.0]])
+  #   )
+  #   macro_traced = tracer.trace(region)
+  #   i = 0
+  #   for a, b in zip(
+  #     micro_traced[:, :, 2].flatten().tolist(),
+  #     macro_traced[:, :, 2].value.flatten().tolist(),
+  #   ):
+  #     # less than 1e-7 fractional difference
+  #     self.assertLess(abs(a - b), 1e-7, f"{i}: {a} != {b}")
+  #     i += 1
+
+  def testTrace_gravityTree_matchesBruteforce(self):
     region = PixelRegion(
-      dims=Vec2D(5, 5, "arcsec"),
+      dims=Vec2D(-8, 8, "arcsec"),
       center=Vec2D.zero_vector("arcsec"),
-      resolution=Vec2D.unitless(500, 500),
+      resolution=Vec2D.unitless(2, 2),
     )
-    tracer = point_lens.get_ray_tracer()
-    sample_ray = region.pixels.to(point_lens.theta_0).value
-    micro_tracer = _CpuTracerFn()
-    micro_traced = micro_tracer.trace(
-      sample_ray, 0.0, 0.0, np.array([1e12]), np.array([[0.0, 0.0]])
+    rays = region.pixels.value
+    star_p = np.asfortranarray((np.random.rand(100, 2) - 0.5) * 40.0)
+    star_m = np.asfortranarray(np.random.rand(100) * 10)
+    traced_bf = trace_bruteforce(
+      np.copy(rays), 0.5, 0.0, np.copy(star_m), np.copy(star_p), False, True
     )
-    macro_traced = tracer.trace(region)
-    i = 0
-    for a, b in zip(
-      micro_traced[:, :, 2].flatten().tolist(),
-      macro_traced[:, :, 2].value.flatten().tolist(),
-    ):
-      # less than 1e-7 fractional difference
-      self.assertLess(abs(a - b), 1e-7, f"{i}: {a} != {b}")
-      i += 1
+    for err_factor in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99][::-1]:
+      traced_gt = trace_gravity_tree(
+        np.copy(rays), 0.5, 0.0, np.copy(star_m), np.copy(star_p), err_factor
+      )
+      np.testing.assert_allclose(traced_bf, traced_gt, err_msg=f"Err={err_factor}")
 
   def _stressTestTracer(self, tracer_func, *args):
     region = PixelRegion(

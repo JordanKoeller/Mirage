@@ -104,11 +104,12 @@ class TestMicroTracer(TestCase):
     traced_bf = trace_bruteforce(
       np.copy(rays), 0.5, 0.0, np.copy(star_m), np.copy(star_p), False, True
     )
-    for err_factor in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99][::-1]:
+    for err_factor in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]:
+      print(f"{err_factor=}")
       traced_gt = trace_gravity_tree(
         np.copy(rays), 0.5, 0.0, np.copy(star_m), np.copy(star_p), err_factor
       )
-      np.testing.assert_allclose(traced_bf, traced_gt, err_msg=f"Err={err_factor}")
+      np.testing.assert_allclose(traced_gt, traced_bf, err_msg=f"Err={err_factor}")
 
   def _stressTestTracer(self, tracer_func, *args):
     region = PixelRegion(

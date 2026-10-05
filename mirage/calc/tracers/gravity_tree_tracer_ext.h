@@ -266,14 +266,13 @@ inline void GravityTree::CreateTree() {
 
     if (node.end_ind - node.start_ind <= leaf_sz_ ||
         node.start_ind == node.end_ind) {
-      // std::cout << "Node [" << node.start_ind << ", " << node.end_ind
-      //           << ") sufficiently split\n";
+      std::cout << "Node [" << node.start_ind << ", " << node.end_ind
+                << ") sufficiently split\n";
       continue;
     }
 
     double vert_split = (node.x_max + node.x_min) / 2.0;
     double horz_split = (node.y_max + node.y_min) / 2.0;
-    // top-left, top-right, bottom-left, bottom-right
     size_t n_i = nodes_.size();
     // std::cout << "Partitioning node tb  " << n << "\n";
     size_t tb_indsplit = Partition(node.start_ind, node.end_ind, horz_split, 1);
@@ -281,10 +280,9 @@ inline void GravityTree::CreateTree() {
     size_t tlr_indsplit = Partition(tb_indsplit, node.end_ind, vert_split, 0);
     // std::cout << "Partitioning node blr " << n << "\n";
     size_t blr_indsplit = Partition(node.start_ind, tb_indsplit, vert_split, 0);
-    // std::cout << "partitions [" << node.start_ind << ", " << node.end_ind
-    //           << ") tb " << tb_indsplit << " tlr_indsplit " << tlr_indsplit
-    //           << " blr_indsplit " << blr_indsplit << "\n";
-    // std::cout << "Partitioned node " << n << "\n";
+    std::cout << "partitions [" << node.start_ind << ", " << node.end_ind
+              << ") tb " << tb_indsplit << " tlr_indsplit " << tlr_indsplit
+              << " blr_indsplit " << blr_indsplit << "\n";
     uint8_t num_children = 0;
 
     // bottom-left

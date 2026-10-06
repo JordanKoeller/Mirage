@@ -1,15 +1,15 @@
 #ifndef MIRAGE_CALC_GRAVITY_TRACER_TREE_H_
 #define MIRAGE_CALC_GRAVITY_TRACER_TREE_H_
 
-#include <cstdint>
-#define ELEM_SZ 3
-
 #include <array>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <queue>
 #include <vector>
+
+#define ELEM_SZ 3
 
 void trace_gravity_tree(double *rays, size_t num_rays, double kap, double gam,
                         double *stars, std::size_t num_stars,
@@ -68,6 +68,8 @@ private:
   // Computes Center of mass and moments of a node.
   void ComputeMoments(Node &node);
 
+  size_t DeflectHelper(size_t n, const double *ray, double *out) const;
+
   // Computes the deflection of a ray from a node using the node
   // multipole expansion.
   //
@@ -102,23 +104,26 @@ private:
   // This should be a number between 0 and 1.
   double approximation_factor2_;
 
-  size_t leaf_sz_ = 4;
+  size_t leaf_sz_ = 16;
   std::vector<Node> nodes_;
 };
 
 inline void GravityTree::ComputeMoments(Node &node) {
-  for (size_t i = node.start_ind; i < node.end_ind; i++) {
-    double sx = buf_[i];
-    double sy = buf_[i + sz_];
-    if (sx > node.x_max || sx < node.x_min) {
-      std::cout << "#### x OOB " << sx << "not in [" << node.x_min << " "
-                << node.x_max << "] \n";
-    }
-    if (sy > node.y_max || sy < node.y_min) {
-      std::cout << "#### y OOB " << sy << "not in [" << node.y_min << " "
-                << node.y_max << "] \n";
-    }
+  if (node.end_ind - node.start_ind < leaf_sz_ / 2) {
+    return;
   }
+  // for (size_t i = node.start_ind; i < node.end_ind; i++) {
+  //   double sx = buf_[i];
+  //   double sy = buf_[i + sz_];
+  //   if (sx > node.x_max || sx < node.x_min) {
+  //     std::cout << "#### x OOB " << sx << "not in [" << node.x_min << " "
+  //               << node.x_max << "] \n";
+  //   }
+  //   if (sy > node.y_max || sy < node.y_min) {
+  //     std::cout << "#### y OOB " << sy << "not in [" << node.y_min << " "
+  //               << node.y_max << "] \n";
+  //   }
+  // }
   node.com_x = 0.0;
   node.com_y = 0.0;
   node.com_m = 0.0;
@@ -133,12 +138,6 @@ inline void GravityTree::ComputeMoments(Node &node) {
 
   node.com_x = node.com_x / node.com_m;
   node.com_y = node.com_y / node.com_m;
-
-  // std::cout << "Center =" << node.com_x << " " << node.com_y
-  //           << "; Midpt =" << (node.x_max + node.x_min) / 2.0 << " "
-  //           << (node.y_max + node.y_min) / 2.0 << " RangeX = [" << node.x_min
-  //           << " " << node.x_max << "] RangeY = [" << node.y_min << " "
-  //           << node.y_max << "]\n";
 
   for (size_t i = 0; i < 7; i++) {
     node.as[i][0] = 0.0;
@@ -160,6 +159,7 @@ inline void GravityTree::ComputeMoments(Node &node) {
       d2[j + 1] = d2[j] * d2[1];
     }
 
+    // Arithemtic Looks good
     node.as[2][1] += m * (d1[2] - d2[2]);
     node.as[2][2] += 2.0 * m * d1[1] * d2[1];
     node.as[3][1] += m * (d1[3] - 3.0 * d1[1] * d2[2]);
@@ -172,12 +172,7 @@ inline void GravityTree::ComputeMoments(Node &node) {
         m * (d1[6] - 15.0 * d1[4] * d2[2] + 15.0 * d1[2] * d2[4] - d2[6]);
     node.as[6][2] +=
         m * (6.0 * d1[5] * d2[1] - 20.0 * d1[3] * d2[3] + 6.0 * d1[1] * d2[5]);
-
   }
-  for (size_t i = 2; i < 7; i++) {
-    std::cout << "a" << i << "1=" << node.as[i][1] << " a" << i << "2=" << node.as[i][2] << " ";
-  }
-  std::cout << std::endl;
 }
 
 inline void GravityTree::DeflectNode(const Node &node, const double *ray,
@@ -203,7 +198,7 @@ inline void GravityTree::DeflectNode(const Node &node, const double *ray,
   bs[2][1] = x1[3] - 3.0 * x1[1] * x2[2];
   bs[2][2] = 3.0 * x1[2] * x2[1] - x2[2];
   bs[3][1] = x1[4] - 6.0 * x1[2] * x2[2] + x2[4];
-  bs[3][2] = 4.0 * x1[3] * x2[1] - 4 * x1[2] * x2[2];
+  bs[3][2] = 4.0 * x1[3] * x2[1] - 4.0 * x1[2] * x2[2];
   bs[4][1] = x1[5] - 10.0 * x1[3] * x2[2] + 5.0 * x1[1] * x2[4];
   bs[4][2] = 5.0 * x1[4] * x2[1] - 10.0 * x1[2] * x2[3] + x2[5];
   bs[5][1] = x1[6] - 15.0 * x1[4] * x2[2] + 15.0 * x1[2] * x2[4] - x2[6];
@@ -213,11 +208,6 @@ inline void GravityTree::DeflectNode(const Node &node, const double *ray,
   bs[6][2] =
       7.0 * x1[6] * x2[1] - 35.0 * x1[4] * x2[3] + 21.0 * x1[2] * x2[5] - x2[7];
 
-  for (size_t i = 0; i < 7; i++) {
-    std::cout << "b" << i << "1=" << bs[i][1] << " b" << i << "2=" << bs[i][2] << " ";
-  }
-  std::cout << std::endl;
-
   double r[15];
   r[0] = sqrt(x1[1] * x1[1] + x2[1] * x2[1]);
   r[1] = r[0];
@@ -226,17 +216,17 @@ inline void GravityTree::DeflectNode(const Node &node, const double *ray,
   }
 
   // Add Monopole
-  out[0] = node.com_m * x1[1] / r[2];
-  out[1] = node.com_m * x2[1] / r[2];
+  out[0] += node.com_m * x1[1] / r[2];
+  out[1] += node.com_m * x2[1] / r[2];
 
   // Note: Dipole is excluded because the dipole is always zero.
 
   // Poles 4-pole to 64-pole
-  for (int k = 1; k < 7; k++) {
-    out[0] += 1.0 / r[2 * k + 2] *
-              (node.as[k][1] * bs[k][1] + node.as[k][2] * bs[k][2]);
-    out[1] += 1.0 / r[2 * k + 2] *
-              (node.as[k][2] * bs[k][1] - node.as[k][1] * bs[k][2]);
+  for (int k = 2; k < 7; k++) {
+    out[0] +=
+        (node.as[k][1] * bs[k][1] + node.as[k][2] * bs[k][2]) / r[2 * k + 2];
+    out[1] +=
+        (node.as[k][2] * bs[k][1] - node.as[k][1] * bs[k][2]) / r[2 * k + 2];
   }
 }
 
@@ -250,13 +240,11 @@ inline void GravityTree::Swap(size_t i, size_t j) {
 }
 
 inline void GravityTree::CreateTree() {
-  // std::cout << "Creating Tree\n";
   double extrema[4]; // xmin, xmax, ymin, ymax
   extrema[0] = buf_[0];
   extrema[1] = buf_[0];
   extrema[2] = buf_[sz_];
   extrema[3] = buf_[sz_];
-  // std::cout << "Computing Extrema\n";
   for (size_t i = 0; i < sz_; i++) {
     if (buf_[i] < extrema[0]) {
       extrema[0] = buf_[i];
@@ -290,35 +278,21 @@ inline void GravityTree::CreateTree() {
 
   while (!q.empty()) {
     size_t n = q.front();
-    // std::cout << "Queue " << n << "\n";
     const Node node = nodes_[n];
 
     q.pop();
-    // std::cout << "Dims x=" << node.x_min << ", " << node.x_max
-    //           << "; y=" << node.y_min << ", " << node.y_max << "\n";
 
     if (node.end_ind - node.start_ind <= leaf_sz_ ||
         node.start_ind == node.end_ind) {
-      // std::cout << "Node [" << node.start_ind << ", " << node.end_ind
-      //           << ") sufficiently split\n";
       continue;
     }
 
     double vert_split = (node.x_max + node.x_min) / 2.0;
     double horz_split = (node.y_max + node.y_min) / 2.0;
     size_t n_i = nodes_.size();
-    // std::cout << "Partitioning node tb  " << n << "\n";
     size_t tb_indsplit = Partition(node.start_ind, node.end_ind, horz_split, 1);
-    // std::cout << "Partitioning node tlr " << n << "\n";
     size_t tlr_indsplit = Partition(tb_indsplit, node.end_ind, vert_split, 0);
-    // std::cout << "Partitioning node blr " << n << "\n";
     size_t blr_indsplit = Partition(node.start_ind, tb_indsplit, vert_split, 0);
-    // std::cout << "Partitioning [" << node.start_ind << ", " << node.end_ind
-    //           << ") tb " << tb_indsplit << " tlr_indsplit " << tlr_indsplit
-    //           << " blr_indsplit " << blr_indsplit << "\n";
-    // std::cout << "Dims x=" << node.x_min << ", " << vert_split << ", "
-    //           << node.x_max << "; y=" << node.y_min << ", " << horz_split
-    //           << ", " << node.y_max << "\n";
     uint8_t num_children = 0;
 
     // bottom-left
@@ -379,9 +353,6 @@ inline size_t GravityTree::Partition(size_t start_ind, size_t end_ind,
   // use a two pointers algorithm
   size_t p_l = start_ind;
   size_t p_r = end_ind - 1;
-  // std::cout << "Partitioning [" << start_ind << ", " << end_ind << "); split
-  // "
-  // << split << " on axis " << axis << "\n";
   while (p_l <= p_r) {
     if (buf_[axis * sz_ + p_l] <= split) {
       p_l++;
@@ -395,69 +366,54 @@ inline size_t GravityTree::Partition(size_t start_ind, size_t end_ind,
       Swap(p_l, p_r);
     }
   }
-  for (size_t i = start_ind; i < end_ind; i++) {
-    double v = buf_[axis * sz_ + i];
-    if (i < p_l && v > split) {
-      std::cout << "### " << v << " TOO BIG at " << i << " > " << split
-                << " p_l " << p_l << "\n";
-      break;
-    }
-    if (i == p_l && v <= split) {
-      std::cout << "### p_l included\n";
-      break;
-    }
-    if (i > p_l && v <= split) {
-      std::cout << "#### " << v << " TOO SMALL at " << i << " < " << split
-                << " p_l " << p_l << "\n";
-      break;
-    }
-  }
+  // for (size_t i = start_ind; i < end_ind; i++) {
+  //   double v = buf_[axis * sz_ + i];
+  //   if (i < p_l && v > split) {
+  //     std::cout << "### " << v << " TOO BIG at " << i << " > " << split
+  //               << " p_l " << p_l << "\n";
+  //     break;
+  //   }
+  //   if (i == p_l && v <= split) {
+  //     std::cout << "### p_l included\n";
+  //     break;
+  //   }
+  //   if (i > p_l && v <= split) {
+  //     std::cout << "#### " << v << " TOO SMALL at " << i << " < " << split
+  //               << " p_l " << p_l << "\n";
+  //     break;
+  //   }
+  // }
   return p_l;
 }
 
-inline void GravityTree::Deflect(const double *ray, double *out) const {
-  // TODO: Optimize to not require dynamic memory for recursion.
-  std::queue<size_t> q({0});
-  double deflected[2];
-  deflected[0] = 0.0;
-  deflected[1] = 0.0;
-  size_t node_deflects = 0;
-  size_t star_deflects = 0;
-  while (!q.empty()) {
-    size_t n = q.front();
-    q.pop();
+inline size_t GravityTree::DeflectHelper(size_t n, const double *ray,
+                                       double *out) const {
+  const Node &node = nodes_[n];
+  double dx = ray[0] - node.com_x;
+  double dy = ray[1] - node.com_y;
+  double node_span = node.x_max - node.x_min;
+  double erf = 2.0 * node_span * node_span / (dx * dx + dy * dy);
 
-    const Node &node = nodes_[n];
-    double dx = ray[0] - node.com_x;
-    double dy = ray[1] - node.com_y;
-    double node_span = node.x_max - node.x_min;
-    if (node.end_ind == node.start_ind) {
-      continue;
+  if (node.num_children > 0) {
+    size_t num_approximations = 0;
+    for (size_t i = 0; i < node.num_children; i++) {
+      num_approximations += DeflectHelper(node.children + i, ray, out);
     }
-
-    double erf = 2 * node_span * node_span / (dx * dx + dy * dy);
-
-    if (erf < approximation_factor2_) {
-      node_deflects += (node.end_ind - node.start_ind);
-      // std::cout << "Deflecting node" << n << " start_ind=" << node.start_ind
-      //           << ", end_ind=" << node.end_ind << "\n";
-      DeflectNode(node, ray, deflected);
-    } else if (node.num_children > 0) {
-      for (size_t i = 0; i < node.num_children; i++) {
-        q.push(node.children + i);
-      }
-    } else {
-      // Deflect manually
-      star_deflects += (node.end_ind - node.start_ind);
-      // std::cout << "Deflecting stars" << n << " start_ind=" << node.start_ind
-      //           << ", end_ind=" << node.end_ind << "\n";
-      DeflectStars(node, ray, deflected);
-    }
+    return num_approximations;
+  } else if (node.end_ind - node.start_ind < leaf_sz_ / 2 ||
+             erf > approximation_factor2_) {
+    // Deflect manually
+    DeflectStars(node, ray, out);
+  } else {
+    DeflectNode(node, ray, out);
+    return node.end_ind - node.start_ind;
   }
-  std::cout << "node_deflects=" << node_deflects
-            << " star_deflects=" << star_deflects << "\n";
-  out[0] = deflected[0];
-  out[1] = deflected[1];
+  return 0;
+}
+
+inline void GravityTree::Deflect(const double *ray, double *out) const {
+  size_t num_approximated =  DeflectHelper(0, ray, out);
+  // std::cout << "Approximated " << num_approximated << " lenses\n";
 }
 
 inline void GravityTree::DeflectStars(const Node &node, const double *ray,
@@ -477,16 +433,21 @@ inline void GravityTree::DeflectStars(const Node &node, const double *ray,
 void trace_gravity_tree(double *rays, size_t num_rays, double kap, double gam,
                         double *stars, std::size_t num_stars,
                         double approximation_factor) {
+  std::cout << "Building tree\n";
   GravityTree tree(stars, num_stars, approximation_factor);
-  std::cout << "Gravity Tree Created\n";
+  std::cout << "Tree built\n";
   double g_min = 1.0 - gam;
   double g_max = 1.0 + gam;
   for (size_t i = 0; i < num_rays; i++) {
-    std::cout << "Tracing ray " << i << "\n";
+    if (i % 1000 == 0) {
+      std::cout << "Traced " << i << " rays\n";
+    }
     double ray[2];
     double out[2];
     ray[0] = rays[i];
     ray[1] = rays[i + num_rays];
+    out[0] = 0.0;
+    out[1] = 0.0;
     tree.Deflect(ray, out);
     out[0] = g_min * ray[0] - kap * ray[0] - out[0];
     out[1] = g_max * ray[1] - kap * ray[1] - out[1];

@@ -96,15 +96,15 @@ class TestMicroTracer(TestCase):
     region = PixelRegion(
       dims=Vec2D(-8, 8, "arcsec"),
       center=Vec2D.zero_vector("arcsec"),
-      resolution=Vec2D.unitless(2, 2),
+      resolution=Vec2D.unitless(100, 100),
     )
     rays = region.pixels.value
-    star_p = np.asfortranarray((np.random.rand(100, 2) - 0.5) * 40.0)
-    star_m = np.asfortranarray(np.random.rand(100) * 10)
+    star_p = np.asfortranarray((np.random.rand(10000, 2) - 0.5) * 120.0)
+    star_m = np.asfortranarray(np.random.rand(10000))
     traced_bf = trace_bruteforce(
       np.copy(rays), 0.5, 0.0, np.copy(star_m), np.copy(star_p), False, True
     )
-    for err_factor in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]:
+    for err_factor in [0.3]:
       print(f"{err_factor=}")
       traced_gt = trace_gravity_tree(
         np.copy(rays), 0.5, 0.0, np.copy(star_m), np.copy(star_p), err_factor

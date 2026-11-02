@@ -208,9 +208,9 @@ inline void trace_simd(Float *rays_x, Float *rays_y, std::size_t num_rays,
     }
   }
 
-  delete[] stars_x_buf;
-  delete[] stars_y_buf;
-  delete[] stars_m_buf;
+  std::free(stars_x_buf);
+  std::free(stars_y_buf);
+  std::free(stars_m_buf);
 }
 #endif
 

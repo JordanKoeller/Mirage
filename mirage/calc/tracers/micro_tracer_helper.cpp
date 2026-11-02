@@ -11,10 +11,12 @@
             "/home/jkoeller/Tools/pkg/miniconda3/envs/mirage/lib/python3.14/site-packages/numpy/_core/include/numpy/ufuncobject.h"
         ],
         "extra_compile_args": [
-            "--std=c++20"
+            "--std=c++20",
+            "-Ofast"
         ],
         "extra_link_args": [
-            "--std=c++20"
+            "--std=c++20",
+            "-Ofast"
         ],
         "include_dirs": [
             "/home/jkoeller/Tools/pkg/miniconda3/envs/mirage/lib/python3.14/site-packages/numpy/_core/include",

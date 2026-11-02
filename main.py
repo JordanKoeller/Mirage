@@ -5,6 +5,7 @@ import os
 from typing import Literal, Optional
 from functools import cached_property
 import sys
+import traceback
 import time
 
 from mirage.sim import Experiment
@@ -170,7 +171,7 @@ class MirageMain:
       pass
     except Exception as e:
       self.logger.error("Encountered Error!")
-      self.logger.error(str(e))
+      traceback.print_exception(e)
       raise e
     finally:
       serializer.close()

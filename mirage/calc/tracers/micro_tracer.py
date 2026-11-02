@@ -63,8 +63,7 @@ class _CpuTracerFn(_TracerFn):
 
     if self.compute_parity:
       return trace_bruteforce(rays, kap, gam, star_mass, star_pos, True, True)
-    print("Gravity Tracer")
-    return trace_gravity_tree(rays, kap, gam, star_mass, star_pos, 0.8)
+    return trace_gravity_tree(rays, kap, gam, star_mass, star_pos, 0.2)
 
 
 class _CudaTracerFn(_TracerFn):

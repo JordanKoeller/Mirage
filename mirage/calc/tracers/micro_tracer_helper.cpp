@@ -12,11 +12,11 @@
         ],
         "extra_compile_args": [
             "--std=c++20",
-            "-Ofast"
+            "-O3"
         ],
         "extra_link_args": [
             "--std=c++20",
-            "-Ofast"
+            "-O3"
         ],
         "include_dirs": [
             "/home/jkoeller/Tools/pkg/miniconda3/envs/mirage/lib/python3.14/site-packages/numpy/_core/include",

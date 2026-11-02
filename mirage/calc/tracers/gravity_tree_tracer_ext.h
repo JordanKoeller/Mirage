@@ -24,9 +24,8 @@ public:
   // The GravityTree mutates `buf` inplace, and does not take ownership
   // of the data.
   GravityTree(double *buf, size_t size, double approximation_factor)
-      : buf_(buf), sz_(size),
-        approximation_factor2_(approximation_factor * approximation_factor) {
-    CreateTree();
+      : buf_(buf), sz_(size), approximation_factor_(approximation_factor) {
+    BuildTree();
   }
 
   // Deflects a singluar ray through the gravity tray.
@@ -63,7 +62,7 @@ private:
     uint8_t num_children;
   };
 
-  void CreateTree();
+  void BuildTree();
 
   // Computes Center of mass and moments of a node.
   void ComputeMoments(Node &node);
@@ -102,9 +101,9 @@ private:
   // approximating lensing from far buckets.
   //
   // This should be a number between 0 and 1.
-  double approximation_factor2_;
+  double approximation_factor_;
 
-  size_t leaf_sz_ = 16;
+  size_t leaf_sz_ = 32;
   std::vector<Node> nodes_;
 };
 
@@ -239,7 +238,7 @@ inline void GravityTree::Swap(size_t i, size_t j) {
   }
 }
 
-inline void GravityTree::CreateTree() {
+inline void GravityTree::BuildTree() {
   double extrema[4]; // xmin, xmax, ymin, ymax
   extrema[0] = buf_[0];
   extrema[1] = buf_[0];
@@ -276,7 +275,9 @@ inline void GravityTree::CreateTree() {
                         .y_max = cy + span});
   std::queue<size_t> q({0});
 
+  int i = 0;
   while (!q.empty()) {
+
     size_t n = q.front();
     const Node node = nodes_[n];
 
@@ -353,66 +354,97 @@ inline size_t GravityTree::Partition(size_t start_ind, size_t end_ind,
   // use a two pointers algorithm
   size_t p_l = start_ind;
   size_t p_r = end_ind - 1;
+  size_t sz = end_ind - start_ind;
+  if (sz == 0) {
+    return start_ind;
+  }
+  if (sz == 1) {
+    if (buf_[axis * sz_ + start_ind] < split) {
+      return end_ind;
+    }
+    return start_ind;
+  }
+  size_t i = 0;
   while (p_l <= p_r) {
+    if (++i % 100000 == 0) {
+      std::cout << "partition " << i << " Args " << start_ind << " " << end_ind
+                << " p_l " << p_l << " p_r " << p_r << std::endl;
+    }
     if (buf_[axis * sz_ + p_l] <= split) {
+      if (p_l > end_ind - 1) {
+        return end_ind;
+      }
       p_l++;
       continue;
     }
     if (buf_[axis * sz_ + p_r] > split) {
+      if (p_r <= start_ind) {
+        return start_ind;
+      }
       p_r--;
       continue;
     }
     if (buf_[axis * sz_ + p_l] > split) {
       Swap(p_l, p_r);
+      continue;
     }
+    std::cout << "Fallthrough\n";
   }
-  // for (size_t i = start_ind; i < end_ind; i++) {
-  //   double v = buf_[axis * sz_ + i];
-  //   if (i < p_l && v > split) {
-  //     std::cout << "### " << v << " TOO BIG at " << i << " > " << split
-  //               << " p_l " << p_l << "\n";
-  //     break;
-  //   }
-  //   if (i == p_l && v <= split) {
-  //     std::cout << "### p_l included\n";
-  //     break;
-  //   }
-  //   if (i > p_l && v <= split) {
-  //     std::cout << "#### " << v << " TOO SMALL at " << i << " < " << split
-  //               << " p_l " << p_l << "\n";
-  //     break;
-  //   }
-  // }
   return p_l;
 }
 
 inline size_t GravityTree::DeflectHelper(size_t n, const double *ray,
-                                       double *out) const {
+                                         double *out) const {
   const Node &node = nodes_[n];
   double dx = ray[0] - node.com_x;
   double dy = ray[1] - node.com_y;
   double node_span = node.x_max - node.x_min;
-  double erf = 2.0 * node_span * node_span / (dx * dx + dy * dy);
+  double erf = std::abs(node_span) / sqrt(dx * dx + dy * dy);
 
-  if (node.num_children > 0) {
-    size_t num_approximations = 0;
-    for (size_t i = 0; i < node.num_children; i++) {
-      num_approximations += DeflectHelper(node.children + i, ray, out);
-    }
-    return num_approximations;
-  } else if (node.end_ind - node.start_ind < leaf_sz_ / 2 ||
-             erf > approximation_factor2_) {
-    // Deflect manually
+  // Case 1: We are at a small node. It's cheaper to brute-force so do that.
+  if (node.end_ind - node.start_ind < leaf_sz_ / 2) {
     DeflectStars(node, ray, out);
-  } else {
+    return 0;
+  }
+  // Case 2: The error parameter is smaller than threshold, so add the
+  //   approximate deflection.
+  if (erf < approximation_factor_) {
     DeflectNode(node, ray, out);
     return node.end_ind - node.start_ind;
   }
+  // Case 3: The error parameter is large and there are no more children.
+  //   We need to brute-force the stars in the node.
+  if (node.num_children == 0) {
+    DeflectStars(node, ray, out);
+    return 0;
+  }
+
+  // Case 4: Recurse to children
+  size_t num_approximations = 0;
+  for (size_t i = 0; i < node.num_children; i++) {
+    num_approximations += DeflectHelper(node.children + i, ray, out);
+  }
+  return num_approximations;
+
+  // if (node.num_children > 0) {
+  //   size_t num_approximations = 0;
+  //   for (size_t i = 0; i < node.num_children; i++) {
+  //     num_approximations += DeflectHelper(node.children + i, ray, out);
+  //   }
+  //   return num_approximations;
+  // } else if (node.end_ind - node.start_ind < leaf_sz_ / 2 ||
+  //            erf > approximation_factor2_) {
+  //   // Deflect manually
+  //   DeflectStars(node, ray, out);
+  // } else {
+  //   DeflectNode(node, ray, out);
+  //   return node.end_ind - node.start_ind;
+  // }
   return 0;
 }
 
 inline void GravityTree::Deflect(const double *ray, double *out) const {
-  size_t num_approximated =  DeflectHelper(0, ray, out);
+  size_t num_approximated = DeflectHelper(0, ray, out);
   // std::cout << "Approximated " << num_approximated << " lenses\n";
 }
 
@@ -433,15 +465,13 @@ inline void GravityTree::DeflectStars(const Node &node, const double *ray,
 void trace_gravity_tree(double *rays, size_t num_rays, double kap, double gam,
                         double *stars, std::size_t num_stars,
                         double approximation_factor) {
-  std::cout << "Building tree\n";
   GravityTree tree(stars, num_stars, approximation_factor);
-  std::cout << "Tree built\n";
   double g_min = 1.0 - gam;
   double g_max = 1.0 + gam;
   for (size_t i = 0; i < num_rays; i++) {
-    if (i % 1000 == 0) {
-      std::cout << "Traced " << i << " rays\n";
-    }
+    // if (i % 1000 == 0 || i == 0) {
+    //   std::cout << "Traced " << i << " rays\n";
+    // }
     double ray[2];
     double out[2];
     ray[0] = rays[i];

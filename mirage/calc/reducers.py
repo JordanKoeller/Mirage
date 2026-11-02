@@ -177,7 +177,7 @@ class MagnificationMapReducer(Reducer):
   def magnitudes(self) -> np.ndarray:
     if self.output is None:
       raise ValueError("Cannot compute magnitudes for empty reducer")
-    return magnitudes(self.output, self.unlensed_pixel_count).value
+    return magnitudes(self.output, self.unlensed_pixel_count)
 
   def slice(
     self, start: Vec2D | Index2D, end: Vec2D | Index2D

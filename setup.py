@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 MVSC_FLAGS = ["/std:c++20"]
 
-GCC_FLAGS = ["--std=c++20", "-Ofast"]
+GCC_FLAGS = ["--std=c++20", "-O3"]
 
 
 def _get_compiler_flags() -> list[str]:
